@@ -1,12 +1,12 @@
-=== Download Manager ===
+=== WordPress Download Manager ===
 Contributors: Shaon
 Donate link: 
-Tags: files, downloads, downloadables, download manager, file manager, download monitor, download counter, password protection, downlad tracker, download protection, ad, admin, administration, ads, adsense, advertising, affiliate, AJAX, amazon, analytics, anti-spam, api, archive, atom, audio, authentication, author, automatic, blog, blogroll, book, bookmark, bookmarking, bookmarks, buddypress, button, calendar, captcha, categories, category, cms, code, comment, comments, community, contact, content, counter, CSS, custom, dashboard, database, date, del.icio.us, Digg, ecommerce, edit, editor, email, embed, event, events, excerpt, Facebook, feed, feeds, filter, flash, flickr, form, Formatting, free, gallery, google, html, image, images, integration, iphone, javascript, jquery, language, lightbox, Like, link, links, list, login, mail, manage, maps, media, menu, meta, mobile, mp3, multisite, music, myspace, navigation, network, News, nofollow, notification, page, pages, password, paypal, performance, permalink, photo, photos, php, picture, pictures, plugin, plugins, Post, posts, profile, quotes, random, Reddit, redirect, register, registration, related, rss, scroll, search, security, seo, Share, sharing, shortcode, sidebar, simple, slideshow, social, social, bookmarking, spam, statistics, stats, Style, tag, tags, template, text, theme, themes, thumbnail, time, TinyMCE, title, tracking, tweet, twitter, update, upload, url, user, users, video, widget, widgets, wordpress, wpmu, xml, yahoo, youtube
+Tags: files, downloads, downloadables, download manager, file manager, download monitor, download counter, password protection, downlad tracker, download protection
 Requires at least: 2.0.2
-Tested up to: 3.3
+Tested up to: 3.3.2
 License: GPLv2 or later
  
-
+  
  
 WordPress Download Manager plugin will help you to manage, track and control file downloads from your wordpress site.
    
@@ -16,29 +16,29 @@ WordPress Download Manager plugin will help you to manage, track and control fil
 WordPress Download Manager plugin will help you to manage, track and control file downloads from your wordpress site. You can set password and set access level any of your downloadable files from your wordpress site.
 You can add/embed downloadable files anywhere in the post just pasting the embed code inside your post content using WordPress Download Manager.
 
-`v2.1.2 comes with new shortcode [wpdm_hotlink id=file_id_required link_label=any_text_optional], 
-use the short-code to place direct download link to files without showing popup
-also enabled 1 click download for files without password`
+`v2.3.x ! Yes, its totally redesigned to give you better experience`
 
 = Features =
 *	Control who can access to download
 *	Password protection
 *	Download Counter
-*	control who can user this plugin (author, editor, administrator)
+*	Control who can user this plugin (author, editor, administrator)
 *	Custom download link icon
 *	Custom link label
-*	shortcode for download link
-*	jquery popup for download page
+*	Shortcode for download link
+*	Shortcode for direct link to downloadable file [wpdm_hotlink id=file_id_required link_label=any_text_optional]
+*	New templates for file links
+*	WP Thickbox popup for download page
 *	Tinymce button for short-code embed
 *	Widget for new downloads
 *	Multi-level Categories
 *	Custom TinyMce Button
 *	Category embed short-code
 *	Advanced server file browser
+*	Complete category and file tree using a simple short-code [wpdm_tree]
 *	"Download Monitor" to "Download Manager" files Importer 
 
-= Discussion forum for Download Manager =
-`http://www.wpdownloadmanager.com/forum/?vasthtmlaction=viewforum&f=2.0`
+ 
 
 = My other plugins =
 `http://wordpress.org/extend/plugins/profile/codename065` 
@@ -51,18 +51,64 @@ also enabled 1 click download for files without password`
 2. Activate the plugin through the 'Plugins' menu in WordPress
 
 
-== Frequently Asked Questions ==
-
 
 == Screenshots ==
 1. Create new download package
 2. Manage download packages
 3. Categories
+4. Frton-end link template preview
+5. Full tree view of categories and files with a simple short-code [wpdm_tree]
 
 == Changelog ==
 
+= 2.3.0 = 
+* Fixed category pagination issue
+* Fixed category count issue
+* Fixed 'facebook' css class issue
+* Fixed file delete option
+
+= 2.2.9 =
+* Added new short-code [wpdm_tree] to show all files and categories in tree format
+* Fixed image issue with file description
+* Fixed subcategory edit issue
+
+= 2.2.8 =
+* Fixed a minor database issue with file list
+
+= 2.2.7 =
+* Fixed server file browser issue
+
+= 2.2.6 =
+* Adjusted enqueue script issue
+
+= 2.2.5 =
+* Fixed compatibility issue with wordpress 3.4
+
+= 2.2.4 =
+* Fixed empty category name issue
+* Added new option to delete all category
+* Fixed delete category issue
+
+= 2.2.3 =
+* Fixed category page security issue
+
+= 2.2.2 =
+* setHtaccess funtion error fixed
+* optimized front-end css
+* additional button template added
+
+= 2.2.1 =
+* adjusted issue with template selection in tinymce popup
+* hyperlink issue with description fixed
+* adjusted css styling issue
+
+= 2.2.0 =
+* New templates for file links
+* WP Thickbox popup for download page
+* Upgraded tiny-mce butotn
+
 = 2.1.3 =
-* fixed tinymce button and editor issue
+* update short-code from {filelink=fileid} to [file id=fileid]. also support for old styles shortcode exists.
 
 = 2.1.2 =
 * fixed download issues with 2.1.1
@@ -198,9 +244,3 @@ also enabled 1 click download for files without password`
 * Fixed security bug with direct download protection
 
 
-== Arbitrary section ==
-N/A
-
-== A brief Markdown Example ==
-
-== Upgrade Notice ==

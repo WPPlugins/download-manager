@@ -1,6 +1,6 @@
 <?php
 global $wpdb;
-$dl = (int)$_REQUEST['download'];
+$dl = isset($_REQUEST['download'])?(int)$_REQUEST['download']:0;
 if($dl>0){
     $data = $wpdb->get_row("select * from ahm_files where id='$dl'",ARRAY_A);
     if($data['access']=='member'&&!is_user_logged_in()){
@@ -26,7 +26,7 @@ form{text-align:center;}
 
 if($data){
     
-    echo "<div style='min-weight:300px;min-height:200px;padding:30px;background:#fff;color:#000'><h1><nobr>$data[title]</nobr></h1><br/><p style='height:100px;overflow:auto;'>$data[description]</p>";
+    echo "<div style='min-weight:300px;min-height:200px;padding:30px;background:#fff;color:#000'><h1><nobr>$data[title]</nobr></h1><br/><p>".stripcslashes($data[description])."</p>";
         /*
         if($_POST&&$data[password]==''){
         echo "<script>

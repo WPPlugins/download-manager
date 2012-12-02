@@ -2,30 +2,25 @@
 global $wpdb;
 $limit = 10;
  
-$start = $_GET['paged']?(($_GET['paged']-1)*$limit):0;
-$res = mysql_query("select * from ahm_files limit $start, $limit");
+$start = isset($_GET['paged'])?(($_GET['paged']-1)*$limit):0;
+$res = $wpdb->get_results("select * from ahm_files limit $start, $limit",ARRAY_A);
  
-$row = mysql_fetch_assoc(mysql_query("select count(*) as total from ahm_files"));
+$row = $wpdb->get_row("select count(*) as total from ahm_files",ARRAY_A);
 
 ?>
-<style>
-.wrap *{
-    font-family: Tahoma;
-    letter-spacing: 1px;
-}
-</style>
+ 
 
 <div class="wrap">
     <div class="icon32" id="icon-upload"><br></div>
     
 <h2>Manage Files 
 <a class="button add-new-h2" href="admin.php?page=file-manager/add-new-file">Add New</a> 
-<a class="button add-new-h2" href="admin.php?page=file-manager&task=wpdm_import_download_monitor">Import Files from Download Monitor</a> 
+<a class="button add-new-h2" href="admin.php?page=file-manager&task=wpdm_import_download_monitor">Import Files from Download Monitor</a> <br />
+<div class="updated" style="padding:5px 10px;color:#008000;font-weight:bold;">
+ <a style="color: #3399ff;" href="http://www.wpdownloadmanager.com/?ref=wpadmin&domain=<?php echo $_SERVER['HTTP_HOST']; ?>" target="_blank">Get download manager premium version now! only @ 45.00 $ </a> | 
+ <a style="color: #3399ff;" href="http://www.wpdownloadmanager.com/?ref=wpadmin&domain=<?php echo $_SERVER['HTTP_HOST']; ?>#features" target="_blank">Checkout the features here</a>
+</div> 
 </h2>
-<div class="updated" style="padding:5px 10px;position: absolute;color:#008000;font-weight:bold;margin:-35px 0 0 550px">
- <a style="color: #3399ff;" href="http://www.wpdownloadmanager.com/download/" target="_blank">Get download manager premium version now! only @ 30.00 $ </a> | 
- <a style="color: #3399ff;" href="http://www.wpdownloadmanager.com/features/" target="_blank">Checkout the features here</a>
- </div> 
  <i><b style="font-family:Georgia">Simply Copy and Paste the embed code at anywhere in post contents</b></i><br><br>
 
  
@@ -79,7 +74,7 @@ $row = mysql_fetch_assoc(mysql_query("select count(*) as total from ahm_files"))
     </tfoot>
 
     <tbody class="list:post" id="the-list">
-    <?php while($media = mysql_fetch_assoc($res)) { 
+    <?php foreach($res as $media) { 
         
             switch(end(explode(".",$media[file]))){
                 case 'jpg':  case 'png':  case 'bmp':   case 'gif': 
@@ -107,9 +102,9 @@ $row = mysql_fetch_assoc(mysql_query("select count(*) as total from ahm_files"))
                     </a>
                 </td>
                 <td class="media column-media">
-                    <strong><a title="Edit" href="admin.php?page=file-manager&task=wpdm_edit_file&id=<?php echo $media['id']?>"><?php echo $media['title']?></a></strong> | Embed Code: <input style="text-align:center" type="text" onclick="this.select()" size="20" title="Simply Copy and Paste in post contents" value="{filelink=<?php echo $media['id'];?>}" /><br>
+                    <strong><a title="Edit" href="admin.php?page=file-manager&task=wpdm_edit_file&id=<?php echo $media['id']?>"><?php echo $media['title']?></a></strong> | Embed Code: <input style="text-align:center" type="text" onclick="this.select()" size="20" title="Simply Copy and Paste in post contents" value="[wpdm_file id=<?php echo $media['id'];?>]" /><br>
                     <code>File: <?php echo $media['file']; ?></code><Br>
-                    <?php echo $media['description']?>
+                     
                     <div class="row-actions"><span class="edit"><a href="admin.php?page=file-manager&task=wpdm_edit_file&id=<?php echo $media['id']?>">Edit</a> | </span><span class="delete"><a href="admin.php?page=file-manager&task=wpdm_delete_file&id=<?php echo $media['id']?>" onclick="return showNotice.warn();" class="submitdelete">Delete Permanently</a></div>
                 </td>
                 <td class="author column-author"><?php echo $media['password']; ?></td>

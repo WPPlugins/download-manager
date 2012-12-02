@@ -22,7 +22,7 @@ function wpdm_tinyplugin_register($plugin_array)
 
 function wpdm_free_tinymce(){
     global $wpdb;
-    if($_GET['wpdm_action']!='wpdm_tinymce_button') return false;
+    if(!isset($_GET['wpdm_action'])||$_GET['wpdm_action']!='wpdm_tinymce_button') return false;
     ?>
 <html>
 <head>
@@ -63,8 +63,24 @@ fieldset{padding: 10px;}
 </style> 
 </head>
 <body>    <br>
+<fieldset><legend>Embed File</legend> 
+<input type="checkbox" id="title" value="1"> <label for="title">Show Title</label> 
+<input type="checkbox" id="desc" value="1"> <label for="desc">Show Description</label> <br/>
+Template: <select id="template">
+<option value="">None</option>
+<option value="facebook">Facebook</option>
+<option value="bluebox">Blue Box</option> 
+</select>
+<br />
+Drop Shadow Effect: <select id="shadow">
+<option value="">None</option>
+<option value="drop-shadow raised">Raised</option>
+<option value="drop-shadow lifted">Lifted</option>
+<option value="drop-shadow curved curved-hz-2">Curved</option>
+</select>
+<br/>
+<br/>
 
-<fieldset><legend>Embed File</legend>
     <select class="button input" id="fl">
     <?php
     $res = $wpdb->get_results("select * from ahm_files", ARRAY_A); 
@@ -78,7 +94,7 @@ fieldset{padding: 10px;}
         
     }
 ?>
-    </select>
+    </select>    
     <input type="submit" id="addtopost" class="button button-primary" name="addtopost" value="Insert into post" />
 </fieldset>   <br>
 <fieldset><legend>Embed Category</legend>
@@ -90,18 +106,27 @@ fieldset{padding: 10px;}
     <input type="submit" id="addtopostc" class="button button-primary" name="addtopost" value="Insert into post" />
 </fieldset>
 
+
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
 <script type="text/javascript" src="<?php echo home_url('/wp-includes/js/tinymce/tiny_mce_popup.js'); ?>"></script>
                 <script type="text/javascript">
                     /* <![CDATA[ */                    
+                    var title ='', desc = '';
                     jQuery('#addtopost').click(function(){
-                    var win = window.dialogArguments || opener || parent || top;                
-                    win.send_to_editor('{filelink='+$('#fl').val()+'}');
+                    var win = window.dialogArguments || opener || parent || top;                     
+                    if(jQuery('#title').attr("checked")==true) title = ' title="true" ';
+                    if(jQuery('#desc').attr("checked")==true) desc = ' desc="true" ';  
+                    var shadow = jQuery('#shadow').val();  
+                    var template = ' template="'+jQuery('#template').val()+' '+shadow+'" ';
+                    if(jQuery('#template').val()=='') template = "";
+                    win.send_to_editor('[wpdm_file id='+$('#fl').val()+title+desc+template+']');
                     tinyMCEPopup.close();
                     return false;                   
                     });
-                    jQuery('#addtopostc').click(function(){
+                    jQuery('#addtopostc').click(function(){              
                     var win = window.dialogArguments || opener || parent || top;                
+                    if(jQuery('#title').attr("checked")==true) title = ' title="true" ';
+                    if(jQuery('#desc').attr("checked")==true) desc = ' desc="true" ';
                     win.send_to_editor('{wpdm_category='+jQuery('#flc').val()+'}');
                     tinyMCEPopup.close();
                     return false;                   

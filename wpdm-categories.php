@@ -1,8 +1,5 @@
  <style>
-.wrap *{
-    font-family: Tahoma;
-    letter-spacing: 1px;
-}
+
 
 input[type=text],textarea{
     width:500px;
@@ -64,7 +61,9 @@ input{
      </tr>
      <?php wpdm_render_cats($id,$level+1);}}}}}wpdm_render_cats(); ?>
     </tbody>
-</table>
+</table><br>
+
+<a href="#" class="button" onclick="return wpdm_deleteallcats();">Delete All Categories</a>
 </div>
 <div style="margin-left:10px;float: right;width:45%;margin-top:-70px">
 <form action="" method="post">  
@@ -88,12 +87,13 @@ input{
     [download_count] downloads
                 
 </div>';
+$cid = stripslashes($_GET['cid']);
 ?> 
     
     <tbody class="list:post" id="the-list">    
     <tr valign="top" class="alternate author-self status-inherit" id="post-8">
                 <td class="author column-author">
-                <input style="" type="hidden" name="cid" value="<?php echo $_GET[cid]?$_GET[cid]:''; ?>">
+                <input style="" type="hidden" name="cid" value="<?php echo $cat?$cid:''; ?>">
                 Title:<br>
                 <input type="text" style="width: 99%;font-size: 14pt" name="cat[title]" value="<?php echo htmlspecialchars($cat[title]); ?>">
                 Description:
@@ -120,6 +120,14 @@ input{
 </div>
 <script language="JavaScript">
 <!--
+  jQuery('.<?php echo $cid;?>').attr('disabled','disabled');
+  
+  function wpdm_deleteallcats(){
+      if(!confirm('Are you sure?')) return false;
+      location.href='admin.php?page=file-manager/categories&task=delete-all';
+  }
+  <?php if($_GET['cid']!=''): ?>
   jQuery('.<?php echo $_GET['cid'];?>').attr('disabled','disabled');
+  <?php endif; ?>
 //-->
 </script>
