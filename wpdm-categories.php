@@ -22,7 +22,7 @@ input{
     <th style="" class="manage-column column-cb check-column" id="cb" scope="col"><input type="checkbox"></th>
   
     <th style="" class="manage-column column-media" id="media" scope="col">Category</th>    
-     
+    <th style="" class="manage-column column-media" id="media" scope="col">Shortcode</th>        
        
     </tr>
     </thead>
@@ -32,11 +32,12 @@ input{
     <th style="" class="manage-column column-cb check-column" id="cb" scope="col"><input type="checkbox"></th>
  
     <th style="" class="manage-column column-media" id="media" scope="col">Category</th>       
+    <th style="" class="manage-column column-media" id="media" scope="col">Shortcode</th>       
     </tr>
     </tfoot>
 
     <tbody class="list:post" id="the-list">
-    <?php 
+    <?php
     function wpdm_render_cats($parent="",$level=0){
     if($categories = maybe_unserialize(get_option("_fm_categories",true))){    
     if(is_array($categories)){
@@ -52,7 +53,10 @@ input{
                     <a title="Edit" href="admin.php?page=file-manager/categories&task=EditCategory&cid=<?php echo $id; ?>">
                     <b><?php echo $pres.' '.$category['title']?></b>
                     </a> 
-                    <div class="row-actions"><span class="edit"><a href="admin.php?page=file-manager/categories&task=EditCategory&cid=<?php echo $id; ?>">Edit</a> | </span><span class="delete"><a href="admin.php?page=file-manager/categories&task=DeleteCategory&cid=<?php echo $id?>" onclick="return showNotice.warn();" class="submitdelete">Delete Permanently</a> | <input type="text" title="copy the code and place it anywhere inside your post or page" value="{wpdm_category=<?php echo $id; ?>}" readonly=readonly onclick="this.select()"  style="width:180px;font-size: 10px;" /></div>                    
+                    <div class="row-actions"><div class="button-group"><a class="button" href="admin.php?page=file-manager/categories&task=EditCategory&cid=<?php echo $id; ?>">Edit</a><a href="admin.php?page=file-manager/categories&task=DeleteCategory&cid=<?php echo $id?>" onclick="return showNotice.warn();" class="button submitdelete" style="color: #aa0000">Delete Permanently</a></div></div>                    
+                </td>
+                <td>
+                <input type="text" title="copy the code and place it anywhere inside your post or page" value="[wpdm_category id=<?php echo $id; ?> order_field=id order=desc]" readonly=readonly onclick="this.select()"  style="width:180px;font-size: 10px;" />
                 </td>
                  
                 
@@ -91,7 +95,7 @@ $cid = stripslashes($_GET['cid']);
 ?> 
     
     <tbody class="list:post" id="the-list">    
-    <tr valign="top" class="alternate author-self status-inherit" id="post-8">
+    <tr valign="top">
                 <td class="author column-author">
                 <input style="" type="hidden" name="cid" value="<?php echo $cat?$cid:''; ?>">
                 Title:<br>
@@ -121,6 +125,10 @@ $cid = stripslashes($_GET['cid']);
 <script language="JavaScript">
 <!--
   jQuery('.<?php echo $cid;?>').attr('disabled','disabled');
+  
+  jQuery(function(){
+      jQuery('select').chosen();
+  });
   
   function wpdm_deleteallcats(){
       if(!confirm('Are you sure?')) return false;

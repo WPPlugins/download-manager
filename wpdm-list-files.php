@@ -1,11 +1,20 @@
 <?php
+if(!defined('ABSPATH')) die('Direct Access is not Allowed!'); 
 global $wpdb;
 $limit = 10;
+
+$cond = '';
+$s = isset($_GET['s'])?explode(" ",$_GET['s']):array();
+foreach($s as $p){
+    $cond[] = "title like '%".mysql_escape_string($p)."%'";
+    
+}
+if(isset($_GET['s'])) $cond = "where ".implode(" or ", $cond);
  
 $start = isset($_GET['paged'])?(($_GET['paged']-1)*$limit):0;
-$res = $wpdb->get_results("select * from ahm_files limit $start, $limit",ARRAY_A);
+$res = $wpdb->get_results("select * from ahm_files $cond order by id desc limit $start, $limit",ARRAY_A);
  
-$row = $wpdb->get_row("select count(*) as total from ahm_files",ARRAY_A);
+$row = $wpdb->get_row("select count(*) as total from ahm_files $cond",ARRAY_A);
 
 ?>
  
@@ -14,35 +23,42 @@ $row = $wpdb->get_row("select count(*) as total from ahm_files",ARRAY_A);
     <div class="icon32" id="icon-upload"><br></div>
     
 <h2>Manage Files 
-<a class="button add-new-h2" href="admin.php?page=file-manager/add-new-file">Add New</a> 
-<a class="button add-new-h2" href="admin.php?page=file-manager&task=wpdm_import_download_monitor">Import Files from Download Monitor</a> <br />
-<div class="updated" style="padding:5px 10px;color:#008000;font-weight:bold;">
- <a style="color: #3399ff;" href="http://www.wpdownloadmanager.com/?ref=wpadmin&domain=<?php echo $_SERVER['HTTP_HOST']; ?>" target="_blank">Get download manager premium version now! only @ 45.00 $ </a> | 
- <a style="color: #3399ff;" href="http://www.wpdownloadmanager.com/?ref=wpadmin&domain=<?php echo $_SERVER['HTTP_HOST']; ?>#features" target="_blank">Checkout the features here</a>
-</div> 
-</h2>
+<a class="button button-secondary add-new-h2" href="admin.php?page=file-manager/add-new-file">Add New</a> 
+<a class="button button-secondary  add-new-h2" href="admin.php?page=file-manager&task=wpdm_import_download_monitor">Import from Download Monitor</a>
+<a class="button  add-new-h2" style="font-weight: bold" href="http://wordpress.org/support/view/plugin-reviews/download-manager">A 5&#9733; rating will inspire me a lot :)</a>
+<br />
+ 
+</h2> 
+<div class="updated" style="padding:5px 10px;color:#fff;font-weight:bold;background: #6F9348; border: 0px;padding:8px 20px;font-size:10pt;font-style: italic;">
+ <a style="color: #fff;font-family: 'Verdana'" href="http://www.wpdownloadmanager.com/?affid=admin&domain=<?php echo $_SERVER['HTTP_HOST']; ?>" target="_blank">Get download manager premium version now! </a> /
+ <a style="color: #fff;font-family: 'Verdana'" href="http://www.wpdownloadmanager.com/?affid=admin&domain=<?php echo $_SERVER['HTTP_HOST']; ?>#features" target="_blank">Checkout the features here</a>
+ </div>
  <i><b style="font-family:Georgia">Simply Copy and Paste the embed code at anywhere in post contents</b></i><br><br>
 
  
  
  
-
+<div style="position: absolute;right:10px;margin-top: 5px;">
+<form action="" method="get">
+ <input type="hidden" name="page" value="file-manager" />
+ <input type="text" name="s" id="s" value="<?php echo isset($_GET['s'])?$_GET['s']:''; ?>" />
+ <input type="submit" class="button-primary action" id="doaction" name="doaction" value="Search">
+ </form>
+</div>
            
 <form method="get" action="" id="posts-filter">
 <div class="tablenav">
 
 <div class="alignleft actions">
 <select class="select-action" name="task">
-<option selected="selected" value="">Bulk Actions</option>
+<option selected="selected" value="-1">Bulk Actions</option>
 <option value="DeleteFile">Delete Permanently</option>
 </select>
+
 <input type="submit" class="button-secondary action" id="doaction" name="doaction" value="Apply">
  
-  
-
 
 </div>
-
 <br class="clear">
 </div>
 
@@ -76,7 +92,7 @@ $row = $wpdb->get_row("select count(*) as total from ahm_files",ARRAY_A);
     <tbody class="list:post" id="the-list">
     <?php foreach($res as $media) { 
         
-            switch(end(explode(".",$media[file]))){
+            switch(end(explode(".",$media['file']))){
                 case 'jpg':  case 'png':  case 'bmp':   case 'gif': 
                     $icon = 'img.png';
                 break;
@@ -85,7 +101,7 @@ $row = $wpdb->get_row("select count(*) as total from ahm_files",ARRAY_A);
                 case 'zip':  $icon = 'zip.png';  break;
                 
                 default:
-                $icon = end(explode(".",$media[file])).'.png';  
+                $icon = end(explode(".",$media['file'])).'.png';  
                 break;
                 
                 
@@ -102,10 +118,10 @@ $row = $wpdb->get_row("select count(*) as total from ahm_files",ARRAY_A);
                     </a>
                 </td>
                 <td class="media column-media">
-                    <strong><a title="Edit" href="admin.php?page=file-manager&task=wpdm_edit_file&id=<?php echo $media['id']?>"><?php echo $media['title']?></a></strong> | Embed Code: <input style="text-align:center" type="text" onclick="this.select()" size="20" title="Simply Copy and Paste in post contents" value="[wpdm_file id=<?php echo $media['id'];?>]" /><br>
+                    <strong><a title="Edit" href="admin.php?page=file-manager&task=wpdm_edit_file&id=<?php echo $media['id']?>"><?php echo stripslashes($media['title'])?></a></strong> <input style="text-align:center" type="text" onclick="this.select()" size="20" title="Simply Copy and Paste in post contents" value="[wpdm_file id=<?php echo $media['id'];?>]" /><br>
                     <code>File: <?php echo $media['file']; ?></code><Br>
                      
-                    <div class="row-actions"><span class="edit"><a href="admin.php?page=file-manager&task=wpdm_edit_file&id=<?php echo $media['id']?>">Edit</a> | </span><span class="delete"><a href="admin.php?page=file-manager&task=wpdm_delete_file&id=<?php echo $media['id']?>" onclick="return showNotice.warn();" class="submitdelete">Delete Permanently</a></div>
+                    <div class="row-actions"><div class="button-group"><a class="button" href="admin.php?page=file-manager&task=wpdm_edit_file&id=<?php echo $media['id']?>">Edit</a><a href="admin.php?page=file-manager&task=wpdm_delete_file&id=<?php echo $media['id']?>" onclick="return showNotice.warn();" class="button submitdelete" style="color: #aa0000;">Delete Permanently</a></div></div>
                 </td>
                 <td class="author column-author"><?php echo $media['password']; ?></td>
                 <td class="parent column-parent"><?php echo $media['access']; ?></td>
@@ -118,13 +134,15 @@ $row = $wpdb->get_row("select count(*) as total from ahm_files",ARRAY_A);
 </table>
 
 <?php
+$paged = isset($_GET['paged']) ?$_GET['paged'] :1;
+
 $page_links = paginate_links( array(
     'base' => add_query_arg( 'paged', '%#%' ),
     'format' => '',
     'prev_text' => __('&laquo;'),
     'next_text' => __('&raquo;'),
-    'total' => ceil($row[total]/$limit),
-    'current' => $_GET['paged']
+    'total' => ceil($row['total']/$limit),
+    'current' => $paged
 ));
 
 
@@ -134,11 +152,14 @@ $page_links = paginate_links( array(
 
 <div class="tablenav">
 
-<?php if ( $page_links ) { ?>
+<?php 
+if ( $page_links ) { 
+                
+    ?>
 <div class="tablenav-pages"><?php $page_links_text = sprintf( '<span class="displaying-num">' . __( 'Displaying %s&#8211;%s of %s' ) . '</span>%s',
-    number_format_i18n( ( $_GET['paged'] - 1 ) * $limit + 1 ),
-    number_format_i18n( min( $_GET['paged'] * $limit, $row[total] ) ),
-    number_format_i18n( $row[total] ),
+    number_format_i18n( ( $paged - 1 ) * $limit + 1 ),
+    number_format_i18n( min( $paged * $limit, $row['total'] ) ),
+    number_format_i18n( $row['total'] ),
     $page_links
 ); echo $page_links_text; ?></div>
 <?php } ?>
@@ -154,28 +175,7 @@ $page_links = paginate_links( array(
 
 <br class="clear">
 </div>
-    <div style="display: none;" class="find-box" id="find-posts">
-        <div class="find-box-head" id="find-posts-head">Find Posts or Pages</div>
-        <div class="find-box-inside">
-            <div class="find-box-search">
-                
-                <input type="hidden" value="" id="affected" name="affected">
-                <input type="hidden" value="3a4edcbda3" name="_ajax_nonce" id="_ajax_nonce">                <label for="find-posts-input" class="screen-reader-text">Search</label>
-                <input type="text" value="" name="ps" id="find-posts-input">
-                <input type="button" class="button" value="Search" onclick="findPosts.send();"><br>
-
-                <input type="radio" value="posts" checked="checked" id="find-posts-posts" name="find-posts-what">
-                <label for="find-posts-posts">Posts</label>
-                <input type="radio" value="pages" id="find-posts-pages" name="find-posts-what">
-                <label for="find-posts-pages">Pages</label>
-            </div>
-            <div id="find-posts-response"></div>
-        </div>
-        <div class="find-box-buttons">
-            <input type="button" value="Close" onclick="findPosts.close();" class="button alignleft">
-            <input type="submit" value="Select" class="button-primary alignright" id="find-posts-submit">
-        </div>
-    </div>
+   
 </form>
 <br class="clear">
 
