@@ -3,7 +3,7 @@ Contributors: codename065, shahriar0822
 Donate link: 
 Tags: file management plugin, downloads, document management plugin, download manager, file manager, download monitor, download counter, password protection, download tracker, download protection
 Requires at least: 3.4
-Tested up to: 3.8
+Tested up to: 3.9
 License: GPLv2 or later
  
   
@@ -14,8 +14,6 @@ This is a Files and Document Management plugin which will help you to manage, tr
 == Description ==
 WordPress Download Manager is a Files and Document Management plugin for your WordPress Site. WordPress Download Manager plugin will help you to manage, track and control file downloads from your WordPress site. You can set password and set access level any of your downloadable files from your WordPress site.
 You can add/embed downloadable files anywhere in the post just pasting the embed code inside your post content using WordPress Download Manager.
-
-`"Download Monitor" to "Download Manager" Files Importer Integrated. Import all download monitor files in a single click`
 
 = Features =
 *	Drag and Drop File Upload
@@ -62,6 +60,22 @@ You can add/embed downloadable files anywhere in the post just pasting the embed
 8. Create a new download package quickly from popup
 
 == Changelog ==
+
+= 2.6.2 =
+* Fixed an issue with categroy short-code pagination
+
+= 2.6.1 =
+* Compatibility release for WordPress 3.9
+
+= 2.6.0 =
+* Added new option for setting up server file browser base dir.
+
+= 2.5.99 =
+* Fixed issue with multiple package delete
+* Fixed issue with show/hide counter
+
+= 2.5.98 =
+* added "items_per_page" parameter with category short-code
 
 = 2.5.97 =
 * Updates file missing code

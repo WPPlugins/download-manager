@@ -4,7 +4,7 @@ Plugin Name: Download Manager
 Plugin URI: http://www.wpdownloadmanager.com/
 Description: Manage, track and control file download from your wordpress site
 Author: Shaon
-Version: 2.5.97
+Version: 2.6.2
 Author URI: http://www.wpdownloadmanager.com/
 */
 
@@ -65,7 +65,13 @@ function wpdm_free_install(){
       if(!in_array('icon',$fields))
       $wpdb->query("ALTER TABLE `ahm_files` ADD `icon` VARCHAR( 255 ) NOT NULL");
       
-   update_option('wpdm_access_level','publish_posts');
+    update_option('wpdm_access_level','publish_posts');
+    delete_option('wpdm_first_install');
+    $tf = $wpdb->get_var("select count(*) from `ahm_files`");
+   if($tf==0){
+       update_option('wpdm_install_time',time());
+       update_option('wpdm_first_install',1);
+   }
    wpdm_create_dir();
       
 }
@@ -425,18 +431,19 @@ function wpdm_admin_options(){
 
 function wpdm_delete_file(){
     global $wpdb;
-    if(is_array($_GET[id])){
-        foreach($_GET[id] as $id){
+    if(isset($_GET['task']) && $_GET['task'] == 'DeleteFile' && is_admin()){
+    if(is_array($_GET['id'])){
+        foreach($_GET['id'] as $id){
             $qry[] = "id='".(int)$id."'";
         }
-        $cond = implode(" and ", $qry);
+        $cond = implode(" or ", $qry);
     } else
-    $cond = "id='".(int)$_GET[id]."'";
+    $cond = "id='".(int)$_GET['id']."'";
+     
     $wpdb->query("delete from ahm_files where ". $cond);
-    echo "<script>
-        location.href='admin.php?page=file-manager';
-        </script>";
+    wp_redirect('admin.php?page=file-manager');
     die();
+    }
 }
 
 function wpdm_create_dir(){
@@ -464,6 +471,8 @@ function wpdm_settings(){
         update_option('wpdm_access_level',$_POST['access']);
         update_option('wpdm_login_msg',$_POST['wpdm_login_msg']);
         update_option('wpdm_show_cinfo',$_POST['wpdm_show_cinfo']);
+        update_option('_wpdm_file_browser_root',$_POST['_wpdm_file_browser_root']);
+        
     }
     if(is_uploaded_file($_FILES['icon']['tmp_name'])){
         ///print_r(dirname(__FILE__).'/icon/download.png');
@@ -479,9 +488,8 @@ function wpdm_add_new_file(){
     
     if(isset($_POST['file'])){
     extract($_POST);
-     
-                      
-        $file['show_counter'] = 0;
+            
+        $file['show_counter'] = isset($file['show_counter'])?$file['show_counter']:0;
         $file['quota'] = $file['quota']?$file['quota']:0;
         $file['category'] = serialize($file['category']);        
         $wpdb->insert("ahm_files", $file); 
@@ -658,21 +666,21 @@ function wpdm_embed_category_sc($params){
     $order = isset($order) && $order!="" ? $order: "desc";
 
     $order_query = isset($order_field) && $order_field != '' ? "order by $order_field $order" : "order by id DESC";
-    $total = $wpdb->get_var("select count(*) from ahm_files where category like '%\"$id\"% $order_query'");
+    $total = $wpdb->get_var("select count(*) from ahm_files where category like '%\"$id\"%'");
 
-    $item_per_page =  10;
-    $pages = ceil($total/$item_per_page);
+    $items_per_page =  isset($items_per_page)?$items_per_page:10;
+    $pages = ceil($total/$items_per_page);
     $page = $_GET['cp']?$_GET['cp']:1;
-    $start = ($page-1)*$item_per_page;
+    $start = ($page-1)*$items_per_page;
     $pag = new wpdmpagination();
     $pag->items($total);
-    $pag->limit($item_per_page);
+    $pag->limit($items_per_page);
     $pag->currentPage($page);
     $plink = $url = preg_replace("/[\?|\&]+cp=[0-9]+/","",$_SERVER['REQUEST_URI']);
     $url = strpos($url,'?')?$url.'&':$url.'?';
     $pag->urlTemplate($url."cp=[%PAGENO%]");
 
-    $ndata = $wpdb->get_results("select * from ahm_files where category like '%\"$id\"%' $order_query limit $start, $item_per_page",ARRAY_A);
+    $ndata = $wpdb->get_results("select * from ahm_files where category like '%\"$id\"%' $order_query limit $start, $items_per_page",ARRAY_A);
 
 
 
@@ -918,7 +926,7 @@ function wpdm_save_file(){
        if($_POST['wpdmtask']=='create'){
             extract($_POST);
                           
-            $file['show_counter'] = 0;
+            $file['show_counter'] = isset($file['show_counter'])?$file['show_counter']:0;
             $file['quota'] = $file['quota']?$file['quota']:0;
             $file['category'] = serialize($file['category']);  
             $file['title'] = esc_attr($file['title']);
@@ -960,6 +968,7 @@ function wpdm_delete__file(){
   die('ok');
 }
 
+ 
 
 function wpdm_help(){
     ?>
@@ -1011,6 +1020,7 @@ function wpdm_enque_scripts(){
 
 add_action("admin_menu","wpdm_menu");
 add_action("init","delete_all_cats");
+add_action("init","wpdm_delete_file");
 
 add_action('admin_enqueue_scripts','wpdm_admin_enque_scripts');
 add_action('wp_enqueue_scripts','wpdm_enque_scripts');
