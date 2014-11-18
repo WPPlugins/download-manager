@@ -28,16 +28,29 @@ $row = $wpdb->get_row("select count(*) as total from ahm_files $cond",ARRAY_A);
 <a class="button  add-new-h2" style="font-weight: bold" href="http://wordpress.org/support/view/plugin-reviews/download-manager">A 5&#9733; rating will inspire me a lot :)</a>
 <br />
  
-</h2> 
-<div class="updated" style="padding:5px 10px;color:#fff;font-weight:bold;background: #6F9348; border: 0px;padding:8px 20px;font-size:10pt;font-style: italic;">
- <a style="color: #fff;font-family: 'Verdana'" href="http://www.wpdownloadmanager.com/?affid=admin&domain=<?php echo $_SERVER['HTTP_HOST']; ?>" target="_blank">Get download manager premium version now! </a> /
- <a style="color: #fff;font-family: 'Verdana'" href="http://www.wpdownloadmanager.com/?affid=admin&domain=<?php echo $_SERVER['HTTP_HOST']; ?>#features" target="_blank">Checkout the features here</a>
- </div>
- <i><b style="font-family:Georgia">Simply Copy and Paste the embed code at anywhere in post contents</b></i><br><br>
+</h2>
+    <div style="border-radius: 3px;border: 2px solid #1E8CBE" class="updated">
+        <p>
+            <em><b>Download Manager Pro!</b><br>Social Locks/Share, Build a Shop or Even a Marketplace, Multi-Level Marketing Add-on to Boost Sales and many more... </em>
 
+            <a target="_blank" href="http://www.wpdownloadmanager.com/?affid=admin&domain=<?php echo $_SERVER['HTTP_HOST']; ?>" class="button button-primary button-hero" style="float:right;margin-top: -23px;margin-right: -6px;border: 0 none;border-radius: 2px;box-shadow: none;">Checkout The Features Here →</a>
+        </p>
+    </div>
+
+<?php if(get_option('hide_wpdm270n',0)==0){ ?>
+    <div style="border-radius: 3px;border: 2px solid #D54E21;padding:12px" class="updated" id="wpdm270n">
+        <em><b>WordPress Download Manager 2.7</b><a href="#" style="float: right;font-size: 16pt;color: #880000" onclick="return _close_notice('#wpdm270n')">&times;</a><br/>
+    Custom Post Type version is available now, you can download <strong><a href="http://www.wpdownloadmanager.com/download/wordpress-download-manager-v2-7-0/">WPDM v2.7.0 here</a></strong>. This new version will be available at wp.org soon.
+    </em>
+</div>
  
- 
- 
+ <script>
+     function _close_notice(id){
+        jQuery(id).fadeOut();
+        jQuery.post('admin-ajax.php?action=hide_wpdm270n');
+     }
+ </script>
+<?php } ?>
 <div style="position: absolute;right:10px;margin-top: 5px;">
 <form action="" method="get">
  <input type="hidden" name="page" value="file-manager" />
@@ -91,8 +104,8 @@ $row = $wpdb->get_row("select count(*) as total from ahm_files $cond",ARRAY_A);
 
     <tbody class="list:post" id="the-list">
     <?php foreach($res as $media) { 
-        
-            switch(end(explode(".",$media['file']))){
+            $tmp = explode(".",$media['file']);
+            switch(end($tmp)){
                 case 'jpg':  case 'png':  case 'bmp':   case 'gif': 
                     $icon = 'img.png';
                 break;
@@ -101,7 +114,7 @@ $row = $wpdb->get_row("select count(*) as total from ahm_files $cond",ARRAY_A);
                 case 'zip':  $icon = 'zip.png';  break;
                 
                 default:
-                $icon = end(explode(".",$media['file'])).'.png';  
+                $icon = end($tmp).'.png';
                 break;
                 
                 
@@ -121,7 +134,7 @@ $row = $wpdb->get_row("select count(*) as total from ahm_files $cond",ARRAY_A);
                     <strong><a title="Edit" href="admin.php?page=file-manager&task=wpdm_edit_file&id=<?php echo $media['id']?>"><?php echo stripslashes($media['title'])?></a></strong> <input style="text-align:center" type="text" onclick="this.select()" size="20" title="Simply Copy and Paste in post contents" value="[wpdm_file id=<?php echo $media['id'];?>]" /><br>
                     <code>File: <?php echo $media['file']; ?></code><Br>
                      
-                    <div class="row-actions"><div class="button-group"><a class="button" href="admin.php?page=file-manager&task=wpdm_edit_file&id=<?php echo $media['id']?>">Edit</a><a href="admin.php?page=file-manager&task=wpdm_delete_file&id=<?php echo $media['id']?>" onclick="return showNotice.warn();" class="button submitdelete" style="color: #aa0000;">Delete Permanently</a></div></div>
+                    <div class="row-actions"><div class="button-group"><a class="button" href="admin.php?page=file-manager&task=wpdm_edit_file&id=<?php echo $media['id']?>">Edit</a><a href="admin.php?page=file-manager&task=DeleteFile&id=<?php echo $media['id']?>" onclick="return showNotice.warn();" class="button submitdelete" style="color: #aa0000;">Delete Permanently</a></div></div>
                 </td>
                 <td class="author column-author"><?php echo $media['password']; ?></td>
                 <td class="parent column-parent"><?php echo $media['access']; ?></td>

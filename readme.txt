@@ -3,16 +3,16 @@ Contributors: codename065, shahriar0822
 Donate link: 
 Tags: file management plugin, downloads, document management plugin, download manager, file manager, download monitor, download counter, password protection, download tracker, download protection
 Requires at least: 3.4
-Tested up to: 3.9
+Tested up to: 4.0
 License: GPLv2 or later
  
   
  
-This is a Files and Document Management plugin which will help you to manage, track and control file downloads from your WordPress site.
+This is a Files and Documents Management plugin which will help you to manage, track and control file downloads from your WordPress site.
    
 
 == Description ==
-WordPress Download Manager is a Files and Document Management plugin for your WordPress Site. WordPress Download Manager plugin will help you to manage, track and control file downloads from your WordPress site. You can set password and set access level any of your downloadable files from your WordPress site.
+WordPress Download Manager is a Files and Documents Management plugin for your WordPress Site. WordPress Download Manager plugin will help you to manage, track and control file downloads from your WordPress site. You can set password and set access level any of your downloadable files from your WordPress site.
 You can add/embed downloadable files anywhere in the post just pasting the embed code inside your post content using WordPress Download Manager.
 
 = Features =
@@ -61,8 +61,55 @@ You can add/embed downloadable files anywhere in the post just pasting the embed
 
 == Changelog ==
 
+= 2.6.96 =
+* Upgraded server file browser option to control access
+* Fixed minor issues
+
+= 2.6.95 =
+* Fixed a few notices in add new file page
+* Fixed issue with output buffering
+
+= 2.6.94 =
+* Upgraded tinymce button add-on
+* Fixed some notices
+
+= 2.6.93 =
+* Fixed security issue with update file
+* Fixed security issue with delete file
+
+= 2.6.92 =
+* Compatibility release for WordPress 4
+
+= 2.6.91 =
+* Compatibility release for WordPress 3.9.2
+* adjusted a minor issue with download url
+* Fixed 3 minor issues from add new file window
+
+= 2.6.9 =
+* Adjusted a string formatting issue in edit file window
+* adjusted download url, trimmed "="
+
+= 2.6.8 =
+* Adjusted some notices and deprecated functions
+
+= 2.6.7 =
+* Security bug fixed
+* Fixed an output buffering issue
+
+= 2.6.6 =
+* Adjusted some minor issues from previous version
+
+= 2.6.5 =
+* Added new option to control tinymce button visibility
+
+= 2.6.4 =
+* Fixed issue with quick add window
+
+= 2.6.3 =
+* Fixed issue with delete single item
+
 = 2.6.2 =
-* Fixed an issue with categroy short-code pagination
+* Fixed an issue with category short-code pagination
 
 = 2.6.1 =
 * Compatibility release for WordPress 3.9

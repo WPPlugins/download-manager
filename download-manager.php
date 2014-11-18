@@ -2,9 +2,9 @@
 /*
 Plugin Name: Download Manager
 Plugin URI: http://www.wpdownloadmanager.com/
-Description: Manage, track and control file download from your wordpress site
+Description: Manage, track and control file download from your WordPress site
 Author: Shaon
-Version: 2.6.2
+Version: 2.6.96
 Author URI: http://www.wpdownloadmanager.com/
 */
 
@@ -67,6 +67,7 @@ function wpdm_free_install(){
       
     update_option('wpdm_access_level','publish_posts');
     delete_option('wpdm_first_install');
+    delete_option('hide_wpdm270n');
     $tf = $wpdb->get_var("select count(*) from `ahm_files`");
    if($tf==0){
        update_option('wpdm_install_time',time());
@@ -149,8 +150,7 @@ function wpdm_all_packages($params = array()){
      global $wpdb, $current_user;          
      ob_start();
      include("wpdm-all-downloads.php");
-     $data = ob_get_contents();
-     ob_clean();  
+     $data = ob_get_clean();      
      return $data;
      }   
 
@@ -402,8 +402,10 @@ if(!isset($_GET['task'])||$_GET['task']!='wpdm_tree')     return;
 
 function wpdm_admin_options(){
     
-    if(!file_exists(UPLOAD_DIR)&&$_GET[task]!='wpdm_create_dir'){
-        
+    if(!file_exists(UPLOAD_DIR) && isset($_GET['task']) && $_GET['task']=='wpdm_create_dir') wpdm_create_dir();
+
+    if(!file_exists(UPLOAD_DIR) && isset($_GET['task']) && $_GET['task']!='wpdm_create_dir'){
+
         echo "    
         <div id=\"warning\" class=\"error fade\"><p>
         Automatic dir creation failed! [ <a href='admin.php?page=file-manager&task=CreateDir&re=1'>Try again to create dir automatically</a> ]<br><br>
@@ -418,20 +420,21 @@ function wpdm_admin_options(){
         </div>
         ";
     }
-    
-    
+
+
+
     if(!file_exists(UPLOAD_DIR.'.htaccess'))
     wpdm_set_htaccess();
-    
-    if(isset($_GET['task'])&&$_GET['task']!=''&&function_exists($_GET['task']))
-    return call_user_func($_GET['task']);        
+    //if(isset($_GET['task'])) die($_GET['task']);
+    if(isset($_GET['task'])&&$_GET['task']=='wpdm_edit_file')
+    return wpdm_edit_file();
     else
     include('wpdm-list-files.php');
 }
 
 function wpdm_delete_file(){
     global $wpdb;
-    if(isset($_GET['task']) && $_GET['task'] == 'DeleteFile' && is_admin()){
+    if(isset($_GET['task']) && $_GET['task'] == 'DeleteFile' && current_user_can('edit_posts')){
     if(is_array($_GET['id'])){
         foreach($_GET['id'] as $id){
             $qry[] = "id='".(int)$id."'";
@@ -468,18 +471,22 @@ function wpdm_create_dir(){
 function wpdm_settings(){
     if(isset($_POST['access'])){
        
+        update_option('wpdm_edtbtn',$_POST['edtbtn']);
         update_option('wpdm_access_level',$_POST['access']);
         update_option('wpdm_login_msg',$_POST['wpdm_login_msg']);
         update_option('wpdm_show_cinfo',$_POST['wpdm_show_cinfo']);
+        update_option('server_file_browser',$_POST['server_file_browser']);
         update_option('_wpdm_file_browser_root',$_POST['_wpdm_file_browser_root']);
         
     }
-    if(is_uploaded_file($_FILES['icon']['tmp_name'])){
+    if(isset($_FILES['icon']) && is_uploaded_file($_FILES['icon']['tmp_name'])){
         ///print_r(dirname(__FILE__).'/icon/download.png');
         move_uploaded_file($_FILES['icon']['tmp_name'],dirname(__FILE__).'/icon/download.png');
     }
     $access = get_option('wpdm_access_level');
+    $edtbtn = get_option('wpdm_edtbtn');
     $wpdm_show_cinfo = get_option('wpdm_show_cinfo');
+    $server_file_browser = get_option('server_file_browser',1);
     include('wpdm-settings.php'); 
 }
 
@@ -544,8 +551,8 @@ function wpdm_edit_file(){
 } 
 
 function wpdm_categories(){
-   $cid = addslashes($_GET['cid']); 
-   if($_GET['task']=='DeleteCategory'){
+   $cid = isset($_GET['cid'])?addslashes($_GET['cid']):'';
+   if(isset($_GET['task']) && $_GET['task']=='DeleteCategory'){
         $tpldata = maybe_unserialize(get_option('_fm_categories'));
         unset($tpldata[$cid]);         
         update_option('_fm_categories',@serialize($tpldata)); 
@@ -554,7 +561,7 @@ function wpdm_categories(){
         </script>";   
     die();
     } 
-     if($_POST['cat']){
+     if(isset($_POST['cat'])){
         $tpldata = maybe_unserialize(get_option('_fm_categories'));
         if(!is_array($tpldata)) $tpldata =array();
         $_POST['cat']['title'] = esc_attr($_POST['cat']['title']);
@@ -621,7 +628,7 @@ foreach($ndata as $data){
     $data['page_link'] = "<a class='wpdm-popup' href='{$postlink}{$sap}download={$data['id']}'>$link_label</a>";
     //if($data['password']=='') { $data['page_link'] = "<a href='".home_url('/?wpdmact=process&did='.base64_encode($id.'.hotlink'))."'>{$link_label}</a>"; }
     if($data['password']=='') { 
-        $url = home_url('/?wpdmact=process&did='.base64_encode($data['id'].'.hotlink'));         
+        $url = home_url('/?wpdmact=process&did='.trim(base64_encode($data['id'].'.hotlink'),"="));
         $data['page_link'] = "<a href='{$url}'>$link_label</a>";
     }
     if($data['icon']!='') $bg = "background-image: url(\"".plugins_url()."/download-manager/icon/{$data[icon]}\");"; 
@@ -692,7 +699,7 @@ function wpdm_embed_category_sc($params){
         $data['page_link'] = "<a class='wpdm-popup' href='{$postlink}{$sap}download={$data['id']}'>$link_label</a>";
         //if($data['password']=='') { $data['page_link'] = "<a href='".home_url('/?wpdmact=process&did='.base64_encode($id.'.hotlink'))."'>{$link_label}</a>"; }
         if($data['password']=='') {
-            $url = home_url('/?wpdmact=process&did='.base64_encode($data['id'].'.hotlink'));
+            $url = home_url('/?wpdmact=process&did='.trim(base64_encode($data['id'].'.hotlink'),"="));
             $data['page_link'] = "<a href='{$url}'>$link_label</a>";
         }
         if($data['icon']!='') $bg = "background-image: url(\"".plugins_url()."/download-manager/icon/{$data[icon]}\");";
@@ -901,7 +908,7 @@ function wpdm_hotlink($params){
 }
 
 function delete_all_cats(){
-    if(!isset($_GET['page'])) return;
+    if(!isset($_GET['page']) || !isset($_GET['task'])) return;
     if($_GET['page']=='file-manager/categories'&&$_GET['task']=='delete-all'){
         delete_option('_fm_categories');
         header('location: '.$_SERVER['HTTP_REFERER']);
@@ -911,7 +918,7 @@ function delete_all_cats(){
 
 function wpdm_save_file(){    
        global $wpdb;
-      if(isset($_POST['id'])&&isset($_POST['wpdmtask'])&&$_POST['wpdmtask']=='update'){
+      if(isset($_POST['id'])&&isset($_POST['wpdmtask'])&&$_POST['wpdmtask']=='update' && current_user_can('edit_posts')){
         extract($_POST);
               
              
@@ -956,6 +963,7 @@ function wpdm_check_upload(){
 }
 
 function wpdm_delete__file(){
+  if(current_user_can('edit_posts')){
   global $wpdb;  
   $id = intval($_REQUEST['file']);
   $data = $wpdb->get_row("select * from ahm_files where id='$id'",ARRAY_A);  
@@ -966,6 +974,7 @@ function wpdm_delete__file(){
   unset($data['file']);
   $wpdb->query("update ahm_files set `file`='' where id='$id'");   
   die('ok');
+  }
 }
 
  
@@ -979,9 +988,13 @@ function wpdm_help(){
     If you have anything to ask or if anything not clear please search or ask here:
     <br/>
     <strong><a href="http://www.wpdownloadmanager.com/support/forum/download-manager-free/" target="_blank">http://www.wpdownloadmanager.com/support/forum/download-manager-free/</a></strong>
-    
-     
-    
+<br/>
+<br/>
+        <div class="updated" style="padding: 20px" id="wpdm270n">
+            If you like to move wpdm to custom post type, you can start with <strong><a href="http://www.wpdownloadmanager.com/download/wordpress-download-manager-v2-7-0/">WPDM v2.7.0 here</a></strong>. This new version will be available at wp.org soon.
+
+        </div>
+
     <?php
 }
 
@@ -993,8 +1006,8 @@ function wpdm_menu(){
     add_submenu_page( 'file-manager', 'File Manager', 'Manage', get_option('wpdm_access_level','manage_options'), 'file-manager', 'wpdm_admin_options');    
     add_submenu_page( 'file-manager', 'Add New File &lsaquo; File Manager', 'Add New File', get_option('wpdm_access_level','manage_options'), 'file-manager/add-new-file', 'wpdm_add_new_file');    
     add_submenu_page( 'file-manager', 'Categories &lsaquo; File Manager', 'Categories', get_option('wpdm_access_level','manage_options'), 'file-manager/categories', 'wpdm_categories');        
-    add_submenu_page( 'file-manager', 'Settings &lsaquo; File Manager', 'Settings', get_option('wpdm_access_level','manage_options'), 'file-manager/settings', 'wpdm_settings');    
-    add_submenu_page( 'file-manager', 'Help &lsaquo; File Manager', 'Help', get_option('wpdm_access_level','manage_options'), 'file-manager/help', 'wpdm_help');    
+    add_submenu_page( 'file-manager', 'Settings &lsaquo; File Manager', 'Settings', 'manage_options', 'file-manager/settings', 'wpdm_settings');
+    add_submenu_page( 'file-manager', 'Help &lsaquo; File Manager', 'Help', get_option('wpdm_access_level','manage_options'), 'file-manager/help', 'wpdm_help');
     
 }
 
@@ -1015,6 +1028,11 @@ function wpdm_enque_scripts(){
    wp_enqueue_script('thickbox');  
    wp_enqueue_style('thickbox');  
    wp_enqueue_style('wpdm-front',plugins_url().'/download-manager/css/front.css'); 
+}
+
+function hide_wpdm270n(){
+    update_option("hide_wpdm270n",1);
+    die();
 }
 
 
@@ -1044,7 +1062,8 @@ add_action('init','wpdm_process');
 add_action('wp_ajax_file_upload','wpdm_check_upload');
 add_action('wp_ajax_delete_file','wpdm_delete__file');
 add_action('wp_ajax_save_wpdm_file','wpdm_save_file');
- 
+add_action('wp_ajax_hide_wpdm270n','hide_wpdm270n');
+
 
 add_action("init","wpdm_file_browser");
 add_action("init","wpdm_dir_tree");

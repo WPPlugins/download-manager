@@ -20,7 +20,7 @@ input{
 </style>
  
 <div class="wrap metabox-holder has-right-sidebar">
-<?php if($_GET['task']=='wpdm_edit_file'){ ?>
+<?php if(isset($_GET['task']) && $_GET['task']=='wpdm_edit_file'){ ?>
     <div class="icon32" id="icon-add-new-file"><br></div>
 <h2>Edit Download Package</h2>
 <?php } else { ?>
@@ -31,19 +31,19 @@ input{
 <form id="wpdmpack" action="" method="post">
 <input type="hidden" name="action" value="save_wpdm_file" />
 <input type="hidden" name="wpdmtask" value="<?php echo isset($_GET['task'])&&$_GET['task']=='wpdm_edit_file'?'update':'create';?>" />
-<input type="hidden" name="id" value="<?php echo $file['id']; ?>" />
+<input type="hidden" name="id" value="<?php echo isset($file['id'])?$file['id']:''; ?>" />
 <div  style="width: 75%;float:left;">
     
 <table cellpadding="5" cellspacing="5" width="100%">
 <tr>
 
-    <td><input style="font-size:16pt;width:100%;" placeholder="Enter Title Here"  type="text" value="<?php echo $file['title']?esc_attr($file['title']):""; ?>" name="file[title]" /></td>
+    <td><input style="font-size:16pt;width:100%;" placeholder="Enter Title Here"  type="text" value="<?php echo isset($file['title'])?esc_attr($file['title']):""; ?>" name="file[title]" /></td>
 </tr>
 
 <tr>
 <td valign="top"> 
 <div id="poststuff" class="postarea">
-                <?php $file['description'] = !isset($file['description'])?' ':$file['description']; wp_editor(stripslashes($file['description']),'file[description]','file[description]', true); ?>
+                <?php $file['description'] = !isset($file['description'])?' ':$file['description']; wp_editor(stripslashes($file['description']),'filedescription',array('textarea_name'=>'file[description]')); ?>
                 <?php wp_nonce_field( 'closedpostboxes', 'closedpostboxesnonce', false ); ?>
                 <?php wp_nonce_field( 'meta-box-order', 'meta-box-order-nonce', false ); ?>
                 </div>
@@ -62,7 +62,7 @@ input{
 <table cellpadding="5" id="file_settings_table" cellspacing="0" width="100%" class="frm">
 <tr id="link_label_row">    
 <td width="110px">Link Label:</td>
-<td><input size="10" type="text" style="width: 200px" value="<?php echo $file[link_label]?esc_attr($file['link_label']):'Download'; ?>" name="file[link_label]" />
+<td><input size="10" type="text" style="width: 200px" value="<?php echo isset($file['link_label'])?esc_attr($file['link_label']):'Download'; ?>" name="file[link_label]" />
 </td></tr>
 <tr id="password_row">
 <td>Password:</td>  
@@ -70,7 +70,7 @@ input{
 </tr>
 <tr id="download_limit_row">
 <td>Stock&nbsp;Limit:</td>  
-<td><input size="10" style="width: 80px" type="text" name="file[quota]" value="<?php echo $file['quota']; ?>" /></td>
+<td><input size="10" style="width: 80px" type="text" name="file[quota]" value="<?php echo isset($file['quota'])?$file['quota']:''; ?>" /></td>
 </tr>
  <tr>
 <td>Download Count: </td>
@@ -316,7 +316,7 @@ jQuery('#dcf').click(function(){
  <div class="clear"></div>
 </div>
 </div>
-
+<?php if(get_option('server_file_browser',1)==1){ ?>
 <div class="postbox " id="action">
 <div title="Click to toggle" class="handlediv"><br></div><h3 class="hndle"><span>Add file from server</span></h3>
 <div class="inside">
@@ -330,7 +330,7 @@ jQuery('#dcf').click(function(){
 
 </ul>   <br>
 
-<a href="admin.php?page=file-manager&task=wpdm_file_browser" class="thickbox button-secondary">Open File Browser</a>
+<a title="Server File Browser" href="admin.php?page=file-manager&task=wpdm_file_browser" class="thickbox button-secondary">Open File Browser</a>
 
 
 
@@ -342,7 +342,7 @@ jQuery('#dcf').click(function(){
  <div class="clear"></div>
 </div>
 </div>
-
+<?php } ?>
 
 <!--download icon-->
 
@@ -382,7 +382,7 @@ jQuery('#dcf').click(function(){
 
 
 
-<input style="float: right"  type="reset" value="Reset" tabindex="9" class="button-secondary button button-large" class="add:the-list:newmeta" name="addmeta" id="addmetasub">
+<input style="float: right;width: 90px !important;border: 1px solid #ddd"  type="reset" value="Reset" tabindex="9" class="button-secondary button button-large" name="addmeta" id="addmetasub">
 
 <input type="submit" value="<?php echo $_GET['task']=='wpdm_edit_file'?'Update Package':'Create Package'; ?>" accesskey="p" tabindex="5" id="publish" class="button-primary button button-large" name="publish">
  <div class="clear"></div>
