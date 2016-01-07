@@ -1,46 +1,111 @@
-=== WordPress Download Manager ===
-Contributors: codename065, shahriar0822
+﻿=== WordPress Download Manager ===
+Contributors: codename065, shahriar0822, tauhidul-alam
 Donate link: 
-Tags: file management plugin, downloads, document management plugin, download manager, file manager, download monitor, download counter, password protection, download tracker, download protection
+Tags: digital store, eshop, ecommerce, e-commerce, file management,  document management plugin, download manager, file manager, download monitor, download counter, password protection, download protection
 Requires at least: 3.4
-Tested up to: 4.0
+Tested up to: 4.4
 License: GPLv2 or later
  
   
  
-This is a Files and Documents Management plugin which will help you to manage, track and control file downloads from your WordPress site.
+This File Management & Digital Store plugin which will help you to control file downloads & sell digital products from your WP site.
    
 
 == Description ==
-WordPress Download Manager is a Files and Documents Management plugin for your WordPress Site. WordPress Download Manager plugin will help you to manage, track and control file downloads from your WordPress site. You can set password and set access level any of your downloadable files from your WordPress site.
-You can add/embed downloadable files anywhere in the post just pasting the embed code inside your post content using WordPress Download Manager.
+WordPress Download Manager is a Files / Documents Management Plugin and Complete e-Commerce Solution for selling digital products. WordPress Download Manager plugin will help you to manage, track, control file downloads & sell digital products easily from your WordPress site. Use Password Protection, User Roles Protection to control access to your files. And simply setup prices when you need to sell the digital item. User can directly download free items and when item has a price user will have to go through cart & checkout.
+It has easiest checkout option to give the user better experience in purchasing an item and which always increase the probability of successful completion of an order. As rather than trying to convince customer to buy something, it would be more helpful to think of a cart optimization as an action to remove barrier to that goal.
 
 = Features =
-*	Drag and Drop File Upload
+*	Custom post type and taxonomy
+*       Drag and Drop File Upload
+*   Google Drive support to store your files in Google drive
+*   DropBox support to store your files in DropBox
+*   Box.com support to store your files in Box.com
+*   Option to "Open in Browser" or "Download" files ( PDFs or images )
 *	Control who can access to download
+*       Download Speed Control
 *	Password protection
 *	Download Counter
-*	Control who can user this plugin (author, editor, administrator)
 *	Custom download link icon
 *	File type icon support
-*	DataTable support ( use short-code [wpdm_all_packages] )
+*   Full Featured User Dashboard ( use short-code [wpdm_user_dashboard] )
+*	DataTable support ( use short-code [wpdm-all-packages jstable=1 items_per_page=20] )
 *	Searching and Sorting Option
 *	Custom link label
 *	Short-code for download link
-*	Short-code for direct link to downloadable file [wpdm_hotlink id=file_id_required link_label=any_text_optional]
-*	New templates for file links
-*	WP Thickbox popup for download page
-*	Tinymce button for short-code embed
-*	Widget for new downloads
+*	Short-code for direct link to downloadable file [wpdm_direct_link id=file_id_required link_label=any_text_optional]
+*	Widget for new files
+*	Widget for top downloads
+*	Widget for searching downloads
 *	Multi-level Categories
 *	Custom TinyMce Button
 *	Category embed short-code
 *	Advanced server file browser
 *	Complete category and file tree using a simple short-code [wpdm_tree]
-*	"Download Monitor" to "Download Manager" files Importer 
+*       Translation Ready
 
- 
- 
+= Complete Digital Store Solution: =
+Use [Premium Package – Complete Digital Store Solution](http://www.wpdownloadmanager.com/download/premium-package-complete-digital-store-solution/) Add-on (free) if you need to sell your digital items. The add-on has all features you will ever need to build a perfect online shop for your digital downloads:
+
+*   Single Click Activation ( Auto-install & Activate )
+*   Sale Digital Products Securely
+*   Easy Administration
+*   PayPal Integrated
+*   User-role Based Discount Management
+*   Coupon Management
+*   Sales Tax
+*   Save Cart and Checkout Later
+*   Email Saved Cart
+*   Product & Price variation
+*   Promotional Pricing for Your Digital Products
+*   Invoice Generation
+*   Easiest Checkout System
+*   Guest Checkout
+*   Easy Order Management
+*   Sales Notifications via Email
+*   Sales Notification Directly in Your Mobile with Push Message
+*   Very Detailed Sales Reports
+*   Order Notes & Messaging System
+*   Full-featured Digital Products Marketplace with Front-end product submission & payout management ( This Feature Requires WPDM v4+ )
+*   Product Licensing System
+*   and [many more...](http://www.wpdownloadmanager.com/downloads/ecommerce-add-ons/)
+
+
+= Google Drive =
+Use [Google Drive Explorer](http://www.wpdownloadmanager.com/download/google-drive-explorer/) add-on ( free ) to store your files in google drive and link with download manager, get 15 GB free storage space and save your server bandwidth
+
+= DropBox =
+Use [DropBox Explorer](http://www.wpdownloadmanager.com/download/dropbox-explorer/) add-on ( free ) to store your files in dropbox and link with download manager, get 2 GB free storage space and save your server bandwidth
+
+= Box.com =
+Use [Box.com Explorer](http://www.wpdownloadmanager.com/download/box-com-explorer/) add-on ( free ) to store your files in Box.com and link with download manager, get 10 GB free storage space and save your server bandwidth
+
+
+= Add-ons =
+Download and Install following free add-on to add additional features as per your need
+
+* [Advanced Tiny-Mce Button](http://www.wpdownloadmanager.com/download/advanced-tinymce-button/) for editor button to generate short-codes
+* [Extended Short-codes](http://www.wpdownloadmanager.com/download/wpdm-extended-short-codes/) for tree view ( [wpdm_tree] ), slider ( [wpdm_slider] ) & carousel ( [wpdm_carousel] )
+* [WPDM Button Templates](http://www.wpdownloadmanager.com/download/wpdm-button-templates/) for pre-designed colorful button styles
+* [WPDM Image Button](http://www.wpdownloadmanager.com/download/wpdm-image-button/) to replace download link label with a custom designed image
+
+= Mobile Apps =
+Check download stats and get push notification when someone downloads, install:
+
+* [WPDM API](http://www.wpdownloadmanager.com/download/wpdm-api/) - install this add-on in your site and configure api key
+* [WPDM for Abdroid](http://www.wpdownloadmanager.com/download/wpdm-android/) - Install the app in your android phone
+* [WPDM for iOS](http://www.wpdownloadmanager.com/download/wpdm-ios/) - Check download and sales stats directly from your iPhone or iPad
+
+= Free Themes =
+* [Verse - Theme For Digital Shop](http://www.wpdownloadmanager.com/download/verse-wordpress-theme-for-digital-shop/)
+* [Expo - Specially Optimized for WordPress Download Manager](http://www.wpdownloadmanager.com/download/expo/)
+* [WPDM 2015](http://www.wpdownloadmanager.com/download/wpdm-twenty-fifteen/)  - Twenty Fifteen Child Theme for WordPress Download Manager
+
+= More Themes & Add-ons =
+* [Add-ons](http://www.wpdownloadmanager.com/downloads/add-ons/) - 50+ add-ons
+* [Themes](http://www.wpdownloadmanager.com/downloads/themes-2/) - Themes Specially Optimized for Download Manager
+
+
 == Installation ==
 
 
@@ -50,16 +115,167 @@ You can add/embed downloadable files anywhere in the post just pasting the embed
 
 
 == Screenshots ==
-1. Create new download package
-2. Manage download packages
-3. Categories
-4. Front-end link template preview
-5. Full tree view of categories and files with a simple short-code [wpdm_tree]
-6. Sortable and Searchable Download List , use short-code [wpdm_all_packages] to embed the list
-7. Insert short-code
-8. Create a new download package quickly from popup
+1. Create New  
+2. Front-end link template preview
+3. Full tree view of categories and files with a simple short-code [wpdm_tree]
+4. Sortable and Searchable Download List , use short-code [wpdm_all_packages] to embed the list
+5. Settings Page
+6. Front-end preview for category short-code
+7. Password Protection
+8. User Dashboard Login
+9. User Dashboard
+10. Orders Page ( Admin )
+11. Order Details ( Admin )
+12. Invoice
 
 == Changelog ==
+
+= 2.8.3 =
+* Fixed issue with tree view, added missing functions
+* Compatibility released for WordPress v4.4
+* Enabled category page
+* Activated all features for Premium Package ( Guest Order, Guest Download, Order Notes, Save & Email Cart )
+
+= 2.8.2 =
+* Added category widget
+* Updated link template "Default Template (Extended)"  to show file description
+* Updated recommended download section in user dashboard
+* Fixed critical issue with URL rewrite for user dashboard
+* Fixed issue with icons
+* Fixed alt tag issue with icons and thumbnail
+
+= 2.8.1 =
+* Added new option to enable/disable font awesome
+* Optimized user dashboard
+* Added missing file type icons
+
+= 2.8.0 =
+* Fixed issue with file attachment
+* Added New Short-code User Dashboard
+* Added Download History Page
+
+= 2.7.96 =
+* WordPress v4.3 compatibility release
+* Added missing hook in basic settings section
+
+= 2.7.95 =
+* Added new option for sanitizing file names to avoid illegal chars
+* Fixed issue with open with browser option
+* Fixed issue with file type icons selection for all files short-code
+* Fixed issue with order expiration check
+* Fixed issue with purchased items access at front-end
+* Added new option to recalculate total sales of a product
+
+= 2.7.94 =
+* Fixed an issue with shop activation
+* Added missing strings in language file
+* Updated datatable js
+
+= 2.7.93 =
+* Fixed login issue with order page
+
+= 2.7.92 =
+* Fixed security issue with dir file browser
+
+= 2.7.91 =
+
+* Added "Open in Browser" option
+* Removed apache_setenv function
+* Fixed with issue with CURLOPT_FOLLOWLOCATION
+* Added one click digital store activation option
+
+= 2.7.90 =
+* Fixed an issue with settings api
+* Added support to selling downloads
+
+= 2.7.89 =
+* Added Box.com Support
+* Fixed icon selection issue
+
+= 2.7.88 =
+* Improved icon option
+* Added dropbox support
+* Improved google drive file attachment option
+
+= 2.7.87 =
+* Fixed issue with output buffering option
+* Fixed issue with broken pdf download ( was only happening in few installations )
+* Fixed issue with Google Drive file attachment
+* Fixed issue with Google Drive file download
+
+= 2.7.86 =
+* Fixed issue with password locked files for double link in same page
+* Added new option for disabling output buffering, no more broken downloads
+* Google Drive support to store your files in Google drive
+
+= 2.7.85 =
+* Added new option to reset file browser base dir
+* Added new widget for searching downloads
+* Adjusted some css to resolve conflict with some themes
+
+= 2.7.84 =
+* Added upload restriction unwanted file types for better security
+
+= 2.7.83 =
+* Added update check option for add-ons
+* Optimized for iOS app ( iOS app is available now )
+* Updated font awesome
+* Updated api for settings fields
+
+
+= 2.7.82 =
+* Updated download speed option
+* Regrouped settings page
+* Updated missing text in po file
+
+= 2.7.81 =
+* WordPress v4.1 compatibility release
+
+= 2.7.8 =
+* Fixed issue with resumable download option
+* Added missing string in .po file
+* Fixed issue with bootstrap settings selection
+* Added items per page option with all downloads table
+
+= 2.7.7 =
+* Fixed data table issue
+* Fixed wpdm_hotlink short-code issue
+* Fixed issue with login require message
+
+= 2.7.6 =
+* Added new option to control server file browser access
+* Fixed issue with cookie ( removed cookie usage totally )
+
+= 2.7.5 =
+* Fixed a security issue
+* Optimized inline js code to avoid conflict
+* Fixed download link for members only files
+* Added add-ons menu
+
+= 2.7.4 =
+* Fixed issue with icon view
+* Fixed issue with db table checking for old version compatibility
+* Optimized link template css to resolve some theme conflict
+
+= 2.7.3 =
+* Added missing template for category short-code
+
+= 2.7.2 =
+* Updated Add-on Installer
+* Re-added widgets
+* New Link template added
+
+= 2.7.1 =
+* Fixed jquery issue
+* Added 3 link templates
+* Upgraded category short-code view
+
+= 2.7.0 =
+* Moved to Custom Post Type
+* Upgraded Access setting to allow role based access
+* Added support for add-on usage
+* More extensive SEO support
+* Translation Ready
 
 = 2.6.96 =
 * Upgraded server file browser option to control access
