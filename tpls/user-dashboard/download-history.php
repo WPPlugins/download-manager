@@ -1,18 +1,21 @@
+<?php
+if (!defined('ABSPATH')) die();
+?>
 <div class="panel panel-default dashboard-panel">
     <div class="panel-heading">Download History</div>
     <table class="table">
         <thead>
         <tr>
-            <th><?php _e('Package Name','wpdmpro'); ?></th>
-            <th><?php _e('Download Time','wpdmpro'); ?></th>
-            <th><?php _e('IP','wpdmpro'); ?></th>
+            <th><?php _e('Package Name','download-manager'); ?></th>
+            <th><?php _e('Download Time','download-manager'); ?></th>
+            <th><?php _e('IP','download-manager'); ?></th>
         </tr>
         </thead>
         <tbody>
         <?php
         global $wp_rewrite, $wp_query;
         $items_per_page = 30;
-        $start = isset($_GET['pgd'])?($_GET['pgd']-1)*$items_per_page:0;
+        $start = isset($_GET['pgd'])?((int)$_GET['pgd']-1)*$items_per_page:0;
         $res = $wpdb->get_results("select p.post_title,s.* from {$wpdb->prefix}posts p, {$wpdb->prefix}ahm_download_stats s where s.uid = '{$current_user->ID}' and s.pid = p.ID order by `timestamp` desc limit $start, $items_per_page");
         foreach($res as $stat){
             ?>
@@ -30,7 +33,7 @@
     <div class="panel-footer">
         <?php
 
-            isset($_GET['pgd']) && $_GET['pgd'] > 1 ? $current = $_GET['pgd'] : $current = 1;
+            isset($_GET['pgd']) && $_GET['pgd'] > 1 ? $current = (int)$_GET['pgd'] : $current = 1;
             $pagination = array(
                 'base' => @add_query_arg('pgd','%#%'),
                 'format' => '',
