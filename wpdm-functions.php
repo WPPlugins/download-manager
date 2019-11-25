@@ -458,13 +458,15 @@ function wpdm_package_size($id){
  */
 function wpdm_file_size($file){
     if(file_exists($file))
-        $size = filesize($file);
+        $_size = filesize($file);
     else if(file_exists(UPLOAD_DIR.$file))
-        $size = filesize(UPLOAD_DIR.$file);
-    else $size = 0;
-    $size = $size / 1024;
+        $_size = filesize(UPLOAD_DIR.$file);
+    else $_size = 0;
+    $size = $_size / 1024;
     if ($size > 1024) $size = number_format($size / 1024, 2) . ' MB';
     else $size = number_format($size, 2) . ' KB';
+    if($size === '0.00 KB')
+        $size = $_size." bytes";
     return $size;
 }
 
@@ -480,6 +482,41 @@ function wpdm_package_filetypes($id, $img = true){
 
     return \WPDM\Package::fileTypes($id, $img);
 
+}
+
+/**
+ * Get post excerpt
+ * @param $post
+ * @param int $length
+ * @param bool $word_break
+ * @param string $continue
+ * @return string
+ */
+function wpdm_get_excerpt($post, $length = 100, $word_break = false, $continue = "..."){
+    $post = is_object($post) ? $post : get_post($post);
+    if(!is_object($post)) return '';
+    $excerpt = get_the_excerpt($post);
+    if(!$excerpt) $excerpt = $post->post_content;
+    $excerpt = strip_tags($excerpt);
+    $excerpt = substr(trim($excerpt), 0, $length);
+    if(!$word_break) {
+        $excerpt = explode(" ", $excerpt);
+        array_pop($excerpt);
+        $excerpt = implode(" ", $excerpt);
+    }
+    return $excerpt.$continue;
+}
+
+
+/**
+ * @usage Escape script tag
+ * @param $html
+ * @return null|string|string[]
+ */
+function wpdm_escs($html){
+    $html =  preg_replace('#<script(.*?)>(.*?)</script>#is', '', $html);
+    $html = stripslashes_deep($html);
+    return $html;
 }
 
 
@@ -502,85 +539,12 @@ function wpdm_query_var($var, $params = array())
     $validate = is_string($params) ? $params : '';
     $validate = is_array($params) && isset($params['validate']) ? $params['validate'] : $validate;
 
-    if(is_array($val)){
-        foreach ($val as $key => &$value){
-            $vld = is_array($validate) && isset($validate[$key]) ? $validate[$key] : $validate;
-            switch ($vld) {
-                case 'int':
-                case 'num':
-                    $value = (int)($value);
-                    break;
-                case 'double':
-                case 'float':
-                    $value = (double)($value);
-                    break;
-                case 'txt':
-                    $value = sanitize_text_field($value);
-                    break;
-                case 'txts':
-                    $value = sanitize_textarea_field($value);
-                    break;
-                case 'url':
-                    $value = esc_url($value);
-                    break;
-                case 'noscript':
-                case 'escs':
-                    $value = wpdm_escs($value);
-                    break;
-                case 'html':
-
-                    break;
-                default:
-                    $value = esc_sql(esc_attr($value));
-                    break;
-            }
-        }
-        return $val;
-    }
-
-    switch ($validate) {
-        case 'int':
-        case 'num':
-            $val = (int)($val);
-            break;
-        case 'double':
-        case 'float':
-            $val = (double)($val);
-            break;
-        case 'txt':
-            $val = sanitize_text_field($val);
-            break;
-        case 'txts':
-            $val = sanitize_textarea_field($val);
-            break;
-        case 'url':
-            $val = esc_url($val);
-            break;
-        case 'noscript':
-        case 'escs':
-            $val = wpdm_escs($val);
-            break;
-        case 'html':
-
-            break;
-        default:
-            $val = esc_sql(esc_attr($val));
-            break;
-    }
+    if(!is_array($val))
+        $val = wpdm_sanitize_var($val, $validate);
+    else
+        $val = wpdm_sanitize_array($val, $validate);
 
     return $val;
-}
-
-
-/**
- * @usage Escape script tag
- * @param $html
- * @return null|string|string[]
- */
-function wpdm_escs($html){
-    $html =  preg_replace('#<script(.*?)>(.*?)</script>#is', '', $html);
-    $html = stripslashes_deep($html);
-    return $html;
 }
 
 /**
@@ -588,19 +552,14 @@ function wpdm_escs($html){
  * @param $array
  * @return mixed
  */
-function wpdm_sanitize_array($array, $kses = true){
-    $allowed_html = wp_kses_allowed_html();
-    if(!is_array($array)) {
-        $array = strstr($array, "\n") || $kses?wp_kses($array, $allowed_html):esc_attr($array);
-        $array = wpdm_escs($array);
-        return $array;
-    }
+function wpdm_sanitize_array($array, $sanitize = 'kses'){
+    if(!is_array($array)) return esc_attr($array);
     foreach ($array as $key => &$value){
+        $validate = is_array($sanitize) && isset($sanitize[$key]) ? $sanitize[$key] : $sanitize;
         if(is_array($value))
-            wpdm_sanitize_array($value, $kses);
+            wpdm_sanitize_array($value, $validate);
         else {
-            $value = strstr($value, "\n") || $kses?wp_kses($value, $allowed_html):esc_attr($value);
-            $value = wpdm_escs($value);
+            $value = wpdm_sanitize_var($value, $validate);
         }
         $array[$key] = &$value;
     }
@@ -614,15 +573,16 @@ function wpdm_sanitize_array($array, $kses = true){
  */
 function wpdm_sanitize_var($value, $sanitize = 'kses'){
     if(is_array($value))
-        return wpdm_sanitize_array($value);
+        return wpdm_sanitize_array($value, $sanitize);
     else {
         switch ($sanitize){
             case 'int':
-                $value = (int)$value;
+            case 'num':
+                return (int)$value;
                 break;
             case 'double':
             case 'float':
-                $value = (double)($value);
+                return (double)($value);
                 break;
             case 'txt':
                 $value = esc_attr($value);
@@ -632,12 +592,34 @@ function wpdm_sanitize_var($value, $sanitize = 'kses'){
                 break;
             case 'serverpath':
                 $value = realpath($value);
+                $value = str_replace("\\", "/", $value);
+                break;
+            case 'txts':
+                $value = sanitize_textarea_field($value);
+                break;
+            case 'url':
+                $value = esc_url($value);
+                break;
+            case 'noscript':
+            case 'escs':
+                $value = wpdm_escs($value);
+                break;
+            case 'filename':
+                $value = mb_ereg_replace("([^\w\s\d\-_~,;\[\]\(\).])", '_', $value);
+                $value = mb_ereg_replace("([\.]+)", '_', $value);
+                break;
+            case 'html':
+
+                break;
+            default:
+                $value = esc_sql(esc_attr($value));
                 break;
         }
         $value = wpdm_escs($value);
     }
     return $value;
 }
+
 
 
 
@@ -1241,7 +1223,7 @@ function wpdm_array_splice_assoc(&$input, $offset, $length, $replacement) {
  * WPDM add-on installer
  */
 function wpdm_install_addon(){
-    if(isset($_REQUEST['addon']) && current_user_can(WPDM_ADMIN_CAP) && wp_verify_nonce($_REQUEST['__wpdmpinn'], $_REQUEST['addon'].NONCE_KEY)){
+    if(isset($_REQUEST['addon']) && current_user_can('manage_options') && wp_verify_nonce($_REQUEST['__wpdmpinn'], $_REQUEST['addon'].NONCE_KEY)){
         include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
         include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
         include_once ABSPATH . 'wp-admin/includes/plugin-install.php';
@@ -1534,14 +1516,7 @@ function wpdm_admin_notices() {
  * @usage Show Login Form
  */
 function wpdm_login_form($params = array()){
-    if(is_array($params))
-    extract($params);
-    if(!isset($redirect)) $redirect = get_permalink(get_option('__wpdm_user_dashboard'));
-    ob_start();
-    //echo "<div class='w3eden'>";
-    include(WPDM_BASE_DIR . 'tpls/wpdm-be-member.php');
-    //echo "</div>";
-    return ob_get_clean();
+    return WPDM()->shortCode->loginForm($params);
 }
 
 function wpdm_user_dashboard_url(){

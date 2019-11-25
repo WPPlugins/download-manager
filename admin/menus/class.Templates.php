@@ -24,7 +24,7 @@ class Templates
     function UI(){
         $ttype = isset($_GET['_type']) ? esc_attr($_GET['_type']) : 'link';
 
-       if (isset($_GET['task']) && $_GET['task'] == 'EditEmailTemplate')
+       if (wpdm_query_var('task') === 'EditEmailTemplate')
             \WPDM\admin\menus\Templates::EmailEditor();
         else
             \WPDM\admin\menus\Templates::Show();
@@ -96,14 +96,18 @@ class Templates
         }
 
         if (isset($_POST['email_template'])) {
-            $email_template = wpdm_query_var('email_template', array('validate' => array('subject' => '', 'message' => 'escs', 'from_name' => '', 'from_email' => '')));
-            update_option("__wpdm_etpl_".wpdm_query_var('id'), $email_template);
-            if(wpdm_is_ajax()){
-                die('ok');
+            if(current_user_can(WPDM_ADMIN_CAP) && wp_verify_nonce(wpdm_query_var('__wpdm_nonce'), NONCE_KEY)) {
+                check_ajax_referer(NONCE_KEY, '__wpdm_nonce');
+                $email_template = wpdm_query_var('email_template', array('validate' => array('subject' => '', 'message' => 'escs', 'from_name' => '', 'from_email' => '')));
+                update_option("__wpdm_etpl_" . wpdm_query_var('id'), $email_template);
+                if (wpdm_is_ajax()) {
+                    die('ok');
+                }
+                header("location: edit.php?post_type=wpdmpro&&page=templates&_type=$ttype");
+                die();
             }
-            header("location: edit.php?post_type=wpdmpro&&page=templates&_type=$ttype");
-            die();
         }
+
     }
 
     /**
@@ -220,10 +224,13 @@ class Templates
     }
 
     function saveEmailSetting(){
-        update_option('__wpdm_email_template', wpdm_query_var('__wpdm_email_template'));
-        $email_settings = wpdm_query_var('__wpdm_email_setting', array('validate' => array('logo' => 'url', 'banner' => 'url', 'youtube' => 'url', 'twitter' => 'url', 'facebook' => 'url', 'footer_text' => 'txts')));
-        update_option('__wpdm_email_setting', $email_settings);
-        die("Done!");
+        if(current_user_can(WPDM_ADMIN_CAP) && wp_verify_nonce(wpdm_query_var('__wpdm_nonce'), NONCE_KEY)) {
+            check_ajax_referer(NONCE_KEY, '__wpdm_nonce');
+            update_option('__wpdm_email_template', wpdm_query_var('__wpdm_email_template'));
+            $email_settings = wpdm_query_var('__wpdm_email_setting', array('validate' => array('logo' => 'url', 'banner' => 'url', 'youtube' => 'url', 'twitter' => 'url', 'facebook' => 'url', 'footer_text' => 'txts')));
+            update_option('__wpdm_email_setting', $email_settings);
+            die("Done!");
+        }
     }
 
     function updateTemplateStatus(){

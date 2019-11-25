@@ -688,35 +688,6 @@
 .w3eden blockquote small:before {
     content: '\2014 \00A0';
 }
-.w3eden .blockquote-reverse,
-.w3eden blockquote.pull-right {
-    padding-right: 15px;
-    padding-left: 0;
-    text-align: right;
-    border-right: 5px solid #eee;
-    border-left: 0;
-}
-.w3eden .blockquote-reverse .small:before,
-.w3eden .blockquote-reverse footer:before,
-.w3eden .blockquote-reverse small:before,
-.w3eden blockquote.pull-right .small:before,
-.w3eden blockquote.pull-right footer:before,
-.w3eden blockquote.pull-right small:before {
-    content: '';
-}
-.w3eden .blockquote-reverse .small:after,
-.w3eden .blockquote-reverse footer:after,
-.w3eden .blockquote-reverse small:after,
-.w3eden blockquote.pull-right .small:after,
-.w3eden blockquote.pull-right footer:after,
-.w3eden blockquote.pull-right small:after {
-    content: '\00A0 \2014';
-}
-.w3eden address {
-    margin-bottom: 20px;
-    font-style: normal;
-    line-height: 1.42857143;
-}
 .w3eden code,
 .w3eden kbd,
 .w3eden pre,
@@ -1073,84 +1044,7 @@
     .w3eden .col-sm-1 {
         width: 8.33333333%;
     }
-    .w3eden .col-sm-pull-12 {
-        right: 100%;
-    }
-    .w3eden .col-sm-pull-11 {
-        right: 91.66666667%;
-    }
-    .w3eden .col-sm-pull-10 {
-        right: 83.33333333%;
-    }
-    .w3eden .col-sm-pull-9 {
-        right: 75%;
-    }
-    .w3eden .col-sm-pull-8 {
-        right: 66.66666667%;
-    }
-    .w3eden .col-sm-pull-7 {
-        right: 58.33333333%;
-    }
-    .w3eden .col-sm-pull-6 {
-        right: 50%;
-    }
-    .w3eden .col-sm-pull-5 {
-        right: 41.66666667%;
-    }
-    .w3eden .col-sm-pull-4 {
-        right: 33.33333333%;
-    }
-    .w3eden .col-sm-pull-3 {
-        right: 25%;
-    }
-    .w3eden .col-sm-pull-2 {
-        right: 16.66666667%;
-    }
-    .w3eden .col-sm-pull-1 {
-        right: 8.33333333%;
-    }
-    .w3eden .col-sm-pull-0 {
-        right: auto;
-    }
-    .w3eden .col-sm-push-12 {
-        left: 100%;
-    }
-    .w3eden .col-sm-push-11 {
-        left: 91.66666667%;
-    }
-    .w3eden .col-sm-push-10 {
-        left: 83.33333333%;
-    }
-    .w3eden .col-sm-push-9 {
-        left: 75%;
-    }
-    .w3eden .col-sm-push-8 {
-        left: 66.66666667%;
-    }
-    .w3eden .col-sm-push-7 {
-        left: 58.33333333%;
-    }
-    .w3eden .col-sm-push-6 {
-        left: 50%;
-    }
-    .w3eden .col-sm-push-5 {
-        left: 41.66666667%;
-    }
-    .w3eden .col-sm-push-4 {
-        left: 33.33333333%;
-    }
-    .w3eden .col-sm-push-3 {
-        left: 25%;
-    }
-    .w3eden .col-sm-push-2 {
-        left: 16.66666667%;
-    }
-    .w3eden .col-sm-push-1 {
-        left: 8.33333333%;
-    }
-    .w3eden .col-sm-push-0 {
-        left: auto;
-    }
+
     .w3eden .col-sm-offset-12 {
         margin-left: 100%;
     }
@@ -1242,84 +1136,7 @@
     .w3eden .col-md-1 {
         width: 8.33333333%;
     }
-    .w3eden .col-md-pull-12 {
-        right: 100%;
-    }
-    .w3eden .col-md-pull-11 {
-        right: 91.66666667%;
-    }
-    .w3eden .col-md-pull-10 {
-        right: 83.33333333%;
-    }
-    .w3eden .col-md-pull-9 {
-        right: 75%;
-    }
-    .w3eden .col-md-pull-8 {
-        right: 66.66666667%;
-    }
-    .w3eden .col-md-pull-7 {
-        right: 58.33333333%;
-    }
-    .w3eden .col-md-pull-6 {
-        right: 50%;
-    }
-    .w3eden .col-md-pull-5 {
-        right: 41.66666667%;
-    }
-    .w3eden .col-md-pull-4 {
-        right: 33.33333333%;
-    }
-    .w3eden .col-md-pull-3 {
-        right: 25%;
-    }
-    .w3eden .col-md-pull-2 {
-        right: 16.66666667%;
-    }
-    .w3eden .col-md-pull-1 {
-        right: 8.33333333%;
-    }
-    .w3eden .col-md-pull-0 {
-        right: auto;
-    }
-    .w3eden .col-md-push-12 {
-        left: 100%;
-    }
-    .w3eden .col-md-push-11 {
-        left: 91.66666667%;
-    }
-    .w3eden .col-md-push-10 {
-        left: 83.33333333%;
-    }
-    .w3eden .col-md-push-9 {
-        left: 75%;
-    }
-    .w3eden .col-md-push-8 {
-        left: 66.66666667%;
-    }
-    .w3eden .col-md-push-7 {
-        left: 58.33333333%;
-    }
-    .w3eden .col-md-push-6 {
-        left: 50%;
-    }
-    .w3eden .col-md-push-5 {
-        left: 41.66666667%;
-    }
-    .w3eden .col-md-push-4 {
-        left: 33.33333333%;
-    }
-    .w3eden .col-md-push-3 {
-        left: 25%;
-    }
-    .w3eden .col-md-push-2 {
-        left: 16.66666667%;
-    }
-    .w3eden .col-md-push-1 {
-        left: 8.33333333%;
-    }
-    .w3eden .col-md-push-0 {
-        left: auto;
-    }
+
     .w3eden .col-md-offset-12 {
         margin-left: 100%;
     }
@@ -1411,84 +1228,7 @@
     .w3eden .col-lg-1 {
         width: 8.33333333%;
     }
-    .w3eden .col-lg-pull-12 {
-        right: 100%;
-    }
-    .w3eden .col-lg-pull-11 {
-        right: 91.66666667%;
-    }
-    .w3eden .col-lg-pull-10 {
-        right: 83.33333333%;
-    }
-    .w3eden .col-lg-pull-9 {
-        right: 75%;
-    }
-    .w3eden .col-lg-pull-8 {
-        right: 66.66666667%;
-    }
-    .w3eden .col-lg-pull-7 {
-        right: 58.33333333%;
-    }
-    .w3eden .col-lg-pull-6 {
-        right: 50%;
-    }
-    .w3eden .col-lg-pull-5 {
-        right: 41.66666667%;
-    }
-    .w3eden .col-lg-pull-4 {
-        right: 33.33333333%;
-    }
-    .w3eden .col-lg-pull-3 {
-        right: 25%;
-    }
-    .w3eden .col-lg-pull-2 {
-        right: 16.66666667%;
-    }
-    .w3eden .col-lg-pull-1 {
-        right: 8.33333333%;
-    }
-    .w3eden .col-lg-pull-0 {
-        right: auto;
-    }
-    .w3eden .col-lg-push-12 {
-        left: 100%;
-    }
-    .w3eden .col-lg-push-11 {
-        left: 91.66666667%;
-    }
-    .w3eden .col-lg-push-10 {
-        left: 83.33333333%;
-    }
-    .w3eden .col-lg-push-9 {
-        left: 75%;
-    }
-    .w3eden .col-lg-push-8 {
-        left: 66.66666667%;
-    }
-    .w3eden .col-lg-push-7 {
-        left: 58.33333333%;
-    }
-    .w3eden .col-lg-push-6 {
-        left: 50%;
-    }
-    .w3eden .col-lg-push-5 {
-        left: 41.66666667%;
-    }
-    .w3eden .col-lg-push-4 {
-        left: 33.33333333%;
-    }
-    .w3eden .col-lg-push-3 {
-        left: 25%;
-    }
-    .w3eden .col-lg-push-2 {
-        left: 16.66666667%;
-    }
-    .w3eden .col-lg-push-1 {
-        left: 8.33333333%;
-    }
-    .w3eden .col-lg-push-0 {
-        left: auto;
-    }
+
     .w3eden .col-lg-offset-12 {
         margin-left: 100%;
     }
@@ -1636,90 +1376,7 @@
 .w3eden .table-hover > tbody > tr > th.active:hover {
     background-color: #e8e8e8;
 }
-.w3eden .table > tbody > tr.success > td,
-.w3eden .table > tbody > tr.success > th,
-.w3eden .table > tbody > tr > td.success,
-.w3eden .table > tbody > tr > th.success,
-.w3eden .table > tfoot > tr.success > td,
-.w3eden .table > tfoot > tr.success > th,
-.w3eden .table > tfoot > tr > td.success,
-.w3eden .table > tfoot > tr > th.success,
-.w3eden .table > thead > tr.success > td,
-.w3eden .table > thead > tr.success > th,
-.w3eden .table > thead > tr > td.success,
-.w3eden .table > thead > tr > th.success {
-    background-color: #dff0d8;
-}
-.w3eden .table-hover > tbody > tr.success:hover > td,
-.w3eden .table-hover > tbody > tr.success:hover > th,
-.w3eden .table-hover > tbody > tr:hover > .success,
-.w3eden .table-hover > tbody > tr > td.success:hover,
-.w3eden .table-hover > tbody > tr > th.success:hover {
-    background-color: #d0e9c6;
-}
-.w3eden .table > tbody > tr.info > td,
-.w3eden .table > tbody > tr.info > th,
-.w3eden .table > tbody > tr > td.info,
-.w3eden .table > tbody > tr > th.info,
-.w3eden .table > tfoot > tr.info > td,
-.w3eden .table > tfoot > tr.info > th,
-.w3eden .table > tfoot > tr > td.info,
-.w3eden .table > tfoot > tr > th.info,
-.w3eden .table > thead > tr.info > td,
-.w3eden .table > thead > tr.info > th,
-.w3eden .table > thead > tr > td.info,
-.w3eden .table > thead > tr > th.info {
-    background-color: #d9edf7;
-}
-.w3eden .table-hover > tbody > tr.info:hover > td,
-.w3eden .table-hover > tbody > tr.info:hover > th,
-.w3eden .table-hover > tbody > tr:hover > .info,
-.w3eden .table-hover > tbody > tr > td.info:hover,
-.w3eden .table-hover > tbody > tr > th.info:hover {
-    background-color: #c4e3f3;
-}
-.w3eden .table > tbody > tr.warning > td,
-.w3eden .table > tbody > tr.warning > th,
-.w3eden .table > tbody > tr > td.warning,
-.w3eden .table > tbody > tr > th.warning,
-.w3eden .table > tfoot > tr.warning > td,
-.w3eden .table > tfoot > tr.warning > th,
-.w3eden .table > tfoot > tr > td.warning,
-.w3eden .table > tfoot > tr > th.warning,
-.w3eden .table > thead > tr.warning > td,
-.w3eden .table > thead > tr.warning > th,
-.w3eden .table > thead > tr > td.warning,
-.w3eden .table > thead > tr > th.warning {
-    background-color: #fcf8e3;
-}
-.w3eden .table-hover > tbody > tr.warning:hover > td,
-.w3eden .table-hover > tbody > tr.warning:hover > th,
-.w3eden .table-hover > tbody > tr:hover > .warning,
-.w3eden .table-hover > tbody > tr > td.warning:hover,
-.w3eden .table-hover > tbody > tr > th.warning:hover {
-    background-color: #faf2cc;
-}
-.w3eden .table > tbody > tr.danger > td,
-.w3eden .table > tbody > tr.danger > th,
-.w3eden .table > tbody > tr > td.danger,
-.w3eden .table > tbody > tr > th.danger,
-.w3eden .table > tfoot > tr.danger > td,
-.w3eden .table > tfoot > tr.danger > th,
-.w3eden .table > tfoot > tr > td.danger,
-.w3eden .table > tfoot > tr > th.danger,
-.w3eden .table > thead > tr.danger > td,
-.w3eden .table > thead > tr.danger > th,
-.w3eden .table > thead > tr > td.danger,
-.w3eden .table > thead > tr > th.danger {
-    background-color: #f2dede;
-}
-.w3eden .table-hover > tbody > tr.danger:hover > td,
-.w3eden .table-hover > tbody > tr.danger:hover > th,
-.w3eden .table-hover > tbody > tr:hover > .danger,
-.w3eden .table-hover > tbody > tr > td.danger:hover,
-.w3eden .table-hover > tbody > tr > th.danger:hover {
-    background-color: #ebcccc;
-}
+
 .w3eden .table-responsive {
     min-height: .01%;
     overflow-x: auto;
@@ -2329,48 +1986,48 @@
     box-shadow: none;
     opacity: 0.65;
 }
-.w3eden .btn-default {
+.w3eden .btn-secondary {
     color: #333;
     background-color: #fff;
     border-color: #cccccc;
 }
-.w3eden .btn-default.active,
-.w3eden .btn-default.focus,
-.w3eden .btn-default:active,
-.w3eden .btn-default:focus,
-.w3eden .btn-default:hover,
-.w3eden .open > .dropdown-toggle.btn-default {
+.w3eden .btn-secondary.active,
+.w3eden .btn-secondary.focus,
+.w3eden .btn-secondary:active,
+.w3eden .btn-secondary:focus,
+.w3eden .btn-secondary:hover,
+.w3eden .open > .dropdown-toggle.btn-secondary {
     color: #333;
     background-color: #e6e6e6;
     border-color: #adadad;
 }
-.w3eden .btn-default.active,
-.w3eden .btn-default:active,
-.w3eden .open > .dropdown-toggle.btn-default {
+.w3eden .btn-secondary.active,
+.w3eden .btn-secondary:active,
+.w3eden .open > .dropdown-toggle.btn-secondary {
     background-image: none;
 }
-.w3eden .btn-default.disabled,
-.w3eden .btn-default.disabled.active,
-.w3eden .btn-default.disabled.focus,
-.w3eden .btn-default.disabled:active,
-.w3eden .btn-default.disabled:focus,
-.w3eden .btn-default.disabled:hover,
-.w3eden .btn-default[disabled],
-.w3eden .btn-default[disabled].active,
-.w3eden .btn-default[disabled].focus,
-.w3eden .btn-default[disabled]:active,
-.w3eden .btn-default[disabled]:focus,
-.w3eden .btn-default[disabled]:hover,
-.w3eden fieldset[disabled] .btn-default,
-.w3eden fieldset[disabled] .btn-default.active,
-.w3eden fieldset[disabled] .btn-default.focus,
-.w3eden fieldset[disabled] .btn-default:active,
-.w3eden fieldset[disabled] .btn-default:focus,
-.w3eden fieldset[disabled] .btn-default:hover {
+.w3eden .btn-secondary.disabled,
+.w3eden .btn-secondary.disabled.active,
+.w3eden .btn-secondary.disabled.focus,
+.w3eden .btn-secondary.disabled:active,
+.w3eden .btn-secondary.disabled:focus,
+.w3eden .btn-secondary.disabled:hover,
+.w3eden .btn-secondary[disabled],
+.w3eden .btn-secondary[disabled].active,
+.w3eden .btn-secondary[disabled].focus,
+.w3eden .btn-secondary[disabled]:active,
+.w3eden .btn-secondary[disabled]:focus,
+.w3eden .btn-secondary[disabled]:hover,
+.w3eden fieldset[disabled] .btn-secondary,
+.w3eden fieldset[disabled] .btn-secondary.active,
+.w3eden fieldset[disabled] .btn-secondary.focus,
+.w3eden fieldset[disabled] .btn-secondary:active,
+.w3eden fieldset[disabled] .btn-secondary:focus,
+.w3eden fieldset[disabled] .btn-secondary:hover {
     background-color: #fff;
     border-color: #cccccc;
 }
-.w3eden .btn-default .badge {
+.w3eden .btn-secondary .badge {
     color: #fff;
     background-color: #333333;
 }

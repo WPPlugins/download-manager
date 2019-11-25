@@ -34,14 +34,11 @@ class UserDashboard
     }
 
     function Dashboard($params = array()){
-        global $wp_query;
+        global $wp_query, $WPDM;
 
         ob_start();
         if(!is_user_logged_in()) {
-            if(isset($params['signup']) && $params['signup'] == 1)
-                include \WPDM\Template::Locate('wpdm-be-member.php');
-            else
-                include  \WPDM\Template::Locate('wpdm-login-form.php');
+            echo $WPDM->shortCode->loginForm($params);
 
         } else {
 

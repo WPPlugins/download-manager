@@ -7,6 +7,7 @@ if(!isset($params['items_per_page'])) $params['items_per_page'] = 20;
 $cols = isset($params['cols'])?$params['cols']:'title,file_count,download_count|categories|update_date|download_link';
 $colheads = isset($params['colheads'])?$params['colheads']:'Title|Categories|Update Date|Download';
 $cols = explode("|", $cols);
+$_cols = $cols;
 $colheads = explode("|", $colheads);
 foreach ($cols as $index => &$col){
    $col = explode(",", $col);
@@ -97,6 +98,7 @@ $coltemplate['page_link'] = "<a class=\"package-title\" href=\"%s\">%s</a>";
     if(isset($params['jstable']) && $params['jstable']==1):
 
         $datatable_col = ( isset($params['order_by']) && $params['order_by'] == 'title' ) ? '0' : '2';
+        if(isset($params['order_by']) && in_array($params['order_by'], $_cols)) { $datatable_col = array_search($params['order_by'], $_cols); }
         $datatable_order = ( isset($params['order']) && $params['order'] == 'DESC' ) ? 'desc' : 'asc';
     ?>
         <script src="<?php echo WPDM_BASE_URL.'assets/js/jquery.dataTables.min.js' ?>"></script>

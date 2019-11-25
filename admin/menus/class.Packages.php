@@ -72,7 +72,7 @@ class Packages
 
 
     function uploadFile(){
-        check_ajax_referer('wpdm_admin_upload_file');
+        check_ajax_referer(NONCE_KEY);
         if(!current_user_can('upload_files')) die('-2');
 
         $name = isset($_FILES['package_file']['name']) && !isset($_REQUEST["chunks"])?$_FILES['package_file']['name']:$_REQUEST['name'];
@@ -96,11 +96,12 @@ class Packages
             $filename = sanitize_file_name($filename);
 
         if(isset($_REQUEST["chunks"])) $this->chunkUploadFile(UPLOAD_DIR.$filename);
-        else
-            move_uploaded_file($_FILES['package_file']['tmp_name'],UPLOAD_DIR.$filename);
-        $filename = apply_filters("wpdm_after_upload_file", $filename);
+        else {
+            move_uploaded_file($_FILES['package_file']['tmp_name'], UPLOAD_DIR . $filename);
+            do_action("wpdm_after_upload_file", UPLOAD_DIR . $filename);
+        }
         //@unlink($status['file']);
-        echo "|||".$filename."|||";
+        echo "|||".$filename."|||".wpdm_file_size(UPLOAD_DIR.$filename)."|||";
         exit;
     }
 
@@ -130,6 +131,7 @@ class Packages
         if (!$chunks || $chunk == $chunks - 1) {
             // Strip the temp .part suffix off
             rename("{$destFilePath}.part", $destFilePath);
+            do_action("wpdm_after_upload_file", $destFilePath);
         }
     }
 

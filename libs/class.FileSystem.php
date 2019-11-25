@@ -170,8 +170,9 @@ class FileSystem
      */
     public static function downloadHeaders($filename, $size = 1024000){
         @ob_end_clean();
+        $content_type = wp_check_filetype($filename);
         header("Content-Description: File Transfer");
-        header("Content-Type: text/plain");
+        header("Content-Type: {$content_type['type']}");
         header("Content-disposition: attachment;filename=\"$filename\"");
         header("Content-Transfer-Encoding: text/plain");
         header("Content-Length: " . $size);

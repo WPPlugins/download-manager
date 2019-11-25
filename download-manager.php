@@ -2,9 +2,9 @@
 /*
 Plugin Name: Download Manager
 Plugin URI: https://www.wpdownloadmanager.com/purchases/
-Description: Manage, Protect and Track File Downloads from your WordPress site
+Description: Manage, Protect and Track file downloads, and sell digital products from your WordPress site. A complete digital asset management solution.
 Author: W3 Eden
-Version: 2.9.99
+Version: 3.0.4
 Author URI: https://www.wpdownloadmanager.com/
 Text Domain: download-manager
 Domain Path: /languages
@@ -68,10 +68,11 @@ ini_set('upload_tmp_dir',UPLOAD_DIR.'/cache/');
 class WordPressDownloadManager{
 
     var $apply;
+    public $shortCode;
 
     function __construct(){
 
-        define('WPDM_Version','2.9.99');
+        define('WPDM_Version','3.0.4');
 
         register_activation_hook(__FILE__, array($this, 'Install'));
 
@@ -89,11 +90,12 @@ class WordPressDownloadManager{
         include_once(dirname(__FILE__) . "/wpdm-functions.php");
 
         include(dirname(__FILE__)."/wpdm-core.php");
+        include(dirname(__FILE__)."/libs/class.AssetManager.php");
 
         new \WPDM\UserDashboard();
         $this->apply = new \WPDM\libs\Apply();
         new \WPDM\admin\WordPressDownloadManagerAdmin();
-        new \WPDM\libs\ShortCodes();
+        $this->shortCode = new \WPDM\libs\ShortCodes();
 
         //do_action("wpdm_addon_init", WPDM_Version);
 
@@ -128,6 +130,17 @@ class WordPressDownloadManager{
               `custom_data` text NOT NULL,
               `request_status` INT( 1 ) NOT NULL,
               PRIMARY KEY (`id`)
+            )";
+
+        $sqls[] = "CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}ahm_assets` (
+              `ID` bigint(20) NOT NULL AUTO_INCREMENT,
+              `path` text NOT NULL,
+              `owner` int(11) NOT NULL,
+              `activities` text NOT NULL,
+              `comments` text NOT NULL,
+              `access` text NOT NULL,
+              `metadata` text NOT NULL,
+              PRIMARY KEY (`ID`)
             )";
 
 
@@ -281,19 +294,6 @@ class WordPressDownloadManager{
         wp_enqueue_script('jquery');
         wp_enqueue_script('jquery-form');
 
-        wp_localize_script('jquery', 'wpdm_url', array(
-            'home' => esc_url_raw(home_url('/')),
-            'site' => esc_url_raw(site_url('/')),
-            'ajax' => esc_url_raw(admin_url('/admin-ajax.php'))
-        ));
-
-        $wpdm_asset = array(
-            'spinner' => '<i class="fas fa-sun fa-spin"></i>'
-        );
-        $this->asset = $wpdm_asset;
-        $wpdm_asset = apply_filters("wpdm_js_vars", $wpdm_asset);
-        wp_localize_script('jquery', 'wpdm_asset', $wpdm_asset);
-
         $wpdmss = maybe_unserialize(get_option('__wpdm_disable_scripts', array()));
 
         //if((is_object($post) && has_shortcode($post->post_content,'wpdm_frontend')) || get_post_type()=='wpdmpro' )
@@ -330,7 +330,24 @@ class WordPressDownloadManager{
             wp_enqueue_script('wpdm-bootstrap' );
         }
 
-        wp_enqueue_script('frontjs', WPDM_BASE_URL . 'assets/js/front.js', array('jquery'));
+        wp_register_script('frontjs', plugins_url('/download-manager/assets/js/front.js'), array('jquery'));
+
+        $wpdm_asset = array(
+            'spinner' => '<i class="fas fa-sun fa-spin"></i>'
+        );
+        $this->asset = $wpdm_asset;
+        $wpdm_asset = apply_filters("wpdm_js_vars", $wpdm_asset);
+
+
+        wp_localize_script('frontjs', 'wpdm_url', array(
+            'home' => esc_url_raw(home_url('/')),
+            'site' => esc_url_raw(site_url('/')),
+            'ajax' => esc_url_raw(admin_url('/admin-ajax.php'))
+        ));
+
+        wp_localize_script('frontjs', 'wpdm_asset', $wpdm_asset);
+
+        wp_enqueue_script('frontjs');
 
         wp_enqueue_script('jquery-choosen', WPDM_BASE_URL . 'assets/js/chosen.jquery.min.js', array('jquery'));
         //wp_enqueue_style('choosen-css', plugins_url('/download-manager/assets/css/chosen.css'), 999999);

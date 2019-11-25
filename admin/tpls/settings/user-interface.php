@@ -162,10 +162,10 @@ $ui_button_sc = get_option('__wpdm_ui_download_button_sc');
         text-align: center;
     }
     .wp-picker-container .wp-color-result.button{
-        width: 24px;
+        width: 28px;
         float: right;
         padding: 2px !important;
-        height: 24px;
+        height: 28px;
         margin: 0 !important;
         border: 0 !important;
         border-radius: 500px;

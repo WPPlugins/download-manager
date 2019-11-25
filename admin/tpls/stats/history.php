@@ -1,4 +1,4 @@
-<div class="panel panel-default dashboard-panel">
+
 
     <table class="table">
         <thead>
@@ -30,30 +30,35 @@
         ?>
 
         </tbody>
+        <tfoot>
+        <tr>
+            <th colspan="3">
+                <?php
+                isset($_GET['pgd']) && $_GET['pgd'] > 1 ? $current = (int)$_GET['pgd'] : $current = 1;
+                $pagination = array(
+                    'base' => @add_query_arg('pgd','%#%'),
+                    'format' => '',
+                    'total' => ceil($wpdb->get_var("select count(*) from {$wpdb->prefix}ahm_download_stats")/$items_per_page),
+                    'current' => $current,
+                    'show_all' => false,
+                    'type' => 'list',
+                    'prev_next'    => True,
+                    'prev_text' => '<i class="icon icon-angle-left"></i> Previous',
+                    'next_text' => 'Next <i class="icon icon-angle-right"></i>',
+                );
+
+                //if( $wp_rewrite->using_permalinks() && !is_search())
+                //    $pagination['base'] = user_trailingslashit( trailingslashit( remove_query_arg('s',get_pagenum_link(1) ) ) . 'paged=%#%', 'paged');
+
+                if( !empty($wp_query->query_vars['s']) )
+                    $pagination['add_args'] = array('s'=>get_query_var('s'));
+
+                echo '<div class="text-center">' . str_replace('<ul class=\'page-numbers\'>','<ul class="pagination pagination-centered page-numbers" style="margin: 0">', paginate_links($pagination)) . '</div>';
+                ?>
+            </th>
+        </tr>
+        </tfoot>
     </table>
-    <div class="panel-footer">
-        <?php
 
-        isset($_GET['pgd']) && $_GET['pgd'] > 1 ? $current = (int)$_GET['pgd'] : $current = 1;
-        $pagination = array(
-            'base' => @add_query_arg('pgd','%#%'),
-            'format' => '',
-            'total' => ceil($wpdb->get_var("select count(*) from {$wpdb->prefix}ahm_download_stats")/$items_per_page),
-            'current' => $current,
-            'show_all' => false,
-            'type' => 'list',
-            'prev_next'    => True,
-            'prev_text' => '<i class="icon icon-angle-left"></i> Previous',
-            'next_text' => 'Next <i class="icon icon-angle-right"></i>',
-        );
 
-        //if( $wp_rewrite->using_permalinks() && !is_search())
-        //    $pagination['base'] = user_trailingslashit( trailingslashit( remove_query_arg('s',get_pagenum_link(1) ) ) . 'paged=%#%', 'paged');
 
-        if( !empty($wp_query->query_vars['s']) )
-            $pagination['add_args'] = array('s'=>get_query_var('s'));
-
-        echo '<div class="text-center">' . str_replace('<ul class=\'page-numbers\'>','<ul class="pagination pagination-centered page-numbers" style="margin: 0">', paginate_links($pagination)) . '</div>';
-        ?>
-    </div>
-</div>

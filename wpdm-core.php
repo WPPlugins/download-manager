@@ -9,6 +9,11 @@ if (!defined('ABSPATH')) die();
 global $stabs, $package, $wpdm_package;
 
 
+function WPDM(){
+    global $WPDM;
+    return $WPDM;
+}
+
 
 /**
  * @param $tablink

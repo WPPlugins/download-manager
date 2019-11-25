@@ -28,7 +28,12 @@ class Stats
     function Export(){
         if(wpdm_query_var('page') == 'wpdm-stats' && wpdm_query_var('task') == 'export'){
             global $wpdb;
-            $data = $wpdb->get_results("select s.*, p.post_title as file from {$wpdb->prefix}ahm_download_stats s, {$wpdb->prefix}posts p where p.ID = s.pid order by id DESC");
+            $adcond = array();
+            if(wpdm_query_var('pid', 'int') > 0) $adcond[] = "pid = ".wpdm_query_var('pid', 'int');
+            if(wpdm_query_var('uid', 'int') > 0) $adcond[] = "uid = ".wpdm_query_var('uid', 'int');
+            if(wpdm_query_var('ip') > 0) $adcond[] = "ip = '".wpdm_query_var('ip')."'";
+            $adcond = (count($adcond) > 0) ? " and ".implode(" and ", $adcond) : "";
+            $data = $wpdb->get_results("select s.*, p.post_title as file from {$wpdb->prefix}ahm_download_stats s, {$wpdb->prefix}posts p where p.ID = s.pid {$adcond} order by id DESC");
             FileSystem::downloadHeaders("download-stats.csv");
             echo "File,User ID,Order ID,Date,Timestamp,IP\r\n";
             foreach ($data as $d){

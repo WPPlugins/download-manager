@@ -3,7 +3,7 @@
 
 <div class="wpdm-link-template link-template-default" >
 
-    <div class="media" style="display: flex">
+    <div class="media">
         <div class="pull-left">[icon]</div>
         <div class="media-body">
             <div>
@@ -13,7 +13,7 @@
         </div>
 
     </div>
-
+    <div style="clear: both"></div>
 </div>
 <div style="clear: both"></div>
 

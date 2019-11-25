@@ -262,11 +262,11 @@ $pack->Prepare(get_the_ID());
     jQuery(function ($) {
 
         $('a').each(function () {
-            $(this).attr('target', '_blank');
+            $(this).attr('target', '_parent');
         });
 
         $('body').on('click','a', function () {
-            $(this).attr('target', '_blank');
+            $(this).attr('target', '_parent');
         });
 
         $('#wpdm-locks').on('hidden.bs.modal', function (e) {

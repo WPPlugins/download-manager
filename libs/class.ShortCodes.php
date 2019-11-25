@@ -19,13 +19,13 @@ class ShortCodes
         add_shortcode('wpdm_login_form', array($this, 'LoginForm'));
 
          // Register form
-        add_shortcode('wpdm_reg_form', array($this, 'RegisterForm'));
+        add_shortcode('wpdm_reg_form', array($this, 'registerForm'));
 
         // Edit Profile
         add_shortcode('wpdm_edit_profile', array($this, 'EditProfile'));
 
         // Show all packages
-        add_shortcode('wpdm_packages', array($this, 'Packages'));
+        add_shortcode('wpdm_packages', array($this, 'packages'));
 
         // Show a package by id
         add_shortcode('wpdm_package', array($this, 'Package'));
@@ -73,18 +73,56 @@ class ShortCodes
      * @usage Short-code callback function for login/register form
      * @return string
      */
-    function LoginForm($params = array()){
+    function loginForm($params = array()){
+
+        global $current_user;
+
+        if(!isset($params) || !is_array($params)) $params = array();
+
         if(isset($params) && is_array($params))
             extract($params);
         if(!isset($redirect)) $redirect = get_permalink(get_option('__wpdm_user_dashboard'));
+
+        if(!is_array($params)) $params = array();
+
+        if(!isset($regurl)) {
+            $regurl = get_option('__wpdm_register_url');
+            if ($regurl > 0)
+                $regurl = get_permalink($regurl);
+        }
+        $log_redirect =  $_SERVER['REQUEST_URI'];
+        if(isset($params['redirect'])) $log_redirect = esc_url($params['redirect']);
+        if(isset($_GET['redirect_to'])) $log_redirect = esc_url($_GET['redirect_to']);
+
+        $up = parse_url($log_redirect);
+        if(isset($up['host']) && $up['host'] != $_SERVER['SERVER_NAME']) $log_redirect = $_SERVER['REQUEST_URI'];
+
+        $log_redirect = strip_tags($log_redirect);
+
+        if(!isset($params['logo']) || $params['logo'] == '') $params['logo'] = get_site_icon_url();
+
+        $__wpdm_social_login = get_option('__wpdm_social_login');
+        $__wpdm_social_login = is_array($__wpdm_social_login)?$__wpdm_social_login:array();
+
         ob_start();
-        //echo "<div class='w3eden'>";
-        if(isset($signup) && $signup == 1)
-            include(WPDM_BASE_DIR . 'tpls/wpdm-be-member.php');
-        else
-            include(WPDM_BASE_DIR . 'tpls/wpdm-login-form.php');
-        //echo "</div>";
-        return ob_get_clean();
+
+        if(is_user_logged_in())
+            $template = wpdm_tpl_path("already-logged-in.php", WPDM_TPL_DIR, WPDM_TPL_FALLBACK);
+        else {
+            if(wpdm_query_var('action') === 'lostpassword')
+                $template = wpdm_tpl_path('lost-password-form.php');
+            else if(wpdm_query_var('action') === 'rp')
+                $template = wpdm_tpl_path('reset-password-form.php');
+            else
+                $template =  wpdm_tpl_path('wpdm-login-form.php');
+        }
+
+        include($template);
+
+        $content =  ob_get_clean();
+        $content = apply_filters("wpdm_login_form_html", $content);
+
+        return $content;
     }
 
 
@@ -110,26 +148,50 @@ class ShortCodes
         if (is_user_logged_in()) {
             include(wpdm_tpl_path('wpdm-edit-user-profile.php'));
         } else {
-            include(wpdm_tpl_path('wpdm-be-member.php'));
+            $this->loginForm();
         }
 
         $data = ob_get_clean();
         return $data;
     }
 
-    function RegisterForm($params = array()){
-        if(!get_option('users_can_register')) return __('User registration is disabled','download-manager');
-        if(isset($params['role'])) update_post_meta(get_the_ID(),'__wpdm_role', $params['role']);
+    function registerForm($params = array()){
+
+        if(!get_option('users_can_register')) return \WPDM_Messages::warning(__( "User registration is disabled" , "download-manager" ), -1);
+
+        if(!isset($params) || !is_array($params)) $params = array();
+
         ob_start();
         $regparams = \WPDM\libs\Crypt::Encrypt($params);
-        echo "<div class='w3eden' id='wpdmreg'>";
-        require_once(wpdm_tpl_path('wpdm-reg-form.php'));
-        echo "</div>";
+        $loginurl = wpdm_login_url();
+        $reg_redirect =  $loginurl;
+        if(isset($params['autologin']) && $params['autologin'] == 'true') $reg_redirect = wpdm_user_dashboard_url();
+        if(isset($params['redirect'])) $reg_redirect = esc_url($params['redirect']);
+        if(isset($_GET['redirect_to'])) $reg_redirect = esc_url($_GET['redirect_to']);
+        $force = uniqid();
+
+        $up = parse_url($reg_redirect);
+        if(isset($up['host']) && $up['host'] != $_SERVER['SERVER_NAME']) $reg_redirect = home_url('/');
+
+        $reg_redirect = esc_attr(esc_url($reg_redirect));
+
+        if(!isset($params['logo'])) $params['logo'] = get_site_icon_url();
+
+        \WPDM\Session::set('__wpdm_reg_params', $params);
+
+        $tmp_reg_info = \WPDM\Session::get('tmp_reg_info');
+
+        $__wpdm_social_login = get_option('__wpdm_social_login');
+        $__wpdm_social_login = is_array($__wpdm_social_login)?$__wpdm_social_login:array();
+
+        //Template
+        include(wpdm_tpl_path('wpdm-reg-form.php'));
+
         $data = ob_get_clean();
         return $data;
     }
 
-    function Packages($params = array('items_per_page' => 10, 'title' => false, 'desc' => false, 'order_field' => 'date', 'order' => 'desc', 'paging' => false, 'toolbar' => 1, 'template' => '','cols'=>3, 'colspad'=>2, 'colsphone' => 1))
+    function packages($params = array('items_per_page' => 10, 'title' => false, 'desc' => false, 'order_field' => 'date', 'order' => 'desc', 'paging' => false, 'toolbar' => 1, 'template' => '','cols'=>3, 'colspad'=>2, 'colsphone' => 1))
     {
 
         $defaults = array('items_per_page' => 10, 's' =>'', 'title' => false, 'desc' => false, 'order_field' => 'date', 'order' => 'desc', 'paging' => false, 'toolbar' => 1, 'template' => 'link-template-panel','cols'=>3, 'colspad'=>2, 'colsphone' => 1);
@@ -317,18 +379,26 @@ class ShortCodes
         extract($params);
 
         global $wpdb;
-        if(\WPDM\Package::isLocked($params['id']))
-            $linkURL = get_permalink($params['id']);
+        $ID = (int)$params['id'];
+
+        if(\WPDM\Package::isLocked($ID))
+            $linkURL = get_permalink($ID);
         else
-            $linkURL = home_url("/?wpdmdl=".$params['id']);
-        $target = isset($params['target'])?"target={$params['target']}":"";
-        $class = isset($params['class'])?"class={$params['class']}":"";
-        $id = isset($params['id'])?"target={$params['id']}":"";
-        $linkLabel = isset($params['label']) && !empty($params['label'])?$params['label']:get_post_meta($params['id'], '__wpdm_link_label', true);
-        $linkLabel = empty($linkLabel)?get_the_title($params['id']):$linkLabel;
-        return  "<a {$target} {$class} {$id} href='$linkURL'>$linkLabel</a>";
+            $linkURL = home_url("/?wpdmdl=".$ID);
+
+        $extras = isset($params['extras'])?wpdm_sanitize_var($params['extras'], 'txt'):"";
+        $target = isset($params['target'])?"target='".wpdm_sanitize_var($params['target'], 'txt')."'":"";
+        $class = isset($params['class'])?"class='".wpdm_sanitize_var($params['class'], 'txt')."'":"";
+        $style = isset($params['style'])?"style='".wpdm_sanitize_var($params['style'], 'txt')."'":"";
+        $rel = isset($params['rel'])?"rel='".wpdm_sanitize_var($params['rel'], 'txt')."'":"";
+        $eid = isset($params['eid'])?"id='".wpdm_sanitize_var($params['eid'], 'txt')."'":"";
+        $linkLabel = isset($params['label']) && !empty($params['label'])?$params['label']:get_post_meta($ID, '__wpdm_link_label', true);
+        $linkLabel = empty($linkLabel)?get_the_title($ID):$linkLabel;
+        $linkLabel = wpdm_sanitize_var($linkLabel, 'kses');
+        return  "<a {$target} {$class} {$eid} {$style} {$rel} {$extras} href='$linkURL'>$linkLabel</a>";
 
     }
+
 
     /**
      * @usage Short-code [wpdm_all_packages] to list all packages in tabular format

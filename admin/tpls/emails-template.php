@@ -28,6 +28,7 @@
 
 
 <form method="post" action="" id="posts-filter" style="padding: 20px;">
+    <?php wp_nonce_field(NONCE_KEY, '__wpdm_nonce') ?>
 <input name="task" value="save-etpl" type="hidden" />
 <div style="margin-bottom: 10px;padding-bottom: 10px;border-bottom: 1px solid #eeeeee;">
 <b>Load Template:</b>

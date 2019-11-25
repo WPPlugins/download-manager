@@ -921,7 +921,7 @@ class Package {
 
                 }
                 if($embed == 1)
-                    $data = "<div class='panel panel-default terms-panel' style='margin: 0'><div class='panel-heading'>{$package['terms_title']}</div><div class='panel-body' style='max-height: 200px;overflow: auto'>{$data['terms_conditions']}</div><div class='panel-footer'><label><input data-pid='{$package['ID']}' data-target='.download_footer_{$package['ID']}' class='wpdm-checkbox wpdm-lock-terms terms_checkbox terms_checkbox_{$package['ID']}' type='checkbox'> {$data['terms_check_label']}</label></div><div class='panel-footer  download_footer_{$package['ID']}' style='display:none;'>{$data}</div></div>"; // onclick='jQuery(\".download_footer_{$package['ID']}\").slideToggle();'
+                    $data = "<div class='panel panel-default terms-panel' style='margin: 0'><div class='panel-heading'>{$package['terms_title']}</div><div class='panel-body' style='max-height: 200px;overflow: auto'>{$package['terms_conditions']}</div><div class='panel-footer'><label><input data-pid='{$package['ID']}' data-target='.download_footer_{$package['ID']}' class='wpdm-checkbox wpdm-lock-terms terms_checkbox terms_checkbox_{$package['ID']}' type='checkbox'> {$package['terms_check_label']}</label></div><div class='panel-footer  download_footer_{$package['ID']}' style='display:none;'>{$data}</div></div>"; // onclick='jQuery(\".download_footer_{$package['ID']}\").slideToggle();'
 
             }
 
@@ -1029,13 +1029,15 @@ class Package {
             if(!strpos(strip_tags($template), "]")){
                 $template = wpdm_basename($template);
                 $ltpldir = get_stylesheet_directory().'/download-manager/'.$type.'-templates/';
+                $pthemeltpldir = get_template_directory().'/download-manager/'.$type.'-templates/';
 
                 if(!file_exists($ltpldir) || !file_exists($ltpldir.$template))
                     $ltpldir = WPDM_BASE_DIR.'tpls/'.$type.'-templates/';
 
-                if (file_exists(TEMPLATEPATH . '/' . $template)) $template = file_get_contents(TEMPLATEPATH . '/' . $template);
-                else if (file_exists($ltpldir . $template)) $template = file_get_contents($ltpldir . $template);
+                if (file_exists($ltpldir . $template)) $template = file_get_contents($ltpldir . $template);
+                else if (file_exists($pthemeltpldir . '/' . $template)) $template = file_get_contents($pthemeltpldir . '/' . $template);
                 else if (file_exists($ltpldir . $template . '.php')) $template = file_get_contents($ltpldir . $template . '.php');
+                else if (file_exists($pthemeltpldir . $template . '.php')) $template = file_get_contents($pthemeltpldir . $template . '.php');
                 else if (file_exists($ltpldir. $type . "-template-" . $template . '.php')) $template = file_get_contents($ltpldir. $type . "-template-" . $template . '.php');
                 else $template = file_get_contents(wpdm_tpl_path($default[$type], $ltpldir));
             }
@@ -1065,7 +1067,7 @@ class Package {
         //Replace all txt variables
         foreach ($txtmatches[0] as $nd => $scode) {
             $scode = str_replace(array('[', ']'), '', $scode);
-            $vars[$scode] =  __($txtmatches[1][$nd], "wpdmpro");
+            $vars[$scode] =  __($txtmatches[1][$nd], "download-manager");
         }
 
         // Parse [pdf_thumb] tag in link/page template

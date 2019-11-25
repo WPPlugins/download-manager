@@ -56,7 +56,7 @@ class PackageLocks
                                 jQuery("#msg_<?php echo  $package['ID']; ?>").html("verifying...").css("cursor","pointer").show().click(function(){ jQuery(this).hide();jQuery("#wpdmdlf_<?php echo  $unqid . '_' . $package['ID']; ?>").show(); });
                                 if(res.downloadurl!=""&&res.downloadurl!=undefined) {
                                     window.open(res.downloadurl);
-                                    jQuery("#wpdmdlf_<?php echo  $unqid . '_' . $package['ID']; ?>").html("<a style='color:#ffffff !important' class='wpdm-download-button btn btn-success btn-lg btn-block' href='"+res.downloadurl+"'><?php _e('Download','download-manager'); ?></a>");
+                                    jQuery("#wpdmdlf_<?php echo  $unqid . '_' . $package['ID']; ?>").html("<a style='color:#ffffff !important' class='wpdm-download-button btn <?php echo wpdm_download_button_style(true, $package['ID']); ?> btn-block' href='"+res.downloadurl+"'><?php _e('Download','download-manager'); ?></a>");
                                     jQuery("#msg_<?php echo  $package['ID']; ?>").hide();
                                     jQuery("#wpdmdlf_<?php echo  $unqid . '_' . $package['ID']; ?>").show();
                                 } else {
@@ -93,7 +93,7 @@ class PackageLocks
                     /** location.href=res.downloadurl; **/
                     var w = window.open(res.downloadurl, '_blank');
                     /** if(!w) WPDM.notify("Popup blocked by your browser, please click on download link to start download."); **/
-                    jQuery('#reCaptchaLock_<?php echo $package['ID']; ?>').html('<a href="'+res.downloadurl+'" class="wpdm-download-button btn btn-success btn-lg btn-block"><?php _e('Download','download-manager'); ?></a>');
+                    jQuery('#reCaptchaLock_<?php echo $package['ID']; ?>').html('<a href="'+res.downloadurl+'" class="wpdm-download-button btn <?php echo wpdm_download_button_style(true, $package['ID']); ?> btn-block"><?php _e('Download','download-manager'); ?></a>');
                     } else {
                         //alert(res.error);
                         jQuery('#reCaptchaLock_<?php echo $package['ID']; ?>').html('<div class="color-red">'+res.error+"</div>");

@@ -54,9 +54,9 @@
                     <div class="form-group">
                         <label><?php echo __('Server File Browser Base Dir:','download-manager'); ?></label>
                         <div class="input-group">
-                            <input type=text class="form-control" id="_wpdm_file_browser_root" name="_wpdm_file_browser_root" value="<?php echo htmlspecialchars(stripslashes_deep(get_option('_wpdm_file_browser_root',ABSPATH))); ?>" />
+                            <input type=text class="form-control" id="_wpdm_file_browser_root" name="_wpdm_file_browser_root" value="<?php echo htmlspecialchars(stripslashes_deep(get_option('_wpdm_file_browser_root', str_replace("\\", "/", ABSPATH)))); ?>" />
                                 <span class="input-group-btn">
-                                    <button class="btn btn-secondary ttip" title="<?php _e('Reset Base Dir'); ?>" type="button" onclick="jQuery('#_wpdm_file_browser_root').val('<?php echo rtrim(ABSPATH,'/'); ?>');"><i class="fas fa-redo"></i></button>
+                                    <button class="btn btn-secondary ttip" title="<?php _e('Reset Base Dir'); ?>" type="button" onclick="jQuery('#_wpdm_file_browser_root').val('<?php echo rtrim(str_replace("\\", "/", ABSPATH),'/'); ?>');"><i class="fas fa-redo"></i></button>
                                 </span>
                         </div>
                     </div>

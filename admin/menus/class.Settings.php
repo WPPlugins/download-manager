@@ -257,8 +257,7 @@ class Settings
             
             foreach($_POST as $k => $v){
                 if(strpos("__".$k, '_wpdm_')){
-                    $v = wpdm_escs($v);
-                    update_option($k, $v);
+                    update_option($k, wpdm_sanitize_array($v));
                 }
             }
             die('Settings Saved Successfully!');

@@ -94,6 +94,7 @@
 
     <?php if($ttype == 'email'){ ?>
     <form method="post" id="emlstform">
+        <?php wp_nonce_field(NONCE_KEY, '__wpdm_nonce') ?>
         <div class="panel panel-default">
             <div class="panel-heading">Email Settings</div>
             <div class="panel-body">

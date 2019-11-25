@@ -6,19 +6,24 @@
  */
 if (!defined('ABSPATH')) die();
 ?>
-<div class="panel panel-default">
-    <div class="panel-body text-center">
-        <img style="width: 128px;border-radius: 500px;margin: 20px auto" src="<?php echo get_avatar_url($current_user->ID, 128); ?>" />
-        <div><?php _e("Welcome", "download-manager"); ?></div>
-        <h3><?php echo $current_user->display_name; ?></h3>
-        <div class="text-muted"><?php _e("You are already logged in.", "download-manager");  ?></div>
-    </div>
-    <div class="panel-footer text-center">
 
-        <a class="color-primary" href='<?php echo get_permalink(get_option('__wpdm_user_dashboard')); ?>'><i class="far fa-user-circle"></i> <?php _e("Dashboard", "download-manager") ?></a> &nbsp;
-        <a class="color-info" href='<?php echo get_permalink(get_option('__wpdm_user_dashboard')); ?>'><i class="fas fa-history"></i> <?php _e("Download History", "download-manager") ?></a> &nbsp;
-        <a class="color-danger" href='<?php echo wpdm_logout_url(); ?>'><i class="fas fa-door-open"></i> <?php _e( "Logout" , "download-manager" ); ?></a>
+<div class="w3eden">
+    <div id="wpdmlogin">
+        <div class="panel panel-default">
+            <div class="panel-body text-center">
+                <img style="width: 128px;border-radius: 500px;margin: 20px auto" src="<?php echo get_avatar_url($current_user->ID, 128); ?>" />
+                <div><?php _e("Welcome", "download-manager"); ?></div>
+                <h3><?php echo $current_user->display_name; ?></h3>
+                <div class="text-muted"><?php _e("You are already logged in.", "download-manager");  ?></div>
+            </div>
+            <div class="panel-footer text-center">
 
+                <a class="color-primary" href='<?php echo get_permalink(get_option('__wpdm_user_dashboard')); ?>'><i class="far fa-user-circle"></i> <?php _e("Dashboard", "download-manager") ?></a> &nbsp;
+                <a class="color-info" href='<?php echo get_permalink(get_option('__wpdm_user_dashboard')); ?>'><i class="fas fa-history"></i> <?php _e("Download History", "download-manager") ?></a> &nbsp;
+                <a class="color-danger" href='<?php echo wpdm_logout_url(); ?>'><i class="fas fa-door-open"></i> <?php _e( "Logout" , "download-manager" ); ?></a>
+
+            </div>
+        </div>
     </div>
 </div>
 

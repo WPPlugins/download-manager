@@ -13,7 +13,8 @@ do_action("wpdm_onstart_download", $package);
 
 global $current_user, $dfiles;
 
-$speed = 1024; //in KB - default 1 MB
+$speed = (int)get_option('__wpdm_download_speed', 10240);
+$speed = $speed > 0 ? $speed : 10240;
 $speed = apply_filters('wpdm_download_speed', $speed);
 
 //get_currentuserinfo();

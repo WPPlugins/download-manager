@@ -3,7 +3,7 @@ Contributors: w3eden, codename065, shahriar0822, shimo16ab, shafayat-alam
 Donate link: 
 Tags: download manager, document management, file manager, digital store, ecommerce, document management plugin,  download monitor, download counter, password protection, download protection
 Requires at least: 3.4
-Tested up to: 5.2
+Tested up to: 5.3
 License: GPLv2 or later
  
   
@@ -58,6 +58,23 @@ Also, you may use WordPress Download Manager as a complete e-Commerce Solution f
 *   Video file download protection, allow visitors to play but block download
 *   Translation Ready
 
+= Digital Asset Manager =
+*   Server file manager
+*   Create new file and folder easily
+*   Move, copy, edit files
+*   Integrated file editor with syntax highlights
+*   Asset shortcode to embed a file/asset easily in a page or post
+*   Upload, Download and Delete operations
+*   Video and audio preview/play
+
+= Digital Asset Manager ( Pro Features ) =
+*   File tagging
+*   Sharable link generator
+*   Bookmarking, Comments and discussions
+*   Front-end asset management
+*   Custom asset meta data
+*   Asset archive and version management
+
 = Complete Digital Store Solution: =
 Use [Premium Package – Complete Digital Store Solution](https://www.wpdownloadmanager.com/download/premium-package-wordpress-digital-store-solution/) Add-on (free) if you need to sell your digital items. The add-on has all features you will ever need to build a perfect online shop for your digital downloads:
 
@@ -90,6 +107,8 @@ Use [Premium Package – Complete Digital Store Solution](https://www.wpdownload
 *   Sell individual files ( like single song from an album )  ( This Feature Requires WPDM v4+ )
 *   and [much more...](https://www.wpdownloadmanager.com/downloads/ecommerce-add-ons/)
 
+= Gutenberg Blocks =
+[Gutenberg Blocks](https://www.wpdownloadmanager.com/download/gutenberg-blocks/) for gutenberg editor
 
 = Google Drive =
 Use [Google Drive Explorer](https://www.wpdownloadmanager.com/download/google-drive-explorer/) add-on ( free ) to store your files in google drive and link with download manager, get 15 GB free storage space and save your server bandwidth
@@ -107,7 +126,6 @@ Use [Box.com Explorer](https://www.wpdownloadmanager.com/download/box-com-explor
 = Add-ons =
 Download and Install following free add-on to add additional features as per your need
 
-* [Gutenberg Blocks](https://www.wpdownloadmanager.com/download/gutenberg-blocks/) for gutenberg editor
 * [Advanced Tiny-Mce Button](https://www.wpdownloadmanager.com/download/advanced-tinymce-button/) for editor button to generate short-codes
 * [Extended Short-codes](https://www.wpdownloadmanager.com/download/wpdm-extended-short-codes/) for tree view ( [wpdm_tree] ), slider ( [wpdm_slider] ) & carousel ( [wpdm_carousel] )
 * [WPDM Image Button](https://www.wpdownloadmanager.com/download/wpdm-image-button/) to replace download link label with a custom designed image
@@ -121,9 +139,9 @@ Check download stats and get a push notification when someone downloads, install
 * [WPDM for iOS](https://www.wpdownloadmanager.com/download/wpdm-ios/) - Check download and sales stats directly from your iPhone or iPad
 
 = Free Themes =
+* [Attire](https://www.wpdownloadmanager.com/download/attire-allinone-wordpress-theme/) - perfect theme for any site like blog, portfolio, photography, stock image, music, video archive, software download directory, ecommerce, and it is free.
 * [Verse - Theme For Selling Digital Products](https://www.wpdownloadmanager.com/download/verse-wordpress-theme-for-digital-shop/)
 * [Swift - Theme For Selling Digital Products](https://www.wpdownloadmanager.com/download/swift-wordpress-theme-for-selling-digital-products/)
-* [Expo - Specially Optimized for WordPress Download Manager](https://www.wpdownloadmanager.com/download/expo/)
 * [More Free Themes...](https://www.wpdownloadmanager.com/downloads/free-themes/)
 
 = More Themes & Add-ons =
@@ -147,16 +165,41 @@ Check download stats and get a push notification when someone downloads, install
 5. Settings Page
 6. Front-end preview for category short-code
 7. Password Protection
-8. User Dashboard Login
-9. User Dashboard
+8. Asset Manager
+9. Preview & Edit Digital Assets
 10. Orders Page ( Admin )
 11. Order Details ( Admin )
 12. Invoice
 13. Video Player
 14. Shortcode Generator
 15. Quick Add Panel
+16. User Dashboard Login
+17. User Dashboard
 
 == Changelog ==
+
+= 3.0.4 =
+* Compatibility update for WordPress 5.3
+* Fixed a CSS issue wit the UI settings
+
+= 3.0.3 =
+* Fixed a translation issue with the template files
+* Fixed am issue with oEmbed function
+* Fixed an issue with direct link shortcode parameter
+* Fixed an issue with email template save function
+
+= 3.0.2 =
+* Improved asset manager root directory option
+* Improved stats export options
+* Fixed file sorting issue with all downloads table
+
+= 3.0.1 =
+* Fixed an issue with file browser root dir in windows server
+* Adjusted asset manager access to site admins
+
+= 3.0.0 =
+* Asset awesome new option for asset management
+* Fixed an issue with the terms lock
 
 = 2.9.99 =
 * Fixed an char encoding issue with server file browser path

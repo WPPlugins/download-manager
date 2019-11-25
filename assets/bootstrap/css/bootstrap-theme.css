@@ -1,4 +1,4 @@
-@import url(https://fonts.googleapis.com/css?family=Montserrat:400,700|Source+Sans+Pro:600,300,300italic);
+@import url(http://fonts.googleapis.com/css?family=Montserrat:400,700|Source+Sans+Pro:600,300,300italic);
 /*!
  * Eden v1.0.0
  * Homepage: http://scripteden.com
@@ -700,19 +700,19 @@
 .w3eden .btn {
     border: 0;
 }
-.w3eden .btn-default,
+.w3eden .btn-secondary,
 .w3eden .flat-default,
 .w3eden .flat-default.btn-bordered:hover {
     background-color: #bdc3c7;
     color: #ffffff;
 }
-.w3eden .btn-default:hover:not(.no-hover),
+.w3eden .btn-secondary:hover:not(.no-hover),
 .w3eden .flat-default:hover:not(.no-hover),
 .w3eden .flat-default.btn-bordered {
     background-color: #cbd1d5;
     color: #ffffff;
 }
-.w3eden .btn-default:active:not(.no-hover),
+.w3eden .btn-secondary:active:not(.no-hover),
 .w3eden .flat-default:active:not(.no-hover),
 .w3eden .flat-default.btn-bordered {
     background-color: #a5abaf;
@@ -815,20 +815,20 @@
     background-color: #d54a3a;
     color: #ffffff;
 }
-.w3eden .btn-inverse,
+.w3eden .btn-secondary,
 .w3eden .flat-inverse,
 .w3eden .flat-inverse.btn-bordered:hover {
     background-color: #34495e;
     color: #ffffff !important;
 }
-.w3eden .btn-inverse:hover:not(.no-hover),
+.w3eden .btn-secondary:hover:not(.no-hover),
 .w3eden .flat-inverse:hover:not(.no-hover),
 .w3eden .flat-inverse.btn-bordered {
     background-color: #435f75;
     color: #ffffff !important;
 }
-.w3eden .btn-inverse:focus,
-.w3eden .btn-inverse:active,
+.w3eden .btn-secondary:focus,
+.w3eden .btn-secondary:active,
 .w3eden .flat-inverse:active,
 .w3eden .flat-inverse.btn-bordered:hover {
     background-color: #17222e;

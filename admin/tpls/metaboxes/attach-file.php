@@ -25,8 +25,13 @@
         }
 
         ?>
+        <div class="media">
+            <a href="#" id="dcf" title="Delete Current File" class="pull-right" style="font-size:24px">
+                <i class="fa fa-trash color-red"></i>
+            </a>
+            <div class="media-body"><strong><?php echo  basename($afile); ?></strong><br><?php echo wpdm_file_size($afile); ?></div>
+        </div>
 
-        <div style="position: relative;"><strong><?php echo  basename($afile); ?></strong><br/><?php echo $filesize; ?> <a href='#' id="dcf" title="Delete Current File" style="position: absolute;right:0;top:0;height:32px;"><img src="<?php echo plugins_url('/download-manager/assets/images/error.png'); ?>" /></a></div>
     <?php } else echo "<span style='font-weight:bold;color:#ddd'>". __('No file uploaded yet!', 'download-manager')."</span>"; ?>
     <div style="clear: both;"></div>
 </div>
@@ -71,7 +76,7 @@
             'urlstream_upload'    => true,
             // additional post data to send to our ajax hook
             'multipart_params'    => array(
-                '_ajax_nonce' => wp_create_nonce('wpdm_admin_upload_file'),
+                '_ajax_nonce' => wp_create_nonce(NONCE_KEY),
                 'action'      => 'wpdm_admin_upload_file',            // the ajax action name
             ),
         );
@@ -149,7 +154,7 @@
                     else {
                         var data = response.split("|||");
                         jQuery('#wpdmfile').val(data[1]);
-                        jQuery('#cfl').html('<div><strong>' + data[1] + '</strong> <a href="#" id="dcf" title="<?php _e('Delete Current File', 'download-manager');?>" style="position: absolute;right:0;top:0;height:32px;"><img src="<?php echo plugins_url('/download-manager/assets/images/error.png'); ?>" /></a>').slideDown();
+                        jQuery('#cfl').html('<div class="media"><a href="#" class="pull-right ttip" id="dcf" title="<?php _e('Delete Current File', 'download-manager');?>" style="font-size: 24px"><i class="fa fa-trash color-red"></i></a><div class="media-body"><strong>' + data[1] + '</strong><br/>'+data[2]+' </div></div>').slideDown();
                     }
                 });
             });

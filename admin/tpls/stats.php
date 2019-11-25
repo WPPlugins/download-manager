@@ -3,9 +3,9 @@
 
     <div class="panel panel-default" id="wpdm-wrapper-panel">
         <div class="panel-heading">
-            <button type="button" id="cdh" class="btn btn-default btn-sm pull-right" style="font-weight: 600;margin-left: 10px;"><i class="sinc fas fa-sync color-purple"></i><?php _e("Clear History",'download-manager'); ?></button>
-             <a class="btn btn-default btn-sm pull-right" href="edit.php?post_type=wpdmpro&page=wpdm-stats&task=export" style="font-weight: 600"><i class="sinc fa fa-download color-green"></i><?php _e("Export History",'download-manager'); ?></a>
-            <b><i class="fa fa-bar-chart-o color-purple"></i> &nbsp; <?php echo __('Download History','download-manager'); ?></b>
+            <button type="button" id="cdh" class="btn btn-danger btn-sm pull-right" style="font-weight: 600;margin-left: 10px;"><i class="sinc fas fa-trash"></i><?php _e("Clear History",'download-manager'); ?></button>
+             <a class="btn btn-secondary btn-sm pull-right" href="edit.php?post_type=wpdmpro&page=wpdm-stats&task=export<?php echo wpdm_query_var('pid', 'int')?'&pid='.wpdm_query_var('pid', 'int'):''; ?><?php echo wpdm_query_var('uid', 'int')?'&uid='.wpdm_query_var('uid', 'int'):''; ?><?php echo wpdm_query_var('ip')?'&ip='.wpdm_query_var('ip'):''; ?>" style="font-weight: 600"><i class="sinc fa fa-file-export"></i><?php _e("Export History",'download-manager'); ?></a>
+            <b><i class="fa fa-history color-purple"></i> &nbsp; <a href="edit.php?post_type=wpdmpro&page=wpdm-stats"><?php echo __('Download History','download-manager'); ?></a></b>
 
         </div>
 

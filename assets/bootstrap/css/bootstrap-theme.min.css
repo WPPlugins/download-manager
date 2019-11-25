@@ -9,7 +9,7 @@
 .w3eden .btn:focus{
     outline: none !important;
 }
-.w3eden .btn-default,
+.w3eden .btn-secondary,
 .w3eden .btn-primary,
 .w3eden .btn-success,
 .w3eden .btn-info,
@@ -19,13 +19,13 @@
     -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 1px 1px rgba(0, 0, 0, 0.075);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 1px 1px rgba(0, 0, 0, 0.075);
 }
-.w3eden .btn-default:active,
+.w3eden .btn-secondary:active,
 .w3eden .btn-primary:active,
 .w3eden .btn-success:active,
 .w3eden .btn-info:active,
 .w3eden .btn-warning:active,
 .w3eden .btn-danger:active,
-.w3eden .btn-default.active,
+.w3eden .btn-secondary.active,
 .w3eden .btn-primary.active,
 .w3eden .btn-success.active,
 .w3eden .btn-info.active,
@@ -38,7 +38,7 @@
 .w3eden .btn.active {
     background-image: none;
 }
-.w3eden .btn-default {
+.w3eden .btn-secondary {
     text-shadow: 0 1px 0 #fff;
     background-image: -webkit-gradient(linear, left 0, left 100%, from(#ffffff), to(#e0e0e0));
     background-image: -webkit-linear-gradient(top, #ffffff 0, #e0e0e0 100%);
@@ -50,13 +50,13 @@
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffffff', endColorstr='#ffe0e0e0', GradientType=0);
     filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
 }
-.w3eden .btn-default:hover,
-.w3eden .btn-default:focus {
+.w3eden .btn-secondary:hover,
+.w3eden .btn-secondary:focus {
     background-color: #e0e0e0;
     background-position: 0 -15px;
 }
-.w3eden .btn-default:active,
-.w3eden .btn-default.active {
+.w3eden .btn-secondary:active,
+.w3eden .btn-secondary.active {
     background-color: #e0e0e0;
     border-color: #dbdbdb;
 }
