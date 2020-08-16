@@ -4,6 +4,8 @@
 namespace WPDM\libs;
 
 
+use WPDM\Session;
+
 class FileList
 {
     /**

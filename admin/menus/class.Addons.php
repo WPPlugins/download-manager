@@ -25,8 +25,8 @@ class Addons
 
     function UI(){
         if (!Session::get('wpdm_addon_store_data') || !is_array(json_decode(Session::get('wpdm_addon_store_data')))) {
-            $data = remote_get('https://www.wpdownloadmanager.com/?wpdm_api_req=getPackageList');
-            $cats = remote_get('https://www.wpdownloadmanager.com/?wpdm_api_req=getCategoryList');
+            $data = wpdm_remote_get('https://www.wpdownloadmanager.com/?wpdm_api_req=getPackageList');
+            $cats = wpdm_remote_get('https://www.wpdownloadmanager.com/?wpdm_api_req=getCategoryList');
             Session::set('wpdm_addon_store_data', $data);
             Session::set('wpdm_addon_store_cats', $cats);
         } else {

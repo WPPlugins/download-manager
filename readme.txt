@@ -1,15 +1,15 @@
 ﻿=== WordPress Download Manager ===
 Contributors: w3eden, codename065, shahriar0822, shimo16ab, shafayat-alam
-Donate link: 
+Donate link:
 Tags: download manager, document management, file manager, digital store, ecommerce, document management plugin,  download monitor, download counter, password protection, download protection
 Requires at least: 3.4
-Tested up to: 5.3
+Tested up to: 5.4
 License: GPLv2 or later
- 
-  
- 
+
+
+
 This File Management & Digital Store plugin will help you to control file downloads & sell digital products from your WP site.
-   
+
 
 == Description ==
 WordPress Download Manager is a Files / Documents Management Plugin to manage, track and control file downloads from your WordPress Site.  Use Passwords, User Roles to control access to your files, control downloads by speed or by putting a limit on download count per user, block bots or unwanted users or spammers using Captcha Lock or IP Block feature, you may also ask users to agree with your terms and conditions before they download.
@@ -21,6 +21,8 @@ Also, you may use WordPress Download Manager as a complete e-Commerce Solution f
 *   Drag and Drop File Upload
 *   Chunk upload support to override http max upload limit
 *   Attach file directly from your server using server file browser
+*   Media library file protection
+*   Integrated document viewer ( DOC, PDF and POWERPOINT )
 *   Quick add panel with tinymce editor button to create and insert a download easily when you are editing a post or page
 *   Google Drive support to store your files in Google drive ( 15 GB of space for free)
 *   DropBox support to store your files in DropBox ( 2 GB of space for free )
@@ -141,7 +143,6 @@ Check download stats and get a push notification when someone downloads, install
 = Free Themes =
 * [Attire](https://www.wpdownloadmanager.com/download/attire-allinone-wordpress-theme/) - perfect theme for any site like blog, portfolio, photography, stock image, music, video archive, software download directory, ecommerce, and it is free.
 * [Verse - Theme For Selling Digital Products](https://www.wpdownloadmanager.com/download/verse-wordpress-theme-for-digital-shop/)
-* [Swift - Theme For Selling Digital Products](https://www.wpdownloadmanager.com/download/swift-wordpress-theme-for-selling-digital-products/)
 * [More Free Themes...](https://www.wpdownloadmanager.com/downloads/free-themes/)
 
 = More Themes & Add-ons =
@@ -151,32 +152,116 @@ Check download stats and get a push notification when someone downloads, install
 
 == Installation ==
 
-
 1. Upload `download-manager` to the `/wp-content/plugins/`  directory
 2. Activate the plugin through the 'Plugins' menu in WordPress
 
 
 
 == Screenshots ==
-1. Create New  
-2. Front-end link template preview
-3. Full tree view of categories and files with a simple short-code [wpdm_tree]
-4. Sortable and Searchable Download List , use short-code [wpdm_all_packages] to embed the list
-5. Settings Page
-6. Front-end preview for category short-code
-7. Password Protection
+1. Create new download
+2. Front-end link template previews
+3. Tree view
+4. Responsive datatable
+5. UI customizer
+6. Category short-code
+7. Password protection
 8. Asset Manager
 9. Preview & Edit Digital Assets
 10. Orders Page ( Admin )
 11. Order Details ( Admin )
-12. Invoice
-13. Video Player
-14. Shortcode Generator
-15. Quick Add Panel
-16. User Dashboard Login
-17. User Dashboard
+12. Media library protection
+13. Video player
+14. Gutenberg ready
+15. Lock options
+16. Login form
+17. User dashboard
+18. Server file browser
+19. More features
 
 == Changelog ==
+
+= 3.1.05 =
+* Fixed an issue with the view counter
+* Fixed an issue with modal popup
+
+= 3.1.04 =
+* Fixed an issue with the media library file protection
+* Optimized frontend UI
+
+= 3.1.03 =
+* Fixed an issue with the login form captcha validation
+* Added options to enable/disable login/register form captcha from basic settings
+* Improved search widget
+
+= 3.1.02 =
+* Added new option to mask/unmask download link
+* Fixed issue with the class.ShortCode.php, added a missing method
+
+= 3.1.01 =
+* Fixed an issue with class.UI.php
+
+= 3.1.0 =
+* Fixed the issue with PHP 5.6 compatibility
+
+= 3.0.99 =
+* Fixed the issue with terms lock
+* Fixed the issue with reCaptcha overlap between modal login form and signup form
+* Fixed the style issue with the all downloads table
+
+= 3.0.98 =
+* New options to customize category page styles
+* Improved register and login form shortcodes
+* Improved data table view
+
+= 3.0.97 =
+* Improved asset manager
+* Fixed an issue with category handler
+* Fixed an issue with Package Info widget
+
+= 3.0.96 =
+* Fixed an issue with file extension check
+* Improved admin UI
+
+= 3.0.95 =
+* Fixed an issue with the PDF viewer
+
+= 3.0.94 =
+* Fixed a notice due to undefined constant `WPDM_USE_GLOBAL`
+
+= 3.0.93 =
+* Introduced a new constant to disable asset manager, need to add `define('WPDM_ASSET_MANAGER', false);` in wp-config.php
+* Fixed a warning with category access check method
+
+= 3.0.92 =
+* Fixed an issue with the font awesome enqueue
+
+= 3.0.91 =
+* Fixed special char issue with the password lock
+* File attachment from file picker changed to relative path from absolute path to avoid file path issue after moving to another server
+* Improved package info widget
+
+= 3.0.9 =
+* Added new mail template for new use signup admin notification
+* Compatibility update for PHP 7.4
+* Added modal login form
+
+= 3.0.8 =
+* Fixed attached file path issue with the server file picker
+
+= 3.0.7 =
+* Added server file picker feature
+* Added media library file protection feature
+
+= 3.0.6 =
+* Added custom icon support for data table
+* Added new option to attach file from media library
+* Added audio player option
+* Added new link template with audio play button
+* Added new page template with audio player
+
+= 3.0.5 =
+* Improved asset manager
+* Improved frontend UI
 
 = 3.0.4 =
 * Compatibility update for WordPress 5.3
@@ -776,12 +861,12 @@ Check download stats and get a push notification when someone downloads, install
 * Fixed access level issue
 
 = 2.5.92 =
-* Applied sanitize file name for cached file 
+* Applied sanitize file name for cached file
 
 = 2.5.91 =
 * regular maintenance and compatibility release for wp 3.8
 
-= 2.5.9 = 
+= 2.5.9 =
 * Fixed input validation issue
 
 = 2.5.8 =
@@ -827,7 +912,7 @@ Check download stats and get a push notification when someone downloads, install
 * Upgraded some internal css
 
 = 2.4.5 =
-* Fixed the issue with tinymce button 
+* Fixed the issue with tinymce button
 
 = 2.4.4 =
 * Upgrade tinymce button feature, added quick add option
@@ -866,23 +951,23 @@ Check download stats and get a push notification when someone downloads, install
 
 = 2.3.4 =
 * Fixed file save issue with v2.3.3
-* Fixed issue with download monitor import 
+* Fixed issue with download monitor import
 
 = 2.3.3 =
 * added search functionality in admin
-* added individual icon support 
+* added individual icon support
 * added new short-code for all download using datatable.js, with sorting and searching option
 
-= 2.3.2 = 
+= 2.3.2 =
 * Fixed a minor issue with uploader
 
-= 2.3.1 = 
+= 2.3.1 =
 * Optimized for wp 3.5
 * Upgraded file upload option
 * Adjusted file delete issue
 * Upgraded content formatting
 
-= 2.3.0 = 
+= 2.3.0 =
 * Fixed category pagination issue
 * Fixed category count issue
 * Fixed 'facebook' css class issue
@@ -973,7 +1058,7 @@ Check download stats and get a push notification when someone downloads, install
 * download counter and download label issue fixed
 
 = 2.0.10 =
-* fixed bug with server browser 
+* fixed bug with server browser
 * fixed bug with db table creation
 
 = 2.0.9 =
@@ -1010,13 +1095,13 @@ Check download stats and get a push notification when someone downloads, install
 = 1.5.9 =
 * Hotlink protection added
 
-= 1.5.33 = 
+= 1.5.33 =
 * Add new option for controlling plugin access. Now you can set access level for the plugin
 
-= 1.5.32 = 
+= 1.5.32 =
 * Minor bug fixed with creating db table
 
-= 1.5.3 = 
+= 1.5.3 =
 * Download counter show/hide feature added for frontend download counter display
 
 = 1.5.2 =
@@ -1027,14 +1112,14 @@ Check download stats and get a push notification when someone downloads, install
 = 1.5.1 =
 * Adjusted minor issues with download counter
 
-= 1.5 = 
+= 1.5 =
 * New feature: Download counter
 * 2 minor bug fixed
 
 = 1.4 =
 * Fixed conflict with some other plugins
 
-= 1.3 = 
+= 1.3 =
 * Fixed issue with pagination
 
 = 1.2.5 =

@@ -1,68 +1,51 @@
 <!-- WPDM Template: Default Template -->
-<div class="page-template-default wpdm-page-template">
-    <div class="row">
-        <div class="col-md-12">
-            [thumb_900x0]
+<div class="row">
+    <div class="col-md-12">
+        <div class="card mb-3 p-3">
+            [featured_image]
+            [audio_player]
         </div>
-        <div class="col-md-12"><br/>
-            <table class="table table-striped">
-                <tbody>
-                <tr class="[hide_empty:version]">
-                    <td>[txt=Version]</td>
-                    <th class="text-right">[version]</th>
-                </tr>
-                <tr class="[hide_empty:download_count]">
-                    <td>[txt=Download]</td>
-                    <th class="text-right">[download_count]</th>
-                </tr>
-                <tr class="[hide_empty:view_count]">
-                    <td>[txt=Total Views]</td>
-                    <th class="text-right">[view_count]</th>
-                </tr>
-                <tr class="[hide_empty:quota]">
-                    <td>[txt=Stock]</td>
-                    <th class="text-right">[quota]</th>
-                </tr>
-                <tr class="[hide_empty:file_size]">
-                    <td>[txt=File Size]</td>
-                    <th class="text-right">[file_size]</th>
-                </tr>
-                <tr class="[hide_empty:file_type_icons]">
-                    <td>[txt=File Type]</td>
-                    <th class="text-right">[file_type_icons]</th>
-                </tr>
-                <tr class="[hide_empty:create_date]">
-                    <td>[txt=Create Date]</td>
-                    <th class="text-right">[create_date]</th>
-                </tr>
-                <tr class="[hide_empty:update_date]">
-                    <td>[txt=Last Updated]</td>
-                    <th class="text-right">[update_date]</th>
-                </tr>
-                </tr>
-                </tbody>
-            </table>
-            [download_link_extended]
+    </div>
+    <div class="col-md-5">
+        <div class="wpdm-button-area mb-3 p-3 card">
+            [download_link]
         </div>
+        <ul class="list-group ml-0 mb-2">
+            <li class="list-group-item d-flex justify-content-between align-items-center [hide_empty:version]">
+                [txt=Version]
+                <span class="badge">[version]</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center [hide_empty:download_count]">
+                [txt=Download]
+                <span class="badge">[download_count]</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center [hide_empty:file_size]">
+                [txt=File Size]
+                <span class="badge">[file_size]</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center [hide_empty:file_count]">
+                [txt=File Count]
+                <span class="badge">[file_count]</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center [hide_empty:create_date]">
+                [txt=Create Date]
+                <span class="badge">[create_date]</span>
+            </li>
+            <li class="list-group-item  d-flex justify-content-between align-items-center [hide_empty:update_date]">
+                [txt=Last Updated]
+                <span class="badge">[update_date]</span>
+            </li>
+
+        </ul>
+    </div>
+
+    <div class="col-md-7">
+        <h1 class="mt-0">[title]</h1>
+        [description]
+
 
     </div>
-    <div class="row">
-        <div class="col-md-12" style="margin-top: 15px">
-            [description]
-        </div>
-    </div>
+
 </div>
 
-<style>
-    .input-group .form-control, .input-group .btn {
-        margin: 0 !important;
-    }
 
-    .page-template-default .panel, .page-template-default .panel-heading {
-        border-radius: 0 !important;
-    }
-
-    .page-template-default img {
-        box-shadow: none !important;
-    }
-</style>

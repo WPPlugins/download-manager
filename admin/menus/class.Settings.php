@@ -123,6 +123,7 @@ class Settings
             '__wpdm_download_resume'        => 'int',
             '__wpdm_support_output_buffer'  => 'int',
             '__wpdm_open_in_browser'        => 'int',
+            '__wpdm_mask_link'              => 'int',
             '_wpdm_recaptcha_site_key'      => 'txt',
             '_wpdm_recaptcha_secret_key'    => 'txt',
             '__wpdm_login_url'              => 'int',
@@ -142,6 +143,9 @@ class Settings
                     update_option($optn, $optv);
                 }
             }
+
+            WPDM()->apply->sfbAccess();
+
             if (!isset($_POST['__wpdm_skip_locks'])) delete_option('__wpdm_skip_locks');
             if (!isset($_POST['__wpdm_login_form'])) delete_option('__wpdm_login_form');
             if (!isset($_POST['__wpdm_cat_desc'])) delete_option('__wpdm_cat_desc');
@@ -254,7 +258,7 @@ class Settings
         if(isset($_POST['section']) && $_POST['section']=='cloud-storage' && isset($_POST['task']) && $_POST['task']=='wdm_save_settings' && current_user_can(WPDM_ADMIN_CAP)){
 
             if(!wp_verify_nonce($_POST['__wpdms_nonce'], NONCE_KEY)) die(__('Security token is expired! Refresh the page and try again.', 'download-manager'));
-            
+
             foreach($_POST as $k => $v){
                 if(strpos("__".$k, '_wpdm_')){
                     update_option($k, wpdm_sanitize_array($v));
@@ -287,7 +291,7 @@ class Settings
             Session::clear('__wpdm_download_url');
             $access_token = wpdm_access_token();
             if($access_token != '') {
-                $purchased_items = remote_get('https://www.wpdownloadmanager.com/?wpdmppaction=getpurchaseditems&wpdm_access_token=' . $access_token);
+                $purchased_items = wpdm_remote_get('https://www.wpdownloadmanager.com/?wpdmppaction=getpurchaseditems&wpdm_access_token=' . $access_token);
                 $ret = json_decode($purchased_items);
                 update_option('__wpdm_purchased_items', $purchased_items);
                 die('<script>location.href=location.href;</script>Login successful. Refreshing...');
@@ -308,7 +312,7 @@ class Settings
             if (isset($purchased_items->error)) $purchased_items->error = str_replace("[redirect]", admin_url("edit.php?post_type=wpdmpro&page=settings&tab=plugin-update"), $purchased_items->error);
         }
         if(get_option('__wpdm_freeaddons') == '' || wpdm_query_var('newpurchase') != '' || 1) {
-            $freeaddons = remote_get('https://www.wpdownloadmanager.com/?wpdm_api_req=getPackageList&cat_id=1148');
+            $freeaddons = wpdm_remote_get('https://www.wpdownloadmanager.com/?wpdm_api_req=getPackageList&cat_id=1148');
             update_option('__wpdm_freeaddons', $freeaddons);
         }
         $freeaddons = json_decode(get_option('__wpdm_freeaddons'));

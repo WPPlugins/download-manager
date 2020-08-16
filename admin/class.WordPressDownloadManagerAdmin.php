@@ -34,8 +34,8 @@ class WordPressDownloadManagerAdmin
     }
 
     function registerScripts(){
-        wp_register_script('wpdm-bootstrap', WPDM_BASE_URL . 'assets/bootstrap/js/bootstrap.min.js', array('jquery'));
-        wp_register_style('wpdm-bootstrap', WPDM_BASE_URL . 'assets/bootstrap/css/bootstrap.min.css');
+        wp_register_style('wpdm-admin-bootstrap', WPDM_BASE_URL . 'assets/bootstrap3/css/bootstrap.min.css');
+        wp_register_script('wpdm-admin-bootstrap', WPDM_BASE_URL . 'assets/bootstrap3/js/bootstrap.min.js', array('jquery'));
         wp_register_style('wpdm-font-awesome', WPDM_BASE_URL . 'assets/fontawesome/css/all.css');
         wp_register_style('wpdm-front', WPDM_BASE_URL . 'assets/css/front.css');
     }
@@ -65,20 +65,22 @@ class WordPressDownloadManagerAdmin
             wp_enqueue_style('choosen-css', plugins_url('/download-manager/assets/css/chosen.css'));
             wp_enqueue_style('jqui-css', plugins_url('/download-manager/assets/jqui/theme/jquery-ui.css'));
 
-            wp_enqueue_script('wpdm-admin', plugins_url('/download-manager/assets/js/wpdm-admin.js'), array('jquery'));
+            wp_enqueue_script('wpdm-admin', plugins_url('/download-manager/assets/js/wpdm-admin.js'), array('wpdm-admin-bootstrap'));
             wp_enqueue_style('wpdm-font-awesome' );
 
             wp_enqueue_style( 'wp-color-picker' );
             wp_enqueue_script( 'wp-color-picker' );
             //wp_enqueue_script( 'my-script-handle', plugins_url('my-script.js', __FILE__ ), array( 'wp-color-picker' ), false, true );
 
+            wp_enqueue_style('wpdm-admin-styles', plugins_url('/download-manager/assets/css/admin-styles.css'), array('wpdm-admin-bootstrap'));
+
         }
 
         if(get_post_type()=='wpdmpro' || wpdm_query_var('post_type') == 'wpdmpro' || $hook == 'index.php'){
-            wp_enqueue_script('wpdm-bootstrap' );
-            wp_enqueue_style('wpdm-bootstrap' );
+            //wp_enqueue_script('wpdm-admin-bootstrap' );
+            //wp_enqueue_style('wpdm-admin-bootstrap' );
             //wp_enqueue_style('wpdm-bootstrap-theme', plugins_url('/download-manager/assets/bootstrap/css/bootstrap-theme.min.css'));
-            wp_enqueue_style('wpdm-admin-styles', plugins_url('/download-manager/assets/css/admin-styles.css'));
+
         }
 
     }

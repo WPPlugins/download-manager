@@ -1,10 +1,10 @@
 <?php
 /*
 Plugin Name: Download Manager
-Plugin URI: https://www.wpdownloadmanager.com/purchases/
+Plugin URI: https://www.wpdownloadmanager.com/pricing/
 Description: Manage, Protect and Track file downloads, and sell digital products from your WordPress site. A complete digital asset management solution.
 Author: W3 Eden
-Version: 3.0.4
+Version: 3.1.05
 Author URI: https://www.wpdownloadmanager.com/
 Text Domain: download-manager
 Domain Path: /languages
@@ -13,12 +13,20 @@ Domain Path: /languages
 
 namespace WPDM;
 
-global $WPDM;
+global $WPDM, $wpdm_asset;
 
 //if(!isset($_SESSION) && (!isset($_REQUEST['action']) || $_REQUEST['action'] !== 'edit-theme-plugin-file') && !strstr($_SERVER['REQUEST_URI'], 'wpdm-media/') && !isset($_REQUEST['wpdmdl']) && !isset($_GET['health-check-troubleshoot-enable-plugin']))
 //    @session_start();
 
 
+use WPDM\admin\WordPressDownloadManagerAdmin;
+use WPDM\libs\Apply;
+use WPDM\libs\CategoryHandler;
+use WPDM\libs\FileSystem;
+use WPDM\libs\MediaHandler;
+use WPDM\libs\PackageTemplate;
+use WPDM\libs\ShortCodes;
+use WPDM\libs\User;
 
 $content_dir = str_replace('\\','/',WP_CONTENT_DIR);
 
@@ -31,6 +39,9 @@ define('WPDM_MENU_ACCESS_CAP','manage_options');
 define('WPDM_BASE_DIR',dirname(__FILE__).'/');
 
 define('WPDM_BASE_URL',plugins_url('/download-manager/'));
+
+if(!defined('WPDM_USE_GLOBAL'))
+    define('WPDM_USE_GLOBAL', null);
 
 if(!defined('UPLOAD_DIR'))
 define('UPLOAD_DIR',$content_dir.'/uploads/download-manager-files/');
@@ -46,17 +57,23 @@ define('_DEL_DIR',$content_dir.'/uploads/download-manager-files');
 if(!defined('UPLOAD_BASE'))
 define('UPLOAD_BASE',$content_dir.'/uploads/');
 
-if(!defined('WPDM_TPL_DIR')) {
-    define('WPDM_TPL_DIR', dirname(__FILE__) . '/tpls/');
-}
-
-if(!defined('WPDM_TPL_FALLBACK')) {
+if(!defined('WPDM_TPL_FALLBACK'))
     define('WPDM_TPL_FALLBACK', dirname(__FILE__) . '/tpls/');
+
+if(!defined('WPDM_TPL_DIR')) {
+    if((int)get_option('__wpdm_bsversion', '') !== 3)
+        define('WPDM_TPL_DIR', dirname(__FILE__) . '/tpls/');
+    else
+        define('WPDM_TPL_DIR', dirname(__FILE__) . '/tpls3/');
 }
 
-if(!defined('NONCE_KEY')){
+if(!defined('WPDM_FONTAWESOME_URL'))
+    define('WPDM_FONTAWESOME_URL',WPDM_BASE_URL . 'assets/fontawesome/css/all.min.css');
+
+if(!defined('NONCE_KEY') || !defined('NONCE_SALT')){
     //To avoid warning when not defined
-    define('NONCE_SALT',       'Bm|_Ek@F|HdkA7)=alSJg5_<z-j-JmhK<l&*.d<J+/71?&7pL~XBXnF4jKz>{Apx');
+    define('NONCE_KEY',       'Bm|_Ek@F|HdkA7)=alSJg5_<z-j-JmhK<l&*.d<J+/71?&7pL~XBXnF4jKz>{Apx');
+    define('NONCE_SALT',       'XffybIqfklKjegGdRp7EU4kprZX00NESOE8olZ2BZ8+BQTw3bXXSbzeGssgZ');
     /**
      * Generate WordPress Security Keys and Salts from https://api.wordpress.org/secret-key/1.1/salt/ and place them in your wp-config.php
      */
@@ -67,12 +84,29 @@ ini_set('upload_tmp_dir',UPLOAD_DIR.'/cache/');
 
 class WordPressDownloadManager{
 
-    var $apply;
+    public $userDashboard;
+    public $user;
+    public $userProfile;
+    public $apply;
+    public $admin;
+    public $category;
+    public $asset;
     public $shortCode;
+    public $setting;
+    public $bsversion = 4;
+
+    private static $wpdm_instance = null;
+
+    public static function instance(){
+        if ( is_null( self::$wpdm_instance ) ) {
+            self::$wpdm_instance = new self();
+        }
+        return self::$wpdm_instance;
+    }
 
     function __construct(){
 
-        define('WPDM_Version','3.0.4');
+        define('WPDM_Version','3.1.05');
 
         register_activation_hook(__FILE__, array($this, 'Install'));
 
@@ -92,10 +126,23 @@ class WordPressDownloadManager{
         include(dirname(__FILE__)."/wpdm-core.php");
         include(dirname(__FILE__)."/libs/class.AssetManager.php");
 
-        new \WPDM\UserDashboard();
-        $this->apply = new \WPDM\libs\Apply();
-        new \WPDM\admin\WordPressDownloadManagerAdmin();
-        $this->shortCode = new \WPDM\libs\ShortCodes();
+        $this->userDashboard    = new UserDashboard();
+        $this->userProfile      = new UserProfile();
+        $this->user             = new User();
+        $this->apply            = new Apply();
+        $this->admin            = new WordPressDownloadManagerAdmin();
+        $this->shortCode        = new ShortCodes();
+        //new MediaHandler();
+        new MediaAccessControl();
+        $this->package          = new Package();
+        $this->category         = new CategoryHandler();
+        $this->categories       = $this->category;
+        $this->setting          = new Settings();
+        $this->fileSystem       = new FileSystem();
+        $this->template         = new Template();
+        $this->ui               = new UI();
+        $this->packageTemplate  = new PackageTemplate();
+        $this->message          = new \WPDM_Messages();
 
         //do_action("wpdm_addon_init", WPDM_Version);
 
@@ -277,10 +324,15 @@ class WordPressDownloadManager{
 
     function registerScripts(){
 
-        wp_register_style('wpdm-bootstrap', WPDM_BASE_URL . 'assets/bootstrap/css/bootstrap.css');
-        wp_register_style('wpdm-font-awesome', WPDM_BASE_URL . 'assets/fontawesome/css/all.css');
+        wp_register_style('wpdm-font-awesome', WPDM_FONTAWESOME_URL);
 
-        wp_register_script('wpdm-bootstrap', WPDM_BASE_URL.'assets/bootstrap/js/bootstrap.min.js', array('jquery'));
+        wp_register_style('wpdm-front-bootstrap3', plugins_url('/download-manager/assets/bootstrap3/css/bootstrap.min.css'));
+        wp_register_style('wpdm-front-bootstrap', plugins_url('/download-manager/assets/bootstrap/css/bootstrap.min.css'));
+        wp_register_style('wpdm-front3', plugins_url() . '/download-manager/assets/css/front3.css');
+        wp_register_style('wpdm-front', plugins_url() . '/download-manager/assets/css/front.css');
+
+        wp_register_script('wpdm-front-bootstrap3', plugins_url('/download-manager/assets/bootstrap3/js/bootstrap.min.js'), array('jquery'));
+        wp_register_script('wpdm-front-bootstrap', plugins_url('/download-manager/assets/bootstrap/js/bootstrap.bundle.min.js'), array('jquery'));
         wp_register_script('jquery-validate', plugins_url('/download-manager/assets/js/jquery.validate.min.js'), array('jquery'));
     }
 
@@ -316,21 +368,22 @@ class WordPressDownloadManager{
         }
 
 
-        if (!in_array('wpdm-bootstrap-css', $wpdmss)) {
-            wp_enqueue_style('wpdm-bootstrap' );
+        $bsversion = get_option('__wpdm_bsversion', '');
+
+        if (is_array($wpdmss) && !in_array('wpdm-bootstrap-css', $wpdmss)) {
+            wp_enqueue_style('wpdm-front-bootstrap' . $bsversion);
+        }
+
+        if (is_array($wpdmss) && !in_array('wpdm-front', $wpdmss)) {
+            wp_enqueue_style('wpdm-front' . $bsversion, 9999999999);
         }
 
 
-        if (!in_array('wpdm-front', $wpdmss)) {
-            wp_enqueue_style('wpdm-front', WPDM_BASE_URL . 'assets/css/front.css', 9999999999);
+        if (is_array($wpdmss) && !in_array('wpdm-bootstrap-js', $wpdmss)) {
+            wp_enqueue_script('wpdm-front-bootstrap' . $bsversion);
         }
 
-
-        if (!in_array('wpdm-bootstrap-js', $wpdmss)) {
-            wp_enqueue_script('wpdm-bootstrap' );
-        }
-
-        wp_register_script('frontjs', plugins_url('/download-manager/assets/js/front.js'), array('jquery'));
+        wp_register_script('frontjs', plugins_url('/download-manager/assets/js/front.js'), array('jquery'), WPDM_Version);
 
         $wpdm_asset = array(
             'spinner' => '<i class="fas fa-sun fa-spin"></i>'
@@ -387,11 +440,19 @@ class WordPressDownloadManager{
      * @usage insert code in wp footer
      */
     function wpFooter(){
+        global $post;
+        $content = is_object($post) ? $post->post_content : '';
+        if(get_option('__wpdm_modal_login', 0)
+            && !has_shortcode($content, 'wpdm_user_dashboard')
+            && !has_shortcode($content, 'wpdm_login_form')
+            && !has_shortcode($content, 'wpdm_reg_form')
+        )
+            echo $this->apply->modalLoginForm();
         if(is_single()&&get_post_type()=='wpdmpro'){
             ?>
             <script>
                 jQuery(function($){
-                    $.get('<?php echo 'index.php?_nonce='.wp_create_nonce('__wpdm_view_count').'&id='.get_the_ID(); ?>');
+                    $.get('<?php echo home_url('/?_nonce='.wp_create_nonce('__wpdm_view_count').'&id='.get_the_ID()); ?>');
                 });
             </script>
             <?php
@@ -429,5 +490,4 @@ class WordPressDownloadManager{
 
 }
 
-$WPDM = new \WPDM\WordPressDownloadManager();
-
+$WPDM = WordPressDownloadManager::instance();

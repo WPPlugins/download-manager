@@ -1,5 +1,4 @@
-<?php
-if (!defined('ABSPATH')) die();
+<?php if(!defined('ABSPATH')) die();
 //Template Name: Members
 
     get_header();

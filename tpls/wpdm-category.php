@@ -1,6 +1,4 @@
-<?php
-if (!defined('ABSPATH')) die();
-get_header(); the_post(); ?>
+<?php get_header(); the_post(); ?>   
       <div class="container">   
         <br>  
         <div class="row">
@@ -38,7 +36,7 @@ get_header(); the_post(); ?>
          </table><br>
          
          <center>
-         <?php echo (int)get_wpdm_meta(get_wpdm_ID(),'price')>=0?str_replace("wpdm-gh-button wpdm-gh-icon tag","btn btn-info",FetchTemplate("[addtocart_form]", $package)):str_replace("wpdm-gh-button wpdm-gh-icon arrowdown wpdm-gh-big","btn btn-success btn-large",$package['download_link']); ?>
+         <?php echo (int)get_wpdm_meta(get_wpdm_ID(),'price')>=0?str_replace("wpdm-gh-button wpdm-gh-icon tag","btn btn-info",wpdm_fetch_template("[addtocart_form]", $package)):str_replace("wpdm-gh-button wpdm-gh-icon arrowdown wpdm-gh-big","btn btn-success btn-large",$package['download_link']); ?>
          </center>
         </div></div></div>
         

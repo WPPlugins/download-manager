@@ -35,6 +35,17 @@ class Email {
                     'message'    => '<h3>Welcome to [#sitename#]</h3>Hello [#first_name#],<br/>Thanks for registering to [#sitename#]. For the record, here is your login info again:<br/>Username: [#username#]<br/>Password: [#password#]<br/><b>Login URL: <a href="[#loginurl#]">[#loginurl#]</a></b><br/><br/>Best Regards,<br/>Support Team<br/><b><a href="[#homeurl#]">[#sitename#]</a></b>'
                 )
             ),
+            'user-signup-admin'          => array(
+                'label'   => __( "User Signup Notification" , "download-manager" ),
+                'for'     => 'admin',
+                'default' => array(
+                    'subject'    => sprintf( __( "[ %s ] New User Registration" , "download-manager" ), $sitename ),
+                    'from_name'  => get_option( 'blogname' ),
+                    'from_email' => $admin_email,
+                    'to_email'   => $admin_email,
+                    'message'    => __( "New user registration on your site WordPress Download Manager:" , "download-manager" ).'<hr/>Username: [#username#]<br/>Email: [#email#]<br/>IP: [#user_ip#]<hr/>[edit_user_btn]<br/><br/>Best Regards,<br/>Support Team<br/><b><a href="[#homeurl#]">[#sitename#]</a></b>'
+                )
+            ),
             'password-reset'       => array(
                 'label'   => __( "Password Reset Notification" , "download-manager" ),
                 'for'     => 'customer',

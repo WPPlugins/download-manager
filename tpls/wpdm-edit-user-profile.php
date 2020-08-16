@@ -1,73 +1,88 @@
 <?php
-global $current_user, $wpdb;
-$user = get_userdata($current_user->ID);
+global $current_user;
+if(!defined('ABSPATH')) die('!');
+$store = get_user_meta(get_current_user_id(), '__wpdm_public_profile', true);
 
-$member_error = \WPDM\Session::get('member_error');
-$member_success = \WPDM\Session::get('member_success');
+?><form method="post" id="edit_profile" name="edit-profile" action="" class="form">
+    <div class="card card-default dashboard-card">
+        <div class="card-header">
+            <a target="_blank" href="<?php echo get_option('__wpdm_author_profile') > 0?get_permalink(get_option('__wpdm_author_profile'))."?user=".$current_user->user_login:get_author_posts_url($current_user->ID);?>" class="btn btn-info btn-sm pull-right" style="margin: 0;margin-top:-5px;margin-right:-7px;"><?php _e( "View Profile" , "download-manager" ); ?></a>
+            <?php _e( "Public Profile Info" , "download-manager" ); ?>
+        </div>
+        <div class="card-body">
 
-?>
-
-<div id="edit-profile-form">
-
-    <?php if($member_error){ ?>
-        <div class="alert alert-danger" data-title="<?php _e( "SAVE FAILED!" , "download-manager" );?>"><?php echo implode('<br/>',$member_error); \WPDM\Session::clear('member_error'); ?></div>
-    <?php } ?>
-    <?php if($member_success){ ?>
-        <div class="alert alert-success" data-title="<?php _e( "DONE!" , "download-manager" );?>"><?php echo $member_success; \WPDM\Session::clear('member_success'); ?></div>
-    <?php } ?>
-
-
-
-    <form method="post" id="edit_profile" name="contact_form" action="" class="form">
-        <?php wp_nonce_field(NONCE_KEY, '__wpdm_epnonce'); ?>
-        <div class="panel panel-default dashboard-panel">
-            <div class="panel-heading"><?php _e( "Basic Profile" , "download-manager" ); ?></div>
-            <div class="panel-body">
-                <div class="row">
-                    <div class="col-md-6 form-group"><label for="name"><?php _e( "Display name:" , "download-manager" );?> </label><input type="text" class="required form-control" value="<?php echo $user->display_name;?>" name="wpdm_profile[display_name]" id="name"></div>
-                    <div class="col-md-6 form-group"><label for="payment_account"><?php _e( "PayPal Email:" , "download-manager" );?></label><input type="text" value="<?php echo get_user_meta($user->ID,'payment_account',true); ?>" class="form-control" name="payment_account" id="payment_account"> </div>
-
-                    <div class="col-md-6 form-group"><label for="username"><?php _e( "Username:" , "download-manager" );?></label><input type="text" class="required form-control" value="<?php echo $user->user_login;?>" id="username" readonly="readonly"></div>
-                    <div class="col-md-6 form-group"><label for="email"><?php _e( "Email:" , "download-manager" );?></label><input type="text" class="required form-control" name="wpdm_profile[user_email]" value="<?php echo $user->user_email;?>" id="email" ></div>
-
-                    <div class="col-md-6 form-group"><label for="new_pass"><?php _e( "New Password:" , "download-manager" );?> </label><input  autocomplete="off" placeholder="<?php _e( "Use nothing if you don\'t want to change old password" , "download-manager" );?>" type="password" class="form-control" value="" name="password" id="new_pass"> </div>
-                    <div class="col-md-6 form-group"><label for="re_new_pass"><?php _e( "Re-type New Password:" , "download-manager" );?> </label><input autocomplete="off" type="password" value="" class="form-control" name="cpassword" id="re_new_pass"> </div>
-
-
-                    <?php do_action('wpdm_update_profile_filed_html', $user); ?>
-
-
-                    <div class="col-md-12 wpdm-clear form-group"><label for="message"><?php _e( "Description:" , "download-manager" );?></label><textarea class="text form-control" cols="40" rows="8" name="wpdm_profile[description]" id="message"><?php echo htmlspecialchars(stripslashes($current_user->description));?></textarea></div>
-
-
+            <div class="form-group">
+                <label><?php _e( "Title" , "download-manager" ); ?></label>
+                <input type="text" value="<?php if (isset($store['title'])) echo $store['title']; ?>" placeholder="" id="" name="__wpdm_public_profile[title]" class="form-control">
+            </div>
+            <div class="form-group">
+                <label><?php _e( "Short Intro" , "download-manager" ); ?></label>
+                <input type="text" value="<?php if (isset($store['intro'])) echo $store['intro']; ?>" placeholder="" id="" name="__wpdm_public_profile[intro]" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="store-logo"><?php _e( "Logo URL" , "download-manager" ); ?></label>
+                <div class="input-group">
+                    <input type="text" name="__wpdm_public_profile[logo]" id="store-logo" class="form-control" value="<?php echo isset($store['logo']) ? $store['logo'] : ''; ?>"/>
+                    <div class="input-group-append">
+                        <button class="btn btn-secondary wpdm-media-upload" type="button" rel="#store-logo"><i class="far fa-image"></i></button>
+                    </div>
                 </div>
             </div>
+            <div class="form-group">
+                <label for="store-banner"><?php _e( "Banner URL" , "download-manager" ); ?></label>
+                <div class="input-group">
+                    <input type="text" name="__wpdm_public_profile[banner]" id="store-banner" class="form-control" value="<?php echo isset($store['banner']) ? $store['banner'] : ''; ?>"/>
+                    <div class="input-group-append">
+                        <button class="btn btn-secondary wpdm-media-upload" type="button" rel="#store-banner"><i class="far fa-image"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="store-banner"><?php _e( "Profile Header Text Color" , "download-manager" ); ?></label>
+
+                    <input type="color" name="__wpdm_public_profile[txtcolor]" id="store-banner" class="form-control" value="<?php echo isset($store['txtcolor']) ? $store['txtcolor'] : '#333333'; ?>"/>
+
+            </div>
+            <div class="form-group">
+                <label><?php _e( "Description" , "download-manager" ); ?></label>
+                <textarea type="text" data-placeholder="<?php _e( "Description" , "download-manager" ); ?>" id="" name="__wpdm_public_profile[description]" class="form-control"><?php if (isset($store['description'])) echo $store['description']; ?></textarea>
+            </div>
         </div>
-
-        <?php do_action("wpdm_edit_profile_form"); ?>
-
-
-        <div class="row">
-            <div class="col-md-12  form-group wpdm-clear"><button type="submit" style="min-width: 250px" class="btn btn-lg btn-primary" id="edit_profile_sbtn"><i class="fas fa-hdd"></i> &nbsp;<?php _e( "Save Changes" , "download-manager" );?></button></div>
-        </div>
-
-
-    </form>
-    <div id="edit-profile-msg">
     </div>
-</div>
 
+    <div class="card card-default">
+        <div class="card-header">
+            <?php _e( "Payment Settings" , "download-manager" ); ?>
+        </div>
+        <div class="card-body">
+            <label><?php _e( "PayPal Email" , "download-manager" ); ?></label>
+            <input type="email" value="<?php if (isset($store['paypal'])) echo $store['paypal']; ?>" placeholder="" id="" name="__wpdm_public_profile[paypal]" class="form-control">
+        </div>
+    </div>
+
+    <div class="well">
+        <button id="edit_profile_btn" style="min-width:200px;" type="submit" data-value="<?php _e( "Save Changes" , "download-manager" ); ?>" class="btn btn-primary btn-lg"><i class="far fa-hdd icon-white"></i> <?php _e( "Save Changes" , "download-manager" ); ?></button>
+    </div>
+
+</form>
+<style>
+    .supports-drag-drop{ z-index: 99999999 !important; }
+</style>
 <script>
     jQuery(function ($) {
-        $('#edit_profile').on('submit', function (e) {
-            e.preventDefault();
-            var edit_profile_sbtn = $('#edit_profile_sbtn').html();
-            $('#edit_profile_sbtn').html("<i class='fa fa-sync fa-spin'></i> Please Wait...").attr('disabled','disabled');
-            $(this).ajaxSubmit({
-                success: function (res) {
 
-                    $('#edit-profile-msg').html("<div class='alert alert-"+res.type+"' data-title='"+res.title+"'>"+res.msg+"</div>");
-                    $('#edit_profile_sbtn').html(edit_profile_sbtn).removeAttr('disabled');
+        $('#edit_profile').submit(function (e) {
+            e.preventDefault();
+            $('#edit_profile_btn').html("<i class='fas fa-sun  fa-spin'></i> Please Wait...");
+            $(this).ajaxSubmit({
+                url: '<?php echo admin_url('admin-ajax.php?action=wpdm_update_public_profile') ?>',
+                success: function (res) {
+                    if($('#wpdm-dashboard-sidebar #shop-logo') != undefined && $('#store-logo').val() != ''){
+                        $('#wpdm-dashboard-sidebar #shop-logo').attr('src', $('#store-logo').val());
+                    } else if($('#store-logo').val()!=''){
+                        $('#wpdm-dashboard-sidebar').prepend('<img id="shop-logo" style="margin-bottom: 10px;border-radius: 4px" class="thumbnail shop-logo" src="'+ $('#store-logo').val()+'" />');
+                    }
+                    $('#edit_profile_btn').html("<i class='far fa-hdd'></i> "+$('#edit_profile_btn').data('value'));
                 }
             });
         });

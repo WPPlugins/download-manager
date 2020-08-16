@@ -14,7 +14,7 @@ if(!class_exists('AssetManager')):
         private static $instance;
         private $dir,$url, $root;
         private $mime_type;
-        
+
         public static function getInstance(){
             if(self::$instance === null){
                 self::$instance = new self;
@@ -41,10 +41,12 @@ if(!class_exists('AssetManager')):
             }
             return $root;
         }
-        
+
         private function actions(){
 
             add_action('init',array($this,'download'),1);
+
+            add_action('init',array($this,'assetPicker'),1);
 
             //add_action('wp_ajax_wpdm_fm_file_upload', array($this,'uploadFile'));
             add_action('wp_ajax_wpdm_mkdir', array($this,'mkDir'));
@@ -71,7 +73,7 @@ if(!class_exists('AssetManager')):
             if(is_admin()){
                 add_action('admin_menu',array($this,'adminMenu'),10);
             }
-            
+
         }
 
         function siteScripts(){
@@ -104,6 +106,15 @@ if(!class_exists('AssetManager')):
 
         }
 
+        function assetPicker(){
+            global $wp_query;
+            if(wpdm_query_var('assetpicker', 'int') === 1) {
+                http_response_code(200);
+                include WPDM_BASE_DIR.'admin/tpls/asset-manager-picker.php';;
+                die();
+            }
+        }
+
         public function download(){
             if(isset($_REQUEST['asset']) && isset($_REQUEST['key'])){
                 $asset = new Asset();
@@ -131,9 +142,9 @@ if(!class_exists('AssetManager')):
         public static function getUrl(){
             return self::$instance->url;
         }
-        
+
         public function adminMenu(){
-            add_submenu_page( 'edit.php?post_type=wpdmpro',__("Asset Manager", 'download-manager'), __('Asset Manager','download-manager'), 'manage_options', 'wpdm-asset-manager', array($this,'_assetManager'));
+            add_submenu_page( 'edit.php?post_type=wpdmpro',__("Asset Manager", 'download-manager'), __('Asset Manager','download-manager'), 'access_server_browser', 'wpdm-asset-manager', array($this,'_assetManager'));
         }
 
         function mkDir(){
@@ -143,7 +154,7 @@ if(!class_exists('AssetManager')):
             if(!current_user_can(WPDM_ADMIN_CAP)) wp_send_json(array('success' => false, 'message' => __( "Error! Unauthorized Access.", "download-manager" )));
             $root = AssetManager::root();
             $relpath = Crypt::decrypt(wpdm_query_var('path'));
-            $path =  AssetManager::root($relpath);  
+            $path =  AssetManager::root($relpath);
             if(!$path) wp_send_json(array('success' => false, 'message' => __( "Error! Unauthorized Path.", "download-manager" )));
             $name = wpdm_query_var('name', 'filename');
             mkdir($path.$name);
@@ -158,7 +169,11 @@ if(!class_exists('AssetManager')):
             $relpath = Crypt::decrypt(wpdm_query_var('path'));
             $path =  AssetManager::root($relpath);
             if(!$path) wp_send_json(array('success' => false, 'message' => __( "Error! Unauthorized Path.", "download-manager" )));
+
             $name = wpdm_query_var('name');
+            //Check file is in allowed types
+            if(WPDM()->fileSystem->isBlocked($name)) wp_send_json(array('success' => false, 'message' => __( "Error! FileType is not allowed.", "download-manager" )));
+
             $ret = file_put_contents($path.$name, '');
             if($ret !== false)
                 wp_send_json(array('success' => true, 'filepath' => $path.$name));
@@ -191,13 +206,15 @@ if(!class_exists('AssetManager')):
                 $type = is_dir($path.$item)?'dir':'file';
                 $note = is_dir($path.$item)?(count(scandir($path.$item))-2).' items':number_format((filesize($path.$item)/1024),2).' KB';
                 $rpath = str_replace($root, "", $path.$item);
+                $wp_rel_path = str_replace(UPLOAD_DIR, "", $path.$item);
+                $wp_rel_path = str_replace(ABSPATH, "", $wp_rel_path);
                 $_rpath = Crypt::encrypt($rpath);
                 if($type === 'dir') {
                     $_dirs[] = array('item_label' => $item_label, 'item' => $item, 'icon' => $icon, 'type' => $type, 'note' => $note, 'path' => $_rpath, 'id' => md5($rpath));
                 }
                 else {
                     $contenttype = function_exists('mime_content_type') ? mime_content_type($path.$item) : self::mime_type($path.$item);
-                    $_items[] = array('item_label' => $item_label, 'item' => $item, 'icon' => $icon, 'type' => $type, 'contenttype' => $contenttype, 'note' => $note, 'path' => $_rpath, 'id' => md5($rpath));
+                    $_items[] = array('item_label' => $item_label, 'item' => $item, 'icon' => $icon, 'type' => $type, 'contenttype' => $contenttype, 'note' => $note, 'path' => $_rpath, 'path_on' => $path.$item, 'wp_rel_path' => $wp_rel_path, 'id' => md5($rpath));
                 }
 
             }
@@ -214,11 +231,11 @@ if(!class_exists('AssetManager')):
                 $rpath = Crypt::encrypt(implode("/", $topath));
                 $breadcrumb[] = "<a href='#' class='media-folder' data-path='{$rpath}'>".esc_attr($part)."</a>";
             }
-            $breadcrumb = implode("<i class='dashicons dashicons-arrow-right-alt2' style='font-size: 11px;line-height: 17px;'></i>", $breadcrumb);
+            $breadcrumb = implode("<i class='fa fa-folder-open'></i>", $breadcrumb);
             if((int)wpdm_query_var('dirs') === 1)
                 wp_send_json($_dirs);
             else
-                wp_send_json(array('items' => $allitems, 'breadcrumb' => $breadcrumb));
+                wp_send_json(array('success' => true, 'items' => $allitems, 'breadcrumb' => $breadcrumb));
             die();
         }
 
@@ -314,6 +331,10 @@ if(!class_exists('AssetManager')):
             check_ajax_referer(NONCE_KEY, '__wpdm_savefile');
             if(!current_user_can(WPDM_ADMIN_CAP)) wp_send_json(array('success' => false, 'message' => __( "Error! Session Expired. Try refreshing page.", "download-manager" )));
 
+            //Check file is in allowed types
+            if(WPDM()->fileSystem->isBlocked(wpdm_query_var('file'))) wp_send_json(array('success' => false, 'message' => __( "Error! FileType is not allowed.", "download-manager" )));
+
+
             $ofilepath = \WPDM\Session::get(wpdm_query_var('opened'));
             $relpath = Crypt::decrypt(wpdm_query_var('file'));
             $path =  AssetManager::root($relpath);
@@ -338,6 +359,10 @@ if(!class_exists('AssetManager')):
             $root = AssetManager::root();
             $oldpath = $asset->path;
             $newpath = dirname($asset->path) . '/' . str_replace(array("/","\\", "\"", "'"), "_", wpdm_query_var('newname'));
+
+            //Check file is in allowed types
+            if(WPDM()->fileSystem->isBlocked($newpath)) wp_send_json(array('success' => false, 'message' => __( "Error! FileType is not allowed.", "download-manager" )));
+
             if(!strstr($newpath, $root)) die('Error!'.$newpath." -- ".$root );
             rename($oldpath, $newpath);
             $asset->updatePath($newpath);
@@ -352,6 +377,11 @@ if(!class_exists('AssetManager')):
             $opath = explode("|||", wpdm_query_var('source'));
             $olddir = Crypt::decrypt($opath[0]);
             $file = end($opath);
+
+            //Check file is in allowed types
+            if(WPDM()->fileSystem->isBlocked($file)) wp_send_json(array('success' => false, 'message' => __( "Error! FileType is not allowed.", "download-manager" )));
+
+
             $oldpath = AssetManager::root($olddir . '/' .$file );
             $newpath = AssetManager::root(Crypt::decrypt(wpdm_query_var('dest'))) . $file;
             if(!$oldpath) wp_send_json(array('success'=> false, 'message' => __( "Invalid source path", "download-manager" )));
@@ -379,6 +409,9 @@ if(!class_exists('AssetManager')):
             $newpath = AssetManager::root(Crypt::decrypt(wpdm_query_var('dest'))) . $file;
             if(!strstr($oldpath, $root)) wp_send_json(array('success'=> false, 'message' => __( "Invalid source path", "download-manager" )));
             if(!strstr($newpath, $root)) wp_send_json(array('success'=> false, 'message' => __( "Invalid destination path", "download-manager" )));
+            //Check file is in allowed types
+            if(WPDM()->fileSystem->isBlocked($file)) wp_send_json(array('success' => false, 'message' => __( "Error! FileType is not allowed.", "download-manager" )));
+
             copy($oldpath, $newpath);
 
             wp_send_json(array('success'=> true, 'message' => __( "File copied successfully", "download-manager" )));
@@ -445,7 +478,7 @@ if(!class_exists('AssetManager')):
         }
 
         function  upload($file){
-            if(wp_verify_nonce($_REQUEST['__wpdmfm_upload'], NONCE_KEY)) {
+            if(wp_verify_nonce(wpdm_query_var('__wpdmfm_upload'), NONCE_KEY)) {
                 $working_dir = Session::get('working_dir');
                 $root = AssetManager::root();
                 if(!strstr($working_dir, $root)) wp_send_json(array('success' => false));
@@ -465,6 +498,7 @@ if(!class_exists('AssetManager')):
             $reldest = Crypt::decrypt(wpdm_query_var('zipdest'));
             if($reldest == '') $reldest = dirname($zipfile);
             $zipdest =  AssetManager::root($reldest);
+            if(!current_user_can('manage_options'))  wp_send_json(array('success' => false, 'message' => __( "Error! Only Administrator can execute this operation.", "download-manager" )));
             if(!$zipfile || !stristr($zipfile, '.zip')) wp_send_json(array('success' => false, 'message' => __( "Error! Unauthorized Path.", "download-manager" )));
             if(!$zipdest) wp_send_json(array('success' => false, 'message' => __( "Error! Invalid Destination Path.", "download-manager" )));
             if(!class_exists('\ZipArchive'))  wp_send_json(array('success' => false, 'message' => __('Please activate "zlib" in your server to perform zip operations','download-manager')));
@@ -479,5 +513,7 @@ if(!class_exists('AssetManager')):
         }
     }
 
-    AssetManager::getInstance();
+if(!defined('WPDM_ASSET_MANAGER') || WPDM_ASSET_MANAGER === true) {
+        AssetManager::getInstance();
+}
 endif;

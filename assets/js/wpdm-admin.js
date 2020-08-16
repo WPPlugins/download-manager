@@ -1,5 +1,24 @@
+var allps;
+var wpdm_pass_target = '#pps_z';
+var $modal_id = '';
+String.prototype.wpdm_shuffle = function () {
+    var a = this.split(""),
+        n = a.length;
+
+    for(var i = n - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = a[i];
+        a[i] = a[j];
+        a[j] = tmp;
+    }
+    return a.join("");
+}
+
 var WPDM = {
 
+    init: function($){
+
+    },
 
     beep: function() {
         if(WPDM.audio == undefined)
@@ -7,6 +26,13 @@ var WPDM = {
         else
             var snd = new  Audio(WPDM.audio);
         snd.play();
+    },
+
+    uniqueID: function(){
+        var uniq = Date.now()+"abcdefghijklmnopqrstuvwxyz_";
+        uniq = uniq.wpdm_shuffle();
+        uniq = uniq.substring(1, 10);
+        return uniq;
     },
 
     popupWindow: function(url, title, w, h) {
@@ -32,24 +58,27 @@ var WPDM = {
     bootAlert: function(heading, content, width) {
         var html;
         if(!width) width = 400;
-        jQuery("#w3eden__bootModal").remove();
-        html = '<div class="w3eden" id="w3eden__bootModal"><div id="__bootModal" class="modal fade" tabindex="-1" role="dialog">\n' +
+        if($modal_id !== '') jQuery($modal_id).remove();
+        var modal_id = '__bootModal_' + WPDM.uniqueID();
+        $modal_id = '#'+modal_id;
+        html = '<div class="w3eden" id="w3eden'+modal_id+'"><div id="'+modal_id+'" class="modal fade" tabindex="-1" role="dialog">\n' +
             '  <div class="modal-dialog" style="width: '+width+'px" role="document">\n' +
-            '    <div class="modal-content" style="border-radius: 3px;overflow: hidden">\n' +
-            '      <div class="modal-header" style="padding: 12px 15px;background: #f5f5f5;">\n' +
-            '        <h4 class="modal-title" style="font-size: 9pt;font-weight: 500;padding: 0;margin: 0;font-family:Montserrat, san-serif;letter-spacing: 0.5px">'+heading+'</h4>\n' +
+            '    <div class="modal-content" style="border-radius: 4px;overflow: hidden">\n' +
+            '      <div class="modal-header" style="padding: 12px 15px;background: rgba(0,0,0,0.02);">\n' +
+            '        <h4 class="modal-title" style="font-size: 10pt;font-weight: 600;padding: 0;margin: 0;font-family:Montserrat, san-serif;letter-spacing: 0.5px">'+heading+'</h4>\n' +
             '      </div>\n' +
             '      <div class="modal-body fetfont" style="line-height: 1.5;text-transform: unset;font-weight:400;letter-spacing:0.5px;font-size: 12px">\n' +
             '        '+content+'\n' +
             '      </div>\n' +
             '      <div class="modal-footer" style="padding: 10px 15px">\n' +
-            '        <button type="button" class="btn btn-secondary btn-xs" data-dismiss="modal">Close</button>\n' +
+            '        <button type="button" class="btn btn-secondary btn-xs" data-target="#'+modal_id+'" data-dismiss="modal">Close</button>\n' +
             '      </div>\n' +
             '    </div>\n' +
             '  </div>\n' +
             '</div></div>';
         jQuery('body').append(html);
-        jQuery("#__bootModal").modal('show');
+        jQuery("#"+modal_id).modal({show: true, backdrop: 'static'});
+        return jQuery("#"+modal_id);
     },
 
 
@@ -95,14 +124,28 @@ var WPDM = {
      * @param type
      * @param position
      */
-    notify: function(message, type = 'info', position = 'top-right'){
+    notify: function(message, type, position, autoclose){
         var $ = jQuery;
-        var notifycont = '#wpdm-notify-'+position;
+        if(type === undefined || !type) type = 'info';
+        if(position === undefined || !position) position = 'top-right';
+        if(type === 'danger') type = 'error';
+        var notifycont = position.indexOf('#') >= 0 ? position : '#wpdm-notify-'+position ;
         if($(notifycont).length  == 0)
             $('body').prepend("<div id='wpdm-notify-"+position+"'></div>");
-        var notif = $("<div class='wpdm-notify fetfont wpdm-notify-"+type+"' style='margin-right: -500px'>"+message+"</div>");
+        var notif = $("<div class='wpdm-notify fetfont wpdm-notify-"+type+"' style='display: none'>"+message+"</div>");
         $(notifycont).append(notif);
-        $(notif).animate({marginRight: '0px'});
+        $(notif).fadeIn();
+        if(autoclose !== undefined){
+            setTimeout(function () {
+
+                $(notif).animate({
+                    opacity: 0
+                }, 1000, function() {
+                    $(this).slideUp();
+                });
+
+            }, autoclose);
+        }
         return $(notif);
     },
 
@@ -112,8 +155,9 @@ var WPDM = {
      * @param type
      * @param position
      */
-    floatify: function(html, position = 'top-right'){
+    floatify: function(html, position){
         var $ = jQuery;
+        if(position === undefined || !position) position = 'top-right';
         var floatifycont = '#wpdm-floatify-'+position;
         if($(floatifycont).length  == 0)
             $('body').prepend("<div class='w3eden' id='wpdm-floatify-"+position+"'></div>");
@@ -151,6 +195,7 @@ var WPDM = {
 
     confirm: function(heading, content, buttons) {
         var html, $ = jQuery;
+        var modal_id = '__boot_popup_' + WPDM.uniqueID();
         $("#w3eden__boot_popup").remove();
         var _buttons = '';
         if(buttons) {
@@ -162,7 +207,7 @@ var WPDM = {
             _buttons += '</div>\n';
         }
 
-        html = '<div class="w3eden" id="w3eden__boot_popup"><div id="__boot_popup" style="z-index: 9999999 !important;" class="modal fade" tabindex="-1" role="dialog">\n' +
+        html = '<div class="w3eden" id="w3eden'+modal_id+'"><div id="'+modal_id+'" style="z-index: 9999999 !important;" class="modal fade" tabindex="-1" role="dialog">\n' +
             '  <div class="modal-dialog" role="document" style="max-width: 100%;width: 350px">\n' +
             '    <div class="modal-content" style="border-radius: 3px;overflow: hidden">\n' +
             '      <div class="modal-header" style="padding: 12px 15px;background: #f5f5f5;">\n' +
@@ -175,25 +220,196 @@ var WPDM = {
             '  </div>\n' +
             '</div></div>';
         $('body').append(html);
-        $("#__boot_popup").modal('show');
+        $("#"+modal_id).modal('show');
         $.each(buttons, function (i, button) {
             var id = 'btx_'+i;
             $('#'+id).unbind('click');
             $( '#'+id).bind('click' , function () {
-                button.callback.call($("#__boot_popup"));
+                button.callback.call($("#"+modal_id));
                 return false;
             });
         });
-        return $("#__boot_popup");
+        return $("#"+modal_id);
+    },
+    audioUI: function(audio){
+        var $ = jQuery, song_length, song_length_m, song_length_s;
+
+        if(parseInt(wpdm_asset.bsversion) !== 3)
+            var player_html = '<div class="w3eden"><div style="display: none" class="wpdm-audio-player-ui" id="wpdm-audio-player-ui"><div class="card m-2"><div class="card-body text-center"><div class="media"><div class="mr-3 wpdm-audio-control-buttons"><button class="btn btn-primary btn-play" id="wpdm-btn-play"><i class="fa fa-play"></i></button> <button class="btn btn-primary btn-backward" id="wpdm-btn-backward"><i class="fa fa-backward"></i></button> <button class="btn btn-primary btn-forward" id="wpdm-btn-forward"><i class="fa fa-forward"></i></button></div><div class="media-body"><div class="position-relative"><div id="played">00:00</div><div id="mins">00:00</div></div><div class="progress"><div  id="wpdm-audio-progress" class="progress-bar bg-success" role="progressbar" style="width: 0%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div></div></div><div class="ml-3 wpdm-audio-control-buttons"> <button class="btn btn-info btn-volumctrl" id="wpdm-btn-volumctrl"><i class="fa fa-volume-up"></i></button> <div class="volumctrl"><input type="range" min="0" max="1" step="0.01" value="3" class="p-0" id="wpdm-audio-volume"></div></div></div></div></div></div></div>';
+        else
+            var player_html = '<div class="w3eden"><div style="display: none" class="wpdm-audio-player-ui" id="wpdm-audio-player-ui"><div class="panel panel-default" style="margin: 0;border: 0;border-radius: 0;border-top: 1px solid #dddddd;background: #fcfcfc"><div class="panel-body text-center"><div class="media"><div class="pull-right wpdm-audio-control-buttons"><button class="btn btn-info btn-volumctrl" id="wpdm-btn-volumctrl"><i class="fa fa-volume-up"></i></button> <div class="volumctrl"> <input type="range" min="0" max="1" step="0.01" value="3" class="p-0" id="wpdm-audio-volume"> </div></div><div class="wpdm-audio-control-buttons pull-left"><nobr><button class="btn btn-primary btn-play" id="wpdm-btn-play"><i class="fa fa-play"></i></button> <button class="btn btn-primary btn-backward" id="wpdm-btn-backward"><i class="fa fa-backward"></i></button> <button class="btn btn-primary btn-forward" id="wpdm-btn-forward"><i class="fa fa-forward"></i></button></nobr></div><div class="media-body"><div class="position-relative"><div id="played">00:00</div><div id="mins">00:00</div></div><div class="progress"><div  id="wpdm-audio-progress" class="progress-bar bg-success" role="progressbar" style="width: 0%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div></div></div></div></div></div></div></div>';
+
+        if(audio.duration !== Infinity) {
+            song_length = parseInt(audio.duration);
+            song_length_m = parseInt(song_length / 60);
+            song_length_s = song_length - (song_length_m * 60);
+            song_length_m = song_length_m > 9 ? song_length_m : "0" + song_length_m;
+            song_length_s = song_length_s > 9 ? song_length_s : "0" + song_length_s;
+        } else {
+            song_length_m = "--";
+            song_length_s = "--";
+            audio.addEventListener("durationchange", function (e) {
+                console.log(this.duration);
+                if (this.duration !== Infinity) {
+                    song_length = parseInt(this.duration);
+                    song_length_m = parseInt(song_length / 60);
+                    song_length_s = song_length - (song_length_m * 60);
+                    song_length_m = song_length_m > 9 ? song_length_m : "0" + song_length_m;
+                    song_length_s = song_length_s > 9 ? song_length_s : "0" + song_length_s;
+                    $('#mins').html(song_length_m+":"+song_length_s);
+                    next(song_length);
+                }
+            }, false);
+        }
+
+        if($('#wpdm-audio-player-ui').length === 0 ){
+            $('body').append(player_html);
+            $("#wpdm-audio-player-ui").slideDown();
+            $('#mins').html(song_length_m+":"+song_length_s);
+            $('body').on('click', '#wpdm-audio-player-ui .progress', function(e){
+                let value = e.offsetX * 100 / this.clientWidth;
+                var played = parseInt(song_length*value/100);
+                var played_m = parseInt(played/60);
+                var played_s = played - (played_m*60);
+                played_m = played_m > 9 ? played_m : "0"+played_m;
+                played_s = played_s > 9 ? played_s : "0"+played_s;
+                $('#played').html(played_m+":"+played_s);
+                audio.currentTime = (song_length*value)/100;
+                $(this).find('.progress-bar').css('width', value + "%");
+                //video.currentTime = duration * (value / 100);
+            });
+            $('body').on('click', '#wpdm-btn-backward', function(){
+                let value = (parseInt($('#wpdm-audio-player-ui .progress-bar').css('width'))/parseInt($('#wpdm-audio-player-ui .progress').css('width')))*100 - 10;
+                if(value < 0) value = 0;
+                var played = parseInt(song_length*value/100);
+                var played_m = parseInt(played/60);
+                var played_s = played - (played_m*60);
+                played_m = played_m > 9 ? played_m : "0"+played_m;
+                played_s = played_s > 9 ? played_s : "0"+played_s;
+                $('#played').html(played_m+":"+played_s);
+                audio.currentTime = (song_length*value)/100;
+                $('#wpdm-audio-player-ui .progress-bar').css('width', value + "%");
+            });
+            $('body').on('click', '#wpdm-btn-forward', function(){
+                let value = (parseInt($('#wpdm-audio-player-ui .progress-bar').css('width'))/parseInt($('#wpdm-audio-player-ui .progress').css('width')))*100 + 10;
+                if(value > 100) value = 100;
+                var played = parseInt(song_length*value/100);
+                var played_m = parseInt(played/60);
+                var played_s = played - (played_m*60);
+                played_m = played_m > 9 ? played_m : "0"+played_m;
+                played_s = played_s > 9 ? played_s : "0"+played_s;
+                $('#played').html(played_m+":"+played_s);
+                audio.currentTime = (song_length*value)/100;
+                $('#wpdm-audio-player-ui .progress-bar').css('width', value + "%");
+            });
+            $('#wpdm-btn-volumctrl').on('click', function(){
+                $(this).next('.volumctrl').toggle();
+            });
+            $('body').on('click', '.btn-play', function(){
+                if($(this).find('.fa').hasClass('fa-play')) {
+                    $(this).find('.fa').addClass('fa-pause').removeClass('fa-play');
+                    $(this).data('state', 'playing');
+                    audio.play();
+                }
+                else {
+                    $(this).find('.fa').addClass('fa-play').removeClass('fa-pause');
+                    $(this).data('state', 'paused');
+                    audio.pause();
+                }
+            });
+            $('body').on('change', '#wpdm-audio-volume', function () {
+                audio.volume = this.value;
+            });
+
+        }
+        $('#mins').html(song_length_m+":"+song_length_s);
+        audio.addEventListener("play", function(){
+            $('#wpdm-btn-play').find('.fa').addClass('fa-pause').removeClass('fa-play');
+        });
+        audio.addEventListener("pause", function(){
+            $('#wpdm-btn-play').find('.fa').addClass('fa-play').removeClass('fa-pause');
+        });
+        audio.addEventListener("timeupdate", function(e){
+            var song_length = parseInt(audio.duration);
+            var time_now = audio.currentTime;
+            var percent = (time_now/song_length)*100;
+            if(percent > 100) percent = 100;
+            $('#wpdm-audio-progress').css('width', percent+"%");
+            var played = parseInt(time_now);
+            var played_m = parseInt(played/60);
+            var played_s = played - (played_m*60);
+            played_m = played_m > 9 ? played_m : "0"+played_m;
+            played_s = played_s > 9 ? played_s : "0"+played_s;
+            $('#played').html(played_m+":"+played_s);
+        });
+
+
+
     }
 
 };
-
 
 jQuery(function($){
 
     // Uploading files
     var file_frame, dfield;
+
+    $('body').on('click', '.wpdm-notify', function () {
+        $(this).animate({
+            opacity: 0
+        }, 1000, function() {
+            $(this).slideUp();
+        });
+    });
+
+    $('body').on('click', '.wpdm-modal-pop', function (e) {
+        e.preventDefault();
+        var url = $(this).attr('href');
+        var width = 600;
+        var title = $(this).text();
+        if($(this).data('width') !== undefined) width = $(this).data('width');
+        if($(this).attr('title') !== undefined) title = $(this).attr('title');
+        if($(this).data('url') !== undefined) url = $(this).data('url');
+        var $modal = WPDM.bootAlert(title, "<div id='wpdm-modal-content' class='blockui' style='min-height: 300px;'></div>", width);
+        $($modal).find('#wpdm-modal-content').load(url, function(res){
+            WPDM.unblockUI('#wpdm-modal-content');
+        });
+        return false;
+    });
+
+    $('body').on('click', '.__wpdm_approvedr' , function( event ) {
+        event.preventDefault();
+        $btn = $(this);
+        $btn.attr('disabled', 'disabled').html('<i class="fa fa-refresh fa-spin"></i>');
+        $('.__wpdm_declinedr_'+$btn.data('rid')).remove();
+        $.post(ajaxurl,{__approvedr: $(this).data('nonce'), __rid: $(this).data('rid'), action: 'approveDownloadRequest'}, function (res) {
+            if(res.match(/ok/)){
+                $btn.removeClass('btn-info').addClass('btn-success').html('Approved');
+            }
+        });
+    });
+
+    $('body').on('click', '.txtsc' , function( event ) {
+        $(this).select();
+    });
+
+    $('body').on('click', '.__wpdm_declinedr' , function( event ) {
+        event.preventDefault();
+        if(!confirm('Are you sure?')) return false;
+        $btn = $(this);
+        $btn.attr('disabled', 'disabled').html('<i class="fa fa-refresh fa-spin"></i>');
+        $.post(ajaxurl,{__declinedr: $(this).data('nonce'), __rid: $(this).data('rid'), action: 'declineDownloadRequest'}, function (res) {
+            if(res.match(/ok/)){
+                $('#__emlrow_'+$btn.data('rid')).remove();
+            }
+        });
+    });
+
+
+    $('body').on('click', '.btn-onclick', function () {
+        $(this).css('width', $(this).css('width')).attr('disabled', 'disabled');
+        $(this).html($(this).data('onclick'));
+    });
 
     $('body').on('click', '.btn-media-upload' , function( event ){
         event.preventDefault();
@@ -225,20 +441,134 @@ jQuery(function($){
         // Finally, open the modal
         file_frame.open();
     });
-    
+
+    $('body').on('click', '.btn-image-selector' , function( event ){
+        event.preventDefault();
+        dfield = $($(this).attr('rel'));
+        var dfield_h = $($(this).attr('rel')+'_hidden');
+
+        // If the media frame already exists, reopen it.
+        if ( file_frame ) {
+            file_frame.open();
+            return;
+        }
+
+        // Create the media frame.
+        file_frame = wp.media.frames.file_frame = wp.media({
+            title: $( this ).data( 'uploader_title' ),
+            button: {
+                text: $( this ).data( 'uploader_button_text' )
+            },
+            multiple: false  // Set to true to allow multiple files to be selected
+        });
+
+        // When an image is selected, run a callback.
+        file_frame.on( 'select', function() {
+            // We set multiple to false so only get one image from the uploader
+            attachment = file_frame.state().get('selection').first().toJSON();
+            dfield.attr('src', attachment.url);
+            dfield_h.val(attachment.url);
+
+        });
+
+        // Finally, open the modal
+        file_frame.open();
+    });
+
+    allps = $('#pps_z').val();
+    if(allps == undefined) allps = '';
+    $('#ps').val(allps.replace(/\]\[/g,"\n").replace(/[\]|\[]+/g,''));
+    shuffle = function(){
+        var sl = 'abcdefghijklmnopqrstuvwxyz';
+        var cl = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        var nm = '0123456789';
+        var sc = '~!@#$%^&*()_';
+        ps = "";
+        pss = "";
+        ps = sl;
+        if($('#passtrn').val() > 1) ps += cl;
+        if($('#passtrn').val() > 2) ps += nm;
+        if($('#passtrn').val() > 3) ps += sc;
+        var i=0;
+        while ( i <= ps.length ) {
+            $max = ps.length-1;
+            $num = Math.floor(Math.random()*$max);
+            $temp = ps.substr($num, 1);
+            pss += $temp;
+            i++;
+        }
+
+        $('#ps').val(pss);
+
+
+    };
+    $('#gps').click(shuffle);
+
+    $('body').on('click', '#gpsc', function(){
+        var allps = "";
+        shuffle();
+        for(k=0;k<$('#pcnt').val();k++){
+            allps += "["+randomPassword(pss,$('#ncp').val())+"]";
+
+        }
+        vallps = allps.replace(/\]\[/g,"\n").replace(/[\]|\[]+/g,'');
+        $('#ps').val(vallps);
+
+    });
+
+    $('body').on('click', '#pins', function(){
+        var aps;
+        aps = $('#ps').val();
+        aps = aps.replace(/\n/g, "][");
+        allps = "["+aps+"]";
+        $(wpdm_pass_target).val(allps);
+        $('#generatepass').modal('hide');
+    });
+
+    $('body').on('click', '*:data[toggle="iframe-modal"]', function (e) {
+        e.preventDefault();
+        var url;
+        if ($(this).attr('href') != undefined) url = $(this).attr('href');
+        else url = $(this).data('url');
+        wpdm_iframe_modal(utl);
+    });
+
+    try {
+        $('.ttip').tooltip();
+    } catch (e) {
+
+    }
+
 });
 
-/**
- * Generates bootstrap modal
- * @param heading
- * @param content
- * @private
- */
-function __bootModal(heading, content) {
+function randomPassword(chars, size) {
+
+    //var size = 10;
+    if(parseInt(size)==Number.NaN || size == "") size = 8;
+    var i = 1;
+    var ret = "";
+    while ( i <= size ) {
+        $max = chars.length-1;
+        $num = Math.floor(Math.random()*$max);
+        $temp = chars.substr($num, 1);
+        ret += $temp;
+        i++;
+    }
+    return ret;
+}
+
+function __showDownloadLink(pid, fid) {
+    var url;
+    url = wpdmConfig.siteURL +"?wpdmdl="+pid+"&ind="+fid;
+    __bootModal("File Download Link", '<textarea readonly="readonly" class="form-control" style="font-family: monospace">'+url+'</textarea>');
+}
+
+function __bootModal(heading, content, width) {
     var html;
+    if(!width) width = 400;
     jQuery("#w3eden__bootModal").remove();
     html = '<div class="w3eden" id="w3eden__bootModal"><div id="__bootModal" class="modal fade" tabindex="-1" role="dialog">\n' +
-        '  <div class="modal-dialog" role="document">\n' +
+        '  <div class="modal-dialog" style="width: '+width+'px" role="document">\n' +
         '    <div class="modal-content">\n' +
         '      <div class="modal-header">\n' +
         '        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>\n' +
@@ -248,7 +578,7 @@ function __bootModal(heading, content) {
         '        <p>'+content+'</p>\n' +
         '      </div>\n' +
         '      <div class="modal-footer">\n' +
-        '        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>\n' +
+        '        <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>\n' +
         '      </div>\n' +
         '    </div>\n' +
         '  </div>\n' +
@@ -257,14 +587,6 @@ function __bootModal(heading, content) {
     jQuery("#__bootModal").modal('show');
 }
 
-
-/**
- * Bootstrap modal alternative for alert, confirm, input...
- * @param heading
- * @param content
- * @param buttons
- * @returns {*|HTMLElement}
- */
 function wpdm_boot_popup(heading, content, buttons) {
     var html, $ = jQuery;
     $("#w3eden__boot_popup").remove();
@@ -277,9 +599,9 @@ function wpdm_boot_popup(heading, content, buttons) {
 
     html = '<div class="w3eden" id="w3eden__boot_popup"><div id="__boot_popup" style="z-index: 9999999 !important;" class="modal fade" tabindex="-1" role="dialog">\n' +
         '  <div class="modal-dialog" role="document" style="max-width: 100%;width: 350px">\n' +
-        '    <div class="modal-content" style="border-radius: 3px;overflow: hidden">\n' +
-        '      <div class="modal-header" style="padding: 12px 15px;background: #f5f5f5;">\n' +
-        '        <h4 class="modal-title" style="font-size: 9pt;font-weight: 500;padding: 0;margin: 0;font-family:Montserrat, san-serif;letter-spacing: 0.5px">'+heading+'</h4>\n' +
+        '    <div class="modal-content">\n' +
+        '      <div class="modal-header">\n' +
+        '        <h4 class="modal-title" style="font-size: 11pt;font-weight: 500;padding: 0;margin: 0;letter-spacing: 0.5px">'+heading+'</h4>\n' +
         '      </div>\n' +
         '      <div class="modal-body text-center" style="letter-spacing: 0.5px;font-size: 9pt;font-weight: 300;padding: 25px;">\n' +
         '        '+content+'\n' +
@@ -299,3 +621,45 @@ function wpdm_boot_popup(heading, content, buttons) {
     });
     return $("#__boot_popup");
 }
+
+/**
+ * Open an url in iframe modal
+ * @param url
+ * @param closebutton
+ * @returns {boolean}
+ */
+function wpdm_iframe_modal(url, closebutton) {
+    var iframe, $ = jQuery;
+    if(url === 'close') {
+        $('#wpdm_iframe_modal').hide();
+        $('#ifcb').hide();
+        $('body').removeClass('wpdm-iframe-modal-open');
+        return false;
+    }
+    console.log($('#wpdm_iframe_modal').attr('src'));
+    if($('#wpdm_iframe_modal').length === 1 && url === $('#wpdm_iframe_modal').attr('src')){
+        $('#wpdm_iframe_modal').fadeIn();
+        $('#ifcb').fadeIn();
+        try {
+            document.getElementById('wpdm_iframe_modal').contentWindow.showModal();
+        } catch (e) {
+
+        }
+        return false;
+    } else {
+        $('#wpdm_iframe_modal').remove();
+        $('#ifcb').remove();
+    }
+    var closebutton_html = "";
+    if(closebutton !== undefined && closebutton === true)
+        closebutton_html = "<span id='ifcb' class='w3eden'><a href='#' onclick='return wpdm_iframe_modal(\"close\");' style='border-radius: 0;position: fixed;top: 0;right: 0;z-index: 9999999999 !important;width: 40px;line-height: 40px;padding: 0' class='btn btn-danger'><i class='fas fa-times'></i></a></span>";
+
+    iframe = '<iframe src="'+url+'" style="width: 100%;height: 100%;position: fixed;z-index: 999999999 !important;border: 0;left: 0;top: 0;right: 0;bottom: 0;background: rgba(0,0,0,0.2);display: none;" id="wpdm_iframe_modal"></iframe>'+closebutton_html;
+    $('body').append(iframe).addClass('wpdm-iframe-modal-open');
+    $('#wpdm_iframe_modal').fadeIn();
+
+}
+
+
+
+

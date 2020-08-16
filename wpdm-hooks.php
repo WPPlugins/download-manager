@@ -23,7 +23,7 @@ if (is_admin()) {
     /** Short-Codes */
 
     add_shortcode("wpdm_file", "wpdm_package_link_legacy");
-    add_shortcode("wpdm_category", "wpdm_category");
+    //add_shortcode("wpdm_category", "wpdm_category");
 
 
     /** Actions */

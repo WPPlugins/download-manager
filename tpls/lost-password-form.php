@@ -4,6 +4,8 @@
  * Developer: shahjada
  * Team: W3 Eden
  * Date: 19/9/19 11:40
+ * Version: 1.1
+ * Updated: 23/01/20 10:25
  */
 
 if(!defined("ABSPATH")) die();
@@ -12,12 +14,15 @@ if(!defined("ABSPATH")) die();
     <div id="wpdmlogin" class="lostpass">
         <form name="loginform" id="resetPassword" action="<?php echo admin_url('/admin-ajax.php?action=resetPassword'); ?>" method="post" class="login-form" >
             <?php wp_nonce_field(NONCE_KEY,'__reset_pass' ); ?>
-            <h3 style="margin: 0"><?php _e( "Lost Password?" , "download-manager" ); ?></h3>
+            <h3 style="margin: 0 0 10px"><?php _e( "Lost Password?" , "download-manager" ); ?></h3>
             <p>
                 <?php _e('Please enter your username or email address. You will receive a link to create a new password via email.', 'download-manager'); ?>
             </p>
             <div class="form-group">
-                <input placeholder="<?php _e( "Username or Email" , "download-manager" ); ?>" type="text" name="user_login" id="user_login" class="form-control input-lg required text" value="" size="20" tabindex="38" />
+                <div class="input-wrapper">
+                    <label><?php echo __( "Username or Email", "download-manager" ); ?></label>
+                    <input placeholder="<?php _e( "Username or Email" , "download-manager" ); ?>" type="text" name="user_login" id="user_login" class="form-control required text" value="" size="20" tabindex="38" />
+                </div>
             </div>
 
             <div class="form-group">
@@ -35,30 +40,46 @@ if(!defined("ABSPATH")) die();
     </div>
 </div>
 <script>
-    jQuery(function ($) {
-        var llbl = $('#resetPassword-submit').html();
-        $('#resetPassword').submit(function () {
-            $('#resetPassword-submit').html("<i class='fa fa-spin fa-sync'></i> <?php _e( "Please Wait..." , "download-manager" ); ?>");
-            $(this).ajaxSubmit({
-                success: function (res) {
+    if(__added_once === undefined) {
+        var __added_once = 1;
+        jQuery(function ($) {
+            var __reset = 0, __progress = 0;
+            var llbl = $('#resetPassword-submit').html();
+            $('#resetPassword').submit(function (e) {
+                e.preventDefault();
 
-                    if (res.match(/error/)) {
-                        $('form .alert').hide();
-                        $('#resetPassword').prepend("<div class='alert alert-danger' data-title='<?php _e( "ERROR!" , "download-manager" ); ?>'><?php _e( "Account not found." , "download-manager" ); ?></div>");
-                        $('#resetPassword-submit').html(llbl);
-                    } else {
-                        $('form .alert').hide();
-                        $('#resetPassword').prepend("<div class='alert alert-success' data-title='<?php _e( "MAIL SENT!" , "download-manager" ); ?>'><?php _e( "Please check your inbox." , "download-manager" ); ?></div>");
-                        $('#resetPassword-submit').html(llbl);
-                    }
+                if (__reset === 1) {
+
+                    $('#resetPassword').prepend("<div class='alert alert-success' data-title='<?php _e("MAO: SENT!", "download-manager"); ?>'><?php _e("Password reset link sent to your email.", "download-manager"); ?></div>");
+                    $('#resetPassword-submit').attr('disabled', 'disabled');
+                    return false;
                 }
+                if (__progress === 0) {
+                    __progress = 1;
+                    $('#resetPassword-submit').html("<i class='fa fa-spin fa-sync'></i> <?php _e("Please Wait...", "download-manager"); ?>");
+                    $(this).ajaxSubmit({
+                        success: function (res) {
+                            __progress = 0;
+                            if (res.match(/error/)) {
+                                $('form .alert').hide();
+                                $('#resetPassword').prepend("<div class='alert alert-danger' data-title='<?php _e("ERROR!", "download-manager"); ?>'><?php _e("Account not found.", "download-manager"); ?></div>");
+                                $('#resetPassword-submit').html(llbl);
+                            } else {
+                                __reset = 1;
+                                $('form .alert').hide();
+                                $('#resetPassword').prepend("<div class='alert alert-success' data-title='<?php _e("MAIL SENT!", "download-manager"); ?>'><?php _e("Please check your inbox.", "download-manager"); ?></div>");
+                                $('#resetPassword-submit').html('<i class="fas fa-check-double"></i>').attr('disabled', 'disabled');
+                            }
+                        }
+                    });
+                }
+                return false;
             });
-            return false;
-        });
 
-        $('body').on('click', 'form .alert-danger', function(){
-            $(this).slideUp();
-        });
+            $('body').on('click', 'form .alert-danger', function () {
+                $(this).slideUp();
+            });
 
-    });
+        });
+    }
 </script>

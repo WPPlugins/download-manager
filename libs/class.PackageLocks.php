@@ -1,6 +1,6 @@
 <?php
 
-namespace WPDM\libs;
+namespace WPDM;
 
 global $gp1c, $tbc;
 
@@ -18,17 +18,32 @@ class PackageLocks
        // wp_enqueue_script('wpdm-fb', 'http://connect.facebook.net/en_US/all.js?ver=3.1.3#xfbml=1');
     }
 
-
     public static function askPassword($package){
+        ob_start();
+        $unqid = uniqid();
+        $field_id = $unqid.'_'.$package['ID'];
+        include wpdm_tpl_path("lock-options/password-lock.php", WPDM_TPL_DIR, WPDM_TPL_FALLBACK);
+        $data = ob_get_clean();
+        return $data;
+    }
+
+    public static function reCaptchaLock($package, $buttononly = false){
+        ob_start();
+        $force = str_replace("=", "", base64_encode("unlocked|" . date("Ymdh")));
+        include wpdm_tpl_path("lock-options/recaptcha-lock.php", WPDM_TPL_DIR, WPDM_TPL_FALLBACK);
+        return ob_get_clean();
+    }
+
+    public static function askPassword1($package){
         ob_start();
         $unqid = uniqid();
         ?>
 
-        <div class="panel panel-default" style="margin: 0">
-            <div class="panel-heading">
+        <div class="panel panel-default card" style="margin: 0">
+            <div class="panel-heading card-header">
                 <?php _e('Enter Correct Password to Download','download-manager'); ?>
             </div>
-            <div class="panel-body" id="wpdmdlp_<?php echo  $unqid . '_' . $package['ID']; ?>">
+            <div class="panel-body card-body" id="wpdmdlp_<?php echo  $unqid . '_' . $package['ID']; ?>">
                 <div id="msg_<?php echo $package['ID']; ?>" style="display:none;"><button type="button" class="btn btn-lg btn-info btn-block" disabled="disabled"><?php _e('Processing...','download-manager'); ?></button></div>
                 <form id="wpdmdlf_<?php echo $unqid . '_' . $package['ID']; ?>" method=post action="<?php echo home_url('/'); ?>" style="margin-bottom:0px;">
                     <input type=hidden name="__wpdm_ID" value="<?php echo $package['ID']; ?>" />
@@ -37,7 +52,7 @@ class PackageLocks
                     <input type=hidden name="action" value="wpdm_ajax_call" />
                     <div class="input-group input-group-lg">
                         <input type="password"  class="form-control" placeholder="<?php _e('Enter Password','download-manager'); ?>" size="10" id="password_<?php echo $unqid . '_' . $package['ID']; ?>" name="password" />
-                        <span class="input-group-btn"><input style="border-top-right-radius: 3px;border-bottom-right-radius: 3px" id="wpdm_submit_<?php echo $unqid . '_' . $package['ID']; ?>" class="wpdm_submit btn btn-info" type="submit" value="<?php _e('Submit','download-manager'); ?>" /></span>
+                        <span class="input-group-btn input-group-append"><input style="border-top-right-radius: 3px;border-bottom-right-radius: 3px" id="wpdm_submit_<?php echo $unqid . '_' . $package['ID']; ?>" class="wpdm_submit btn btn-info" type="submit" value="<?php _e('Submit','download-manager'); ?>" /></span>
                     </div>
 
                 </form>
@@ -76,7 +91,7 @@ class PackageLocks
     }
 
 
-    public static function reCaptchaLock($package, $buttononly = false){
+    public static function reCaptchaLock1($package, $buttononly = false){
         ob_start();
         //wp_enqueue_script('wpdm-recaptcha', 'https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit');
         $force = str_replace("=", "", base64_encode("unlocked|" . date("Ymdh")));

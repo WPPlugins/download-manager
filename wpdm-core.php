@@ -144,7 +144,7 @@ function wpdm_remote_post($url, $data = array(), $headers = array())
  * @param $url
  * @return bool|mixed|string
  */
-function remote_get($url)
+function wpdm_remote_get($url)
 {
     $res = wp_remote_get($url);
     $content  = '';
@@ -214,7 +214,7 @@ function wpdm_plugin_update_email($plugin_name, $version, $update_url)
 function wpdm_check_update()
 {
 
-    if(!current_user_can(WPDM_ADMIN_CAP)) return;
+    if(!current_user_can(WPDM_ADMIN_CAP) || get_option('wpdm_update_notice') === 'disabled') return;
 
     include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 
@@ -223,10 +223,10 @@ function wpdm_check_update()
     $time = time() - intval($latest_check);
     $plugins = get_plugins();
 
-    $latest_v_url = 'https://www.wpdownloadmanager.com/versions.php';
+    $latest_v_url = 'https://wpdmcdn.s3-accelerate.amazonaws.com/versions.json';
 
     if ($latest == '' || $time > 86400) {
-        $latest = remote_get($latest_v_url);
+        $latest = wpdm_remote_get($latest_v_url);
         update_option('wpdm_latest', $latest);
         update_option('wpdm_latest_check', time());
 
@@ -308,7 +308,7 @@ function wpdm_access_token(){
     if(get_option('__wpdm_suname') != '') {
         $auth = array('login' => get_option('__wpdm_suname'), 'pass' => get_option('__wpdm_supass'));
         $auth = base64_encode(serialize($auth));
-        $access_token = remote_get('https://www.wpdownloadmanager.com/?wpdm_api_req=getAccessToken&__wpdm_auth=' . $auth);
+        $access_token = wpdm_remote_get('https://www.wpdownloadmanager.com/?wpdm_api_req=getAccessToken&__wpdm_auth=' . $auth);
         $access_token = json_decode($access_token);
         //wpdmdd($access_token);
         if (isset($access_token->access_token)) {

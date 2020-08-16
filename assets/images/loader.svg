@@ -1,21 +1,36 @@
-<svg class="lds-balls" width="80px" height="80px" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid"><circle cx="67.8023" cy="59.9068" r="6" fill="#51CACC">
-  <animate attributeName="cx" values="75;57.72542485937369" keyTimes="0;1" dur="1s" repeatCount="indefinite"/>
-  <animate attributeName="cy" values="50;73.77641290737884" keyTimes="0;1" dur="1s" repeatCount="indefinite"/>
-  <animate attributeName="fill" values="#51CACC;#9DF871" keyTimes="0;1" dur="1s" repeatCount="indefinite"/>
-</circle><circle cx="46.0792" cy="69.9923" r="6" fill="#9DF871">
-  <animate attributeName="cx" values="57.72542485937369;29.774575140626318" keyTimes="0;1" dur="1s" repeatCount="indefinite"/>
-  <animate attributeName="cy" values="73.77641290737884;64.69463130731182" keyTimes="0;1" dur="1s" repeatCount="indefinite"/>
-  <animate attributeName="fill" values="#9DF871;#E0FF77" keyTimes="0;1" dur="1s" repeatCount="indefinite"/>
-</circle><circle cx="29.7746" cy="52.4491" r="6" fill="#E0FF77">
-  <animate attributeName="cx" values="29.774575140626318;29.774575140626315" keyTimes="0;1" dur="1s" repeatCount="indefinite"/>
-  <animate attributeName="cy" values="64.69463130731182;35.30536869268818" keyTimes="0;1" dur="1s" repeatCount="indefinite"/>
-  <animate attributeName="fill" values="#E0FF77;#DE9DD6" keyTimes="0;1" dur="1s" repeatCount="indefinite"/>
-</circle><circle cx="41.4208" cy="31.5213" r="6" fill="#DE9DD6">
-  <animate attributeName="cx" values="29.774575140626315;57.72542485937368" keyTimes="0;1" dur="1s" repeatCount="indefinite"/>
-  <animate attributeName="cy" values="35.30536869268818;26.22358709262116" keyTimes="0;1" dur="1s" repeatCount="indefinite"/>
-  <animate attributeName="fill" values="#DE9DD6;#FF708E" keyTimes="0;1" dur="1s" repeatCount="indefinite"/>
-</circle><circle cx="64.9232" cy="36.1304" r="6" fill="#FF708E">
-  <animate attributeName="cx" values="57.72542485937368;75" keyTimes="0;1" dur="1s" repeatCount="indefinite"/>
-  <animate attributeName="cy" values="26.22358709262116;49.99999999999999" keyTimes="0;1" dur="1s" repeatCount="indefinite"/>
-  <animate attributeName="fill" values="#FF708E;#51CACC" keyTimes="0;1" dur="1s" repeatCount="indefinite"/>
-</circle></svg>
+<?xml version="1.0" encoding="utf-8"?>
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" width="330px" height="330px" viewBox="0 0 327.3 327.3">
+<defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="20%" style="stop-color:#3971ff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#763af9;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+    <style type="text/css">
+        .st0{fill:#3C80E4;}
+        .st1{fill:#094168;}
+        .st2{fill:none;stroke:url(#grad1);stroke-width:8;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:30.8144,30.8144;}
+    </style>
+    <circle class="st2" cx="163.9" cy="164.1" r="156.9">
+        <animateTransform attributeName="transform"
+            attributeType = "XML"
+            type = "rotate"
+            from = "0 165 165"
+            to = "360 165 165"
+            dur = "6s"
+            repeatCount = "indefinite"/>
+    </circle>
+    <path id="arrow" class="st0" d="M154.1,191.1l-63-62.7c-5.4-5.4-5.4-14.1-0.1-19.5c0,0,0,0,0,0L95,105c5.4-5.4,14.1-5.4,19.5-0.1
+	c0,0,0,0,0,0l49.3,49.1l48.9-49.4c5.4-5.4,14.1-5.5,19.5-0.1c0,0,0,0,0,0l3.9,3.9c5.4,5.4,5.5,14.1,0.1,19.5c0,0,0,0,0,0l-62.5,63.2
+	C168.3,196.5,159.6,196.5,154.1,191.1C154.2,191.1,154.2,191.1,154.1,191.1z">
+        <animateTransform id="a"
+            attributeName="transform"
+            attributeType = "XML"
+            type = "translate"
+            dur = "1.2s"
+            values="0,6;0,-12;0,6"
+            repeatCount = "indefinite"/>
+    </path>
+    <path id="circle" class="st1" d="M179.5,206.7c-8.6,8.6-22.5,8.7-31.2,0.1c0,0,0,0,0,0l-30.2-30c-15.6,25.3-7.8,58.4,17.5,74
+	s58.4,7.8,74-17.5c10.7-17.4,10.7-39.4-0.2-56.8L179.5,206.7z"/>
+</svg>

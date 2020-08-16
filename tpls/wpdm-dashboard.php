@@ -1,18 +1,20 @@
 <?php
-if (!defined('ABSPATH')) die();
 
-global $current_user; ?>
+global $current_user;
+
+$store = get_user_meta(get_current_user_id(), '__wpdm_public_profile', true);
+
+?>
 
 <div class="w3eden user-dashboard">
     <div class="row">
-        <div class="col-md-3" id="wpdm-dashboard-sidebar">
+        <div id="wpdm-dashboard-sidebar" class="col-md-3">
 
             <div id="logo-block">
-                <?php echo get_avatar( $current_user->user_email, 512, '', '', array('class' => 'shop-logo') ); ?>
+                <img class="shop-logo" id="shop-logo" src="<?php echo isset($store['logo']) && $store['logo'] != '' ? $store['logo'] : get_avatar_url( $current_user->user_email, array('size' => 512) ); ?>"/>
             </div>
             <div id="tabs">
                 <?php
-
                 foreach($this->dashboard_menu as $section_id => $section){
                     echo "<div id='udm-{$section_id}'>";
                     if(isset($section['title']) && $section['title'] != '') echo "<h3><i class='udbsap'></i> &nbsp; {$section['title']} </h3>";
@@ -21,7 +23,7 @@ global $current_user; ?>
                         if(isset($params['flaturl']) && $params['flaturl'] == 1)
                             $menu_url = get_permalink(get_the_ID()).$page_id.($page_id!=''?'/':'');
                         ?>
-                        <a class="udb-item <?php echo $udb_page == $page_id?'selected':'';?>" href="<?php echo $menu_url; ?>"><i class="<?php echo isset($menu_item['icon'])?$menu_item['icon']:$default_icons[$page_id]; ?> mr-3"></i><?php echo $menu_item['name']; ?></a>
+                        <a class="udb-item <?php echo $udb_page == $page_id?'selected':'';?>" href="<?php echo $menu_url; ?>"><i class="<?php echo isset($menu_item['icon'])?$menu_item['icon']:(isset($default_icons[$page_id])?$default_icons[$page_id]:'fab fa-buffer'); ?> mr-3"></i><?php echo $menu_item['name']; ?></a>
                     <?php }
                     echo "</div>";
                 } ?>
@@ -46,16 +48,7 @@ global $current_user; ?>
 
     </div>
 </div>
-<script>
-    jQuery(function($){
-        var fullwidth = 0;
-        $('body').on('click','#btn-fullwidth', function(){
-            fullwidth = fullwidth == 0?1:0;
-                $('#wpdm-dashboard-sidebar').toggle();
-            $('#wpdm-dashboard-contents').toggleClass('col-md-8','col-md-12');
-        });
-    });
-</script>
+
 
 
  

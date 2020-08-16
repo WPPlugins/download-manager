@@ -20,24 +20,21 @@ $member_success = \WPDM\Session::get('member_success');
 
     <form method="post" id="edit_profile" name="contact_form" action="" class="form">
         <?php wp_nonce_field(NONCE_KEY, '__wpdm_epnonce'); ?>
-        <div class="panel panel-default dashboard-panel">
-            <div class="panel-heading"><?php _e( "Basic Profile" , "download-manager" ); ?></div>
-            <div class="panel-body">
+        <div class="card card-default dashboard-panel">
+            <div class="card-header"><?php _e( "Basic Profile" , "download-manager" ); ?></div>
+            <div class="card-body">
                 <div class="row">
-                    <div class="col-md-6 form-group"><label for="name"><?php _e( "Display name:" , "download-manager" );?> </label><input type="text" class="required form-control" value="<?php echo $user->display_name;?>" name="wpdm_profile[display_name]" id="name"></div>
-                    <div class="col-md-6 form-group"><label for="payment_account"><?php _e( "PayPal Email:" , "download-manager" );?></label><input type="text" value="<?php echo get_user_meta($user->ID,'payment_account',true); ?>" class="form-control" name="payment_account" id="payment_account"> </div>
+                    <div class="col-md-6"><div class="form-group"><label for="name"><?php _e( "Display name:" , "download-manager" );?> </label><input type="text" class="required form-control" required="required" value="<?php echo $user->display_name;?>" name="wpdm_profile[display_name]" id="name"></div></div>
+                    <div class="col-md-6"><div class="form-group"><label for="payment_account"><?php _e( "PayPal Email:" , "download-manager" );?></label><input type="text" value="<?php echo get_user_meta($user->ID,'payment_account',true); ?>" class="form-control" name="payment_account" id="payment_account"> </div></div>
 
-                    <div class="col-md-6 form-group"><label for="username"><?php _e( "Username:" , "download-manager" );?></label><input type="text" class="required form-control" value="<?php echo $user->user_login;?>" id="username" readonly="readonly"></div>
-                    <div class="col-md-6 form-group"><label for="email"><?php _e( "Email:" , "download-manager" );?></label><input type="text" class="required form-control" name="wpdm_profile[user_email]" value="<?php echo $user->user_email;?>" id="email" ></div>
+                    <div class="col-md-6"><div class="form-group"><label for="username"><?php _e( "Username:" , "download-manager" );?></label><input type="text" class="required form-control" value="<?php echo $user->user_login;?>" id="username" readonly="readonly"></div></div>
+                    <div class="col-md-6"><div class="form-group"><label for="email"><?php _e( "Email:" , "download-manager" );?></label><input type="text" class="required form-control" name="wpdm_profile[user_email]" value="<?php echo $user->user_email;?>" id="email" ></div></div>
 
-                    <div class="col-md-6 form-group"><label for="new_pass"><?php _e( "New Password:" , "download-manager" );?> </label><input  autocomplete="off" placeholder="<?php _e( "Use nothing if you don\'t want to change old password" , "download-manager" );?>" type="password" class="form-control" value="" name="password" id="new_pass"> </div>
-                    <div class="col-md-6 form-group"><label for="re_new_pass"><?php _e( "Re-type New Password:" , "download-manager" );?> </label><input autocomplete="off" type="password" value="" class="form-control" name="cpassword" id="re_new_pass"> </div>
+                    <div class="col-md-6"><div class="form-group"><label for="new_pass"><?php _e( "New Password:" , "download-manager" );?> </label><input  autocomplete="off" placeholder="<?php _e( "Use nothing if you don't want to change old password" , "download-manager" );?>" type="password" class="form-control" value="" name="password" id="new_pass"> </div></div>
+                    <div class="col-md-6"><div class="form-group"><label for="re_new_pass"><?php _e( "Re-type New Password:" , "download-manager" );?> </label><input autocomplete="off" type="password" value="" class="form-control" name="cpassword" id="re_new_pass"> </div></div>
 
 
                     <?php do_action('wpdm_update_profile_filed_html', $user); ?>
-
-
-                    <div class="col-md-12 wpdm-clear form-group"><label for="message"><?php _e( "Description:" , "download-manager" );?></label><textarea class="text form-control" cols="40" rows="8" name="wpdm_profile[description]" id="message"><?php echo htmlspecialchars(stripslashes($current_user->description));?></textarea></div>
 
 
                 </div>

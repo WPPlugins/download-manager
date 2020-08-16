@@ -12,44 +12,42 @@ setup_postdata($post);
 $pack = new \WPDM\Package();
 $pack->Prepare(get_the_ID());
 
-?>
-<!DOCTYPE html>
+?><!DOCTYPE html>
 <html style="background: transparent">
 <head>
     <title>Download <?php the_title(); ?></title>
-    <link rel="stylesheet" href="<?php echo WPDM_BASE_URL; ?>assets/bootstrap/css/bootstrap.css" />
-    <link rel="stylesheet" href="<?php echo WPDM_BASE_URL; ?>assets/css/front.css" />
-    <link rel="stylesheet" href="<?php echo WPDM_BASE_URL; ?>assets/fontawesome/css/fontawesome.min.css" />
-    <script src="<?php echo includes_url(); ?>/js/jquery/jquery.js"></script>
-    <script src="<?php echo includes_url(); ?>/js/jquery/jquery.form.min.js"></script>
-    <script src="<?php echo WPDM_BASE_URL; ?>assets/bootstrap/js/bootstrap.min.js"></script>
-    <script src="<?php echo WPDM_BASE_URL; ?>assets/js/front.js"></script>
-    <?php if((isset($pack->PackageData['form_lock']) && $pack->PackageData['form_lock'] == 1)  || $pack->PackageData['base_price'] > 0) wp_head(); ?>
-    <style>
-        <?php
-        $wpdmss = maybe_unserialize(get_option('__wpdm_disable_scripts', array()));
-         if(!in_array('google-font', $wpdmss)) { ?>
-        @import url('https://fonts.googleapis.com/css?family=Cantarell:400,700');
-        <?php } ?>
+    <?php if((isset($pack->PackageData['form_lock']) && $pack->PackageData['form_lock'] == 1)  || $pack->PackageData['base_price'] > 0) wp_head(); else { ?>
+        <link rel="stylesheet" href="<?php echo WPDM_BASE_URL; ?>assets/bootstrap/css/bootstrap.css" />
+        <link rel="stylesheet" href="<?php echo WPDM_BASE_URL; ?>assets/css/front.css" />
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" />
+        <script src="<?php echo includes_url(); ?>/js/jquery/jquery.js"></script>
+        <script src="<?php echo includes_url(); ?>/js/jquery/jquery.form.min.js"></script>
+        <script src="<?php echo WPDM_BASE_URL; ?>assets/bootstrap/js/bootstrap.bundle.min.js"></script>
+        <script src="<?php echo WPDM_BASE_URL; ?>assets/js/front.js"></script>
 
+    <?php }
+
+    \WPDM\libs\Apply::googleFont();
+    ?>
+    <style>
         html, body{
             overflow: visible;
             height: 100%;
             width: 100%;
             padding: 0;
             margin: 0;
-            font-family: Cantarell, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
             font-weight: 300;
             font-size: 10pt;
+            font-family: var(--wpdm-font);
         }
         h4.modal-title{
-            font-family: Cantarell, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-            font-weight: 800;
+            font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 1px;
             color: #555555;
             font-size: 11pt;
             display: inline-block;
+            font-family: var(--wpdm-font);
         }
 
         .w3eden label{
@@ -137,27 +135,27 @@ $pack->Prepare(get_the_ID());
         }
 
 
-        .w3eden .panel-default {
+        .w3eden .card-default {
             border-radius: 3px;
             margin-top: 10px !important;
         }
-        .w3eden .panel-default:last-child{
+        .w3eden .card-default:last-child{
             margin-bottom: 0 !important;
         }
-        .w3eden .panel-default .panel-heading{
+        .w3eden .card-default .card-header{
             letter-spacing: 0.5px;
-            font-weight: 600;
+            font-weight: 500;
             background-color: #f6f8f9;
         }
 
-        .w3eden .panel-default .panel-footer{
+        .w3eden .card-default .card-footer{
             background-color: #fafafa;
         }
 
         .btn{
             outline: none !important;
         }
-        .w3eden .panel{
+        .w3eden .card{
             margin-bottom: 0;
         }
         .w3eden .modal-header{
@@ -168,10 +166,6 @@ $pack->Prepare(get_the_ID());
             border: 0;
             border-radius: 6px;
             background: rgb(255,255,255);
-            background: -moz-linear-gradient(-45deg,  rgba(255,255,255,1) 0%, rgba(243,243,243,1) 50%, rgba(237,237,237,1) 51%, rgba(255,255,255,1) 100%);
-            background: -webkit-linear-gradient(-45deg,  rgba(255,255,255,1) 0%,rgba(243,243,243,1) 50%,rgba(237,237,237,1) 51%,rgba(255,255,255,1) 100%);
-            background: linear-gradient(135deg,  rgba(255,255,255,1) 0%,rgba(243,243,243,1) 50%,rgba(237,237,237,1) 51%,rgba(255,255,255,1) 100%);
-            filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#ffffff',GradientType=1 );
             overflow: hidden;
             max-width: 100%;
         }
@@ -195,53 +189,105 @@ $pack->Prepare(get_the_ID());
             font-size: 11pt !important;
         }
 
-        .w3eden .fetfont,
-        .w3eden .btn,
-        .w3eden .btn.wpdm-front h3.title,
-        .w3eden .wpdm-social-lock-box .IN-widget a span:last-child,
-        .w3eden #xfilelist .panel-heading,
-        .w3eden .wpdm-frontend-tabs a,
-        .w3eden .alert:before,
-        .w3eden .panel .panel-heading,
-        .w3eden .discount-msg,
-        .w3eden .panel.dashboard-panel h3,
-        .w3eden #wpdm-dashboard-sidebar .list-group-item,
-        .w3eden #package-description .wp-switch-editor,
-        .w3eden .w3eden.author-dashbboard .nav.nav-tabs li a,
-        .w3eden .wpdm_cart thead th,
-        .w3eden #csp .list-group-item,
-        .w3eden .modal-title {
-            font-family: Cantarell, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-            text-transform: uppercase;
-            font-weight: 700;
-        }
-        .w3eden #csp .list-group-item{
-            text-transform: unset;
+        .modal-icon{
+            padding: 4px;
+            display: inline-block;
+            width: 72px;
+            height: 72px;
+            border-radius: 500px;
+            margin-top: -36px;
+            left: calc(50% - 36px);
+            box-shadow: 0 0 3px rgba(0,0,0,0.3);
+            position: absolute;
+            z-index: 999999;
+            background: rgb(254,254,254);
+            background: -moz-linear-gradient(45deg,  rgba(254,254,254,1) 19%, rgba(226,226,226,1) 100%);
+            background: -webkit-linear-gradient(45deg,  rgba(254,254,254,1) 19%,rgba(226,226,226,1) 100%);
+            background: linear-gradient(45deg,  rgba(254,254,254,1) 19%,rgba(226,226,226,1) 100%);
+            filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fefefe', endColorstr='#e2e2e2',GradientType=1 );
         }
 
+        .modal-content{
+            padding-top: 36px !important;
+        }
+        .close{
+            position: absolute;
+            z-index: 999999;
+            top: 5px;
+            right: 5px;
+            opacity: 0 !important;
+            padding: 0;
+            border: 0;
+            margin: 0;
+            background: transparent;
+        }
+        .modal-content:hover .close{
+            opacity: 0.8 !important;
+        }
+        .close:hover .fa-times-circle{
+            color: #ff3c54 !important;
+        }
+        .close .fa-times-circle,
+        .close:hover .fa-times-circle,
+        .modal-content:hover .close,
+        .close{
+            -webkit-transition: ease-in-out 400ms;
+            -moz-transition: ease-in-out 400ms;
+            -ms-transition: ease-in-out 400ms;
+            -o-transition: ease-in-out 400ms;
+            transition: ease-in-out 400ms;
+        }
+        .wp-post-image{
+            width: 100%;
+            height: auto;
+            border-radius: 500px;
+        }
 
-
-
-
+        .btn-viewcart,
+        #cart_submit{
+            line-height: 30px !important;
+            width: 100%;
+        }
+        .w3eden h3.wpdmpp-product-price{
+            text-align: center;
+            margin-bottom: 30px !important;
+        }
+        .modal-icon img{
+            border-radius: 500px;
+        }
+        .w3eden h4.download-h{
+            font-size: 12pt;
+        }
+        .package-title{
+            color: var(--color-primary);
+        }
+        .card-footer .wpdm-download-link{
+            display: block !important;
+            width: 100% !important;
+            height: 48px !important;
+            line-height: 48px !important;
+            padding: 0 !important;
+        }
     </style>
-    <?php
 
-        do_action("wpdm_modal_iframe_head");
 
-        global $WPDM;
-    $WPDM->apply->uiColors();
 
-    ?>
+
+    <?php do_action("wpdm_modal_iframe_head"); ?>
 </head>
 <body class="w3eden" style="background: transparent">
 
 <div class="modal fade" id="wpdm-locks" tabindex="-1" role="dialog" aria-labelledby="wpdm-optinmagicLabel">
     <div class="modal-dialog" role="document" style="width: <?php echo isset($pack->PackageData['terms_lock']) && $pack->PackageData['terms_lock'] == 1?395:365; ?>px;max-width: calc(100% - 20px);">
+        <div class="modal-icon">
+            <?php the_post_thumbnail('thumbnail'); ?>
+            <?php //echo $pack->PackageData['icon']; ?>
+        </div>
         <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true"><img style="width: 20px" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjwhRE9DVFlQRSBzdmcgIFBVQkxJQyAnLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4nICAnaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkJz48c3ZnIGVuYWJsZS1iYWNrZ3JvdW5kPSJuZXcgMCAwIDMyIDMyIiBoZWlnaHQ9IjMycHgiIGlkPSLQodC70L7QuV8xIiB2ZXJzaW9uPSIxLjEiIHZpZXdCb3g9IjAgMCAzMiAzMiIgd2lkdGg9IjMycHgiIHhtbDpzcGFjZT0icHJlc2VydmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiPjxnIGlkPSJDYW5jZWwiPjxwYXRoIGNsaXAtcnVsZT0iZXZlbm9kZCIgZD0iTTE2LDBDNy4xNjMsMCwwLDcuMTYzLDAsMTZjMCw4LjgzNiw3LjE2MywxNiwxNiwxNiAgIGM4LjgzNiwwLDE2LTcuMTYzLDE2LTE2QzMyLDcuMTYzLDI0LjgzNiwwLDE2LDB6IE0xNiwzMEM4LjI2OCwzMCwyLDIzLjczMiwyLDE2QzIsOC4yNjgsOC4yNjgsMiwxNiwyczE0LDYuMjY4LDE0LDE0ICAgQzMwLDIzLjczMiwyMy43MzIsMzAsMTYsMzB6IiBmaWxsPSIjMTIxMzEzIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiLz48cGF0aCBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik0yMi43MjksMjEuMjcxbC01LjI2OC01LjI2OWw1LjIzOC01LjE5NSAgIGMwLjM5NS0wLjM5MSwwLjM5NS0xLjAyNCwwLTEuNDE0Yy0wLjM5NC0wLjM5LTEuMDM0LTAuMzktMS40MjgsMGwtNS4yMzEsNS4xODhsLTUuMzA5LTUuMzFjLTAuMzk0LTAuMzk2LTEuMDM0LTAuMzk2LTEuNDI4LDAgICBjLTAuMzk0LDAuMzk1LTAuMzk0LDEuMDM3LDAsMS40MzJsNS4zMDEsNS4zMDJsLTUuMzMxLDUuMjg3Yy0wLjM5NCwwLjM5MS0wLjM5NCwxLjAyNCwwLDEuNDE0YzAuMzk0LDAuMzkxLDEuMDM0LDAuMzkxLDEuNDI5LDAgICBsNS4zMjQtNS4yOGw1LjI3Niw1LjI3NmMwLjM5NCwwLjM5NiwxLjAzNCwwLjM5NiwxLjQyOCwwQzIzLjEyMywyMi4zMDgsMjMuMTIzLDIxLjY2NywyMi43MjksMjEuMjcxeiIgZmlsbD0iIzEyMTMxMyIgZmlsbC1ydWxlPSJldmVub2RkIi8+PC9nPjxnLz48Zy8+PGcvPjxnLz48Zy8+PGcvPjwvc3ZnPg==" alt="&times;" /></span></button>
-                <h4 class="modal-title"><?php echo ($pack->PackageData['base_price'] > 0)? __('Buy','download-manager'): __('Download','download-manager'); ?></h4>
-                <div style="letter-spacing: 1px;font-weight: 400" class="color-blue"><?php echo $pack->PackageData['title']; ?></div>
+            <div class="text-center mt-3 mb-3">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true"><i class="far fa-times-circle"></i></span></button>
+                <h4 class="d-block download-h"><?php echo ($pack->PackageData['base_price'] > 0)? __('Buy','download-manager'): __('Download','download-manager'); ?></h4>
+                <div style="letter-spacing: 1px;font-weight: 400;margin-top: 5px" class="package-title d-block"><?php echo $pack->PackageData['title']; ?></div>
             </div>
             <div class="modal-body">
                 <?php
@@ -257,20 +303,30 @@ $pack->Prepare(get_the_ID());
     ?>
 </div>
 
+
+<div style="display: none">
+    <?php  if((isset($pack->PackageData['form_lock']) && $pack->PackageData['form_lock'] == 1)  || $pack->PackageData['base_price'] > 0) wp_footer(); ?>
+    <?php do_action("wpdm_modal_iframe_footer"); ?>
+</div>
 <script>
 
     jQuery(function ($) {
 
         $('a').each(function () {
-            $(this).attr('target', '_parent');
+            $(this).attr('target', '_blank');
         });
 
         $('body').on('click','a', function () {
-            $(this).attr('target', '_parent');
+            $(this).attr('target', '_blank');
         });
 
         $('#wpdm-locks').on('hidden.bs.modal', function (e) {
-            window.parent.hideLockFrame();
+            var parentWindow = document.createElement("a");
+            parentWindow.href = document.referrer.toString();
+            if(parentWindow.hostname === window.location.hostname)
+                window.parent.hideLockFrame();
+            else
+                window.parent.postMessage({'task': 'hideiframe'}, "*");
         });
 
 
@@ -281,9 +337,5 @@ $pack->Prepare(get_the_ID());
     }
     showModal();
 </script>
-<div style="display: none">
-    <?php  if((isset($pack->PackageData['form_lock']) && $pack->PackageData['form_lock'] == 1)  || $pack->PackageData['base_price'] > 0) wp_footer(); ?>
-    <?php do_action("wpdm_modal_iframe_footer"); ?>
-</div>
 </body>
 </html>

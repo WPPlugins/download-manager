@@ -1,19 +1,37 @@
-<!-- WPDM Link Template: Call to Action -->
+<!-- WPDM Link Template: Call to Action 3 -->
 
-<div class="wpdm-link-template well c2a3">
+<div class="well c2a3">
     <div class="media">
-        <div class="pull-left" align="left">
+        <div class="mr-3" align="left">
             [icon]
         </div>
-        <div class="pull-right" align="right">
+        <div class="media-body">
+            <h3 class="media-heading" style="padding-top: 0px;border:0px;margin: 0 0 5px 0;font-size:12pt;">
+                <a style="font-weight: 700" href="[page_url]">[title]</a>
+                <span style="font-size:8pt;font-weight:300" class="text-muted ml-4">
+                    <i class="fa fa-hdd mr-1"></i> [file_size]
+                    <i class="ml-3 fa fa-arrow-alt-circle-down mr-1"></i> [download_count] downloads
+                </span>
+            </h3>
+            [excerpt_80]
+        </div>
+        <div class="ml-3" align="right">
             [download_link]
         </div>
-
-        <div class="media-body">
-            <h2 class="package-title"><a href="[page_url]">[title]</a> <span style="margin-left:30px;font-size:8pt;font-weight:300"><i style="margin: 2px 0 0 5px;" class="far fa-hdd color-green"></i> [file_size] <i style="margin: 2px 0 0 5px;" class="far fa-arrow-alt-circle-down color-purple"></i> [download_count] downloads</span></h2>
-            [excerpt_40]
-        </div>
-
     </div>
 
 </div>
+<style>
+    .well.c2a3 .btn {
+        padding: 11px 30px;
+        font-size: 11pt;
+    }
+
+    .well.c2a3 .media-body {
+        font-size: 11pt;
+    }
+
+    .well.c2a3 .wpdm_icon {
+        height: 42px;
+        width: auto;
+    }</style>

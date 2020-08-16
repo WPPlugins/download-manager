@@ -4,7 +4,7 @@
 <div class="wpdm-link-template link-template-default" >
 
     <div class="media">
-        <div class="pull-left">[icon]</div>
+        <div class="mr-3">[icon]</div>
         <div class="media-body">
             <div>
                 <strong class="package-title">[title]</strong> | [file_size]

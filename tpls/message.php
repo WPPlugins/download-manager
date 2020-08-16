@@ -1,67 +1,63 @@
 <?php
 if (!defined('ABSPATH')) die();
-?><!DOCTYPE html>
-<html>
+/**
+ * User: shahnuralam
+ * Date: 1/26/18
+ * Time: 12:33 AM
+ */
+
+
+?>
+<!DOCTYPE html>
+<html style="background: transparent">
 <head>
-    <title><?php echo $title; ?></title>
-    <link href='<?php echo plugins_url("/download-manager/assets/bootstrap/css/bootstrap.css"); ?>' rel='stylesheet' />
-    <link href='<?php echo plugins_url("/download-manager/assets/font-awesome/css/font-awesome.min.css"); ?>' rel='stylesheet' />
-    <link href="https://fonts.googleapis.com/css?family=Abel|Gudea" rel="stylesheet">
+    <title>Download <?php the_title(); ?></title>
+    <script>
+        var wpdm_home_url = "<?php echo home_url('/'); ?>";
+    </script>
+    <link rel="stylesheet" href="<?php echo WPDM_BASE_URL; ?>assets/bootstrap/css/bootstrap.css" />
+    <link rel="stylesheet" href="<?php echo WPDM_BASE_URL; ?>assets/css/front.css" />
+    <link rel="stylesheet" href="<?php echo WPDM_BASE_URL; ?>assets/font-awesome/css/font-awesome.min.css" />
+    <link href="https://fonts.googleapis.com/css?family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <!--
+    <script src="<?php echo includes_url(); ?>/js/jquery/jquery.js"></script>
+    <script src="<?php echo includes_url(); ?>/js/jquery/jquery.form.min.js"></script>
+    <script src="<?php echo WPDM_BASE_URL; ?>assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="<?php echo WPDM_BASE_URL; ?>assets/js/front.js"></script>
+    -->
+    <?php
+    \WPDM\libs\Apply::uiColors();
+    ?>
     <style>
-        *{
-            font-family: 'Gudea', sans-serif;
-            text-align: center;
-            letter-spacing: 1px;
-        }
         body{
-            overflow: hidden;
-            padding: 0;
-            margin: 0;
+            font-family: 'IBM Plex Mono', monospace;
+            font-weight: 400;
+            font-size: 14px;
+            letter-spacing: 0;
         }
-        .w3eden{
-            display: table;
-            position: absolute;
-            height: 100%;
-            width: 100%;
-            overflow: hidden;
+        .w3eden .alert:before{
+            text-transform: uppercase !important;
         }
-        .middle{
-            display: table-cell;
-            vertical-align: middle;
-            overflow: hidden;
+        .w3eden .alert{
+            letter-spacing: 0 !important;
         }
-        body.danger i.fa{
-            color: #ff435b;
+        .w3eden .card .card-header{
+            font-size: 14pt;
         }
-        body.danger h3{
-            color: #ff435b;
-            font-family: 'Abel', sans-serif;
-            letter-spacing: 0px;
-        }
-        .w3eden .panel{
-            padding: 30px;
-            display: inline-block;
-            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.08) !important;
-            border-radius: 15px !important;
-            margin: 0;
-            width: 400px;
-            max-width: 80%;
-        }
-        .w3eden .panel.panel-danger{
-            border: 1px solid rgba(255, 67, 91, 0.7) !important;
+        .w3eden .card .card-body{
+            font-size: 13pt;
         }
     </style>
 </head>
-<body class="<?php echo $type; ?>">
-<div class='w3eden'>
-<div class='middle'>
-<div class="panel panel-<?php echo $type; ?>">
-    <?php if($type == 'danger') echo "<img style='width: 100px' src='data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjxzdmcgZGF0YS1uYW1lPSJMaXZlbGxvIDEiIGlkPSJMaXZlbGxvXzEiIHZpZXdCb3g9IjAgMCAxNTEuNTcgMTUxLjU3IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjx0aXRsZS8+PGNpcmNsZSBjeD0iNzUuNzgiIGN5PSI3NS43OCIgcj0iNzIuMjgiIHN0eWxlPSJmaWxsOiNkYTIyNDQ7c3Ryb2tlOiNmMmYyZjI7c3Ryb2tlLWxpbmVjYXA6cm91bmQ7c3Ryb2tlLWxpbmVqb2luOnJvdW5kO3N0cm9rZS13aWR0aDo3cHgiLz48bGluZSBzdHlsZT0iZmlsbDpub25lO3N0cm9rZTojZjJmMmYyO3N0cm9rZS1saW5lY2FwOnJvdW5kO3N0cm9rZS1saW5lam9pbjpyb3VuZDtzdHJva2Utd2lkdGg6NXB4IiB4MT0iMzUuMiIgeDI9IjExNi4zNyIgeTE9IjEwNC4zNyIgeTI9IjEwNC4zNyIvPjxsaW5lIHN0eWxlPSJmaWxsOm5vbmU7c3Ryb2tlOiNmMmYyZjI7c3Ryb2tlLWxpbmVjYXA6cm91bmQ7c3Ryb2tlLWxpbmVqb2luOnJvdW5kO3N0cm9rZS13aWR0aDo1cHgiIHgxPSIxMTYuMzciIHgyPSI3NS43OCIgeTE9IjEwNC4zNyIgeTI9IjM1LjIiLz48bGluZSBzdHlsZT0iZmlsbDpub25lO3N0cm9rZTojZjJmMmYyO3N0cm9rZS1saW5lY2FwOnJvdW5kO3N0cm9rZS1saW5lam9pbjpyb3VuZDtzdHJva2Utd2lkdGg6NXB4IiB4MT0iMzUuMiIgeDI9Ijc1Ljc4IiB5MT0iMTA0LjM3IiB5Mj0iMzUuMiIvPjxsaW5lIHN0eWxlPSJmaWxsOm5vbmU7c3Ryb2tlOiNmMmYyZjI7c3Ryb2tlLWxpbmVjYXA6cm91bmQ7c3Ryb2tlLWxpbmVqb2luOnJvdW5kO3N0cm9rZS13aWR0aDo0cHgiIHgxPSI3NS43OCIgeDI9Ijc1Ljc4IiB5MT0iNTcuMzIiIHkyPSI4My4xOCIvPjxjaXJjbGUgY3g9Ijc1Ljc4IiBjeT0iOTEuNjMiIHI9IjIuNjIiIHN0eWxlPSJmaWxsOiNmY2ZiZjIiLz48L3N2Zz4=' />"; ?>
-    <br/>
-    <h3><?php echo $title; ?></h3>
-        <?php echo $message; ?>
-</div>
-</div>
-</div>
+<body class="w3eden">
+<div style='display: table;vertical-align: middle;height: 90%;position: absolute;width: 90%;margin-left: 5%;'>
+    <div style='text-align: center;height: 100%;display: table-cell;vertical-align: middle'>
+        <div style='max-width: 70% !important;display: inline-block;font-size: 13pt'>
+            <?php
+            echo do_shortcode($msg);
+            ?>
+        </div></div></div>
+
+
 </body>
 </html>

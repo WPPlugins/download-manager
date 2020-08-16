@@ -3,9 +3,9 @@
  .frm td{
      padding:5px;
      border-bottom: 1px solid #eeeeee;
-    
+
      font-size:10pt;
-     
+
  }
  h4{
      color: #336699;
@@ -63,6 +63,7 @@
 
                     <div class="form-group">
                         <label><?php echo __('File Browser Access:','download-manager');  ?></label><br/>
+                        <input type="hidden" name="_wpdm_file_browser_access[]" value="[NONE]" />
                         <select style="width: 100%" name="_wpdm_file_browser_access[]" multiple="multiple" data-placeholder="<?php _e('Who will have access to server file browser','download-manager'); ?>">
                             <?php
 
@@ -170,9 +171,14 @@
                         <input type="hidden" value="0" name="__wpdm_open_in_browser" />
                         <label><input style="margin: 0 10px 0 0" <?php checked(1, get_option('__wpdm_open_in_browser',0)); ?> type="checkbox" value="1" name="__wpdm_open_in_browser"><?php _e('Open in Browser','download-manager'); ?></label><br/>
                         <em><?php _e('Try to Open in Browser instead of download when someone clicks on download link','download-manager'); ?></em>
-                        <br/>
 
                     </div>
+                    <hr/>
+                    <div class="form-group"><input type="hidden" name="__wpdm_mask_link" value="0">
+                        <label><input type="radio" <?php checked(get_option('__wpdm_mask_dlink', 1),1); ?>  name="__wpdm_mask_dlink" value="1">  <?php _e( "Mask Download Link" , "download-manager" ); ?> &nbsp; </label>
+                        <label><input type="radio" <?php checked(get_option('__wpdm_mask_dlink', 1),0); ?>  name="__wpdm_mask_dlink" value="0">  <?php _e( "Unmask Download Link" , "download-manager" ); ?></label><br/>
+                        <em><?php _e( "Check this option if you want to mask/unmask file download link. If you unmask download link, bots will be able the find any public download link easily." , "download-manager" ); ?></em>
+                    </div><hr/>
 
                     <fieldset>
                         <legend><?php echo __('reCAPTCHA Lock Settings','download-manager'); ?></legend>
@@ -184,6 +190,14 @@
                         <div class="form-group">
                             <label><a name="liappid"></a><?php echo __('reCAPTCHA Secret Key','download-manager'); ?></label>
                             <input type="text" class="form-control" name="_wpdm_recaptcha_secret_key" value="<?php echo get_option('_wpdm_recaptcha_secret_key'); ?>">
+                        </div>
+                        <div class="form-group">
+                            <input type="hidden" value="0" name="__wpdm_recaptcha_regform">
+                            <label><input type="checkbox" name="__wpdm_recaptcha_regform" value="1" <?php checked(1, get_option('__wpdm_recaptcha_regform')); ?> > <?php echo __( "Enable sign up form CAPTCHA validation" , "download-manager" ); ?></label>
+                        </div>
+                        <div class="form-group">
+                            <input type="hidden" value="0" name="__wpdm_recaptcha_loginform">
+                            <label><input type="checkbox" name="__wpdm_recaptcha_loginform" value="1" <?php checked(1, get_option('__wpdm_recaptcha_loginform')); ?>> <?php echo __( "Enable sign in form CAPTCHA validation" , "download-manager" ); ?></label>
                         </div>
                     </fieldset>
 
@@ -203,13 +217,19 @@
                         <label for="__wpdm_user_dashboard"><?php echo __('Login Page','download-manager'); ?></label><br/>
                         <?php wp_dropdown_pages(array('name' => '__wpdm_login_url', 'id' => '__wpdm_login_url', 'show_option_none' => __('None Selected','download-manager'), 'option_none_value' => '' , 'selected' => get_option('__wpdm_login_url'))) ?><br/>
                         <em class="note"><?php printf(__('The page where you used short-code %s','download-manager'),'<code>[wpdm_login_form]</code>'); ?> &nbsp; <a target="_blank" href="https://www.wpdownloadmanager.com/doc/short-codes/wpdm_login_form-user-login-form-short-code/"><i title="Read Documentation" class="fa fa-book"></i></a></em>
+                        <label style="margin-top: 2px;display: block"><input type="hidden" name="__wpdm_modal_login" value="0"><input <?php checked(1, get_option('__wpdm_modal_login', 0)); ?> style="margin: 0 3px 0 5px" value="1" name="__wpdm_modal_login" type="checkbox" /> <?php _e("Enable modal login form", "download-manager");  ?></label>
+                        <em class="note"><?php printf(__('%s will show the modal login form, <a target="_blank" href="%s">follow the docs</a> for moore details','download-manager'),'<code>CTRL + L</code>', 'https://www.wpdownloadmanager.com/how-to-add-modal-popup-login-form-in-your-wordpress-site/'); ?></em>
+                        <hr/>
                     </div>
 
                     <div class="form-group">
                         <label for="__wpdm_user_dashboard"><?php echo __('Register Page','download-manager'); ?></label><br/>
                         <?php wp_dropdown_pages(array('name' => '__wpdm_register_url', 'id' => '__wpdm_register_url', 'show_option_none' => __('None Selected','download-manager'), 'option_none_value' => '' , 'selected' => get_option('__wpdm_register_url'))) ?><br/>
                         <em class="note"><?php printf(__('The page where you used short-code %s','download-manager'),'<code>[wpdm_reg_form]</code>'); ?> &nbsp; <a target="_blank" href="https://www.wpdownloadmanager.com/doc/short-codes/wpdm_reg_form-user-registration-form-short-code/"><i title="Read Documentation" class="fa fa-book"></i></a></em>
+                        <label style="margin-top: 2px;display: block"><input type="hidden" name="__wpdm_signup_email_verify" value="0"><input <?php checked(1, get_option('__wpdm_signup_email_verify', 0)); ?> style="margin: 0 3px 0 5px" value="1" name="__wpdm_signup_email_verify" type="checkbox" /> <?php _e("Enable email verification on signup", "download-manager");  ?></label>
+                        <label style="margin-top: 2px;display: block"><input type="hidden" name="__wpdm_signup_autologin" value="0"><input <?php checked(1, get_option('__wpdm_signup_autologin', 0)); ?> style="margin: 0 3px 0 5px" value="1" name="__wpdm_signup_autologin" type="checkbox" /> <?php _e("Login automatically after signup is completed", "download-manager");  ?></label>
                     </div>
+                    <hr/>
                     <div class="form-group">
                         <label for="__wpdm_user_dashboard"><?php echo __('Dashboard Page','download-manager'); ?></label><br/>
                         <?php wp_dropdown_pages(array('name' => '__wpdm_user_dashboard', 'id' => '__wpdm_user_dashboard', 'show_option_none' => __('None Selected','download-manager'), 'option_none_value' => '' , 'selected' => get_option('__wpdm_user_dashboard'))) ?><br/>

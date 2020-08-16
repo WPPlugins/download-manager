@@ -11,6 +11,12 @@ $ui_button_sc = get_option('__wpdm_ui_download_button_sc');
 
 ?>
 <div class="panel panel-default">
+    <div class="panel-heading"><?php _e("Active Bootstrap Version",'download-manager'); ?></div>
+    <div class="panel-body">
+        <label style="margin-right: 20px"><input  <?php checked('', get_option('__wpdm_bsversion','')); ?>  type="radio" value="" name="__wpdm_bsversion"> <?php _e( "Bootstrap 4" , "download-manager" ); ?></label> <label><input <?php checked('3', get_option('__wpdm_bsversion','')); ?> type="radio" value="3" name="__wpdm_bsversion"> <?php _e( "Bootstrap 3" , "download-manager" ); ?></label>
+    </div>
+</div>
+<div class="panel panel-default">
     <div class="panel-heading"><?php _e("Disable Style & Script",'download-manager'); ?></div>
     <div class="panel-body">
 

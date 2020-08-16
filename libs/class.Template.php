@@ -11,7 +11,7 @@ class Template
         return $this;
     }
 
-    public static function locate($file, $tpldir = ''){
+    public static function locate($file, $tpldir = '', $fallback = ''){
 
         $template_dirs = array(
             get_stylesheet_directory().'/download-manager/',
@@ -22,9 +22,12 @@ class Template
             $template_dirs[] = rtrim($tpldir, '/').'/';
             $template_dirs[] = get_template_directory().'/download-manager/'.$tpldir.'/';
         }
-        $template_dirs[] = WPDM_TPL_DIR;
+        else
+            $template_dirs[] = WPDM_TPL_DIR;
 
-        $template_dirs = apply_filters("wpdm_tpl_dir", $template_dirs);
+        $template_dirs[] = $fallback ? rtrim($fallback, '/').'/' : rtrim(WPDM_TPL_FALLBACK, '/').'/';
+
+        $template_dirs = apply_filters("wpdm_template_path", $template_dirs);
 
         foreach ($template_dirs as $template_dir){
             if(file_exists($template_dir.$file))
@@ -33,18 +36,31 @@ class Template
         return "";
     }
 
-    function assign($var, $val){
-        $this->Vars[$var] = $val;
+    function assign($var, $val = null){
+        if(is_array($var) && is_array($val)){
+            foreach ($var as $index => $key){
+                $this->Vars[$key] = isset($val[$index]) ? $val[$index] : '';
+            }
+        } else if(is_array($var) && $val === null){
+            foreach ($var as $key => $value){
+                $this->Vars[$key] = $value;
+            }
+        } else if(is_string($var))
+            $this->Vars[$var] = $val;
         return $this;
     }
 
     function fetch($template, $tpldir = '' , $fallback = ''){
         $template = self::locate($template, $tpldir);
         if(is_array($this->Vars))
-            extract($this->Vars);
+        extract($this->Vars);
         ob_start();
         include $template;
         return ob_get_clean();
+    }
+
+    function display($template, $tpldir = '' , $fallback = ''){
+        echo $this->fetch($template, $tpldir, $fallback);
     }
 
     function execute($code){

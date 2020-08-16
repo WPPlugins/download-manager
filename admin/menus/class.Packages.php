@@ -23,12 +23,14 @@ class Packages
 
         add_action( 'quick_edit_custom_box', array($this, 'quickEditForm'), 10, 2 );
 
+        add_action('admin_footer', array($this, 'footerScripts'));
+
 
     }
 
     function savePackage($post)
     {
-        if(!current_user_can('edit_posts', $post)) return;
+        if(!current_user_can('edit_post', $post)) return;
         if (get_post_type() != 'wpdmpro' || !isset($_POST['file'])) return;
 
         // Deleted old zipped file
@@ -47,7 +49,7 @@ class Packages
         foreach ($_POST['file'] as $meta_key => $meta_value) {
             $key_name = "__wpdm_" . $meta_key;
             if($meta_key == 'package_dir' && $meta_value != '') { $meta_value = realpath($meta_value); }
-            if($meta_key == 'package_size' && doubleval($meta_value) == 0) $meta_value = "";
+            if($meta_key == 'package_size' && (double)$meta_value == 0) $meta_value = "";
             if($meta_key == 'files') $meta_value = array_unique($meta_value);
             if($meta_key == 'files'){
                 foreach ($meta_value as &$value){
@@ -80,16 +82,16 @@ class Packages
         $ext = explode('.', $name);
         $ext = end($ext);
         $ext = strtolower($ext);
-        if(in_array($ext, array('php', 'js', 'html', 'py', 'pl', 'htaccess'))) die('-3');
+        if(in_array($ext, array('php', 'js', 'html', 'py', 'pl', 'htaccess', 'svg', 'shtml', 'html5'))) die('-3');
 
-        if(file_exists(UPLOAD_DIR.$name) && get_option('__wpdm_overwrrite_file',0)==1){
+        if(file_exists(UPLOAD_DIR.$name) && get_option('__wpdm_overwrrite_file',0) == 1){
             @unlink(UPLOAD_DIR.$name);
         }
         if(file_exists(UPLOAD_DIR.$name) && !isset($_REQUEST["chunks"]))
             $filename = time().'wpdm_'.$name;
         else
             $filename = $name;
-        
+
         do_action("wpdm_before_upload_file", $_FILES['package_file']);
 
         if(get_option('__wpdm_sanitize_filename', 0) == 1)
@@ -209,9 +211,27 @@ class Packages
     }
 
 
+    function footerScripts(){
+        global $pagenow;
+
+        if($pagenow === 'themes.php' || $pagenow === 'theme-install.php'){
+            if(!file_exists(ABSPATH.'/wp-content/themes/attire/')) {
+                ?>
+                <script>
+                    jQuery(function ($) {
+                        $('.page-title-action').after('<a href="<?php echo admin_url('/theme-install.php?search=attire'); ?>" class="hide-if-no-js page-title-action" style="border: 1px solid #0f9cdd;background: #13aef6;color: #ffffff;">Suggested Theme</a>');
+                    });
+                </script>
+                <?php
+            }
+        }
+
+    }
 
 
 
 
 
 }
+
+

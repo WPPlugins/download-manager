@@ -12,7 +12,7 @@
      </div>
      <div class="panel-heading" style="background: #f5f5f5 !important;border: 0;border-radius: 0;border-bottom: 1px solid #eeeeee;margin-top: 53px">
          <div id="msgst" onclick="jQuery(this).html('');" class="pull-right text-success" style="font-weight: normal;font-style: italic"></div>
-         <a class="text-success" href='https://wordpress.org/support/view/plugin-reviews/download-manager?rate=5#postform' title="Please consider it when you get some free moments" target="_blank">A <span class="ttip" title="5 Stars"><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i></span> rating will inspire me a lot. Thanks for your time &#128522;</a>
+         <a class="text-success" href='https://wordpress.org/support/plugin/download-manager/reviews/?filter=5&rate=5#new-post' title="Please consider it when you get some free moments" target="_blank">A <span class="ttip" title="5 Stars"><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i></span> rating will inspire me a lot. Thanks for your time &#128522;</a>
      </div>
 <div class="panel-body settings-panel-body">
 <div class="container-fluid">
@@ -37,7 +37,7 @@ call_user_func($stabs[$tab]['callback']); ?>
          <button type="submit" class="btn btn-info btn-lg"><i class="sinc fa fa-hdd"></i> &nbsp;<?php _e("Save Settings",'download-manager'); ?></button>
 
 <br>
- 
+
 </div>
     </div>
 
@@ -76,14 +76,14 @@ jQuery(document).ready(function(){
         });
         return false;
     });
-    
+
     window.onpopstate = function(e){
     if(e.state){
         jQuery("#fm_settings").html(e.state.html);
         //document.title = e.state.pageTitle;
     }
     };
-    
+
     <?php /* if(isset($_GET['tab'])&&$_GET['tab']!=''){ ?>
         jQuery("ul#tabs li").removeClass("active");
         jQuery('#wdms_loading').addClass('wpdm-spin');
@@ -95,7 +95,7 @@ jQuery(document).ready(function(){
             jQuery('#wdms_loading').removeClass('wpdm-spin');
         });
     <?php } */ ?>
-    
+
     jQuery('#wdm_settings_form').submit(function(){
 
         jQuery('.sinc').removeClass('fa-hdd').addClass('fa-sun fa-spin');
@@ -113,10 +113,10 @@ jQuery(document).ready(function(){
           jQuery('.wpdm-ssb').removeClass('wpdm-spin');
           jQuery('.sinc').removeClass('fa-sun fa-spin').addClass('fa-hdd');
           jQuery('#wdms_loading').removeClass('wpdm-spin');
-        }   
+        }
        });
-        
-       return false; 
+
+       return false;
     });
 
     jQuery('body').on("click",'.nav-tabs a', function (e) {
@@ -127,7 +127,7 @@ jQuery(document).ready(function(){
 
 
 });
- 
+
 </script>
 
 <style>.updated{ display: none !important; }</style>

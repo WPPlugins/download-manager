@@ -34,7 +34,7 @@
 
     <tbody class="list:post" id="the-list">
 
-    <?php 
+    <?php
     $ttype = isset($_GET['_type'])?esc_attr($_GET['_type']):'link';
     if($ttype != 'email'){
         $ctpls = WPDM\admin\menus\Templates::Dropdown(array('data_type' => 'ARRAY', 'type' => $ttype));
@@ -48,9 +48,9 @@
         $tplid = str_replace(".php","",$ctpl);
         $status = isset($tplstatus[$tplid])?$tplstatus[$tplid]:1;
     ?>
-     
+
     <tr valign="top" class="author-self status-inherit" id="template-<?php echo $ttype; ?>-<?php echo $ctpl; ?>">
-                <td class="column-icon media-icon" style="text-align: left;">                                     
+                <td class="column-icon media-icon" style="text-align: left;">
                    <nobr><?php echo $title; ?></nobr>
                 </td>
                 <td>
@@ -60,8 +60,8 @@
         <td style="text-align: right">
             <a data-toggle="modal" href="#" data-href="admin-ajax.php?action=template_preview&_type=<?php echo $ttype; ?>&template=<?php echo $ctpl; ?>" data-target="#preview-modal" rel="<?php echo $ctpl; ?>" class="template_preview btn btn-sm btn-success"><i class="fa fa-desktop"></i> Preview</a>
         </td>
-                
-     
+
+
      </tr>
     <?php
     }} else {
@@ -212,6 +212,9 @@
 
     <style>
         div.notice, .updated{ display: none; }
+        img{
+            max-width: 100%;
+        }
         .xbubble
         {
             position: relative;
@@ -376,4 +379,4 @@
 </div>
 
 
- 
+

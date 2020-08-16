@@ -96,8 +96,8 @@ function downloadLink(&$package, $embed = 0, $extras = array())
     $data = '';
     //get_currentuserinfo();
 
-    $loginmsg = get_option('wpdm_login_msg');
-    $loginmsg = wpdm_escs(htmlspecialchars_decode($loginmsg));
+    $loginmsg = WPDM_Messages::login_required();
+    //$loginmsg = wpdm_escs(htmlspecialchars_decode($loginmsg));
 
     $package['link_url'] = home_url('/?download=1&');
     $package['link_label'] = !isset($package['link_label']) || $package['link_label'] == '' ? __("Download",'download-manager') : $package['link_label'];
@@ -251,7 +251,7 @@ function wpdm_getlink()
     global $wpdb;
     if (!isset($_POST['__wpdm_ID'])) return;
     $id = (int)$_POST['__wpdm_ID'];
-    $password = isset($_POST['password']) ? addslashes($_POST['password']) : '';
+    $password = wpdm_query_var('password', 'html');
     $file = get_post($id, ARRAY_A);
     //$file['ID'] = $file['ID'];
     $file = wpdm_setup_package_data($file);
@@ -314,9 +314,9 @@ function wpdm_getlink()
 
     }
 
-
-    if ($plock == 1 && $password != $file['password'] && !strpos("__" . $file['password'], "[$password]")) {
-        $data['error'] = '<span class="color-red" style="font-size: 8pt"><i class="fas fa-sync"></i> '.__('Wrong Password! Try Again.','download-manager')."</span>";
+    $decoded_pass = htmlspecialchars_decode($file['password']);
+    if ($plock === 1 && $password !== $file['password'] && $password !== $decoded_pass && !strpos("__" . $file['password'], "[$password]") && !strpos("__" . $decoded_pass, "[$password]") ) {
+        $data['error'] = '<span style="font-size: 8pt"><i class="fas fa-sync"></i> '.__('Wrong Password! Try Again.','download-manager')."</span>";
         $file = array();
     }
     if ($plock == 1 && $password == '') {
@@ -336,6 +336,7 @@ function wpdm_getlink()
             $data['error'] = __('Password usages limit exceeded','download-manager');
         else {
             if(!is_array($pu)) $pu = array();
+            \WPDM\Session::set("pass_verified_" . $file['ID'], 1);
             $pu[$password] = isset($pu[$password])?$pu[$password]+1:1;
             update_post_meta($file['ID'], '__wpdm_password_usage', $pu);
         }
@@ -408,8 +409,8 @@ function wpdm_downloadable($content)
         return wpdm_embed_category(array("id" => $wp_query->query_vars[get_option('__wpdm_curl_base', 'downloads')]));
     $postlink = site_url('/');
     //get_currentuserinfo();
-    $permission_msg = get_option('wpdm_permission_msg') ? stripslashes(get_option('wpdm_permission_msg')) : "<div  style=\"background:url('" . get_option('siteurl') . "/wp-content/plugins/download-manager/images/lock.png') no-repeat;padding:3px 12px 12px 28px;font:bold 10pt verdana;color:#800000\">Sorry! You don't have suffient permission to download this file!</div>";
-    $login_msg = get_option('wpdm_login_msg') ? stripcslashes(get_option('wpdm_login_msg')) : "<a href='" . get_option('siteurl') . "/wp-login.php'  style=\"background:url('" . get_option('siteurl') . "/wp-content/plugins/download-manager/images/lock.png') no-repeat;padding:3px 12px 12px 28px;font:bold 10pt verdana;\">Please login to access downloadables</a>";
+    $permission_msg = WPDM_Messages::permission_denied();
+    $login_msg = WPDM_Messages::login_required();
     $login_msg = wpdm_escs(htmlspecialchars_decode($login_msg));
     $user = new WP_User(null);
     if (isset($_GET[get_option('__wpdm_purl_base', 'download')]) && $_GET[get_option('__wpdm_purl_base', 'download')] != '' && $wp_query->query_vars[get_option('__wpdm_purl_base', 'download')] == '')
@@ -521,6 +522,37 @@ function wpdm_escs($html){
 
 
 /**
+ * @param $var
+ * @param $index
+ * @param array $params
+ * @return array|bool|float|int|mixed|string|string[]|null
+ */
+
+function wpdm_valueof($var, $index, $params = [])
+{
+    $index = explode("/" , $index );
+    $default = is_string($params) ? $params : '';
+    $default = is_array($params) && isset($params['default']) ? $params['default'] : $default;
+    if(count($index) > 1){
+        $val = $var;
+        foreach ($index as $key){
+            $val = is_array($val) && isset($val[$key])?$val[$key]:false;
+        }
+    } else
+        $val = isset($var[$index[0]]) ? $var[$index[0]] : $default;
+
+    if(is_array($params) && isset($params['validate'])) {
+        if (!is_array($val))
+            $val = wpdm_sanitize_var($val, $params['validate']);
+        else
+            $val = wpdm_sanitize_array($val, $params['validate']);
+    }
+
+    return $val;
+}
+
+
+/**
  * @usage Validate and sanitize input data
  * @param $var
  * @param array $params
@@ -585,10 +617,17 @@ function wpdm_sanitize_var($value, $sanitize = 'kses'){
                 return (double)($value);
                 break;
             case 'txt':
+            case 'str':
                 $value = esc_attr($value);
                 break;
             case 'kses':
-                $value = wp_kses($value, wp_kses_allowed_html());
+                $allowedtags = wp_kses_allowed_html();
+                $allowedtags['div'] = array('class' => true);
+                $allowedtags['strong'] = array('class' => true);
+                $allowedtags['b'] = array('class' => true);
+                $allowedtags['i'] = array('class' => true);
+                $allowedtags['a'] = array('class' => true, 'href' => true);
+                $value = wp_kses($value, $allowedtags);
                 break;
             case 'serverpath':
                 $value = realpath($value);
@@ -625,7 +664,7 @@ function wpdm_sanitize_var($value, $sanitize = 'kses'){
 
 function wpdm_category($params)
 {
-    $params['order_field'] = isset($params['order_by'])?$params['order_by']:'publish_date';
+    $params['order_field'] = isset($params['order_by'])?$params['order_by']:'date';
     unset($params['order_by']);
     if (isset($params['item_per_page']) && !isset($params['items_per_page'])) $params['items_per_page'] = $params['item_per_page'];
     unset($params['item_per_page']);
@@ -650,8 +689,9 @@ function wpdm_page_links($urltemplate, $total, $page = 1, $items_per_page = 10)
 }
 
 
-function wpdm_embed_category($params = array('id' => '', 'operator' => 'IN' , 'items_per_page' => 10, 'title' => false, 'desc' => false, 'order_field' => 'create_date', 'order' => 'desc', 'paging' => false, 'toolbar' => 1, 'template' => '','cols'=>3, 'colspad'=>2, 'colsphone' => 1))
+function wpdm_embed_category($params = array('id' => '', 'operator' => 'IN' , 'items_per_page' => 10, 'title' => false, 'desc' => false, 'order_field' => 'date', 'order' => 'desc', 'paging' => false, 'toolbar' => 1, 'template' => '','cols'=>3, 'colspad'=>2, 'colsphone' => 1))
 {
+    //die("<pre>".print_r($params, 1));
     extract($params);
     $fnparams = $params;
     if(!isset($id) || $id =="") return;
@@ -672,7 +712,7 @@ function wpdm_embed_category($params = array('id' => '', 'operator' => 'IN' , 'i
 
     global $wpdb, $current_user, $post, $wp_query;
 
-    $order_field = isset($order_field) ? $order_field : 'publish_date';
+    $order_field = isset($order_field) ? $order_field : 'date';
     $order_field = isset($_GET['orderby']) ? esc_attr($_GET['orderby']) : $order_field;
     $order = isset($order) ? $order : 'desc';
     $order = isset($_GET['order']) ?esc_attr( $_GET['order']) : $order;
@@ -796,7 +836,7 @@ function wpdm_embed_category($params = array('id' => '', 'operator' => 'IN' , 'i
     $burl = $burl . $sap;
     if (isset($_GET['p']) && $_GET['p'] != '') $burl .= 'p=' . esc_attr($_GET['p']) . '&';
     if (isset($_GET['src']) && $_GET['src'] != '') $burl .= 'src=' . esc_attr($_GET['src']) . '&';
-    $orderby = isset($_GET['orderby']) ? esc_attr($_GET['orderby']) : 'create_date';
+    $orderby = isset($_GET['orderby']) ? esc_attr($_GET['orderby']) : 'date';
     $order = ucfirst($order);
     $order_field = " " . __(ucwords(str_replace("_", " ", $order_field)),'download-manager');
     $ttitle = __('Title','download-manager');
@@ -828,7 +868,7 @@ function wpdm_embed_category($params = array('id' => '', 'operator' => 'IN' , 'i
                    <div class="panel-footer">
                    
                    <div class="btn-group btn-group-sm pull-right"><button type="button" class="btn btn-primary" disabled="disabled">{$ord} &nbsp;</button><a class="btn btn-primary" href="{$burl}orderby={$orderby}&order=asc">{$tasc}</a><a class="btn btn-primary" href="{$burl}orderby={$orderby}&order=desc">{$tdsc}</a></div>                         
-                   <div class="btn-group btn-group-sm"><button type="button" class="btn btn-info" disabled="disabled">{$order_by_label} &nbsp;</button><a class="btn btn-info" href="{$burl}orderby=title&order=asc">{$ttitle}</a><a class="btn btn-info" href="{$burl}orderby=publish_date&order=desc">{$tcdate}</a></div>                         
+                   <div class="btn-group btn-group-sm"><button type="button" class="btn btn-info" disabled="disabled">{$order_by_label} &nbsp;</button><a class="btn btn-info" href="{$burl}orderby=title&order=asc">{$ttitle}</a><a class="btn btn-info" href="{$burl}orderby=date&order=desc">{$tcdate}</a></div>                         
                     
                    </div>
                    </div>
@@ -840,7 +880,7 @@ TBR;
                                   <div class="pull-left label label-primary label-wpdm-categroy" style="font-size: 16px;padding: 7px 15px;border-radius: 2px">$cats</div>
                                <div class="media-body text-right">
                                  <div class="btn-group btn-group-sm" style="margin-right: 5px"><button type="button" class="btn btn-light" disabled="disabled">{$ord} &nbsp;</button><a class="btn btn-light" href="{$burl}orderby={$orderby}&order=asc">{$tasc}</a><a class="btn btn-light" href="{$burl}orderby={$orderby}&order=desc">{$tdsc}</a></div>                         
-                                 <div class="btn-group btn-group-sm"><button type="button" class="btn btn-light" disabled="disabled">{$order_by_label} &nbsp;</button><a class="btn btn-light" href="{$burl}orderby=title&order=asc">{$ttitle}</a><a class="btn btn-light" href="{$burl}orderby=publish_date&order=desc">{$tcdate}</a></div>                                                               
+                                 <div class="btn-group btn-group-sm"><button type="button" class="btn btn-light" disabled="disabled">{$order_by_label} &nbsp;</button><a class="btn btn-light" href="{$burl}orderby=title&order=asc">{$ttitle}</a><a class="btn btn-light" href="{$burl}orderby=date&order=desc">{$tcdate}</a></div>                                                               
                                </div>
                    </div>
                    
@@ -1572,7 +1612,7 @@ function wpdm_user_logged_in($msg){
  * @return string
  */
 function wpdm_tpl_path1($file, $tpldir = ''){
-    if(file_exists(get_stylesheet_directory().'/download-manager/'.$file)) 
+    if(file_exists(get_stylesheet_directory().'/download-manager/'.$file))
         $path = get_stylesheet_directory().'/download-manager/'.$file;
     else if(file_exists(get_template_directory().'/download-manager/'.$file))
         $path = get_template_directory().'/download-manager/'.$file;
@@ -1597,16 +1637,19 @@ function wpdm_tpl_path($file, $tpldir = '', $fallback = ''){
         $path = get_stylesheet_directory().'/download-manager/'.$file;
     else if(file_exists(get_template_directory().'/download-manager/'.$file))
         $path = get_template_directory().'/download-manager/'.$file;
-    else if($tpldir !='' && file_exists($tpldir.'/'.$file))
+    else if($tpldir !=='' && file_exists($tpldir.'/'.$file))
         $path = $tpldir.'/'.$file;
     else if($tpldir !='' && file_exists(get_template_directory().'/download-manager/'.$tpldir.'/'.$file))
         $path = get_template_directory().'/download-manager/'.$tpldir.'/'.$file;
     else $path = WPDM_TPL_DIR.$file;
 
     /* Fallack template directory*/
-    if($fallback != '' && !file_exists($path))
-        $path = $fallback.$file;
+    if($fallback == '') $fallback = WPDM_TPL_FALLBACK;
+    if($fallback !== '' && !file_exists($path))
+        $path = $fallback."/".$file;
 
+    //if(!file_exists($path))
+    //wpdmdd($path);
     return $path;
 
 }
@@ -1765,7 +1808,7 @@ function wpdm_total_views($uid = null){
  * @param string $var
  * @return string
  */
-function wpdm_paginate_links($total, $items_per_page, $page = 1, $var = 'cp', $params = array()){
+function wpdm_paginate_links($total, $items_per_page, $current_page = 1, $var = 'cp', $params = array()){
 
     $pages = ceil($total/$items_per_page);
 
@@ -1773,7 +1816,7 @@ function wpdm_paginate_links($total, $items_per_page, $page = 1, $var = 'cp', $p
         //'base'               => '%_%',
         'format'             => "?{$var}=%#%",
         'total'              => $pages,
-        'current'            => $page,
+        'current'            => $current_page,
         //'show_all'           => false,
         //'end_size'           => 2,
         //'mid_size'           => 1,
