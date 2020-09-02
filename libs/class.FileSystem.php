@@ -89,9 +89,10 @@ class FileSystem
             } while (ob_get_level() > 0);
         }
 
-        if (strpos($filepath, '://'))
-            $filepath = wpdm_cache_remote_file($filepath, $filename);
-
+        if (strpos($filepath, '://')) {
+            header("location: {$filepath}");
+            die();
+        }
         if (file_exists($filepath))
             $fsize = filesize($filepath);
         else
@@ -309,29 +310,6 @@ class FileSystem
         $zip->close();
 
         return $zipped;
-    }
-
-    /**
-     * Cache remote file to local directory and return local file path
-     * @param mixed $url
-     * @param mixed $filename
-     * @return string $path
-     */
-    public static function copyURL($url, $filename = '', $overwrite = true)
-    {
-        $tmp = explode('/', $url);
-        $auto_name = sanitize_file_name(end($tmp));
-        $filename = $filename ? $filename : $auto_name;
-        $path = WPDM_CACHE_DIR . $filename;
-        if (file_exists($path) && !$overwrite) return $path;
-        $fp = fopen($path, 'w');
-        if (!function_exists('curl_init')) \WPDM_Messages::Error('<b>cURL</b> is not active or installed or not functioning properly in your server', 1);
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_FILE, $fp);
-        $data = curl_exec($ch);
-        curl_close($ch);
-        fclose($fp);
-        return $path;
     }
 
     /**
@@ -618,27 +596,6 @@ class FileSystem
         return Package::expirableDownloadLink($pid, 5, 1800) . "&ind={$fileID}&file={$fileName}";
     }
 
-    static function html2pdf($html_content, $pdf_file_name)
-    {
-
-        $result = wp_remote_post("https://urlxpdf.herokuapp.com/api/render",
-            array(
-                'method' => 'POST',
-                'timeout' => 45,
-                'redirection' => 5,
-                'httpversion' => '1.0',
-                'blocking' => true,
-                'body' => $html_content,
-                'cookies' => array(),
-                'headers' => array(
-                    'Content-Type' => 'text/html'
-                )
-            )
-        );
-
-        self::downloadData($pdf_file_name, wp_remote_retrieve_body($result));
-        die();
-    }
 
     static function fileTypeIconSVG($ext, $color)
     {
@@ -697,7 +654,7 @@ class FileSystem
      */
     function isBlocked($filename)
     {
-        $types = array('php', 'js', 'html', 'py', 'pl', 'htaccess', 'svg');
+        $types = array('php', 'phtml', 'js', 'html', 'py', 'pl', 'htaccess', 'svg');
         $types = apply_filters('wpdm_blocked_file_types', $types);
         $ext = explode('.', $filename);
         $ext = end($ext);

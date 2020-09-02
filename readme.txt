@@ -3,7 +3,7 @@ Contributors: w3eden, codename065, shahriar0822, shimo16ab, shafayat-alam
 Donate link:
 Tags: download manager, document management, file manager, digital store, ecommerce, document management plugin,  download monitor, download counter, password protection, download protection
 Requires at least: 3.4
-Tested up to: 5.4
+Tested up to: 5.5
 License: GPLv2 or later
 
 
@@ -110,7 +110,8 @@ Use [Premium Package – Complete Digital Store Solution](https://www.wpdownload
 *   and [much more...](https://www.wpdownloadmanager.com/downloads/ecommerce-add-ons/)
 
 = Gutenberg Blocks =
-[Gutenberg Blocks](https://www.wpdownloadmanager.com/download/gutenberg-blocks/) for gutenberg editor
+* [Gutenberg Blocks](https://www.wpdownloadmanager.com/download/gutenberg-blocks/) for gutenberg editor
+* [Gutenberg Blocks and Page Layouts – Attire Blocks](https://wordpress.org/plugins/attire-blocks/)
 
 = Google Drive =
 Use [Google Drive Explorer](https://www.wpdownloadmanager.com/download/google-drive-explorer/) add-on ( free ) to store your files in google drive and link with download manager, get 15 GB free storage space and save your server bandwidth
@@ -142,8 +143,6 @@ Check download stats and get a push notification when someone downloads, install
 
 = Free Themes =
 * [Attire](https://www.wpdownloadmanager.com/download/attire-allinone-wordpress-theme/) - perfect theme for any site like blog, portfolio, photography, stock image, music, video archive, software download directory, ecommerce, and it is free.
-* [Verse - Theme For Selling Digital Products](https://www.wpdownloadmanager.com/download/verse-wordpress-theme-for-digital-shop/)
-* [More Free Themes...](https://www.wpdownloadmanager.com/downloads/free-themes/)
 
 = More Themes & Add-ons =
 * [Add-ons](https://www.wpdownloadmanager.com/downloads/add-ons/) - 100+ add-ons
@@ -179,6 +178,12 @@ Check download stats and get a push notification when someone downloads, install
 19. More features
 
 == Changelog ==
+
+= 3.1.07 =
+* Fixed a security issue ( Thanks to Austin Turecek, security research from Flashpoint )
+
+= 3.1.06 =
+* Compatibility update for WordPress 5.5
 
 = 3.1.05 =
 * Fixed an issue with the view counter

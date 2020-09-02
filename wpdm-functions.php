@@ -18,18 +18,6 @@ function wpdm_download_data($filename, $content)
     \WPDM\libs\FileSystem::downloadData($filename, $content);
 }
 
-
-/**
- * Cache remote file to local directory and return local file path
- * @param mixed $url
- * @param mixed $filename
- * @return string $path
- */
-function wpdm_cache_remote_file($url, $filename = '')
-{
-    return \WPDM\libs\FileSystem::copyURL($url, $filename);
-}
-
 /**
  * @usage Create ZIP from given file list
  * @param $files
