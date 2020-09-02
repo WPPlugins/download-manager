@@ -43,7 +43,7 @@ if(!defined('ABSPATH')) die();
                 </div>
             <?php } ?>
 
-            <?php  if(isset($params['note_before'])) {  ?>
+            <?php  if(isset($params['note_before']) && $params['note_before'] !== '') {  ?>
                 <div class="alert alert-info alert-note-before mb-3" >
                     <?php echo $params['note_before']; ?>
                 </div>
@@ -84,7 +84,7 @@ if(!defined('ABSPATH')) die();
                 <style> #reCaptchaLock iframe { transform: scaleX(1.23); margin-left: 33px; } </style>
             <?php }  ?>
 
-            <?php  if(isset($params['note_after'])) {  ?>
+            <?php  if(isset($params['note_after']) && $params['note_after'] !== '') {  ?>
                 <div class="alert alert-info alter-note-after mb-3" >
                     <?php echo $params['note_after']; ?>
                 </div>

@@ -23,8 +23,11 @@ class Session
 
         if(file_exists(WPDM_CACHE_DIR."session-{$deviceID}.txt")) {
             $data = file_get_contents(WPDM_CACHE_DIR . "session-{$deviceID}.txt");
-            $data = Crypt::decrypt($data);
+            $data = (array)Crypt::decrypt($data);
             if(!is_array($data)) $data = array();
+            foreach ($data as &$item){
+                if(is_object($item)) $item = (array)$item;
+            }
         } else {
             $data = array();
         }
@@ -46,7 +49,7 @@ class Session
     static function get($name){
         if(!isset(self::$data[self::$deviceID], self::$data[self::$deviceID][$name])) return null;
         $_value = self::$data[self::$deviceID][$name];
-        if(count($_value) == 0) return null;
+        if(!is_array($_value) || count($_value) == 0) return null;
         extract($_value);
         if(isset($expire) && $expire < time()) {
             unset(self::$data[$name]);

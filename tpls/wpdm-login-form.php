@@ -35,7 +35,7 @@ if(!defined('ABSPATH')) die();
                 ?></div>
 
 
-            <?php  if(isset($params['note_before'])) {  ?>
+            <?php  if(isset($params['note_before']) && $params['note_before'] !== '') {  ?>
                 <div class="alert alert-info alert-note-before mb-3" >
                     <?php echo $params['note_before']; ?>
                 </div>
@@ -44,7 +44,7 @@ if(!defined('ABSPATH')) die();
             <?php echo \WPDM\libs\User::signinForm($params); ?>
 
 
-            <?php  if(isset($params['note_after'])) {  ?>
+            <?php  if(isset($params['note_after']) && $params['note_after'] !== '') {  ?>
                 <div class="alert alert-info alter-note-after mb-3" >
                     <?php echo $params['note_after']; ?>
                 </div>

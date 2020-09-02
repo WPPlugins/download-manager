@@ -179,6 +179,9 @@ Check download stats and get a push notification when someone downloads, install
 
 == Changelog ==
 
+= 3.1.08 =
+* Fixed an issue with the login form parameter handling
+
 = 3.1.07 =
 * Fixed a security issue ( Thanks to Austin Turecek, security research from Flashpoint )
 
