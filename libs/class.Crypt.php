@@ -37,7 +37,7 @@ class Crypt
         return $ciphertext;
     }
 
-    public static function decrypt($ciphertext)
+    public static function decrypt($ciphertext, $ARRAY = false)
     {
         if($ciphertext === '') return $ciphertext;
         if(defined('SECURE_AUTH_KEY'))
@@ -57,8 +57,9 @@ class Crypt
             if (hash_equals($hmac, $calcmac)) //PHP 5.6+ timing attack safe comparison
             {
                 $original_plaintext = trim($original_plaintext);
-                $unjsoned_plaintext = json_decode($original_plaintext);
-                return is_object($unjsoned_plaintext) || is_array($unjsoned_plaintext) ? $unjsoned_plaintext : $original_plaintext;
+                $unjsoned_plaintext = json_decode($original_plaintext, $ARRAY);
+                $original_plaintext = is_object($unjsoned_plaintext) || is_array($unjsoned_plaintext) ? $unjsoned_plaintext : $original_plaintext;
+                return $original_plaintext;
             }
         } catch (\Exception $e){
             return '';

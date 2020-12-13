@@ -304,7 +304,7 @@ class Settings
         if(get_option('__wpdm_suname') != '') {
             $purchased_items = get_option('__wpdm_purchased_items', false);
             if(!$purchased_items || wpdm_query_var('newpurchase') != '' ) {
-                $purchased_items = remote_get('https://www.wpdownloadmanager.com/?wpdmppaction=getpurchaseditems&wpdm_access_token=' . wpdm_access_token());
+                $purchased_items = wpdm_remote_get('https://www.wpdownloadmanager.com/?wpdmppaction=getpurchaseditems&wpdm_access_token=' . wpdm_access_token());
                 update_option('__wpdm_purchased_items', $purchased_items);
             }
             $purchased_items = json_decode($purchased_items);

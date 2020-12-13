@@ -1075,7 +1075,6 @@ class Package {
         preg_match_all("/\[cf ([^\]]+)\]/", $template, $cfmatches);
         preg_match_all("/\[thumb_([0-9]+)x([0-9]+)\]/", $template, $matches);
         preg_match_all("/\[thumb_url_([0-9]+)x([0-9]+)\]/", $template, $umatches);
-        preg_match_all("/\[thumb_gallery_([0-9]+)x([0-9]+)\]/", $template, $gmatches);
         preg_match_all("/\[excerpt_([0-9]+)\]/", $template, $xmatches);
         preg_match_all("/\[pdf_thumb_([0-9]+)x([0-9]+)\]/", $template, $pmatches);
         preg_match_all("/\[txt=([^\]]+)\]/", $template, $txtmatches);
@@ -1132,12 +1131,6 @@ class Package {
             $values[] = $vars['preview'] != '' ? wpdm_dynamic_thumb($vars['preview'], array($umatches[1][$nd], $umatches[2][$nd])) : '';
         }
 
-        foreach ($gmatches[0] as $nd => $scode) {
-            $keys[] = $scode;
-            $values[] = wpdm_get_additional_preview_images($vars, $gmatches[1][$nd], $gmatches[2][$nd]);
-        }
-
-
         foreach ($xmatches[0] as $nd => $scode) {
             $keys[] = $scode;
             $ss = substr(strip_tags($vars['description']), 0, intval($xmatches[1][$nd]));
@@ -1146,9 +1139,6 @@ class Package {
             $ss .= $bw;
             $values[] = $ss . '...';
         }
-
-        if ($type == 'page' && (strpos($template, '[similar_downloads]') || strpos($vars['description'], '[similar_downloads]')))
-            $vars['similar_downloads'] = wpdm_similar_packages($vars, 5);
 
         if(strpos($template, 'doc_preview'))
             $vars['doc_preview'] = self::docPreview($vars);
@@ -1163,9 +1153,11 @@ class Package {
 
         // If need to re-process any data before fetch template
         $vars = apply_filters("wdm_before_fetch_template", $vars, $template, $type);
+
         foreach ($vars as $key => $value) {
             if(!is_array($value)) {
                 $keys[] = "[$key]";
+                if(is_object($value) || is_array($value)) $value = json_encode($value);
                 $values[] = $value;
             }
         }

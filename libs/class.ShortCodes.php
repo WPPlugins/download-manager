@@ -273,6 +273,7 @@ class ShortCodes
 
         if (isset($scparams['s']) && $scparams['s'] != '') $params['s'] = $scparams['s'];
         if (isset($_GET['skw']) && $_GET['skw'] != '') $params['s'] = wpdm_query_var('skw', 'txt');
+        if (isset($scparams['post__in']) && $scparams['post__in'] != '') $params['post__in'] = explode(",", $scparams['post__in']);
         if (isset($scparams['author']) && $scparams['author'] != '') $params['author'] = $scparams['author'];
         if (isset($scparams['author_name']) && $scparams['author_name'] != '') $params['author_name'] = $scparams['author_name'];
         if (isset($scparams['author__not_in']) && $scparams['author__not_in'] != '') $params['author__not_in'] = explode(",", $scparams['author__not_in']);

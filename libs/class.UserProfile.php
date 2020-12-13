@@ -70,13 +70,13 @@ class UserProfile
 
 
     function downloads(){
-        $params = (array)Crypt::decrypt(wpdm_query_var('__scp'));
+        $params = Crypt::decrypt(wpdm_query_var('__scp'), true);
         $params['author'] = wpdm_query_var('__pu', 'int');
         echo WPDM()->shortCode->packages($params);
     }
 
     function favourites(){
-        $params = (array)Crypt::decrypt(wpdm_query_var('__scp'));
+        $params = Crypt::decrypt(wpdm_query_var('__scp'), true);
         $myfavs = maybe_unserialize(get_user_meta(wpdm_query_var('__pu', 'int'), '__wpdm_favs', true));
         $params['post__in'] = implode(",", $myfavs);
         echo WPDM()->shortCode->packages($params);

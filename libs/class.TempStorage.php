@@ -20,7 +20,7 @@ class TempStorage
     {
         if(file_exists(WPDM_CACHE_DIR.'/temp-storage.txt')) {
             $data = file_get_contents(WPDM_CACHE_DIR . '/temp-storage.txt');
-            $data = (array)Crypt::decrypt($data);
+            $data = Crypt::decrypt($data, true);
             if(!is_array($data)) $data = array();
         } else {
             $data = array();

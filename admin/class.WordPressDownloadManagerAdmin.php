@@ -46,7 +46,7 @@ class WordPressDownloadManagerAdmin
     function enqueueScripts($hook){
 
 
-        if(get_post_type()=='wpdmpro' || wpdm_query_var('post_type') == 'wpdmpro' || $hook == 'index.php'){
+        if(get_post_type()=='wpdmpro' || wpdm_query_var('post_type') == 'wpdmpro' || in_array($hook, ['index.php', 'profile.php', 'user-edit.php'])){
             wp_enqueue_script('jquery');
             wp_enqueue_script('jquery-form');
             wp_enqueue_script('jquery-ui-core');

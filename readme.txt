@@ -113,6 +113,9 @@ Use [Premium Package – Complete Digital Store Solution](https://www.wpdownload
 * [Gutenberg Blocks](https://www.wpdownloadmanager.com/download/gutenberg-blocks/) for gutenberg editor
 * [Gutenberg Blocks and Page Layouts – Attire Blocks](https://wordpress.org/plugins/attire-blocks/)
 
+= Elementor Addons =
+* [Download Manager Addons for Elementor](https://wordpress.org/plugins/wpdm-elementor/) - Use the plugin if you are using Elementor Website Builder. The plugin provides elementor addons for all wordpress download manager shortcodes you were writing manually.
+
 = Google Drive =
 Use [Google Drive Explorer](https://www.wpdownloadmanager.com/download/google-drive-explorer/) add-on ( free ) to store your files in google drive and link with download manager, get 15 GB free storage space and save your server bandwidth
 
@@ -178,6 +181,18 @@ Check download stats and get a push notification when someone downloads, install
 19. More features
 
 == Changelog ==
+
+= 3.1.11 =
+* Improved asset manager
+* Fixed the issue with displaying download count
+* Fixed the date format issue with download history
+
+= 3.1.10 =
+* Improved email class, added support for custom tags in email to add user meta and REQUEST data
+
+= 3.1.09 =
+* Improved Crypt class
+* Fixed an issue with the category shortcode
 
 = 3.1.08 =
 * Fixed an issue with the login form parameter handling

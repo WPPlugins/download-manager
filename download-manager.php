@@ -4,7 +4,7 @@ Plugin Name: Download Manager
 Plugin URI: https://www.wpdownloadmanager.com/pricing/
 Description: Manage, Protect and Track file downloads, and sell digital products from your WordPress site. A complete digital asset management solution.
 Author: W3 Eden
-Version: 3.1.08
+Version: 3.1.11
 Author URI: https://www.wpdownloadmanager.com/
 Text Domain: download-manager
 Domain Path: /languages
@@ -106,7 +106,7 @@ class WordPressDownloadManager{
 
     function __construct(){
 
-        define('WPDM_Version','3.1.08');
+        define('WPDM_Version','3.1.11');
 
         register_activation_hook(__FILE__, array($this, 'Install'));
 
@@ -119,7 +119,7 @@ class WordPressDownloadManager{
         add_action( 'wp_head', array($this, 'wpHead') );
         add_action( 'wp_footer', array($this, 'wpFooter') );
 
-        spl_autoload_register( array( $this, 'AutoLoad' ) );
+        spl_autoload_register( array( $this, 'autoLoad' ) );
 
         include_once(dirname(__FILE__) . "/wpdm-functions.php");
 

@@ -23,11 +23,8 @@ class Session
 
         if(file_exists(WPDM_CACHE_DIR."session-{$deviceID}.txt")) {
             $data = file_get_contents(WPDM_CACHE_DIR . "session-{$deviceID}.txt");
-            $data = (array)Crypt::decrypt($data);
+            $data = Crypt::decrypt($data, true);
             if(!is_array($data)) $data = array();
-            foreach ($data as &$item){
-                if(is_object($item)) $item = (array)$item;
-            }
         } else {
             $data = array();
         }

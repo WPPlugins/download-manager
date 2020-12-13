@@ -775,15 +775,7 @@
 .w3eden label.error.valid {
     display: none;
 }
-.w3eden #wpdm-featured-image {
-    display: block;
-    height: 200px;
-    border: 2px dashed #ddd;
-    margin: 15px;
-    background: url(../images/plus.svg) no-repeat center center;
-    background-size: 48px;
-    text-indent: -999999px;
-}
+
 .w3eden label.error.valid {
     display: none !important;
 }

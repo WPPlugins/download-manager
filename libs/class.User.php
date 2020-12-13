@@ -1,6 +1,5 @@
 <?php
 /**
- * Created by PhpStorm.
  * User: shahnuralam
  * Date: 6/24/18
  * Time: 10:39 PM
@@ -11,7 +10,7 @@ namespace WPDM\libs;
 
 use WPDM\Form;
 
-if( ! class_exists( 'User' ) ):
+
 
     class User{
 
@@ -75,6 +74,7 @@ if( ! class_exists( 'User' ) ):
                     );
                 }
             }
+            $reg_data_fields = apply_filters("wpdm_register_form_fields", $reg_data_fields);
             $form = new Form($reg_data_fields, ['name' => 'wpdm_reg_form', 'id' => 'wpdm_reg_form', 'method' => 'POST', 'action' => '', 'submit_button' => [ ], 'noForm' => true]);
             return $form->render();
 
@@ -102,6 +102,7 @@ if( ! class_exists( 'User' ) ):
                     );
                 }
             }
+            $login_data_fields = apply_filters("wpdm_login_form_fields", $login_data_fields);
             $form = new Form($login_data_fields, ['name' => 'wpdm_login_form', 'id' => 'wpdm_login_form', 'method' => 'POST', 'action' => '', 'submit_button' => [ ], 'noForm' => true]);
             return $form->render();
 
@@ -156,7 +157,7 @@ if( ! class_exists( 'User' ) ):
 
     }
 
-//echo User::signupForm();
 
-endif;
+
+
 

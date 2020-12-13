@@ -22,7 +22,7 @@
             ?>
             <tr>
                 <td><a href="<?php echo get_permalink($stat->pid); ?>"><?php echo $stat->post_title; ?></a> | <a href="edit.php?post_type=wpdmpro&page=wpdm-stats&pid=<?php echo $stat->pid; ?>"><i class="far fa-chart-bar"></i></a></td>
-                <td><?php echo date(get_option('date_format')." h:i a",($stat->timestamp + (get_option('gmt_offset') * 3600))); ?></td>
+                <td><?php echo date(get_option('date_format')." ".get_option('time_format'),($stat->timestamp + (get_option('gmt_offset') * 3600))); ?></td>
                 <td><?php echo $stat->uid > 0?"<a href='edit.php?post_type=wpdmpro&page=wpdm-stats&uid={$stat->uid}'>".get_user_by('id', $stat->uid)->display_name . "</a> ".((get_option('__wpdm_noip') == 0)?' / ':''):''; ?><?php if(get_option('__wpdm_noip') == 0) { ?> <a href='edit.php?post_type=wpdmpro&page=wpdm-stats&ip=<?php echo $stat->ip; ?>'><?php echo $stat->ip; ?></a><?php } ?></td>
             </tr>
             <?php

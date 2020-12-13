@@ -2,7 +2,7 @@
 /*
 Asset Manager for WordPress Download Manager
 Author: Shahjada
-Version: 1.0.0
+Version: 1.1.0
 */
 
 namespace WPDM;
@@ -28,7 +28,7 @@ if(!class_exists('AssetManager')):
 
         public static function root($path = ''){
             global $current_user;
-            $root = current_user_can('manage_options')?rtrim(get_option('_wpdm_file_browser_root'), '/').'/' : UPLOAD_DIR . $current_user->user_login . '/';
+            $root = current_user_can(WPDM_ADMIN_CAP)?rtrim(get_option('_wpdm_file_browser_root'), '/').'/' : UPLOAD_DIR . $current_user->user_login . '/';
             $_root = str_replace("\\", "/", $root);
             if($path !== '') $root .= $path;
             $root = realpath($root);
@@ -498,7 +498,7 @@ if(!class_exists('AssetManager')):
             $reldest = Crypt::decrypt(wpdm_query_var('zipdest'));
             if($reldest == '') $reldest = dirname($zipfile);
             $zipdest =  AssetManager::root($reldest);
-            if(!current_user_can('manage_options'))  wp_send_json(array('success' => false, 'message' => __( "Error! Only Administrator can execute this operation.", "download-manager" )));
+            if(!current_user_can(WPDM_ADMIN_CAP))  wp_send_json(array('success' => false, 'message' => __( "Error! Only Administrator can execute this operation.", "download-manager" )));
             if(!$zipfile || !stristr($zipfile, '.zip')) wp_send_json(array('success' => false, 'message' => __( "Error! Unauthorized Path.", "download-manager" )));
             if(!$zipdest) wp_send_json(array('success' => false, 'message' => __( "Error! Invalid Destination Path.", "download-manager" )));
             if(!class_exists('\ZipArchive'))  wp_send_json(array('success' => false, 'message' => __('Please activate "zlib" in your server to perform zip operations','download-manager')));

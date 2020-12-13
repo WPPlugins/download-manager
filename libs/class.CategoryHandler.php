@@ -337,7 +337,7 @@ class CategoryHandler
                 $efs = '</fieldset>';
             }
         }
-
+        $pagination = "";
         if (!isset($paging) || intval($paging) == 1) {
             $pag_links = wpdm_paginate_links($total, $items_per_page, $page, $cpvar, array('container' => '#content_' . $scid, 'async' => (isset($async) && $async == 1 ? 1 : 0), 'next_text' => ' <i style="display: inline-block;width: 8px;height: 8px;border-right: 2px solid;border-top: 2px solid;transform: rotate(45deg);margin-left: -2px;margin-top: -2px;"></i> ', 'prev_text' => ' <i style="display: inline-block;width: 8px;height: 8px;border-right: 2px solid;border-bottom: 2px solid;transform: rotate(135deg);margin-left: 2px;margin-top: -2px;"></i> '));
             $pagination = "<div style='clear:both'></div>" . $pag_links . "<div style='clear:both'></div>";

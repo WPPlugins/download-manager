@@ -115,41 +115,41 @@ function wpdm_dropdown_categories($name = '', $selected = '', $id = '', $echo = 
 /**
  * @param $url
  * @param array $data
- * @return array|WP_Error
+ * @param array $headers
+ * @return bool|mixed|string
  */
-function wpdm_remote_post($url, $data = array(), $headers = array())
+function wpdm_remote_post($url, $data = [], $headers = [])
 {
 
-    $response = wp_remote_post( $url, array(
-            'method'      => 'POST',
-            'timeout'     => 45,
+    $response = wp_remote_post($url, array(
+            'method' => 'POST',
+            'sslverify' => false,
+            'timeout' => 5,
             'redirection' => 5,
             'httpversion' => '1.0',
-            'blocking'    => true,
-            'headers'     => $headers,
-            'body'        => $data,
-            'cookies'     => array()
+            'blocking' => true,
+            'headers' => $headers,
+            'body' => $data,
+            'cookies' => array()
         )
     );
-
-    if ( is_wp_error( $response ) ) {
-        return $response;
-    } else {
-        return $response['body'];
-    }
+    $body = wp_remote_retrieve_body($response);
+    return $body;
 }
 
 /**
- * @usage Get with cURL
  * @param $url
+ * @param array $headers
  * @return bool|mixed|string
  */
-function wpdm_remote_get($url)
+function wpdm_remote_get($url, $headers = [])
 {
-    $res = wp_remote_get($url);
-    $content  = '';
-    if( is_array($res) )
-        $content = $res['body'];
+    $content = "";
+    $response = wp_remote_get($url, array('timeout' => 5, 'sslverify' => false, 'headers' => $headers));
+    if (is_array($response)) {
+        $content = $response['body'];
+    } else
+        $content = WPDM_Messages::error($response->get_error_message(), -1);
     return $content;
 }
 

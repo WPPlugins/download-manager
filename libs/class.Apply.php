@@ -144,7 +144,7 @@ class Apply {
         global $wp_query, $post, $wpdb;
         if (!isset($_POST['wpdm_login'])) return;
 
-        $shortcode_params = (array)Crypt::decrypt(wpdm_query_var('__phash'));
+        $shortcode_params = Crypt::decrypt(wpdm_query_var('__phash'), true);
 
         $login_try = (int)Session::get('login_try');
         $login_try++;
@@ -222,7 +222,7 @@ class Apply {
         if (!isset($_POST['wpdm_reg'])) return;
 
 
-        $shortcode_params = (array)Crypt::decrypt(wpdm_query_var('__phash'));
+        $shortcode_params = Crypt::decrypt(wpdm_query_var('__phash'), true);
 
         if (!is_array($shortcode_params)) $shortcode_params = array();
 
