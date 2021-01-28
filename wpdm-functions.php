@@ -456,6 +456,8 @@ function wpdm_file_size($file)
         $_size = filesize($file);
     else if (file_exists(UPLOAD_DIR . $file))
         $_size = filesize(UPLOAD_DIR . $file);
+    else if (file_exists(ABSPATH . $file))
+        $_size = filesize(UPLOAD_DIR . $file);
     else $_size = 0;
     $size = $_size / 1024;
     if ($size > 1024) $size = number_format($size / 1024, 2) . ' MB';
@@ -1761,23 +1763,26 @@ function wpdm_ip_blocked($ip = null)
 /**
  * @return string or bool
  */
-function wpdm_get_client_ip()
-{
+function wpdm_get_client_ip() {
     $ipaddress = '';
     if (isset($_SERVER['HTTP_CLIENT_IP']))
         $ipaddress = $_SERVER['HTTP_CLIENT_IP'];
-    else if (isset($_SERVER['HTTP_X_FORWARDED_FOR']))
+    else if(isset($_SERVER['HTTP_X_FORWARDED_FOR']))
         $ipaddress = $_SERVER['HTTP_X_FORWARDED_FOR'];
-    else if (isset($_SERVER['HTTP_X_FORWARDED']))
+    else if(isset($_SERVER['HTTP_X_FORWARDED']))
         $ipaddress = $_SERVER['HTTP_X_FORWARDED'];
-    else if (isset($_SERVER['HTTP_FORWARDED_FOR']))
+    else if(isset($_SERVER['HTTP_FORWARDED_FOR']))
         $ipaddress = $_SERVER['HTTP_FORWARDED_FOR'];
-    else if (isset($_SERVER['HTTP_FORWARDED']))
+    else if(isset($_SERVER['HTTP_FORWARDED']))
         $ipaddress = $_SERVER['HTTP_FORWARDED'];
-    else if (isset($_SERVER['REMOTE_ADDR']))
+    else if(isset($_SERVER['REMOTE_ADDR']))
         $ipaddress = $_SERVER['REMOTE_ADDR'];
     else
         $ipaddress = false;
+    if($ipaddress) {
+        $ipaddress = explode(",", $ipaddress);
+        $ipaddress = $ipaddress[0];
+    }
     return $ipaddress;
 }
 

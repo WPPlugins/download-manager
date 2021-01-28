@@ -17,6 +17,7 @@
     <?php if(!isset($_GET['_type']) || $_GET['_type']!='email'){ ?>
 <blockquote  class="alert alert-info" style="margin-bottom: 10px">
 <?php echo sprintf(__( "Custom Template editor is available with <a target='_blank' href='%s'>WordPress Download Manager Pro</a>" , "download-manager" ), 'https://www.wpdownloadmanager.com/pricing/'); ?>
+    | <?php echo sprintf(__( "Please follow the  <a target='_blank' href='%s'>documentation</a> to edit exiting template files" , "download-manager" ), 'https://www.wpdownloadmanager.com/doc/template-files/'); ?>
 </blockquote>
     <?php } ?>
 

@@ -8,19 +8,16 @@
     $afile = is_array($afiles)&&isset($afiles[0])?$afiles[0]:'';
     $afile = trim($afile);
     $mfz = get_post_meta(get_the_ID(), '__wpdm_package_size', true);
+    $url = false;
     if($afile !=''){
-
-        if(strpos($afile, "://")){
+        if(substr_count($afile, "://") > 0){
             $fparts = parse_url($afile);
-            $filesize = "<span class='w3eden'><span class='text-primary'><i class='fa fa-link'></i> {$fparts['host']}</span></span>";
+            $url = true;
+            $hurl = strlen($fparts['host']) > 20 ? substr($fparts['host'], 0, 20)."..." : $fparts['host'];
+            $filesize = "<span class='w3eden'><span class='text-primary ellipsis ttip' title='{$afile}'><i class='fa fa-link'></i> {$hurl}</span></span>";
         }
         else {
-            if (file_exists(UPLOAD_DIR . '/' . $afile))
-                $filesize = number_format(filesize(UPLOAD_DIR . '/' . $afile) / 1025, 2) . " KB";
-            else if (file_exists(ABSPATH.$afile))
-                $filesize = number_format(filesize(ABSPATH.$afile) / 1025, 2) . " KB";
-            else if (file_exists($afile))
-                $filesize = number_format(filesize($afile) / 1025, 2) . " KB";
+            $filesize = wpdm_file_size($afile);
         }
 
         if(strpos($afile, "#")) {
@@ -28,12 +25,13 @@
             $afile = $afile[1];
         }
 
+
         ?>
         <div class="media">
             <a href="#" id="dcf" title="Delete Current File" class="pull-right" style="font-size:24px">
                 <i class="fa fa-trash color-red"></i>
             </a>
-            <div class="media-body"><strong><?php echo  basename($afile); ?></strong><br><span class="text-success"><?php echo $mfz?$mfz:wpdm_file_size($afile); ?></span></div>
+            <div class="media-body"><strong><?php echo  basename($afile); ?></strong><br><span class="text-success"><?php echo (double)$mfz && !$url ?$mfz:$filesize; ?></span></div>
         </div>
 
     <?php } else echo "<span style='font-weight:bold;color:#ddd'>". __('No file uploaded yet!', 'download-manager')."</span>"; ?>

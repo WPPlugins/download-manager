@@ -251,6 +251,16 @@ if(isset($params['jstable']) && $params['jstable']==1):
                 }
                 $cats = @implode(", ", $fcats);
 
+                $tags = wp_get_post_tags(get_the_ID(), 'post_tag');
+                $ftags = array();
+                foreach($tags as $tag){
+                    $lurl = add_query_arg(['wpdmt' => $tag->slug], $cfurl);
+                    $ftags[] = "<a class='sbyc' href='{$lurl}'>{$tag->name}</a>";
+                }
+                $tags = @implode(", ", $ftags);
+
+                if($ext=='') $ext = 'unknown';
+
                 if($ext=='') $ext = 'unknown.svg';
                 if($ext==basename($ext) && file_exists(WPDM_BASE_DIR."assets/file-type-icons/".$ext))
                     $ext = plugins_url("download-manager/assets/file-type-icons/".$ext);
@@ -323,6 +333,9 @@ if(isset($params['jstable']) && $params['jstable']==1):
                                             break;
                                         case 'categories':
                                             echo "<span class='__dt_categories {$cxc}'>".$cats."</span>";
+                                            break;
+                                        case 'tags':
+                                            echo "<span class='__dt_categories {$cxc}'>".$tags."</span>";
                                             break;
                                         case 'update_date':
                                             echo "<span class='__dt_update_date {$cxc}'>".get_the_modified_date('', get_the_ID())."</span>";

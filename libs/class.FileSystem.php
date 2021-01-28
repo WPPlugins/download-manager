@@ -1,7 +1,7 @@
 <?php
 /**
  * Manages file operations
- * *** Keep Same ***
+ * *** DO NOT CHANGE ***
  */
 namespace WPDM\libs;
 
@@ -98,7 +98,7 @@ class FileSystem
         else
             $fsize = 0;
         $org_size = $fsize;
-        //wpdmdd($fsize);
+
         nocache_headers();
         header("X-Robots-Tag: noindex, nofollow", true);
         header("Robots: none");
@@ -117,7 +117,6 @@ class FileSystem
 
             header("Content-Transfer-Encoding: binary");
         }
-
 
         if ((isset($extras['play']) && strpos($_SERVER['HTTP_USER_AGENT'], "Safari")) || get_option('__wpdm_download_resume', 1) == 2) {
             header("Content-Length: " . $fsize);
@@ -247,7 +246,7 @@ class FileSystem
 
         $zipped = (basename($zipname) === $zipname) ? WPDM_CACHE_DIR . sanitize_file_name($zipname) : $zipname;
 
-        if (substr_count($zipname, '.zip') > 0) $zipped .= '.zip';
+        if (substr_count($zipname, '.zip') <= 0) $zipped .= '.zip';
 
         if (file_exists($zipped))
             unlink($zipped);
@@ -288,6 +287,8 @@ class FileSystem
 
         $zipped = WPDM_CACHE_DIR . sanitize_file_name($zipname) . '.zip';
 
+        $base_folder = sanitize_file_name($zipname);
+
         $rootPath = realpath($dir);
 
         $zip = new \ZipArchive();
@@ -295,21 +296,42 @@ class FileSystem
 
 
         $files = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($rootPath),
+            new \RecursiveDirectoryIterator($rootPath, \RecursiveDirectoryIterator::SKIP_DOTS),
             \RecursiveIteratorIterator::LEAVES_ONLY
         );
-
         foreach ($files as $name => $file) {
-            if (!$file->isDir()) {
+            if (!$file->isDir() && !strstr($file->getRealPath(), ".git") && !strstr($file->getRealPath(), ".DS")) {
                 $filePath = $file->getRealPath();
                 $relativePath = substr($filePath, strlen($rootPath) + 1);
-                $zip->addFile($filePath, $relativePath);
+                $zip->addFile($filePath, $base_folder."/".$relativePath);
             }
         }
 
         $zip->close();
 
         return $zipped;
+    }
+
+    /**
+     * UnZip a zip file
+     * @param $zip_file
+     * @param string $dir
+     * @return bool
+     */
+    public static function unZip($zip_file, $dir = ''){
+        $zip = new \ZipArchive();
+        $res = $zip->open($zip_file);
+        if($dir === '')
+            $dir = str_replace(".zip", "", $zip_file);
+        if(!file_exists($dir))
+            mkdir($dir, 0755, true);
+        if ($res === TRUE) {
+            $zip->extractTo($dir);
+            $zip->close();
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -387,15 +409,15 @@ class FileSystem
             if (is_dir($dir . $file) && $recur == true) $files = array_merge($files, self::scanDir($dir . $file, true));
             else {
                 if(is_array($filter)){
-                    $ext = isset($filter['ext']) ? $filter['ext'] : '*';
-                    $expiretime = isset($filter['filetime']) ? $filter['filetime'] : null;
-                    $delete = true;
-                    $filetime = filectime($dir.$file);
-                    if(!$filetime || !$expiretime || $filetime < $expiretime) {
-                        if ($ext === '*' || substr_count($file, $ext) > 0) {
-                            @unlink($dir . $file);
-                        }
-                    }
+                  $ext = isset($filter['ext']) ? $filter['ext'] : '*';
+                  $expiretime = isset($filter['filetime']) ? $filter['filetime'] : null;
+                  $delete = true;
+                  $filetime = filectime($dir.$file);
+                  if(!$filetime || !$expiretime || $filetime < $expiretime) {
+                      if ($ext === '*' || substr_count($file, $ext) > 0) {
+                          @unlink($dir . $file);
+                      }
+                  }
                 } else {
                     if ($filter === '*' || substr_count($file, $filter) > 0)
                         @unlink($dir . $file);
@@ -429,7 +451,15 @@ class FileSystem
         closedir($dir);
     }
 
-
+    /**
+     * Generates image thumbnail
+     * @param $path
+     * @param $width
+     * @param $height
+     * @param |null $crop
+     * @param bool $usecache
+     * @return string|string[]
+     */
     public static function imageThumbnail($path, $width, $height, $crop = WPDM_USE_GLOBAL, $usecache = true)
     {
         $opath = $path;
@@ -583,51 +613,76 @@ class FileSystem
         return $fullpath;
     }
 
+    public static function fileExt($file)
+    {
+        $ext = pathinfo($file, PATHINFO_EXTENSION);
+        $ext  = strtolower($ext);
+        if($ext === '') $ext = "|=|";
+        return $ext;
+    }
+
     public static function mediaURL($pid, $fileID, $fileName = '')
     {
         if ($fileName == '') {
             $files = \WPDM\Package::getFiles($pid);
             $fileName = wpdm_basename($files[$fileID]);
         }
-        //$key = uniqid();
-        //$exp = array('use' => 1, 'expire' => time()+600);
-        //TempStorage::set("__wpdmkey_{$key}", $exp);
-        //return home_url("/wpdm-media/{$pid}/{$fileID}/{$fileName}?_wpdmkey={$key}");
         return Package::expirableDownloadLink($pid, 5, 1800) . "&ind={$fileID}&file={$fileName}";
     }
 
-
-    static function fileTypeIconSVG($ext, $color)
+    /**
+     * Find or generate file type icon and returns the url
+     * @param $filename_or_ext
+     * @param string $color
+     * @param bool $return
+     * @return string File Type Icon URL
+     */
+    static function fileTypeIcon($filename_or_ext, $color = '#269def', $return = true)
     {
+        $ext = $filename_or_ext;
+        if(substr_count($ext, '.')) {
+            $ext = self::fileExt($ext);
+        }
+        $upload_dir = wp_upload_dir();
+        $_upload_dir = $upload_dir['basedir'];
+        $_upload_url = $upload_dir['baseurl'];
+        $svg = '';
+        if(file_exists($_upload_dir."/wpdm-file-type-icons/".$ext.".svg"))
+            $svg = $_upload_url."/wpdm-file-type-icons/".$ext.".svg";
+        else if(file_exists(WPDM_BASE_DIR."assets/file-type-icons/".$ext.".svg"))
+            $svg = WPDM_BASE_URL."assets/file-type-icons/".$ext.".svg";
+        if($svg === '') {
         ob_start();
+        $id = uniqid();
         $ext = strtoupper($ext);
         $color_rgba = wpdm_hex2rgb($color);
+            $ext = substr($ext, 0, 3);
         ?>
-        <svg id="Layer_1" style="enable-background:new 0 0 512 512;" version="1.1" viewBox="0 0 512 512"
+        <svg id="Layer_<?= $id ?>" style="enable-background:new 0 0 512 512;" version="1.1" viewBox="0 0 512 512"
              xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><style
                     type="text/css">
-                .st0 {
+                .st_<?= $id ?>_0 {
                     fill: rgba(<?php echo $color_rgba; ?>, 0.3);
                 }
 
-                .st1 {
+                .st_<?= $id ?>_1 {
                     fill: rgba(<?php echo $color_rgba; ?>, 0.9);
                 }
 
-                .st2 {
+                .st_<?= $id ?>_2 {
                     fill: <?php echo $color; ?>;
                 }
 
-                .st3 {
+                .st_<?= $id ?>_3 {
                     fill: #FFFFFF;
                 }
             </style>
             <g id="XMLID_168_">
                 <g id="XMLID_83_">
-                    <polygon class="st0" id="XMLID_87_" points="330.7,6 87.9,6 87.9,506 449.2,506 449.2,122.8   "/>
-                    <polygon class="st1" id="XMLID_86_" points="330.7,6 449.2,122.8 330.7,122.8   "/>
-                    <rect class="st1" height="156.1" id="XMLID_85_" width="329" x="62.8" y="298.8"/>
-                    <polygon class="st2" id="XMLID_84_" points="62.8,454.9 87.9,476.1 87.9,454.9   "/>
+                    <polygon class="st_<?= $id ?>_0" id="XMLID_87_" points="330.7,6 87.9,6 87.9,506 449.2,506 449.2,122.8   "/>
+                    <polygon class="st_<?= $id ?>_1" id="XMLID_86_" points="330.7,6 449.2,122.8 330.7,122.8   "/>
+                    <rect class="st_<?= $id ?>_1" height="156.1" id="XMLID_85_" width="329" x="62.8" y="298.8"/>
+                    <polygon class="st_<?= $id ?>_2" id="XMLID_84_" points="62.8,454.9 87.9,476.1 87.9,454.9   "/>
                 </g>
                 <g xmlns="http://www.w3.org/2000/svg" id="XMLID_3113_">
                     <text x="20%" fill="white" style="font-family: sans-serif;font-size: 725%;font-weight: bold;"
@@ -637,7 +692,10 @@ class FileSystem
         </svg>
         <?php
         $svg = ob_get_clean();
-        echo "data:image/svg+xml;base64," . base64_encode($svg);
+        $svg = "data:image/svg+xml;base64," . base64_encode($svg);
+        }
+        if($return) return $svg;
+        echo $svg;
     }
 
     public static function instantDownloadURL($file, $expire = 3600)
@@ -704,15 +762,17 @@ class FileSystem
             if(is_object($package)){
                 $author = get_user_by('id', $package->post_author);
                 if($author)
-                    $user_upload_dir = UPLOAD_DIR . $author->user_login . '/';
+                $user_upload_dir = UPLOAD_DIR . $author->user_login . '/';
             }
             if($user_upload_dir && file_exists($user_upload_dir.$rel_path))
                 $abs_path = $user_upload_dir.$rel_path;
         }
 
         $abs_path = str_replace('\\','/', $abs_path );
-
-        return realpath($abs_path);
+        if(!$abs_path) return null;
+        $real_path = realpath($abs_path);
+        return $real_path;
     }
 
 }
+

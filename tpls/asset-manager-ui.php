@@ -485,7 +485,12 @@ if(is_admin()){
 
         }
 
-
+        button.btn-unzip{
+            display: none !important;
+        }
+        button.btn-unzip.application_zip{
+            display: inline-block !important;
+        }
     </style>
 
 <div class="w3eden" id="mainfmarea">
@@ -652,6 +657,7 @@ if(is_admin()){
                 <div class="col-md-4 text-right">
                     <div class="action-btns" id="action-btns-{{id}}">
                         <button class="btn btn-xs btn-simple btn-primary btn-settings" type="button" title="Settings" data-oldname="{{item}}" data-path="{{path}}"><i class="far fa-sun"></i></button>
+                        <button class="btn btn-xs btn-simple btn-success btn-zip" type="button" title="Zip" data-dirname="{{item}}" data-dirpath="{{path}}"><i class="fa fa-archive"></i></button>
                         <button class="btn btn-xs btn-info btn-simple" data-item="{{item}}" title="Cut" type="button"><i class="fa fa-cut"></i></button>
                         <button class="btn btn-xs btn-primary btn-simple btn-copy" data-item="{{item}}" title="Copy" type="button"><i class="fa fa-copy"></i></button>
                         <button class="btn btn-xs btn-danger btn-simple btn-delete" type="button" title="Delete" data-path="{{path}}"><i class="fas fa-trash"></i></button>
@@ -677,6 +683,7 @@ if(is_admin()){
                     <div class="col-md-4 text-right">
                         <div class="action-btns" id="action-btns-{{id}}">
                             <button class="btn btn-xs btn-simple btn-primary btn-settings" type="button" title="Settings" data-oldname="{{item}}" data-path="{{path}}"><i class="far fa-sun"></i></button>
+                            <button class="btn btn-xs btn-simple btn-warning btn-unzip {{ext}}"  type="button" title="UnZip" data-dirname="{{item}}" data-dirpath="{{path}}"><i class="fas fa-box-open"></i></button>
                             <button class="btn btn-xs btn-simple btn-cut" data-item="{{item}}" title="Cut" type="button"><i class="fa fa-cut"></i></button>
                             <button class="btn btn-xs btn-simple btn-copy" data-item="{{item}}" title="Copy" type="button"><i class="fa fa-copy"></i></button>
                             <a class="btn btn-xs btn-simple btn-download" type="button" title="Download" href="<?php echo home_url('/?wpdmfmdl={{path}}') ?>"><i class="fas fa-arrow-down"></i></a>
@@ -940,8 +947,10 @@ if(is_admin()){
                 var items = data.items;
                 $.each(items, function (index, entry) {
                     if(entry.type == 'file') {
+                        ext = entry.contenttype.replace("/", "_");
                         var tpl = $('#fileTPL').html();
                         tpl = tpl.replace("{{icon}}", entry.icon);
+                        tpl = tpl.replace("{{ext}}", ext);
                         tpl = tpl.replace("{{contenttype}}", entry.contenttype);
                         tpl = tpl.replace("{{item_label}}", entry.item_label);
                         tpl = tpl.replace("{{note}}", entry.note);
@@ -1105,6 +1114,34 @@ if(is_admin()){
                     refresh_scandir(current_path);
                 });
             }
+        });
+
+        $('body').on('click', '.btn-zip', function (e) {
+            e.preventDefault();
+            var zip_dir_path = $(this).data('dirpath');
+            //WPDM.blockUI("#wpdmfm_explorer");
+            $(this).html('<i class="fa fa-spinner fa-spin"></i>');
+            $.get(ajaxurl, {__wpdm_createzip:'<?php echo wp_create_nonce(NONCE_KEY); ?>', action: 'wpdm_createzip', dir_path: zip_dir_path }, function (response) {
+                if(!response.success){
+                    WPDM.notify(response.message, 'error');
+                } else {
+                    refresh_scandir(current_path);
+                }
+            });
+        });
+
+        $('body').on('click', '.btn-unzip.application_zip', function (e) {
+            e.preventDefault();
+            var zip_dir_path = $(this).data('dirpath');
+            //WPDM.blockUI("#wpdmfm_explorer");
+            $(this).html('<i class="fa fa-spinner fa-spin"></i>');
+            $.get(ajaxurl, {__wpdm_unzipit:'<?php echo wp_create_nonce(NONCE_KEY); ?>', action: 'wpdm_unzipit', dir_path: zip_dir_path }, function (response) {
+                if(!response.success){
+                    WPDM.notify(response.message, 'error');
+                } else {
+                    refresh_scandir(current_path);
+                }
+            });
         });
 
         /* Delete */

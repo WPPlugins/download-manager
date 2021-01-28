@@ -35,7 +35,8 @@ if(!defined('ABSPATH')) die();
                 ?></div>
 
 
-            <?php  if(isset($params['note_before']) && $params['note_before'] !== '') {  ?>
+            <?php
+            if(isset($params['note_before']) && $params['note_before'] !== '') {  ?>
                 <div class="alert alert-info alert-note-before mb-3" >
                     <?php echo $params['note_before']; ?>
                 </div>
@@ -44,7 +45,7 @@ if(!defined('ABSPATH')) die();
             <?php echo \WPDM\libs\User::signinForm($params); ?>
 
 
-            <?php  if(isset($params['note_after']) && $params['note_after'] !== '') {  ?>
+            <?php  if(isset($params['note_after']) && $params['note_before'] !== '') {  ?>
                 <div class="alert alert-info alter-note-after mb-3" >
                     <?php echo $params['note_after']; ?>
                 </div>
@@ -54,8 +55,8 @@ if(!defined('ABSPATH')) die();
             <?php do_action("login_form"); ?>
 
             <div class="row login-form-meta-text text-muted mb-3" style="font-size: 10px">
-                <div class="col-5"><label><input class="wpdm-checkbox" name="rememberme" type="checkbox" id="rememberme" value="forever" /><?php _e( "Remember Me" , "download-manager" ); ?></label></div>
-                <div class="col-7 text-right"><a class="color-blue" href="<?php echo wpdm_lostpassword_url(); ?>"><?php _e( "Forgot Password?" , "download-manager" ); ?></a></div>
+                <div class="col-md-5"><label><input class="wpdm-checkbox" name="rememberme" type="checkbox" id="rememberme" value="forever" /><?php _e( "Remember Me" , "download-manager" ); ?></label></div>
+                <div class="col-md-7 text-right"><a class="color-blue" href="<?php echo wpdm_lostpassword_url(); ?>"><?php _e( "Forgot Password?" , "download-manager" ); ?></a></div>
             </div>
 
             <div class="row">
@@ -68,12 +69,12 @@ if(!defined('ABSPATH')) die();
                         <div class="text-center card card-default" style="margin: 20px 0 0 0">
                             <div class="card-header"  data-toggle="collapse" href="#socialllogin" role="button" aria-expanded="false" aria-controls="socialllogin"><?php _e("Or connect using your social account", "download-manager") ?></div>
                             <div class="collapse" id="socialllogin">
-                            <div class="card-body">
-                                <?php if(isset($__wpdm_social_login['facebook'])){ ?><button type="button" onclick="return _PopupCenter('<?php echo home_url('/?sociallogin=facebook'); ?>', 'Facebook', 400,400);" class="btn btn-social wpdm-facebook wpdm-facebook-connect"><i class="fab fa-facebook-f"></i></button><?php } ?>
-                                <?php if(isset($__wpdm_social_login['twitter'])){ ?><button type="button" onclick="return _PopupCenter('<?php echo home_url('/?sociallogin=twitter'); ?>', 'Twitter', 400,400);" class="btn btn-social wpdm-twitter wpdm-linkedin-connect"><i class="fab fa-twitter"></i></button><?php } ?>
-                                <?php if(isset($__wpdm_social_login['linkedin'])){ ?><button type="button" onclick="return _PopupCenter('<?php echo home_url('/?sociallogin=linkedin'); ?>', 'LinkedIn', 400,400);" class="btn btn-social wpdm-linkedin wpdm-twitter-connect"><i class="fab fa-linkedin-in"></i></button><?php } ?>
-                                <?php if(isset($__wpdm_social_login['google'])){ ?><button type="button" onclick="return _PopupCenter('<?php echo home_url('/?sociallogin=google'); ?>', 'Google', 400,400);" class="btn btn-social wpdm-google-plus wpdm-google-connect"><i class="fab fa-google"></i></button><?php } ?>
-                            </div>
+                                <div class="card-body">
+                                    <?php if(isset($__wpdm_social_login['facebook'])){ ?><button type="button" onclick="return _PopupCenter('<?php echo home_url('/?sociallogin=facebook'); ?>', 'Facebook', 400,400);" class="btn btn-social wpdm-facebook wpdm-facebook-connect"><i class="fab fa-facebook-f"></i></button><?php } ?>
+                                    <?php if(isset($__wpdm_social_login['twitter'])){ ?><button type="button" onclick="return _PopupCenter('<?php echo home_url('/?sociallogin=twitter'); ?>', 'Twitter', 400,400);" class="btn btn-social wpdm-twitter wpdm-linkedin-connect"><i class="fab fa-twitter"></i></button><?php } ?>
+                                    <?php if(isset($__wpdm_social_login['linkedin'])){ ?><button type="button" onclick="return _PopupCenter('<?php echo home_url('/?sociallogin=linkedin'); ?>', 'LinkedIn', 400,400);" class="btn btn-social wpdm-linkedin wpdm-twitter-connect"><i class="fab fa-linkedin-in"></i></button><?php } ?>
+                                    <?php if(isset($__wpdm_social_login['google'])){ ?><button type="button" onclick="return _PopupCenter('<?php echo home_url('/?sociallogin=google'); ?>', 'Google', 400,400);" class="btn btn-social wpdm-google-plus wpdm-google-connect"><i class="fab fa-google"></i></button><?php } ?>
+                                </div>
                             </div>
                         </div>
                     <?php } ?>
@@ -98,14 +99,30 @@ if(!defined('ABSPATH')) die();
 
 
 </div>
-
 <script>
     jQuery(function ($) {
+        <?php if(!isset($params['form_submit_handler']) || $params['form_submit_handler'] !== false){ ?>
         var llbl = $('#loginform-submit').html();
         $('#loginform').submit(function () {
             $('#loginform-submit').html("<i class='fa fa-spin fa-sync'></i> <?php _e( "Logging In..." , "download-manager" ); ?>").attr('disabled', 'disabled');
             WPDM.blockUI('#loginform');
             $(this).ajaxSubmit({
+                error: function(error) {
+                    WPDM.unblockUI('#loginform');
+                    var message = typeof error.responseJSON === 'undefined' ? error.responseText : error.responseJSON.message;
+                    $('#loginform').prepend("<div class='alert alert-danger' data-title='<?php _e( "LOGIN FAILED!" , "download-manager" ); ?>'>"+message+"</div>");
+                    $('#loginform-submit').html(llbl).removeAttr('disabled');
+                    <?php if((int)get_option('__wpdm_recaptcha_loginform', 0) === 1 && get_option('_wpdm_recaptcha_site_key') != ''){ ?>
+                    try {
+                        grecaptcha.reset();
+                    } catch (e) {
+
+                    }
+                    <?php } ?>
+                    if(message.indexOf('"success":true,') > 0) {
+                        location.href = "<?php echo $log_redirect; ?>";
+                    }
+                },
                 success: function (res) {
                     WPDM.unblockUI('#loginform');
                     if (!res.success) {
@@ -127,7 +144,7 @@ if(!defined('ABSPATH')) die();
             });
             return false;
         });
-
+        <?php } ?>
         $('body').on('click', 'form .alert-danger', function(){
             $(this).slideUp();
         });

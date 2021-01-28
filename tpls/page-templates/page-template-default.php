@@ -1,10 +1,8 @@
 <!-- WPDM Template: Default Template -->
 <div class="row">
     <div class="col-md-12">
-        <div class="card mb-3 p-3">
-            [featured_image]
-            [audio_player]
-        </div>
+        <div class="card mb-3 p-3 hide_empty [hide_empty:featured_image]">[featured_image]</div>
+        <div class="card mb-3 p-3 hide_empty [hide_empty:audio_player]">[audio_player]</div>
     </div>
     <div class="col-md-5">
         <div class="wpdm-button-area mb-3 p-3 card">

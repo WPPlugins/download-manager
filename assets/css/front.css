@@ -2694,3 +2694,7 @@ i.udbsap{
     margin: 0;
 }
 /* Audio Player Ends */
+
+.hide_empty:empty{
+    display: none;
+}

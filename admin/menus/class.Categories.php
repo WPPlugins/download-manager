@@ -37,8 +37,9 @@ class Categories
     function categoryIDColumnData($c, $column_name, $term_id) {
 
         if ($column_name == 'tag_ID') {
-            echo $term_id;
+            return $term_id;
         }
+        return $c;
     }
 
     function metaFields() {

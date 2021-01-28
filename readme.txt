@@ -3,7 +3,7 @@ Contributors: w3eden, codename065, shahriar0822, shimo16ab, shafayat-alam
 Donate link:
 Tags: download manager, document management, file manager, digital store, ecommerce, document management plugin,  download monitor, download counter, password protection, download protection
 Requires at least: 3.4
-Tested up to: 5.5
+Tested up to: 5.6
 License: GPLv2 or later
 
 
@@ -181,6 +181,11 @@ Check download stats and get a push notification when someone downloads, install
 19. More features
 
 == Changelog ==
+
+= 3.1.12 =
+* Improved terms lock option
+* Added zip and unzip option with the asset manager
+* Extended download history feature
 
 = 3.1.11 =
 * Improved asset manager

@@ -12,7 +12,7 @@ if (!class_exists('\WPDM\Installer')):
     class Installer
     {
 
-        private $dbVersion = 509.4;
+        private $dbVersion = 311.1;
 
         function __construct()
         {
@@ -117,6 +117,7 @@ if (!class_exists('\WPDM\Installer')):
 
             $installer = new \WPDM\Installer();
 
+            $installer->addColumn('ahm_download_stats', 'version', 'varchar(255) NOT NULL');
             $installer->addColumn('ahm_download_stats', 'agent', 'TEXT');
             $installer->addColumn('ahm_download_stats', 'filename', 'TEXT');
             $installer->addColumn('ahm_emails', 'request_status', "INT(1) NOT NULL");

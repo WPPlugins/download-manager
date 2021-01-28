@@ -25,15 +25,14 @@ if (wpdm_is_download_limit_exceed($package['ID'])) wp_die(__('Download Limit Exc
 $files = \WPDM\Package::getFiles($package['ID']);
 $fileCount = count($files);
 
-$log = new \WPDM\libs\DownloadStats();
 $oid = isset($_GET['oid']) ? esc_attr($_GET['oid']) : '';
 $indsc = 1;
 $indsc = isset($_GET['ind']) && get_option('__wpdm_ind_stats') == 0 ? 0 : 1;
-if ($indsc && !isset($_GET['nostat']))
-    $log->newStat($package['ID'], $current_user->ID, $oid);
 
 if ($fileCount == 0 || trim($files[0]) == '') {
     if (isset($package['sourceurl']) && $package['sourceurl'] != '') {
+
+        WPDM()->downloadHistory->add($package['ID'], '', wpdm_query_var('oid'));
 
         if (!isset($package['url_protect']) || $package['url_protect'] == 0 && strpos($package['sourceurl'], '://')) {
             header('location: ' . $package['sourceurl']);
@@ -91,7 +90,7 @@ if ($fileCount > 1 && !$idvdl) {
         $zip->close();
         update_post_meta($package['ID'], "__wpdm_zipped_file", $zipped);
     }
-
+    WPDM()->downloadHistory->add($package['ID'], '', wpdm_query_var('oid'));
     wpdm_download_file($zipped, sanitize_file_name($package['post_title']) . '.zip', $speed, 1, $package);
     //@unlink($zipped);
 } else {
@@ -106,28 +105,18 @@ if ($fileCount > 1 && !$idvdl) {
     //URL Download
     if ($indfile != '' && strpos($indfile, '://')) {
 
-        if (!isset($package['url_protect']) || $package['url_protect'] == 0) {
-            $indfile = wpdm_escs(htmlspecialchars_decode($indfile));
-            header('location: ' . $indfile);
-
-        } else {
-            $indfile = trim($indfile);
-            $r_filename = wpdm_basename($indfile);
-            $r_filename = explode("?", $r_filename);
-            $r_filename = $r_filename[0];
-            wpdm_download_file($indfile, $r_filename, $speed, 1, $package);
-
-        }
-
+        $indfile = wpdm_escs(htmlspecialchars_decode($indfile));
+        WPDM()->downloadHistory->add($package['ID'], $indfile, wpdm_query_var('oid'));
+        header('location: ' . $indfile);
         die();
     }
-
+    $tmp = explode("wp-content", $indfile);
     if (file_exists(UPLOAD_DIR . $indfile))
         $filepath = UPLOAD_DIR . $indfile;
     else if (file_exists($indfile))
         $filepath = $indfile;
-    else if (file_exists(WP_CONTENT_DIR . end($tmp = explode("wp-content", $indfile)))) //path fix on site move
-        $filepath = WP_CONTENT_DIR . end($tmp = explode("wp-content", $indfile));
+    else if (file_exists(WP_CONTENT_DIR . end($tmp))) //path fix on site move
+        $filepath = WP_CONTENT_DIR . end($tmp);
     else {
         do_action("wpdm_file_not_found", $package);
         wpdm_download_data('file-not-found.txt', 'File not found or deleted from server');
@@ -139,7 +128,7 @@ if ($fileCount > 1 && !$idvdl) {
 
     $filename = wpdm_basename($filepath);
     $filename = preg_replace("/([0-9]+)[wpdm]+_/", "", $filename);
-
+    WPDM()->downloadHistory->add($package['ID'], $filepath, wpdm_query_var('oid'));
     wpdm_download_file($filepath, $filename, $speed, 1, $package);
     //@unlink($filepath);
 

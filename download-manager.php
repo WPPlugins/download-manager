@@ -4,7 +4,7 @@ Plugin Name: Download Manager
 Plugin URI: https://www.wpdownloadmanager.com/pricing/
 Description: Manage, Protect and Track file downloads, and sell digital products from your WordPress site. A complete digital asset management solution.
 Author: W3 Eden
-Version: 3.1.11
+Version: 3.1.12
 Author URI: https://www.wpdownloadmanager.com/
 Text Domain: download-manager
 Domain Path: /languages
@@ -22,11 +22,13 @@ global $WPDM, $wpdm_asset;
 use WPDM\admin\WordPressDownloadManagerAdmin;
 use WPDM\libs\Apply;
 use WPDM\libs\CategoryHandler;
+use WPDM\libs\DownloadStats;
 use WPDM\libs\FileSystem;
 use WPDM\libs\MediaHandler;
 use WPDM\libs\PackageTemplate;
 use WPDM\libs\ShortCodes;
 use WPDM\libs\User;
+use WPDM\libs\UserAgent;
 
 $content_dir = str_replace('\\','/',WP_CONTENT_DIR);
 
@@ -106,7 +108,7 @@ class WordPressDownloadManager{
 
     function __construct(){
 
-        define('WPDM_Version','3.1.11');
+        define('WPDM_Version','3.1.12');
 
         register_activation_hook(__FILE__, array($this, 'Install'));
 
@@ -142,6 +144,8 @@ class WordPressDownloadManager{
         $this->template         = new Template();
         $this->ui               = new UI();
         $this->packageTemplate  = new PackageTemplate();
+        $this->downloadHistory  = new DownloadStats();
+        $this->userAgent        = new UserAgent();
         $this->message          = new \WPDM_Messages();
 
         //do_action("wpdm_addon_init", WPDM_Version);
@@ -151,57 +155,35 @@ class WordPressDownloadManager{
     /**
      * @usage Install Plugin
      */
-    function Install(){
-        global $wpdb;
+    function install(){
 
-        delete_option('wpdm_latest');
+        Installer::init();
 
-        $sqls[] = "CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}ahm_download_stats` (
-              `id` int(11) NOT NULL AUTO_INCREMENT,
-              `pid` int(11) NOT NULL,
-              `uid` int(11) NOT NULL,
-              `oid` varchar(100) NOT NULL,
-              `year` int(4) NOT NULL,
-              `month` int(2) NOT NULL,
-              `day` int(2) NOT NULL,
-              `timestamp` int(11) NOT NULL,
-              `ip` varchar(20) NOT NULL,
-              PRIMARY KEY (`id`)
-            )";
+        $this->registerPostTypeTaxonomy();
 
-        $sqls[] = "CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}ahm_emails` (
-              `id` int(11) NOT NULL AUTO_INCREMENT,
-              `email` varchar(255) NOT NULL,
-              `pid` int(11) NOT NULL,
-              `date` int(11) NOT NULL,
-              `custom_data` text NOT NULL,
-              `request_status` INT( 1 ) NOT NULL,
-              PRIMARY KEY (`id`)
-            )";
-
-        $sqls[] = "CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}ahm_assets` (
-              `ID` bigint(20) NOT NULL AUTO_INCREMENT,
-              `path` text NOT NULL,
-              `owner` int(11) NOT NULL,
-              `activities` text NOT NULL,
-              `comments` text NOT NULL,
-              `access` text NOT NULL,
-              `metadata` text NOT NULL,
-              PRIMARY KEY (`ID`)
-            )";
-
-
-        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-        foreach($sqls as $sql){
-            $wpdb->query($sql);
-            ///dbDelta($sql);
-        }
-
-
-        $this->RegisterPostTypeTaxonomy();
         flush_rewrite_rules();
         self::createDir();
 
+    }
+
+    /**
+     * Update plugin
+     * @param $upgrader_object
+     * @param $options
+     */
+    function update( $upgrader_object, $options ) {
+        $current_plugin_path_name = plugin_basename( __FILE__ );
+
+        if ($options['action'] == 'update' && $options['type'] == 'plugin' ){
+            foreach($options['plugins'] as $each_plugin){
+                if ($each_plugin==$current_plugin_path_name){
+                    if(Installer::dbUpdateRequired()){
+                        Installer::updateDB();
+                        return;
+                    }
+                }
+            }
+        }
     }
 
     /**
