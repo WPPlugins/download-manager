@@ -11,7 +11,7 @@ class Settings
     {
         add_action('admin_init', array($this, 'initiateSettings'));
         add_action('wp_ajax_wpdm_settings', array($this, 'loadSettingsPage'));
-        add_action('admin_menu', array($this, 'menu'));
+        add_action('admin_menu', array($this, 'menu'), 9999);
     }
 
     function menu(){

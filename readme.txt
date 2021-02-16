@@ -182,6 +182,14 @@ Check download stats and get a push notification when someone downloads, install
 
 == Changelog ==
 
+= 3.1.14 - 2021.02.09 =
+* Fixed an issue with the file size function
+* Fixed an issue with UI selection option
+
+= 3.1.13 - 2021.01.28 =
+* Fixed an issue with the terms lock
+* Fixed an UI issue with the asset manager file editor
+
 = 3.1.12 =
 * Improved terms lock option
 * Added zip and unzip option with the asset manager

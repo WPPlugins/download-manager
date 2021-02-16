@@ -188,6 +188,7 @@ class Apply {
         } else {
             wp_set_auth_cookie($user->ID);
             wp_set_current_user($user->ID);
+            update_user_meta($user->ID, '__wpdm_last_login_time', time());
             Session::set('login_try', 0);
             do_action('wp_login', $creds['user_login'], $user);
 

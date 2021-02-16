@@ -47,9 +47,9 @@ class Package {
         $post_vars['description'] = wpautop(stripslashes($post_vars['description']));
         $post_vars['excerpt'] = stripcslashes(strip_tags($post_vars['post_excerpt']));
         $author = get_user_by('id', $post_vars['post_author']);
-        $post_vars['author_name'] = $author->display_name;
+        if(is_object($author)) $post_vars['author_name'] = $author->display_name;
         $post_vars['author_profile_url'] = get_author_posts_url($post_vars['post_author']);
-        $post_vars['avatar_url'] = get_avatar_url($author->user_email);
+        if(is_object($author)) $post_vars['avatar_url'] = get_avatar_url($author->user_email);
         $post_vars['author_package_count'] = count_user_posts( $post_vars['post_author'] , "wpdmpro"  );
 
 
@@ -215,8 +215,15 @@ class Package {
         }
 
         if(isset($data['terms_lock']) && $data['terms_lock'] != 0 && (!function_exists('wpdmpp_effective_price') || wpdmpp_effective_price($post_vars['ID']) ==0) && $limit_over == 0){
-            $data['terms_conditions'] = wpautop(strip_tags($data['terms_conditions'], "<p><br><a><strong><b><i>"));
-            $data['terms_title'] = !isset($data['terms_title']) || $data['terms_title'] == ''?__("Terms and Conditions",'download-manager'):sanitize_text_field($data['terms_title']);
+            $terms_page = (int)$data['terms_page'];
+            if($terms_page > 0) {
+                $terms_page = get_post($terms_page);
+                $data['terms_title'] = $terms_page->post_title;
+                $data['terms_conditions'] = wpautop($terms_page->post_content);
+            } else {
+                $data['terms_conditions'] = wpautop(strip_tags($data['terms_conditions'], "<p><br><a><strong><b><i>"));
+                $data['terms_title'] = !isset($data['terms_title']) || $data['terms_title'] == '' ? __("Terms and Conditions", 'download-manager') : sanitize_text_field($data['terms_title']);
+            }
             $data['terms_check_label'] = !isset($data['terms_check_label']) || $data['terms_check_label'] == ''?__("I Agree With Terms and Conditions",'download-manager'):sanitize_text_field($data['terms_check_label']);
             if(!self::isLocked($post_vars)) {
                 $post_vars['download_link_popup'] = $post_vars['download_link'] = "<a href='#unlock' class='wpdm-download-link wpdm-download-locked {$post_vars['btnclass']}' data-package='{$post_vars['ID']}'>{$post_vars['link_label']}</a>";

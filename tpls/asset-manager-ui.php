@@ -332,6 +332,14 @@ if(is_admin()){
         #wpdmeditor .panel-footer{
             border-radius: 0;
         }
+
+        pre.CodeMirror-line {
+            border: 0;
+            margin: 0;
+            padding: 3px;
+            background: #fff;
+        }
+
         #wpdmeditor #filecontent_alt,
         #wpdmeditor #filecontent{
             height: calc(100% - 94px);

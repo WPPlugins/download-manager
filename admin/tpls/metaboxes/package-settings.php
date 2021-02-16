@@ -97,7 +97,7 @@
         <?php if(isset($_GET['post'])&&$_GET['post']!=''){ ?>
             <tr>
                 <td><?php echo __('Master Key','download-manager'); ?></td>
-                <td><input type="text" readonly="readonly" value="<?php echo get_post_meta($post->ID, '__wpdm_masterkey', true); ?>"> <input type="checkbox" value="1" name="reset_key" /> <?php echo __('Regenerate Master Key for Download','download-manager'); ?> <i class="info fa fa-info" title="<?php echo __('This key can be used for direct download','download-manager'); ?>"></i></td>
+                <td><input style="display: inline-block;margin-right: 5px;background: #fff" type="text" class="form-control" readonly="readonly" value="<?php echo get_post_meta($post->ID, '__wpdm_masterkey', true); ?>"> <label><input type="checkbox" value="1" name="reset_key" /> <?php echo __('Regenerate Master Key','download-manager'); ?> <i class="info fa fa-info" title="<?php echo __('This key can be used for direct download','download-manager'); ?>"></i></label></td>
             </tr>
         <?php } ?>
         <?php do_action("wpdm_package_settings_tr", $post->ID); ?>

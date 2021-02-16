@@ -457,7 +457,7 @@ function wpdm_file_size($file)
     else if (file_exists(UPLOAD_DIR . $file))
         $_size = filesize(UPLOAD_DIR . $file);
     else if (file_exists(ABSPATH . $file))
-        $_size = filesize(UPLOAD_DIR . $file);
+        $_size = filesize(ABSPATH . $file);
     else $_size = 0;
     $size = $_size / 1024;
     if ($size > 1024) $size = number_format($size / 1024, 2) . ' MB';
@@ -466,7 +466,6 @@ function wpdm_file_size($file)
         $size = $_size . " bytes";
     return $size;
 }
-
 
 /**
  * @usage Returns icons for package file types
@@ -530,6 +529,7 @@ function wpdm_valueof($var, $index, $params = [])
 {
     $index = explode("/", $index);
     $default = is_string($params) ? $params : '';
+    if (is_object($var)) $var = (array)$var;
     $default = is_array($params) && isset($params['default']) ? $params['default'] : $default;
     if (count($index) > 1) {
         $val = $var;
@@ -1686,7 +1686,7 @@ function wpdm_tpl_path1($file, $tpldir = '')
  */
 function wpdm_tpl_path($file, $tpldir = '', $fallback = '')
 {
-    if (file_exists(get_stylesheet_directory() . '/download-manager/' . $file))
+    /*if (file_exists(get_stylesheet_directory() . '/download-manager/' . $file))
         $path = get_stylesheet_directory() . '/download-manager/' . $file;
     else if (file_exists(get_template_directory() . '/download-manager/' . $file))
         $path = get_template_directory() . '/download-manager/' . $file;
@@ -1696,14 +1696,14 @@ function wpdm_tpl_path($file, $tpldir = '', $fallback = '')
         $path = get_template_directory() . '/download-manager/' . $tpldir . '/' . $file;
     else $path = WPDM_TPL_DIR . $file;
 
-    /* Fallack template directory*/
     if ($fallback == '') $fallback = WPDM_TPL_FALLBACK;
     if ($fallback !== '' && !file_exists($path))
         $path = $fallback . "/" . $file;
 
     //if(!file_exists($path))
     //wpdmdd($path);
-    return $path;
+    return $path;*/
+    return \WPDM\Template::locate($file, $tpldir, $fallback);
 
 }
 

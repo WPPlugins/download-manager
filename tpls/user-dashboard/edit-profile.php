@@ -34,7 +34,7 @@ $member_success = \WPDM\Session::get('member_success');
                     <div class="col-md-6"><div class="form-group"><label for="re_new_pass"><?php _e( "Re-type New Password:" , "download-manager" );?> </label><input autocomplete="off" type="password" value="" class="form-control" name="cpassword" id="re_new_pass"> </div></div>
 
 
-                    <?php do_action('wpdm_update_profile_filed_html', $user); ?>
+                    <?php do_action('wpdm_update_profile_field_html', $user); ?>
 
 
                 </div>

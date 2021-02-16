@@ -6,6 +6,6 @@ if(!defined('ABSPATH')) die();
 </div>
 <div class="w3eden">
 
-            <iframe src="//cdn.wpdownloadmanager.com/notice.php?wpdmvarsion=<?php echo WPDM_Version; ?>&origin=<?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS']=='on'?'https://':'http://').$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']; ?>" style="height: 390px;width:100%;border:0px"></iframe>
+            <iframe id="wpdmdbwframeh" src="//cdn.wpdownloadmanager.com/notice.php?wpdmvarsion=<?php echo WPDM_Version; ?>&origin=<?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS']=='on'?'https://':'http://').$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']; ?>" style="min-height: 390px;width:100%;border:0px"></iframe>
 
 </div>
