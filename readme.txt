@@ -3,7 +3,7 @@ Contributors: w3eden, codename065, shahriar0822, shimo16ab, shafayat-alam
 Donate link:
 Tags: download manager, document management, file manager, digital store, ecommerce, document management plugin,  download monitor, download counter, password protection, download protection
 Requires at least: 3.4
-Tested up to: 5.6
+Tested up to: 5.7
 License: GPLv2 or later
 
 
@@ -119,15 +119,14 @@ Use [Premium Package – Complete Digital Store Solution](https://www.wpdownload
 = Google Drive =
 Use [Google Drive Explorer](https://www.wpdownloadmanager.com/download/google-drive-explorer/) add-on ( free ) to store your files in google drive and link with download manager, get 15 GB free storage space and save your server bandwidth
 
-= OneDrive =
-Use [OneDrive Explorer](https://www.wpdownloadmanager.com/download/wpdm-onedrive/) add-on ( free ) to store your files in Microsoft OneDrive and link with download manager, get 15 GB free storage space and save your server bandwidth
-
 = DropBox =
 Use [DropBox Explorer](https://www.wpdownloadmanager.com/download/dropbox-explorer/) add-on ( free ) to store your files in dropbox and link with download manager, get 2 GB free storage space and save your server bandwidth
 
 = Box.com =
 Use [Box.com Explorer](https://www.wpdownloadmanager.com/download/box-com-explorer/) add-on ( free ) to store your files in Box.com and link with download manager, get 10 GB free storage space and save your server bandwidth
 
+= OneDrive =
+Use [OneDrive Explorer](https://www.wpdownloadmanager.com/download/wpdm-onedrive/) add-on ( free ) to store your files in Microsoft OneDrive and link with download manager, get 15 GB free storage space and save your server bandwidth
 
 = Add-ons =
 Download and Install following free add-on to add additional features as per your need
@@ -181,6 +180,20 @@ Check download stats and get a push notification when someone downloads, install
 19. More features
 
 == Changelog ==
+
+= 3.1.17 - 2021.04.08 =
+* Adjusted shortcode column, removed the popup trigger button and reinstated the preview text field showing the shortcode
+
+= 3.1.16 - 2021.03.23 =
+* Fixed the issue with the password reset form
+* Fixed 2 `undefined variable` notice in class.Package.php
+* Fixed 1 `undefined variable` notice in class.Email.php
+
+= 3.1.15 - 2021.02.24 =
+* Fixed an issue user agent detection
+* Added new option to duplicate downloads
+* Improved shortcode column
+* Improved Query class
 
 = 3.1.14 - 2021.02.09 =
 * Fixed an issue with the file size function

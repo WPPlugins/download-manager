@@ -238,65 +238,60 @@
 
              </div>
              <?php //if(!function_exists('wpdm_tinymce')){ ?>
-             <div class="col-md-12 lead text-center">Let's install the following add-ons to make your WordPress Download Manager more awesome<br/></div>
+             <div class="col-md-12 lead text-center" style="padding: 20px 0">
+                 <h3>Recommended Plugins</h3>
+                 Let's install the following add-ons to make your WordPress Download Manager more awesome<br/></div>
                  <div class="col-md-4">
                      <div class="panel panel-default">
-                         <div style="min-height: 130px;height: 130px;overflow: hidden" class="panel-body">
+                         <div  class="panel-body">
                              <div class="media">
 
                                  <div class="media-body">
-                                     <b><a target="_blank" href="https://www.wpdownloadmanager.com/download/gutenberg-blocks/">Gutenberg Blocks</a></b><br>
-                                     <p>Gutenberg Blocks for WordPress Download Manager is the collection of blocks for the new Gutenberg block editor to use various download manager features ...</p>
+                                     <b style="display: block;font-size: 15pt;margin-bottom: 10px"><a target="_blank" href="https://www.wpdownloadmanager.com/download/gutenberg-blocks/">Gutenberg Blocks</a></b>
+                                     <p style="font-size: 12pt;margin-bottom: 0">Use gutenberg blocks to embed packages and categories</p>
                                  </div>
                              </div>
                          </div>
                          <div style="line-height: 30px;" class="panel-footer">
-                             <div style="margin-top: -2px" class="pull-right">
-                                 <a style="border: 0;border-radius: 2px" href="#" data-target="#addonmodal" data-backdrop="true" rel="15665" data-toggle="modal" class="btn btn-sm btn-primary btn-install"><i class="fa fa-download"></i> &nbsp;Download &amp; Install</a>
-                             </div>
-                             <span style="font-size: 11px;" class="label label-info"><i class="fa fa-th"></i> &nbsp;642.87 KB</span>
+                             <a href="<?=admin_url('plugin-install.php?tab=plugin-information&plugin=wpdm-gutenberg-blocks&TB_iframe=true&width=600&height=550')?>" class="btn btn-primary btn-block thickbox open-plugin-details-modal">Install</a>
                          </div>
                      </div>
                  </div>
 
-             <div class="col-md-4" >
+             <div class="col-md-4">
                  <div class="panel panel-default">
-                     <div style="min-height: 130px;height: 130px;overflow: hidden" class="panel-body">
+                     <div  class="panel-body">
                          <div class="media">
 
                              <div class="media-body">
-                                 <b><a href="https://www.wpdownloadmanager.com/download/premium-package-complete-digital-store-solution/">Premium Package &ndash; Complete Digital Store Solution</a></b><br>
-                                 <p>WordPress Digital Store Solution - Premium Package add-on helps you to setup prices for your digital products and sell it easily from your WordPress site ...</p>
+                                 <b style="display: block;font-size: 15pt;margin-bottom: 10px"><a target="_blank" href="https://www.wpdownloadmanager.com/download/premium-package-wordpress-digital-store-solution/">Premium Packages</a></b>
+                                 <p style="font-size: 12pt;margin-bottom: 0">Easy and secure way to sell your digital products.</p>
                              </div>
                          </div>
                      </div>
                      <div style="line-height: 30px;" class="panel-footer">
-                         <div style="margin-top: -2px" class="pull-right">
-                             <a style="border: 0;border-radius: 2px" href="#" data-target="#addonmodal" data-backdrop="true" rel="15671" data-toggle="modal" class="btn btn-sm btn-primary btn-install"><i class="fa fa-download"></i> &nbsp;Download &amp; Install</a>
-                         </div>
-                         <span style="font-size: 11px;" class="label label-info"><i class="fa fa-th"></i> &nbsp;482.11 KB</span>
+                         <a href="<?=admin_url('plugin-install.php?tab=plugin-information&plugin=wpdm-premium-packages&TB_iframe=true&width=600&height=550')?>" class="btn btn-primary btn-block thickbox open-plugin-details-modal">Install</a>
                      </div>
                  </div>
              </div>
 
-                 <div class="col-md-4">
-                     <div class="panel panel-default">
-                         <div style="min-height: 130px;height: 130px;overflow: hidden" class="panel-body">
-                             <div class="media">
-                                 <div class="media-body">
-                                     <b><a target="_blank" href="https://www.wpdownloadmanager.com/download/wpdm-extended-short-codes/">WPDM Extended Short-codes</a></b><br>
-                                     <p>WPDM Extended Short-codes add-on will give you a better experience in using WordPress Download Manager Pro.  We will be adding new short-codes in every update ...</p>
-                                 </div>
+             <div class="col-md-4">
+                 <div class="panel panel-default">
+                     <div  class="panel-body">
+                         <div class="media">
+
+                             <div class="media-body">
+                                 <b style="display: block;font-size: 15pt;margin-bottom: 10px"><a target="_blank" href="https://wpliveforms.com">Live Forms - The best form builder</a></b>
+                                 <p style="font-size: 12pt;margin-bottom: 0">We specially request you to try this, we assure you, you will be more than happy!</p>
                              </div>
-                         </div>
-                         <div style="line-height: 30px;" class="panel-footer">
-                             <div style="margin-top: -2px" class="pull-right">
-                                 <a style="border: 0;border-radius: 2px" href="#" data-target="#addonmodal" data-backdrop="true" rel="15691" data-toggle="modal" class="btn btn-sm btn-primary btn-install"><i class="fa fa-download"></i> &nbsp;Download &amp; Install</a>
-                             </div>
-                             <span style="font-size: 11px;" class="label label-info"><i class="fa fa-th"></i> &nbsp;310.17 KB</span>
                          </div>
                      </div>
+                     <div style="line-height: 30px;" class="panel-footer">
+                         <a href="<?=admin_url('plugin-install.php?tab=plugin-information&plugin=liveforms&TB_iframe=true&width=600&height=550')?>" class="btn btn-success btn-block thickbox open-plugin-details-modal">Install</a>
+                     </div>
                  </div>
+             </div>
+
 
 
 
@@ -305,27 +300,37 @@
 
              <?php //} ?>
 
-             <div class="col-md-12">
+             <div class="col-md-6">
                  <div class="well">
                      <div class="media">
                          <div class="pull-right">
-                             <a href="https://www.wpdownloadmanager.com/downloads/free-add-ons/" target="_blank" class="btn btn-success">Explore Free Add-ons <i class="fa fa-angle-double-right"></i></a>
+                             <a href="https://www.wpdownloadmanager.com/downloads/free-add-ons/" target="_blank" class="btn btn-info">Explore Free Add-ons <i class="fa fa-angle-double-right"></i></a>
                          </div>
                          <div class="media-body">
                              <b>Free Add-ons</b><br/>
                              There are more free add-ons
                          </div> </div>
                  </div>
+             </div>
 
-                 <div class="alert alert-info" style="margin: 15px 0;font-size: 12pt">
-                     <a href="https://www.wpdownloadmanager.com/download/attire-allinone-wordpress-theme/" target="_blank"><i class="fa fa-gift" style="margin-right: 7px"></i> Attire – Free All-in-one WordPress Theme, Get it now! </a>
+             <div class="col-md-6">
+                 <div class="well">
+                     <div class="media">
+                         <div class="pull-right">
+                             <a href="https://wpattire.com" target="_blank" class="btn btn-info">Get WP Attire <i class="fa fa-angle-double-right"></i></a>
+                         </div>
+                         <div class="media-body">
+                             <b>All-in-One WordPress Theme</b><br/>
+                             You search for the best theme ends here
+                         </div> </div>
                  </div>
 
              </div>
 
              <div class="col-md-12 lead">
+                 <hr/>
                  <h3>What's New?</h3>
-                 What new with WordPress Download Manager v3.0:
+                 What new with WordPress Download Manager v3.1:
              </div>
 
              <div class="col-md-4 r">

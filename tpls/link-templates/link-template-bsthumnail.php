@@ -10,14 +10,13 @@
             <h3 class="p-0 m-0">[page_link]</h3>
         </div>
         <div class="list-group-item d-flex justify-content-between align-items-cente">
-            File Size <span class="badge">[file_size]</span>
+            [txt=File Size] <span class="badge">[file_size]</span>
         </div>
         <div class="list-group-item d-flex justify-content-between align-items-cente">
-            Downloads <span class="badge">[download_count]</span>
+            [txt=Downloads] <span class="badge">[download_count]</span>
         </div>
         <div class="list-group-item d-flex justify-content-between align-items-center">
             [download_link]
         </div>
     </div>
 
- 

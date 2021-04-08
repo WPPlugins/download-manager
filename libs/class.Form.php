@@ -130,6 +130,7 @@ class Form
 
     function select($attrs){
         $_attrs = "";
+        //print_r($attrs);
         $attrs['class'] = isset($attrs['class']) ? "form-control ".$attrs['class']: "form-control";
         $options = $attrs['options'];
         unset($attrs['options']);
@@ -192,7 +193,7 @@ class Form
             $form_html .= "<button class='{$this->submit_button['class']}'>{$this->submit_button['label']}</button>";
         }
         $after_form_fields = "";
-        $form_html .= apply_filters("{$this->id}_before_fields", $after_form_fields, $this);
+        $form_html .= apply_filters("{$this->id}_after_fields", $after_form_fields, $this);
         $form_html .= $this->noForm ? "" : "</form>";
         return $form_html;
     }

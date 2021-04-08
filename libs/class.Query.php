@@ -11,10 +11,11 @@ class Query
     public $result;
     public $packages = [];
     public $count = 0;
+    public $tag_tax;
 
     function __construct()
     {
-
+        $this->tag_tax = version_compare(WPDM_Version, '5.0.0', '>') ? 'wpdmtag' : 'post_tag';
     }
 
     /**
@@ -113,7 +114,7 @@ class Query
     {
         if($tags)
         {
-            $this->taxonomy('wpdmtag', $tags, $field, $operator);
+            $this->taxonomy($this->tag_tax, $tags, $field, $operator);
         }
         return $this;
     }
@@ -126,7 +127,7 @@ class Query
     {
         if($tags)
         {
-            $this->taxonomy('wpdmtag', $tags, $field, 'AND');
+            $this->taxonomy($this->tag_tax, $tags, $field, 'AND');
         }
         return $this;
     }
@@ -138,7 +139,7 @@ class Query
     {
         if($tags)
         {
-            $this->taxonomy('wpdmtag', $tags, 'slug', 'AND');
+            $this->taxonomy($this->tag_tax, $tags, 'slug', 'AND');
         }
         return $this;
     }
@@ -151,7 +152,7 @@ class Query
     {
         if($tags)
         {
-            $this->taxonomy('wpdmtag', $tags, $field, 'IN');
+            $this->taxonomy($this->tag_tax, $tags, $field, 'IN');
         }
         return $this;
     }
@@ -163,7 +164,7 @@ class Query
     {
         if($tags)
         {
-            $this->taxonomy('wpdmtag', $tags, 'slug', 'IN');
+            $this->taxonomy($this->tag_tax, $tags, 'slug', 'IN');
         }
         return $this;
     }
@@ -176,7 +177,7 @@ class Query
     {
         if($tags)
         {
-            $this->taxonomy('wpdmtag', $tags, $field, 'NOT IN');
+            $this->taxonomy($this->tag_tax, $tags, $field, 'NOT IN');
         }
         return $this;
     }
@@ -241,6 +242,7 @@ class Query
      */
     function paged($paged)
     {
+        if($paged <=1) return $this;
         $this->params['paged'] = $paged;
         return $this;
     }

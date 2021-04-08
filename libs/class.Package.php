@@ -215,7 +215,7 @@ class Package {
         }
 
         if(isset($data['terms_lock']) && $data['terms_lock'] != 0 && (!function_exists('wpdmpp_effective_price') || wpdmpp_effective_price($post_vars['ID']) ==0) && $limit_over == 0){
-            $terms_page = (int)$data['terms_page'];
+            $terms_page = wpdm_valueof($data, 'terms_page', 'int');
             if($terms_page > 0) {
                 $terms_page = get_post($terms_page);
                 $data['terms_title'] = $terms_page->post_title;
@@ -392,16 +392,22 @@ class Package {
         else
             $index = $_SERVER['REMOTE_ADDR'];
 
-        $udl = maybe_unserialize(get_post_meta($ID, "__wpdmx_user_download_count", true));
-        $td = isset($udl[$index])?$udl[$index]:0;
-        $mx = get_post_meta($ID, '__wpdm_download_limit_per_user', true);
+        $stock = (int)get_post_meta($ID, '__wpdm_quota', true);
+        $download_count = (int)get_post_meta($ID, '__wpdm_download_count', true);
 
-        $stock = get_post_meta($ID, '__wpdm_quota', true);
-        $download_count = get_post_meta($ID, '__wpdm_download_count', true);
-        if($stock > 0 && $download_count >= $stock) return true;
+        $user_download_count = WPDM()->downloadHistory->userDownloadCount($ID);
 
-        if ($mx > 0 && $td >= $mx) return true;
-        return false;
+        $download_limit_per_user = (int)get_post_meta($ID, '__wpdm_download_limit_per_user', true);
+
+        if ($download_limit_per_user > 0 && $user_download_count >= $download_limit_per_user) return apply_filters("wpdm_user_download_limit_exceeded", true, $ID);
+
+        $exceeded = false;
+
+        if($stock > 0 && $download_count >= $stock) $exceeded = true;;
+
+        $exceeded = apply_filters("wpdm_user_download_limit_exceeded", $exceeded, $ID);
+
+        return $exceeded;
     }
 
     /**
@@ -1007,6 +1013,7 @@ class Package {
         if(self::isLocked($ID) && !Session::get( '__wpdm_unlocked_'.$ID )) return '#locked';
         if ($ext) $ext = '&' . $ext;
         $permalink = get_permalink($ID);
+        $permalink = apply_filters("wpdm_download_url_base", $permalink, $ID);
         $sap = strpos($permalink, '?')?'&':'?';
         return $permalink.$sap."wpdmdl={$ID}{$ext}&refresh=".uniqid().time();
     }
@@ -1345,6 +1352,52 @@ class Package {
     }
 
 
+    /**
+     * Create a copy of a given package
+     * @param $ID
+     * @return int|\WP_Error
+     */
+    static function copy($ID, $author = null, $new_meta = array()){
+        $old_pack = (array)get_post($ID);
+        $package = array(
+            'post_title' => $old_pack['post_title'],
+            'post_content' => $old_pack['post_content'],
+            'post_status' => $old_pack['post_status'],
+            'comment_status' => $old_pack['comment_status'],
+            'ping_status' => $old_pack['ping_status'],
+            'post_type' => 'wpdmpro'
+        );
+
+        if($author)
+            $package['post_author'] = $author;
+        $new_ID = wp_insert_post($package);
+
+        $meta = get_post_meta($ID);
+
+        foreach($meta as $key => $value){
+            foreach ($value as $v) {
+                update_post_meta($new_ID, $key, maybe_unserialize($v));
+            }
+        }
+        if(is_array($new_meta)) {
+            foreach ($new_meta as $key => $value) {
+                update_post_meta($new_ID, $key, maybe_unserialize($value));
+            }
+        }
+        return $new_ID;
+    }
+
+    static function dummy(){
+        $package = array(
+            'post_title' => __('Sample Package', 'download-manager'),
+            'post_content' => 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. ',
+            'excerpt' => 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s',
+            'post_status' => 'publish',
+            'download_link' => '<a href="#">Download</a>',
+            'download_link_extended' => '<a href="#">Download</a>',
+        );
+        return $package;
+    }
 
 
 }

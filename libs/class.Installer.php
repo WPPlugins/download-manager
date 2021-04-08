@@ -12,7 +12,7 @@ if (!class_exists('\WPDM\Installer')):
     class Installer
     {
 
-        private $dbVersion = 311.1;
+        private $dbVersion = 311.6;
 
         function __construct()
         {
@@ -109,6 +109,14 @@ if (!class_exists('\WPDM\Installer')):
               `lastAccess` int(11) NOT NULL,
               `expire` int(11) NOT NULL,
               PRIMARY KEY (`ID`)
+            )";
+
+            $sqls[] = "CREATE TABLE `{$wpdb->prefix}ahm_user_download_counts` (
+              `ID` int(11) NOT NULL AUTO_INCREMENT,
+              `user` varchar(255) NOT NULL,
+              `package_id` int(11) NOT NULL,
+              `download_count` int(11) NOT NULL,
+              PRIMARY KEY (`ID`)                          
             )";
 
             foreach ($sqls as $qry) {

@@ -13,7 +13,7 @@ class UserAgent
 
     function __construct()
     {
-        $this->HTTP_USER_AGENT = $_SERVER['HTTP_USER_AGENT'];
+        $this->HTTP_USER_AGENT = isset($_SERVER, $_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
         //$this->parse($this->HTTP_USER_AGENT);
     }
 

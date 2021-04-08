@@ -8,16 +8,17 @@
 
 if(!defined("ABSPATH")) die();
 
-$user = check_password_reset_key(wpdm_query_var('key'), wpdm_query_var('login'));
-if(!is_wp_error($user)){
+$login = \WPDM\libs\Crypt::decrypt(wpdm_query_var('login'));
+$user = check_password_reset_key(wpdm_query_var('key'), $login);
 
-    \WPDM\Session::set('__up_user', $user);
+if(!is_wp_error($user)){
 
     ?>
 <div class="w3eden">
     <div id="wpdmlogin" class="lostpass">
         <form name="loginform" id="updatePassword" action="<?php echo admin_url('/admin-ajax.php?action=updatePassword'); ?>" method="post" class="login-form" >
             <?php wp_nonce_field(NONCE_KEY,'__update_pass' ); ?>
+            <input type="hidden" name="__up_user" value="<?php echo \WPDM\libs\Crypt::encrypt($user); ?>">
             <h3><?php _e( "New Password" , "download-manager" ); ?></h3>
             <p>
                 <?php _e('Please enter a new password', 'download-manager'); ?>

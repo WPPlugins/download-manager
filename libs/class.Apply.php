@@ -473,61 +473,65 @@ class Apply {
 
     }
 
-    function resetPassword(){
-        if(wpdm_query_var('__reset_pass')){
 
-            if ( empty( $_POST['user_login'] ) ) {
+    function resetPassword()
+    {
+        if (wpdm_query_var('__reset_pass')) {
+
+            if (empty($_POST['user_login'])) {
                 die('error');
-            } elseif ( strpos( $_POST['user_login'], '@' ) ) {
-                $user_data = get_user_by( 'email', trim( wp_unslash( $_POST['user_login'] ) ) );
-                if ( empty( $user_data ) )
+            } elseif (strpos($_POST['user_login'], '@')) {
+                $user_data = get_user_by('email', trim(wp_unslash($_POST['user_login'])));
+                if (empty($user_data))
                     die('error');
             } else {
                 $login = trim($_POST['user_login']);
                 $user_data = get_user_by('login', $login);
             }
-            if(Session::get( '__reset_time' ) && time() - Session::get( '__reset_time' ) < 60){
+            if (Session::get('__reset_time') && time() - Session::get('__reset_time') < 60) {
                 echo "toosoon";
                 exit;
             }
-            if(!is_object($user_data) || !isset($user_data->user_login)) die('error');
-            $user_login = $user_data->user_login;
+            if (!is_object($user_data) || !isset($user_data->user_login)) die('error');
+            $user_login = Crypt::encrypt($user_data->user_login);
             $user_email = $user_data->user_email;
-            $key = get_password_reset_key( $user_data );
+            $key = get_password_reset_key($user_data);
 
 
-
-            $reseturl = add_query_arg(array('action' => 'rp', 'key' => $key, 'login' => rawurlencode($user_login)), wpdm_login_url());
+            $reseturl = add_query_arg(array('action' => 'rp', 'key' => $key, 'login' => $user_login), wpdm_login_url());
 
             $params = array('reset_password' => $reseturl, 'to_email' => $user_email);
 
             \WPDM\Email::send('password-reset', $params);
-            Session::set( '__reset_time' , time() );
+            Session::set('__reset_time', time());
             echo 'ok';
             exit;
 
         }
     }
 
-    function updatePassword(){
-        if(wpdm_query_var('__update_pass')){
+    function updatePassword()
+    {
+        if (wpdm_query_var('__update_pass')) {
 
-            if(wp_verify_nonce(wpdm_query_var('__update_pass'), NONCE_KEY)){
-                $pass = wpdm_query_var('password');
-                if($pass == '') die('error');
-                $user = Session::get('__up_user');
-                $user = maybe_unserialize($user);
-                if(is_object($user) && isset($user->ID)) {
+            if (wp_verify_nonce(wpdm_query_var('__update_pass'), NONCE_KEY)) {
+                $pass = wpdm_query_var('password','html');
+                if ($pass == '') die('error');
+                $user = Crypt::decrypt(wpdm_query_var('__up_user'));
+                if (is_object($user) && isset($user->ID)) {
+
+                    if(user_can($user->ID, 'manage_options'))
+                        wp_send_json(array('success' => false, 'message' => apply_filters('wpdm_update_password_error', __('Password update is disabled for this user!', 'download-manager'))));
+
                     wp_set_current_user($user->ID, $user->user_login);
                     wp_set_auth_cookie($user->ID);
                     //do_action('wp_login', $user->user_login);
                     wp_set_password($pass, $user->ID);
                     //print_r($user);
                     wp_send_json(array('success' => true, 'message' => ''));
-                } else wp_send_json(array('success' => false, 'message' => __('Session Expired! Please try again.', 'download-manager')));
-            }
-            else
-                wp_send_json(array('success' => false, 'message' => __('Session Expired! Please try again.', 'download-manager')));
+                } else wp_send_json(array('success' => false, 'message' => apply_filters('wpdm_update_password_error', __('Session Expired! Please try again.', 'download-manager'))));
+            } else
+                wp_send_json(array('success' => false, 'message' => apply_filters('wpdm_update_password_error', __('Session Expired! Please try again.', 'download-manager'))));
 
         }
     }
@@ -801,6 +805,7 @@ class Apply {
         if(!current_user_can('manage_options')) die('error');
         global $wpdb;
         $wpdb->query('truncate table '.$wpdb->prefix.'ahm_download_stats');
+        $wpdb->query('truncate table '.$wpdb->prefix.'ahm_user_download_counts');
         $wpdb->query("delete from {$wpdb->prefix}postmeta where meta_key='__wpdmx_user_download_count'");
         die('ok');
     }

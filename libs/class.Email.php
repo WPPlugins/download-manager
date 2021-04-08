@@ -214,7 +214,8 @@ class Email {
         }
 
         $template['subject'] = str_replace( array_keys( $params ), array_values( $params ), $template['subject'] );
-        $template['to_email'] = str_replace( array_keys( $params ), array_values( $params ), $template['to_email'] );
+        if(isset($template['to_email']))
+            $template['to_email'] = str_replace( array_keys( $params ), array_values( $params ), $template['to_email'] );
         $template['message'] = str_replace( array_keys( $params ), array_values( $params ), $template['message'] );
         $template['message'] = self::compile($template['message']);
         return $template;

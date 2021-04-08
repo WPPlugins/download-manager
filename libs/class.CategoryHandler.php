@@ -3,6 +3,7 @@
 namespace WPDM\libs;
 
 use WPDM\Package;
+use WPDM\Query;
 use WPDM\Template;
 
 class CategoryHandler
@@ -15,9 +16,9 @@ class CategoryHandler
 
     }
 
-    function hArray($skip_filter = 1)
+    function hArray($skip_filter = 1, $parent = 0)
     {
-        $terms = get_terms(array('taxonomy' => 'wpdmcategory', 'parent' => 0, 'hide_empty' => false));
+        $terms = get_terms(array('taxonomy' => 'wpdmcategory', 'parent' => $parent, 'hide_empty' => false));
         $allterms = _get_term_hierarchy('wpdmcategory');
         $allcats = array();
         foreach ($terms as $term) {
@@ -40,26 +41,45 @@ class CategoryHandler
     function checkboxTree($name, $selected = array(), $extras = array())
     {
         echo "<ul class='ptypes m-0 p-0' id='wpdmcat-tree'>";
-        $allcats = WPDM()->categories->hArray(0);
-        $cparent = is_array($extras) && isset($extras['base_category']) ? $extras['base_category'] : 0;
+        $parent = wpdm_valueof($extras, 'parent', ['validate' => 'int']);
+        $allcats = WPDM()->categories->hArray(0, $parent);
+
+        /*$cparent = is_array($extras) && isset($extras['base_category']) ? $extras['base_category'] : 0;
         if ($cparent !== 0) {
-            $cparent = get_term_by('slug', $cparent, 'wpdmcategory');
+            $cparent = get_term($cparent);
             $cparent = $cparent->term_id;
             echo "<input type='hidden' value='{$cparent}' name='cats[]' />";
+        }*/
+        if($parent > 0 && wpdm_valueof($extras, 'hide_parent', ['validate' => 'int', 'default' => 0]) == 0) {
+            $term = get_term($parent);
+            $value = wpdm_valueof($extras, 'value') === 'slug' ? $term->slug : $term->term_id;
+            ?>
+            <ul>
+            <li class="<?php echo wpdm_valueof($extras, 'liclass'); ?>">
+                <label><input type="checkbox" <?php checked(1, in_array($value, $selected)); ?>
+                              name="<?php echo $name; ?>[]"
+                              class="<?php echo wpdm_valueof($extras, 'cbclass'); ?>"
+                              value="<?php echo $value; ?>"> <?php echo $term->name; ?> </label>
+                <ul>
+            <?php
         }
         $this->checkboxList($name, $allcats, $selected, $extras);
+        if($parent > 0 && wpdm_valueof($extras, 'hide_parent', ['validate' => 'int', 'default' => 0]) == 0) echo "</li></ul>";
         echo "</ul>";
     }
 
     private function checkboxList($name, $allcats, $selected = array(), $extras = array())
     {
         foreach ($allcats as $cat_id => $cat) {
+
+            $value = wpdm_valueof($extras, 'value') === 'slug' ? $cat['category']->slug : $cat_id;
             $category = $cat['category'];
             ?>
-            <li <?php if (is_array($extras) && isset($extras['liclass'])) echo "class='{$extras['liclass']}'"; ?>>
-                <label><input type="checkbox" <?php checked(1, in_array($cat_id, $selected)); ?>
+            <li class="<?php echo wpdm_valueof($extras, 'liclass'); ?>">
+                <label><input type="checkbox" <?php checked(1, in_array($value, $selected)); ?>
                               name="<?php echo $name; ?>[]"
-                              value="<?php echo $cat_id; ?>"> <?php echo $category->name; ?> </label>
+                              class="<?php echo wpdm_valueof($extras, 'cbclass'); ?>"
+                              value="<?php echo $value; ?>"> <?php echo $category->name; ?> </label>
                 <?php
                 if (count($cat['childs']) > 0) {
                     echo "<ul id='wpdmcats-childof-{$cat_id}'>";
@@ -155,6 +175,11 @@ class CategoryHandler
 
     }
 
+    /**
+     * Check if current user has access to the given term
+     * @param $term_id
+     * @return bool
+     */
     public static function userHasAccess($term_id)
     {
         global $current_user;
@@ -166,6 +191,8 @@ class CategoryHandler
         $users = maybe_unserialize(get_term_meta($term_id, '__wpdm_user_access', true));
         $users = is_array($users) ? $users : array();
         if (count($has_role) > 0 || in_array($current_user->user_login, $users)) return true;
+        if(count($roles) === 0 && count($users) === 0) return true;
+        return false;
     }
 
     public static function categoryBreadcrumb($cid, $offset = 1)
@@ -201,11 +228,11 @@ class CategoryHandler
         $toolbar = isset($toolbar) ? $toolbar : 0;
         $scid = isset($scid) ? $scid : md5($id);
         $taxo = 'wpdmcategory';
-        if (isset($tag) && $tag == 1) $taxo = 'post_tag';
+        if (isset($tag) && $tag == 1) $taxo = 'wpdmtag';
         $css_class = isset($css_class) ? $css_class : '';
         $cwd_class = "col-lg-" . (int)(12 / $cols);
         $cwdsm_class = "col-md-" . (int)(12 / $colspad);
-        $cwdxs_class = "col-sm-" . (int)(12 / $colsphone);
+        $cwdxs_class = "col-" . (int)(12 / $colsphone);
 
         $id = trim($id, ", ");
         $cids = explode(",", $id);
@@ -221,81 +248,45 @@ class CategoryHandler
         //$cpvid = str_replace(",", "_", $id);
         //$cpvar = 'cp_'.$cids[0];
         $term = get_term_by('slug', $cids[0], 'wpdmcategory');
+        if(!$term) return apply_filters("wpdm_category_not_found", __( "Category doesn't exist", 'download-manager' ));
         $cpvar = 'cp_' . $term->term_id;
         $cp = wpdm_query_var($cpvar, 'num');
         if (!$cp) $cp = 1;
 
-        $params = array(
-            'post_type' => 'wpdmpro',
-            'paged' => $cp,
-            'posts_per_page' => $items_per_page,
-            'tax_query' => array(array(
-                'taxonomy' => $taxo,
-                'field' => 'slug',
-                'terms' => $cids,
-                //'include_children' => false,
-                'operator' => $operator
-            ))
-        );
+
+        $query = new Query();
+        $query->items_per_page($items_per_page);
+        $query->paged($cp);
+        $query->sort($orderby, $order);
+        $query->categories($cids, 'slug', $operator, wpdm_valueof($params, 'include_children', false));
+
 
         if (get_option('_wpdm_hide_all', 0) == 1) {
-            $params['meta_query'] = array(
-                array(
-                    'key' => '__wpdm_access',
-                    'value' => 'guest',
-                    'compare' => 'LIKE'
-                )
-            );
+            $query->meta("__wpdm_access", '"guest"');
+
             if (is_user_logged_in()) {
-                global $current_user;
-                if (isset($current_user->roles, $current_user->roles[0])) {
-                    foreach ($current_user->roles as $role) {
-                        $params['meta_query'][] = array(
-                            'key' => '__wpdm_access',
-                            'value' => $role,
-                            'compare' => 'LIKE'
-                        );
-                    }
-                    $params['meta_query']['relation'] = 'OR';
+                foreach ($current_user->roles as $role) {
+                    $query->meta("__wpdm_access", $role);
                 }
+                $query->meta_relation('OR');
             }
         }
 
-        if (isset($tags) && $tags != '') {
-            $params['tag'] = $tags;
-        }
-        if($orderby == 'downloads') $orderby = 'download_count';
-        if($orderby == 'view') $orderby = 'view_count';
-        $order_fields = array('__wpdm_download_count', '__wpdm_view_count', '__wpdm_package_size_b');
-        if (!in_array("__wpdm_" . $orderby, $order_fields)) {
-            $params['orderby'] = $orderby;
-            $params['order'] = $order;
-        } else {
-            $params['orderby'] = 'meta_value_num';
-            $params['meta_key'] = "__wpdm_" . $orderby;
-            $params['order'] = $order;
+        if (wpdm_query_var('skw', 'txt') != '') {
+            $query->s(wpdm_query_var('skw', 'txt'));
         }
 
-        if(wpdm_query_var('skw') !== '') $params['s'] = wpdm_query_var('skw', 'txt');
-
-        $params = apply_filters("wpdm_embed_category_query_params", $params);
-
-        $packs = new \WP_Query($params);
-
-        $total = $packs->found_posts;
+        $query->process();
+        $total = $query->count;
+        $packs = $query->packages();
         $pages = ceil($total / $items_per_page);
-        $page = $cp;
-        $start = ($page - 1) * $items_per_page;
-
-
-
         $burl = get_permalink();
 
         $html = '';
         $templates = maybe_unserialize(get_option("_fm_link_templates", true));
 
         if (isset($templates[$template])) $template = $templates[$template]['content'];
-        $packs = get_posts($params);
+
         foreach ($packs as $pack) {
             $pack = (array)$pack;
             $thtml = Package::fetchTemplate($template, $pack);
@@ -339,7 +330,7 @@ class CategoryHandler
         }
         $pagination = "";
         if (!isset($paging) || intval($paging) == 1) {
-            $pag_links = wpdm_paginate_links($total, $items_per_page, $page, $cpvar, array('container' => '#content_' . $scid, 'async' => (isset($async) && $async == 1 ? 1 : 0), 'next_text' => ' <i style="display: inline-block;width: 8px;height: 8px;border-right: 2px solid;border-top: 2px solid;transform: rotate(45deg);margin-left: -2px;margin-top: -2px;"></i> ', 'prev_text' => ' <i style="display: inline-block;width: 8px;height: 8px;border-right: 2px solid;border-bottom: 2px solid;transform: rotate(135deg);margin-left: 2px;margin-top: -2px;"></i> '));
+            $pag_links = wpdm_paginate_links($total, $items_per_page, $cp, $cpvar, array('container' => '#content_' . $scid, 'async' => (isset($async) && $async == 1 ? 1 : 0), 'next_text' => ' <i style="display: inline-block;width: 8px;height: 8px;border-right: 2px solid;border-top: 2px solid;transform: rotate(45deg);margin-left: -2px;margin-top: -2px;"></i> ', 'prev_text' => ' <i style="display: inline-block;width: 8px;height: 8px;border-right: 2px solid;border-bottom: 2px solid;transform: rotate(135deg);margin-left: 2px;margin-top: -2px;"></i> '));
             $pagination = "<div style='clear:both'></div>" . $pag_links . "<div style='clear:both'></div>";
         } else
             $pgn = "";

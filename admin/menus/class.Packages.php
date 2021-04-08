@@ -4,6 +4,8 @@
 namespace WPDM\admin\menus;
 
 
+use WPDM\Package;
+
 class Packages
 {
 
@@ -24,6 +26,8 @@ class Packages
         add_action( 'quick_edit_custom_box', array($this, 'quickEditForm'), 10, 2 );
 
         add_action('admin_footer', array($this, 'footerScripts'));
+
+        add_action("admin_init", [$this, 'duplicate']);
 
 
     }
@@ -66,7 +70,7 @@ class Packages
         if (isset($_POST['reset_key']) && $_POST['reset_key'] == 1)
             update_post_meta($post, '__wpdm_masterkey', uniqid());
 
-        if(isset($_REQUEST['reset_udl'])) delete_post_meta($post, '__wpdmx_user_download_count');
+        if(isset($_REQUEST['reset_udl'])) WPDM()->downloadHistory->resetUserDownloadCount($post, 'all');
         //do_action('after_update_package',$post, $_POST['file']);
 
 
@@ -143,7 +147,7 @@ class Packages
         $img['image'] = "<span class='wpdm-th-icon ttip' style='font-size: 0.8em'><i  style='font-size: 80%' class='fa fa-image'></i></span>";
         wpdm_array_splice_assoc( $defaults, 1, 0, $img );
         $otf['download_count'] = "<span class='wpdm-th-icon ttip' style='font-size: 0.8em'><i  style='font-size: 80%' class='fa fa-download'></i></span>";
-        $otf['wpdmshortcode'] = 'Short-code';
+        $otf['wpdmembed'] = esc_attr__( 'Shortcode', 'download-manager' );
         wpdm_array_splice_assoc( $defaults, 3, 0, $otf );
         return $defaults;
     }
@@ -156,9 +160,10 @@ class Packages
             echo (int)get_post_meta($post_ID, '__wpdm_download_count', true);
 
         }
-        if ($column_name == 'wpdmshortcode') {
+        if ($column_name == 'wpdmembed') {
 
-            echo "<input readonly=readonly class='wpdm-scode' onclick='this.select();' value=\"[wpdm_package id='$post_ID']\" />";
+            echo "<div class='w3eden'><div class='input-group short-code-wpdm'><input readonly=readonly class='form-control bg-white' onclick='this.select();' value=\"[wpdm_package id='$post_ID']\" id='sci{$post_ID}' /><div class='input-group-btn'><button type='button' onclick=\"WPDM.copy('sci{$post_ID}')\" class='btn btn-secondary'><i class='fa fa-copy'></i></button></div></div></div>";
+            //echo "<div class='w3eden'><button type='button' href='#' data-toggle='modal' data-target='#embModal' data-pid='{$post_ID}' class='btn btn-secondary btn-embed'><i class='fa fa-bars'></i></button></div>";
 
         }
         if ($column_name == 'image') {
@@ -199,8 +204,10 @@ class Packages
 
     function rowActions($actions, $post)
     {
-        if($post->post_type == 'wpdmpro')
-            $actions['download_link'] = '<a title="'.__('Direct Download','download-manager').'" href="'.\WPDM\Package::getMasterDownloadURL($post->ID).'" class="view_stats"><i class="fa fa-download text-success"></i></a>';
+        if($post->post_type == 'wpdmpro') {
+            $actions['duplicate'] = '<a title="' . __( "Duplicate" , "download-manager" ) . '" href="' . admin_url("/?wpdm_duplicate={$post->ID}") . '" class="wpdm_duplicate w3eden">'.esc_attr__( 'Duplicate', 'download-manager' ).'</a>';
+            $actions['download_link'] = '<a title="' . __('Direct Download', 'download-manager') . '" href="' . \WPDM\Package::getMasterDownloadURL($post->ID) . '" class="view_stats"><i class="fa fa-download text-success"></i></a>';
+        }
 
         return $actions;
     }
@@ -213,7 +220,76 @@ class Packages
 
     function footerScripts(){
         global $pagenow;
+        ?>
+        <div class="w3eden">
+                <div class="modal fade" tabindex="-1" role="dialog" id="embModal" style="display: none">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
 
+                            <div class="modal-header">
+                                <h4 class="modal-title"><i class="fa fa-paste color-green"></i> <?php _e("Embed Package", "download-manager"); ?></h4>
+                            </div>
+                            <div class="modal-body">
+
+                                <div class="input-group input-group-lg">
+                                    <input type="text" value="[wpdm_package id='{{ID}}']" id="cpsc" readonly="readonly" class="form-control bg-white" style="font-family: monospace;font-weight: bold;text-align: center">
+                                    <div class="input-group-btn">
+                                        <button style="padding-left: 30px;padding-right: 30px" onclick="WPDM.copy('cpsc');" type="button" class="btn btn-secondary"><i class="fa fa-copy"></i> <?=esc_attr__( 'Copy', 'download-manager' );?></button>
+                                    </div>
+                                </div>
+                                <div class="alert alert-info" style="margin-top: 20px">
+                                    <?=esc_attr__( 'If you are on Gutenberg Editor or elementor, you may use gutenberg block or elementor add-on for wpdm to embed wpdm packages and categories or generate another available layouts', 'download-manager' ); ?>
+                                </div>
+
+                                <div class="panel panel-default card-plain">
+                                    <div class="panel-heading">
+                                        <?=esc_attr__( 'Go To Page', 'download-manager' );?>
+                                    </div>
+                                    <div class="panel-body">
+                                        <div class="row">
+                                            <div class="col-md-9"><?php wp_dropdown_pages(['class' => 'form-control wpdm-custom-select', 'id' => 'gotopg']); ?></div>
+                                            <div class="col-md-3"><button onclick="location.href='post.php?action=edit&post='+jQuery('#gotopg').val()" type="button" class="btn btn-secondary btn-block"><?=esc_attr__( 'Go', 'download-manager' ); ?></button></div>
+                                        </div>
+
+                                    </div>
+                                    <div class="panel-footer bg-white">
+                                        <a href="post-new.php?post_type=page"><?=esc_attr__( 'Create new page', 'download-manager' );?></a>
+                                    </div>
+                                </div>
+
+
+                                    <?php if(!defined('__WPDM_GB__')) { ?>
+                                        <a class="btn btn-block btn-secondary thickbox open-plugin-details-modal" href="<?=admin_url('/plugin-install.php?tab=plugin-information&plugin=wpdm-gutenberg-blocks&TB_iframe=true&width=600&height=550')?>"><?=esc_attr__( 'Install Gutenberg Blocks by WordPress Download Manager', 'download-manager' );?></a>
+                                    <?php } ?>
+                                    <?php if(!defined('__WPDM_ELEMENTOR__')) { ?>
+                                        <a class="btn btn-block btn-secondary thickbox open-plugin-details-modal" style="margin-top: 10px" href="<?=admin_url('/plugin-install.php?tab=plugin-information&plugin=wpdm-elementor&TB_iframe=true&width=600&height=550')?>"><?=esc_attr__( 'Install Download Manager Addons for Elementor', 'download-manager' );?></a>
+                                    <?php } ?>
+                                <?php if(!function_exists('LiveForms')) { ?>
+                                    <a class="btn btn-block btn-info thickbox open-plugin-details-modal" style="margin-top: 10px" href="<?=admin_url('/plugin-install.php?tab=plugin-information&plugin=liveforms&TB_iframe=true&width=600&height=550')?>"><?=esc_attr__( 'Install The Best WordPress Contact Form Builder', 'download-manager' );?></a>
+                                <?php } ?>
+
+
+
+
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal"><?php _e("Close", "download-manager"); ?></button>
+                            </div>
+                        </div><!-- /.modal-content -->
+                    </div><!-- /.modal-dialog -->
+                </div><!-- /.modal -->
+        </div>
+        <script>
+            jQuery(function ($){
+                $('body').on('click', '.btn-embed', function (){
+                    var sc = "[wpdm_package id='{{ID}}']";
+                    sc = sc.replace("{{ID}}", $(this).data('pid'));
+                    console.log(sc);
+                    $('#cpsc').val(sc);
+                });
+            });
+        </script>
+        <?php
         if($pagenow === 'themes.php' || $pagenow === 'theme-install.php'){
             if(!file_exists(ABSPATH.'/wp-content/themes/attire/')) {
                 ?>
@@ -229,7 +305,14 @@ class Packages
     }
 
 
-
+    function duplicate()
+    {
+        if(wpdm_query_var('wpdm_duplicate', 'int') > 0 && get_post_type(wpdm_query_var('wpdm_duplicate')) === 'wpdmpro') {
+            Package::copy(wpdm_query_var('wpdm_duplicate', 'int'));
+            wp_redirect("edit.php?post_type=wpdmpro");
+            die();
+        }
+    }
 
 
 }

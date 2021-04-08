@@ -8,26 +8,27 @@
 
 if(!defined("ABSPATH")) die();
 
-$user = check_password_reset_key(wpdm_query_var('key'), wpdm_query_var('login'));
+$login = \WPDM\libs\Crypt::decrypt(wpdm_query_var('login'));
+$user = check_password_reset_key(wpdm_query_var('key'), $login);
 if(!is_wp_error($user)){
-
-    \WPDM\Session::set('__up_user', $user);
+    //\WPDM\Session::set('__up_user', $user);
 
     ?>
 <div class="w3eden">
     <div id="wpdmlogin" class="lostpass">
         <form name="loginform" id="updatePassword" action="<?php echo admin_url('/admin-ajax.php?action=updatePassword'); ?>" method="post" class="login-form" >
             <?php wp_nonce_field(NONCE_KEY,'__update_pass' ); ?>
+            <input type="hidden" name="__up_user" value="<?php echo \WPDM\libs\Crypt::encrypt($user); ?>">
             <h3><?php _e( "New Password" , "download-manager" ); ?></h3>
             <p>
                 <?php _e('Please enter a new password', 'download-manager'); ?>
             </p>
             <div class="form-group">
-                <input placeholder="<?php _e( "New Password" , "download-manager" ); ?>" type="password" name="password" id="password" class="form-control input-lg required text" value="" size="20" />
+                <input placeholder="<?php _e( "New Password" , "download-manager" ); ?>" type="password" name="password" id="password" class="form-control form-control-lg required text" value="" size="20" />
             </div>
 
             <div class="form-group">
-                <input placeholder="<?php _e( "Confirm Password" , "download-manager" ); ?>" type="password" name="cpassword" id="cpassword" class="form-control input-lg required text" value="" size="20" />
+                <input placeholder="<?php _e( "Confirm Password" , "download-manager" ); ?>" type="password" name="cpassword" id="cpassword" class="form-control form-control-lg required text" value="" size="20" />
             </div>
 
             <div class="row">
