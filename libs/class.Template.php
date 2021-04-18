@@ -28,8 +28,8 @@ class Template
         $template_dirs[] = $fallback ? rtrim($fallback, '/').'/' : rtrim(WPDM_TPL_FALLBACK, '/').'/';
 
         $template_dirs = apply_filters("wpdm_template_path", $template_dirs);
-
         foreach ($template_dirs as $template_dir){
+            //echo "<pre>{$template_dir}{$file}</pre>";
             if(file_exists($template_dir.$file))
                 return $template_dir.$file;
         }

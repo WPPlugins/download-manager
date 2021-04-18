@@ -205,7 +205,7 @@ class Packages
     function rowActions($actions, $post)
     {
         if($post->post_type == 'wpdmpro') {
-            $actions['duplicate'] = '<a title="' . __( "Duplicate" , "download-manager" ) . '" href="' . admin_url("/?wpdm_duplicate={$post->ID}") . '" class="wpdm_duplicate w3eden">'.esc_attr__( 'Duplicate', 'download-manager' ).'</a>';
+            $actions['duplicate'] = '<a title="' . __( "Duplicate" , "download-manager" ) . '" href="' . admin_url("/?wpdm_duplicate={$post->ID}&__copynonce=".wp_create_nonce(NONCE_KEY)) . '" class="wpdm_duplicate w3eden">'.esc_attr__( 'Duplicate', 'download-manager' ).'</a>';
             $actions['download_link'] = '<a title="' . __('Direct Download', 'download-manager') . '" href="' . \WPDM\Package::getMasterDownloadURL($post->ID) . '" class="view_stats"><i class="fa fa-download text-success"></i></a>';
         }
 
@@ -308,6 +308,7 @@ class Packages
     function duplicate()
     {
         if(wpdm_query_var('wpdm_duplicate', 'int') > 0 && get_post_type(wpdm_query_var('wpdm_duplicate')) === 'wpdmpro') {
+            if(!current_user_can('edit_posts') || !wp_verify_nonce(wpdm_query_var('__copynonce'), NONCE_KEY)) wp_die(esc_attr__( 'You are not authorized!', 'download-manager' ));
             Package::copy(wpdm_query_var('wpdm_duplicate', 'int'));
             wp_redirect("edit.php?post_type=wpdmpro");
             die();

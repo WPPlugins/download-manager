@@ -181,6 +181,9 @@ Check download stats and get a push notification when someone downloads, install
 
 == Changelog ==
 
+= 3.1.18 - 2021.04.16 =
+* Fixed a security issue with the file copy/duplicate option
+
 = 3.1.17 - 2021.04.08 =
 * Adjusted shortcode column, removed the popup trigger button and reinstated the preview text field showing the shortcode
 
