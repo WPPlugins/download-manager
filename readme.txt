@@ -181,8 +181,20 @@ Check download stats and get a push notification when someone downloads, install
 
 == Changelog ==
 
+= 3.1.22 - 2021.04.22 =
+* Fixed settings save issue with plugin update settings
+
+= 3.1.21 - 2021.04.21 =
+* Fixed an issue with server file picker
+
+= 3.1.20 - 2021.04.20 =
+* Fixed an issue with asset manager dir explorer
+
+= 3.1.19 - 2021.04.20 =
+* Fixed 3 security issues and improved security with file upload, asset manager access, settings options. Special thanks to WPScan and Darius Sveikauskas for pointing those issues.
+
 = 3.1.18 - 2021.04.16 =
-* Fixed a security issue with the file copy/duplicate option
+* Fixed an issue with the file copy/duplicate option
 
 = 3.1.17 - 2021.04.08 =
 * Adjusted shortcode column, removed the popup trigger button and reinstated the preview text field showing the shortcode

@@ -86,7 +86,7 @@ class Packages
         $ext = explode('.', $name);
         $ext = end($ext);
         $ext = strtolower($ext);
-        if(in_array($ext, array('php', 'js', 'html', 'py', 'pl', 'htaccess', 'svg', 'shtml', 'html5'))) die('-3');
+        if(!in_array($ext, wpdm_get_allowed_file_types())) die('-3');
 
         if(file_exists(UPLOAD_DIR.$name) && get_option('__wpdm_overwrrite_file',0) == 1){
             @unlink(UPLOAD_DIR.$name);
@@ -100,6 +100,9 @@ class Packages
 
         if(get_option('__wpdm_sanitize_filename', 0) == 1)
             $filename = sanitize_file_name($filename);
+        else {
+            $filename = str_replace(["/", "\\"], "_", $filename);
+        }
 
         if(isset($_REQUEST["chunks"])) $this->chunkUploadFile(UPLOAD_DIR.$filename);
         else {

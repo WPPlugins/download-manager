@@ -712,12 +712,9 @@ class FileSystem
      */
     function isBlocked($filename)
     {
-        $types = array('php', 'phtml', 'js', 'html', 'py', 'pl', 'htaccess', 'svg');
-        $types = apply_filters('wpdm_blocked_file_types', $types);
-        $ext = explode('.', $filename);
-        $ext = end($ext);
-        $ext = strtolower($ext);
-        return in_array($ext, $types);
+        $types = wpdm_get_allowed_file_types();
+        $ext = self::fileExt($filename);
+        return !in_array($ext, $types);
     }
 
 

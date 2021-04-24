@@ -1,6 +1,6 @@
 <div class="panel panel-default">
     <div class="panel-heading">
-        <div class="pull-right" style="margin-top: -1px"><a class="btn btn-xs btn-primary" href="edit.php?post_type=wpdmpro&page=settings&tab=plugin-update&newpurchase=1"><i class="fa fa-sync"></i> <?php _e( "Check For Updates" , "download-manager" ); ?></a>   <a class="btn btn-warning btn-xs" href="edit.php?post_type=wpdmpro&page=settings&tab=plugin-update&logout=1"><?php _e( "Logout" , "download-manager" ); ?></a></div>
+        <div class="pull-right" style="margin-top: -1px"><a class="btn btn-xs btn-primary" href="edit.php?post_type=wpdmpro&page=settings&tab=plugin-update&newpurchase=1"><i class="fa fa-sync"></i> <?php _e( "Check For Updates" , "download-manager" ); ?></a>   <a class="btn btn-warning btn-xs" href="edit.php?post_type=wpdmpro&page=settings&tab=plugin-update&__lononce=<?=wp_create_nonce(NONCE_KEY); ?>"><?php _e( "Logout" , "download-manager" ); ?></a></div>
         <i class="fa fa-sync"></i> &nbsp; <?php _e( "Add-on Update" , "download-manager" ) ?></div>
     <div class="panel-body-x">
 

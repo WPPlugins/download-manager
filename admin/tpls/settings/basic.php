@@ -99,6 +99,17 @@
                 <div class="panel-heading"><?php echo __('Upload Settings','download-manager'); ?></div>
                 <div class="panel-body">
                     <div class="form-group">
+                        <label><?php _e('Allowed file types to upload','download-manager'); ?></label><br/>
+                        <?php
+                        $allowed_file_types = get_option("__wpdm_allowed_file_types", '');
+                        ?>
+                        <input type="text" class="form-control" value="<?=$allowed_file_types; ?>" placeholder="<?=esc_attr__( 'Keep empty to use wordpress defaults', 'download-manager' ); ?>" name="__wpdm_allowed_file_types" />
+                        <em><?php _e('Enter the file extensions you want to allow to upload through WPDM ( ex: png,jpg,pdf )','download-manager'); ?></em>
+                        <br/>
+
+                    </div>
+                    <hr/>
+                    <div class="form-group">
                         <input type="hidden" value="0" name="__wpdm_sanitize_filename" />
                         <label><input style="margin: 0 10px 0 0" <?php checked(1, get_option('__wpdm_sanitize_filename',0)); ?> type="checkbox" value="1" name="__wpdm_sanitize_filename"><?php _e('Sanitize Filename','download-manager'); ?></label><br/>
                         <em><?php _e('Check the option if you want to sanitize uploaded file names to remove illegal chars','download-manager'); ?></em>

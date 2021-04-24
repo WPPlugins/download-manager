@@ -20,11 +20,19 @@ class Settings
 
     }
 
+    function checkSaveSettingsAuth(){
+        if(wpdm_query_var('task') === 'wdm_save_settings') {
+            check_ajax_referer(NONCE_KEY, '__wpdms_nonce');
+            if(!wp_verify_nonce($_POST['__wpdms_nonce'], NONCE_KEY)) die(__('Security token is expired! Refresh the page and try again.', 'download-manager'));
+            if(!current_user_can('manage_options')) die(__( "You are not allowed to change settings!", "download-manager" ));
+        }
+    }
+
 
     function loadSettingsPage()
     {
         global $stabs;
-        //$stabs['plugin-update']['callback'] = array($this, 'pluginUpdate');
+        $this->checkSaveSettingsAuth();
         if (current_user_can(WPDM_MENU_ACCESS_CAP)) {
             $section = sanitize_text_field($_POST['section']);
             call_user_func($stabs[$section]['callback']);
@@ -270,7 +278,7 @@ class Settings
     }
 
     function pluginUpdate(){
-        if(isset($_REQUEST['logout']) && $_REQUEST['logout'] == 1){
+        if(isset($_REQUEST['__lononce']) && wp_verify_nonce($_REQUEST['__lononce'], NONCE_KEY)){
             delete_option('__wpdm_suname');
             delete_option('__wpdm_supass');
             delete_option('__wpdm_purchased_items');
@@ -280,25 +288,28 @@ class Settings
             Session::clear('__wpdm_download_url');
             die('<script>location.href="edit.php?post_type=wpdmpro&page=settings&tab=plugin-update";</script>Refreshing...');
         }
+        if (wpdm_query_var('task') == 'wdm_save_settings' && wpdm_query_var('section') == 'plugin-update') {
+            if (isset($_POST['__wpdm_suname']) && $_POST['__wpdm_suname'] != '') {
+                update_option('__wpdm_suname', $_POST['__wpdm_suname']);
+                update_option('__wpdm_supass', $_POST['__wpdm_supass']);
+                delete_option('__wpdm_purchased_items');
+                delete_option('__wpdm_freeaddons');
+                delete_option('__wpdm_core_update_check');
+                delete_option('__wpdm_access_token');
+                Session::clear('__wpdm_download_url');
+                $access_token = wpdm_access_token();
+                if ($access_token != '') {
+                    $purchased_items = wpdm_remote_get('https://www.wpdownloadmanager.com/?wpdmppaction=getpurchaseditems&wpdm_access_token=' . $access_token);
+                    $ret = json_decode($purchased_items);
+                    update_option('__wpdm_purchased_items', $purchased_items);
+                    die('<script>location.href=location.href;</script>Login successful. Refreshing...');
+                } else {
+                    die('Error: Invalid Login!');
+                }
 
-        if(isset($_POST['__wpdm_suname']) && $_POST['__wpdm_suname'] != ''){
-            update_option('__wpdm_suname',$_POST['__wpdm_suname']);
-            update_option('__wpdm_supass',$_POST['__wpdm_supass']);
-            delete_option('__wpdm_purchased_items');
-            delete_option('__wpdm_freeaddons');
-            delete_option('__wpdm_core_update_check');
-            delete_option('__wpdm_access_token');
-            Session::clear('__wpdm_download_url');
-            $access_token = wpdm_access_token();
-            if($access_token != '') {
-                $purchased_items = wpdm_remote_get('https://www.wpdownloadmanager.com/?wpdmppaction=getpurchaseditems&wpdm_access_token=' . $access_token);
-                $ret = json_decode($purchased_items);
-                update_option('__wpdm_purchased_items', $purchased_items);
-                die('<script>location.href=location.href;</script>Login successful. Refreshing...');
-            }  else{
-                die('Error: Invalid Login!');
+            } else {
+                die("Nothing to save!");
             }
-
         }
 
         if(get_option('__wpdm_suname') != '') {
@@ -322,12 +333,10 @@ class Settings
 
     function Privacy(){
         if (wpdm_query_var('task') == 'wdm_save_settings' && wpdm_query_var('section') == 'privacy') {
-            foreach ($_POST as $key => $value){
-                if(strstr($key, '_wpdm_')){
-                    $value = wpdm_sanitize_array($value);
-                    update_option($key, $value);
-                }
-            }
+            update_option('__wpdm_noip', wpdm_query_var('__wpdm_noip', 'int', 0));
+            update_option('__wpdm_delstats_on_udel', wpdm_query_var('__wpdm_delstats_on_udel', 'int', 0));
+            update_option('__wpdm_checkout_privacy', wpdm_query_var('__wpdm_checkout_privacy', 'int', 0));
+            update_option('__wpdm_checkout_privacy_label', wpdm_query_var('__wpdm_checkout_privacy_label', 'txt'));
             _e("Privacy Settings Saved Successfully", "download-manager");
             die();
         }

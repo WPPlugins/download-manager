@@ -499,6 +499,9 @@ if(is_admin()){
         button.btn-unzip.application_zip{
             display: inline-block !important;
         }
+        .notice.notice-warning{
+            display: none;
+        }
     </style>
 
 <div class="w3eden" id="mainfmarea">
@@ -828,7 +831,7 @@ if(is_admin()){
                 </div>
                 <div class="modal-body">
                     <form id="update_sharelink_form" method="post" action="<?php echo admin_url('admin-ajax.php'); ?>">
-                        <?php wp_nonce_field(NONCE_KEY, '__wpdm_updatelink'); ?>
+                        <?php wp_nonce_field(WPDMAM_NONCE_KEY, '__wpdm_updatelink'); ?>
                         <input type="hidden" name="action" value="wpdm_updatelink" />
                         <input type="hidden" name="ID" v-bind:value="link.ID" />
                         <div class="panel panel-default">
@@ -1102,7 +1105,7 @@ if(is_admin()){
             var folname = $('#folname').val();
             if(folname !=''){
                 $('#createfol').html('<i class="fa fa-refresh fa-spin"></i> &nbsp; Creating...');
-                $.get(ajaxurl, {__wpdm_mkdir:'<?php echo wp_create_nonce(NONCE_KEY); ?>', action: 'wpdm_mkdir', path: current_path, name: folname}, function (data) {
+                $.get(ajaxurl, {__wpdm_mkdir:'<?php echo wp_create_nonce(WPDMAM_NONCE_KEY); ?>', action: 'wpdm_mkdir', path: current_path, name: folname}, function (data) {
                     $('#folname').val('');
                     $('#createfol').html('Create Folder');
                     $('#fcd').fadeIn();
@@ -1115,7 +1118,7 @@ if(is_admin()){
             var filename = $('#filename').val();
             if(filename !=''){
                 $('#createfile').html('<i class="fa fa-refresh fa-spin"></i> &nbsp; Creating...');
-                $.get(ajaxurl, {__wpdm_newfile:'<?php echo wp_create_nonce(NONCE_KEY); ?>', action: 'wpdm_newfile', path: current_path, name: filename}, function (data) {
+                $.get(ajaxurl, {__wpdm_newfile:'<?php echo wp_create_nonce(WPDMAM_NONCE_KEY); ?>', action: 'wpdm_newfile', path: current_path, name: filename}, function (data) {
                     $('#filename').val('');
                     $('#createfile').html('Create File');
                     $('#fcd').fadeIn();
@@ -1129,7 +1132,7 @@ if(is_admin()){
             var zip_dir_path = $(this).data('dirpath');
             //WPDM.blockUI("#wpdmfm_explorer");
             $(this).html('<i class="fa fa-spinner fa-spin"></i>');
-            $.get(ajaxurl, {__wpdm_createzip:'<?php echo wp_create_nonce(NONCE_KEY); ?>', action: 'wpdm_createzip', dir_path: zip_dir_path }, function (response) {
+            $.get(ajaxurl, {__wpdm_createzip:'<?php echo wp_create_nonce(WPDMAM_NONCE_KEY); ?>', action: 'wpdm_createzip', dir_path: zip_dir_path }, function (response) {
                 if(!response.success){
                     WPDM.notify(response.message, 'error');
                 } else {
@@ -1143,7 +1146,7 @@ if(is_admin()){
             var zip_dir_path = $(this).data('dirpath');
             //WPDM.blockUI("#wpdmfm_explorer");
             $(this).html('<i class="fa fa-spinner fa-spin"></i>');
-            $.get(ajaxurl, {__wpdm_unzipit:'<?php echo wp_create_nonce(NONCE_KEY); ?>', action: 'wpdm_unzipit', dir_path: zip_dir_path }, function (response) {
+            $.get(ajaxurl, {__wpdm_unzipit:'<?php echo wp_create_nonce(WPDMAM_NONCE_KEY); ?>', action: 'wpdm_unzipit', dir_path: zip_dir_path }, function (response) {
                 if(!response.success){
                     WPDM.notify(response.message, 'error');
                 } else {
@@ -1158,7 +1161,7 @@ if(is_admin()){
             if(!confirm('Are you sure?')) return false;
             $(this).html('<i class="fa fa-spinner fa-spin"></i>');
             var filepath = $(this).data('path');
-            $.get(ajaxurl, {__wpdm_unlink:'<?php echo wp_create_nonce(NONCE_KEY); ?>', action: 'wpdm_unlink', path: current_path, delete: filepath}, function (data) {
+            $.get(ajaxurl, {__wpdm_unlink:'<?php echo wp_create_nonce(WPDMAM_NONCE_KEY); ?>', action: 'wpdm_unlink', path: current_path, delete: filepath}, function (data) {
                 refresh_scandir(current_path);
             });
         });
@@ -1167,7 +1170,7 @@ if(is_admin()){
             e.preventDefault();
             WPDM.blockUI('#newcomment_panel');
             var filepath = $(this).data('path');
-            $.post(ajaxurl, {__wpdm_addcomment:'<?php echo wp_create_nonce(NONCE_KEY); ?>', action: 'wpdm_addcomment', comment: $('#newcomment').val(), assetid: assetSettings.asset.ID }, function (data) {
+            $.post(ajaxurl, {__wpdm_addcomment:'<?php echo wp_create_nonce(WPDMAM_NONCE_KEY); ?>', action: 'wpdm_addcomment', comment: $('#newcomment').val(), assetid: assetSettings.asset.ID }, function (data) {
                 assetSettings.asset.comments = data;
                 WPDM.unblockUI('#newcomment_panel');
             });
@@ -1179,7 +1182,7 @@ if(is_admin()){
             var filepath = $(this).data('path');
             var filename = $(this).find('.item_label').attr('title');
             $('#wpdmefn').text(filename);
-            $.get(ajaxurl, {__wpdm_openfile:'<?php echo wp_create_nonce(NONCE_KEY); ?>', action: 'wpdm_openfile', path: current_path, file: filepath}, function (data) {
+            $.get(ajaxurl, {__wpdm_openfile:'<?php echo wp_create_nonce(WPDMAM_NONCE_KEY); ?>', action: 'wpdm_openfile', path: current_path, file: filepath}, function (data) {
                 if(data.content != '') {
                     $('#filecontent').show();
                     $('#filecontent_alt').hide();
@@ -1217,7 +1220,7 @@ if(is_admin()){
             $('#wpdmeditor').addClass('blockui');
             var filepath = $(this).data('path');
             var content = editor.codemirror.getValue();
-            $.post(ajaxurl, {__wpdm_savefile:'<?php echo wp_create_nonce(NONCE_KEY); ?>', action: 'wpdm_savefile', content: content, file: filepath, opened: opened }, function (data) {
+            $.post(ajaxurl, {__wpdm_savefile:'<?php echo wp_create_nonce(WPDMAM_NONCE_KEY); ?>', action: 'wpdm_savefile', content: content, file: filepath, opened: opened }, function (data) {
                 WPDM.pushNotify("Save File", data.message);
                 $('#wpdmeditor').removeClass('blockui');
             });
@@ -1227,7 +1230,7 @@ if(is_admin()){
         $('body').on('click', '.btn-edit-link', function () {
             $('#update_sharelink_form').addClass('blockui');
             var linkid = $(this).data('linkid');
-            $.post(ajaxurl, {__wpdm_getlinkdet:'<?php echo wp_create_nonce(NONCE_KEY); ?>', action: 'wpdm_getlinkdet', linkid: linkid }, function (data) {
+            $.post(ajaxurl, {__wpdm_getlinkdet:'<?php echo wp_create_nonce(WPDMAM_NONCE_KEY); ?>', action: 'wpdm_getlinkdet', linkid: linkid }, function (data) {
                 linkSettings.link = data;
                 $('#update_sharelink_form').removeClass('blockui');
             });
@@ -1251,7 +1254,7 @@ if(is_admin()){
                     'callback': function () {
                         $(this).find('.modal-body').html('<i class="fa fa-sun fa-spin"></i> Deleting...');
                         var confirm = $(this);
-                        $.post(ajaxurl, {__wpdm_deletelink:'<?php echo wp_create_nonce(NONCE_KEY); ?>', action: 'wpdm_deletelink', linkid: linkid }, function (data) {
+                        $.post(ajaxurl, {__wpdm_deletelink:'<?php echo wp_create_nonce(WPDMAM_NONCE_KEY); ?>', action: 'wpdm_deletelink', linkid: linkid }, function (data) {
                             confirm.modal('hide');
                             $('#asset-link-'+linkid).slideUp();
                         });
@@ -1319,7 +1322,7 @@ if(is_admin()){
             e.preventDefault();
             $(this).html('<i class="fa fa-spinner fa-spin"></i>');
             var filepath = $(this).data('path');
-            $.post(ajaxurl, {__wpdm_rename:'<?php echo wp_create_nonce(NONCE_KEY); ?>', action: 'wpdm_rename', path: current_path, newname: $('#newname').val(), assetid: assetSettings.asset.ID}, function (data) {
+            $.post(ajaxurl, {__wpdm_rename:'<?php echo wp_create_nonce(WPDMAM_NONCE_KEY); ?>', action: 'wpdm_rename', path: current_path, newname: $('#newname').val(), assetid: assetSettings.asset.ID}, function (data) {
                 refresh_scandir(current_path);
                 $(this).data('oldname', $('#newname').val());
                 $('#renamenow').html('Rename');
@@ -1338,7 +1341,7 @@ if(is_admin()){
             $('#filewin').removeClass('col-md-9').addClass('col-md-6');
             $('#cogwin').fadeIn();
             $('#cogwin > .panel').addClass('blockui');
-            $.get(ajaxurl, {__wpdm_filesettings:'<?php echo wp_create_nonce(NONCE_KEY); ?>', action: 'wpdm_filesettings', file: file_path }, function (data) {
+            $.get(ajaxurl, {__wpdm_filesettings:'<?php echo wp_create_nonce(WPDMAM_NONCE_KEY); ?>', action: 'wpdm_filesettings', file: file_path }, function (data) {
                 data.sharecode = "[wpdm_asset id='"+data.ID+"']";
                 assetSettings.asset = data;
                 $('#cogwin > .panel').removeClass('blockui');
@@ -1353,9 +1356,9 @@ if(is_admin()){
         $('body').on('click', '#btn-paste', function (e) {
             e.preventDefault();
             $(this).html('<i class="fa fa-spinner fa-spin"></i>');
-            var params = {__wpdm_copypaste:'<?php echo wp_create_nonce(NONCE_KEY); ?>', action: 'wpdm_copypaste', source: localStorage.getItem("__wpdm_fm_copy"), dest: current_path};
+            var params = {__wpdm_copypaste:'<?php echo wp_create_nonce(WPDMAM_NONCE_KEY); ?>', action: 'wpdm_copypaste', source: localStorage.getItem("__wpdm_fm_copy"), dest: current_path};
             if(localStorage.getItem("__wpdm_fm_move") == 1)
-                params = {__wpdm_cutpaste:'<?php echo wp_create_nonce(NONCE_KEY); ?>', action: 'wpdm_cutpaste', source: localStorage.getItem("__wpdm_fm_copy"), dest: current_path};
+                params = {__wpdm_cutpaste:'<?php echo wp_create_nonce(WPDMAM_NONCE_KEY); ?>', action: 'wpdm_cutpaste', source: localStorage.getItem("__wpdm_fm_copy"), dest: current_path};
             $.get(ajaxurl, params, function (data) {
                 if(!data.success){
                     WPDM.notify(data.message, 'error');

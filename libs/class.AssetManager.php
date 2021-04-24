@@ -10,6 +10,7 @@ namespace WPDM;
 use WPDM\libs\Crypt;
 use WPDM\libs\FileSystem;
 
+define('WPDMAM_NONCE_KEY', 'r2pj@|k5.|;B1?n9MqB)%<w2Yz|Xx(alt@Aoc|~,|93lei|wR.R9~5X4DZH7U}Ot');
 
 class AssetManager
 {
@@ -94,6 +95,7 @@ class AssetManager
     {
         global $wp_query;
         if (wpdm_query_var('assetpicker', 'int') === 1) {
+            if(!current_user_can('access_server_browser')) \WPDM_Messages::fullPage("Error", esc_attr__( 'You are not authorized to access this page', 'download-manager' ), 'error');
             http_response_code(200);
             include WPDM_BASE_DIR . 'admin/tpls/asset-manager-picker.php';;
             die();
@@ -194,9 +196,10 @@ class AssetManager
     function mkDir()
     {
         global $current_user;
-        if (isset($_REQUEST['__wpdm_mkdir']) && !wp_verify_nonce($_REQUEST['__wpdm_mkdir'], NONCE_KEY)) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
-        check_ajax_referer(NONCE_KEY, '__wpdm_mkdir');
-        if (!is_user_logged_in()) die('Error! Unauthorized Access.');
+
+        if (!isset($_REQUEST['__wpdm_mkdir']) || !wp_verify_nonce($_REQUEST['__wpdm_mkdir'], WPDMAM_NONCE_KEY)) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
+        check_ajax_referer(WPDMAM_NONCE_KEY, '__wpdm_mkdir');
+        if (!current_user_can('upload_files') || !current_user_can('access_server_browser')) die('Error! Unauthorized Access.');
         $root = AssetManager::root();
         $relpath = Crypt::decrypt(wpdm_query_var('path'));
         $path = AssetManager::root($relpath);
@@ -209,9 +212,9 @@ class AssetManager
     function newFile()
     {
         global $current_user;
-        if (isset($_REQUEST['__wpdm_newfile']) && !wp_verify_nonce($_REQUEST['__wpdm_newfile'], NONCE_KEY)) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
-        check_ajax_referer(NONCE_KEY, '__wpdm_newfile');
-        if (!is_user_logged_in()) wp_send_json(array('success' => false, 'message' => __("Error! Unauthorized Access.", "download-manager")));
+        if (!isset($_REQUEST['__wpdm_newfile']) || !wp_verify_nonce($_REQUEST['__wpdm_newfile'], WPDMAM_NONCE_KEY)) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
+        check_ajax_referer(WPDMAM_NONCE_KEY, '__wpdm_newfile');
+        if (!current_user_can('upload_files') || !current_user_can('access_server_browser')) wp_send_json(array('success' => false, 'message' => __("Error! Unauthorized Access.", "download-manager")));
         $root = AssetManager::root();
         $relpath = Crypt::decrypt(wpdm_query_var('path'));
         $path = AssetManager::root($relpath);
@@ -231,9 +234,9 @@ class AssetManager
 
     function scanDir()
     {
-        if (isset($_REQUEST['__wpdm_scandir']) && !wp_verify_nonce($_REQUEST['__wpdm_scandir'], NONCE_KEY)) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
+        if (!isset($_REQUEST['__wpdm_scandir']) || !wp_verify_nonce($_REQUEST['__wpdm_scandir'], NONCE_KEY)) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
         check_ajax_referer(NONCE_KEY, '__wpdm_scandir');
-        if (!is_user_logged_in()) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
+        if (!current_user_can('access_server_browser')) wp_send_json(array('success' => false, 'message' => __("Error! Unauthorized access.", "download-manager")));
         global $current_user;
         $root = AssetManager::root();
         $relpath = Crypt::decrypt(wpdm_query_var('path'));
@@ -289,8 +292,8 @@ class AssetManager
 
     function createZip()
     {
-        if (isset($_REQUEST['__wpdm_createzip']) && !wp_verify_nonce($_REQUEST['__wpdm_createzip'], NONCE_KEY)) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
-        check_ajax_referer(NONCE_KEY, '__wpdm_createzip');
+        if (!isset($_REQUEST['__wpdm_createzip']) || !wp_verify_nonce($_REQUEST['__wpdm_createzip'], WPDMAM_NONCE_KEY)) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
+        check_ajax_referer(WPDMAM_NONCE_KEY, '__wpdm_createzip');
         if (!is_user_logged_in()) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
         if (!current_user_can(WPDM_ADMIN_CAP)) wp_send_json(array('success' => false, 'message' => __("<b>Unauthorized Action!</b><br/>Execution is cancelled by the system.", "download-manager")));
         global $current_user;
@@ -305,8 +308,8 @@ class AssetManager
     }
 
     function unZip(){
-        if (isset($_REQUEST['__wpdm_unzipit']) && !wp_verify_nonce($_REQUEST['__wpdm_unzipit'], NONCE_KEY)) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
-        check_ajax_referer(NONCE_KEY, '__wpdm_unzipit');
+        if (!isset($_REQUEST['__wpdm_unzipit']) || !wp_verify_nonce($_REQUEST['__wpdm_unzipit'], WPDMAM_NONCE_KEY)) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
+        check_ajax_referer(WPDMAM_NONCE_KEY, '__wpdm_unzipit');
         if (!is_user_logged_in()) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
         if (!current_user_can(WPDM_ADMIN_CAP)) wp_send_json(array('success' => false, 'message' => __("<b>Unauthorized Action!</b><br/>Execution is cancelled by the system.", "download-manager")));
         global $current_user;
@@ -322,9 +325,9 @@ class AssetManager
     function deleteItem()
     {
 
-        if (isset($_REQUEST['__wpdm_unlink']) && !wp_verify_nonce($_REQUEST['__wpdm_unlink'], NONCE_KEY)) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
-        check_ajax_referer(NONCE_KEY, '__wpdm_unlink');
-        if (!is_user_logged_in()) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
+        if (!isset($_REQUEST['__wpdm_unlink']) || !wp_verify_nonce($_REQUEST['__wpdm_unlink'], WPDMAM_NONCE_KEY)) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
+        check_ajax_referer(WPDMAM_NONCE_KEY, '__wpdm_unlink');
+        if (!current_user_can('upload_files') || !current_user_can('access_server_browser')) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
 
         $relpath = Crypt::decrypt(wpdm_query_var('delete'));
         $path = AssetManager::root($relpath);
@@ -341,9 +344,9 @@ class AssetManager
 
     function openFile()
     {
-        if (isset($_REQUEST['__wpdm_openfile']) && !wp_verify_nonce($_REQUEST['__wpdm_openfile'], NONCE_KEY)) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
-        check_ajax_referer(NONCE_KEY, '__wpdm_openfile');
-        if (!is_user_logged_in()) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
+        if (!isset($_REQUEST['__wpdm_openfile']) || !wp_verify_nonce($_REQUEST['__wpdm_openfile'], WPDMAM_NONCE_KEY)) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
+        check_ajax_referer(WPDMAM_NONCE_KEY, '__wpdm_openfile');
+        if (!current_user_can('access_server_browser')) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
         $relpath = Crypt::decrypt(wpdm_query_var('file'));
         $path = AssetManager::root($relpath);
         if (!$path) wp_send_json(array('success' => false, 'message' => __("Error! Unauthorized Path.", "download-manager")));
@@ -387,9 +390,9 @@ class AssetManager
     function fileSettings()
     {
 
-        if (isset($_REQUEST['__wpdm_filesettings']) && !wp_verify_nonce($_REQUEST['__wpdm_filesettings'], NONCE_KEY)) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
-        check_ajax_referer(NONCE_KEY, '__wpdm_filesettings');
-        if (!is_user_logged_in()) wp_send_json(array('success' => false, 'message' => __("Error! Unauthorized Access.", "download-manager")));
+        if (!isset($_REQUEST['__wpdm_filesettings']) || !wp_verify_nonce($_REQUEST['__wpdm_filesettings'], WPDMAM_NONCE_KEY)) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
+        check_ajax_referer(WPDMAM_NONCE_KEY, '__wpdm_filesettings');
+        if (!current_user_can('access_server_browser')) wp_send_json(array('success' => false, 'message' => __("Error! Unauthorized Access.", "download-manager")));
         $relpath = Crypt::decrypt(wpdm_query_var('file'));
         $path = AssetManager::root($relpath);
         if (!$path) wp_send_json(array('success' => false, 'message' => __("Error! Unauthorized Path.", "download-manager")));
@@ -406,8 +409,8 @@ class AssetManager
 
     function addComment()
     {
-        if (isset($_REQUEST['__wpdm_addcomment']) && !wp_verify_nonce($_REQUEST['__wpdm_addcomment'], NONCE_KEY)) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
-        check_ajax_referer(NONCE_KEY, '__wpdm_addcomment');
+        if (!isset($_REQUEST['__wpdm_addcomment']) || !wp_verify_nonce($_REQUEST['__wpdm_addcomment'], WPDMAM_NONCE_KEY)) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
+        check_ajax_referer(WPDMAM_NONCE_KEY, '__wpdm_addcomment');
         if (!is_user_logged_in()) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
 
         $asset_id = wpdm_query_var('assetid', 'int');
@@ -418,9 +421,9 @@ class AssetManager
 
     function addShareLink()
     {
-        if (isset($_REQUEST['__wpdm_newsharelink']) && !wp_verify_nonce($_REQUEST['__wpdm_newsharelink'], NONCE_KEY)) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
-        check_ajax_referer(NONCE_KEY, '__wpdm_newsharelink');
-        if (!is_user_logged_in()) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
+        if (!isset($_REQUEST['__wpdm_newsharelink']) || !wp_verify_nonce($_REQUEST['__wpdm_newsharelink'], WPDMAM_NONCE_KEY)) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
+        check_ajax_referer(WPDMAM_NONCE_KEY, '__wpdm_newsharelink');
+        if (!current_user_can('access_server_browser')) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
 
         $asset_ID = wpdm_query_var('asset', 'int');
         $asset = new \WPDM\Asset();
@@ -430,9 +433,9 @@ class AssetManager
 
     function getLinkDet()
     {
-        if (isset($_REQUEST['__wpdm_getlinkdet']) && !wp_verify_nonce($_REQUEST['__wpdm_getlinkdet'], NONCE_KEY)) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
-        check_ajax_referer(NONCE_KEY, '__wpdm_getlinkdet');
-        if (!is_user_logged_in()) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
+        if (!isset($_REQUEST['__wpdm_getlinkdet']) || !wp_verify_nonce($_REQUEST['__wpdm_getlinkdet'], WPDMAM_NONCE_KEY)) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
+        check_ajax_referer(WPDMAM_NONCE_KEY, '__wpdm_getlinkdet');
+        if (!current_user_can('access_server_browser')) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
 
         $link_ID = wpdm_query_var('linkid', 'int');
         $link = \WPDM\Asset::getLink($link_ID);
@@ -441,8 +444,8 @@ class AssetManager
 
     function updateLink()
     {
-        if (isset($_REQUEST['__wpdm_updatelink']) && !wp_verify_nonce($_REQUEST['__wpdm_updatelink'], NONCE_KEY)) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
-        check_ajax_referer(NONCE_KEY, '__wpdm_updatelink');
+        if (!isset($_REQUEST['__wpdm_updatelink']) || !wp_verify_nonce($_REQUEST['__wpdm_updatelink'], WPDMAM_NONCE_KEY)) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
+        check_ajax_referer(WPDMAM_NONCE_KEY, '__wpdm_updatelink');
         if (!is_user_logged_in()) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
 
         $link_ID = wpdm_query_var('ID', 'int');
@@ -455,8 +458,8 @@ class AssetManager
 
     function deleteLink()
     {
-        if (isset($_REQUEST['__wpdm_deletelink']) && !wp_verify_nonce($_REQUEST['__wpdm_deletelink'], NONCE_KEY)) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
-        check_ajax_referer(NONCE_KEY, '__wpdm_deletelink');
+        if (!isset($_REQUEST['__wpdm_deletelink']) || !wp_verify_nonce($_REQUEST['__wpdm_deletelink'], WPDMAM_NONCE_KEY)) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
+        check_ajax_referer(WPDMAM_NONCE_KEY, '__wpdm_deletelink');
         if (!is_user_logged_in()) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
 
         $link_ID = wpdm_query_var('linkid', 'int');
@@ -467,8 +470,8 @@ class AssetManager
 
     function saveFile()
     {
-        if (isset($_REQUEST['__wpdm_savefile']) && !wp_verify_nonce($_REQUEST['__wpdm_savefile'], NONCE_KEY)) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
-        check_ajax_referer(NONCE_KEY, '__wpdm_savefile');
+        if (isset($_REQUEST['__wpdm_savefile']) && !wp_verify_nonce($_REQUEST['__wpdm_savefile'], WPDMAM_NONCE_KEY)) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
+        check_ajax_referer(WPDMAM_NONCE_KEY, '__wpdm_savefile');
         if (!is_user_logged_in()) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
 
         $ofilepath = \WPDM\Session::get(wpdm_query_var('opened'));
@@ -490,8 +493,8 @@ class AssetManager
 
     function renameItem()
     {
-        if (isset($_REQUEST['__wpdm_rename']) && !wp_verify_nonce($_REQUEST['__wpdm_rename'], NONCE_KEY)) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
-        check_ajax_referer(NONCE_KEY, '__wpdm_rename');
+        if (isset($_REQUEST['__wpdm_rename']) && !wp_verify_nonce($_REQUEST['__wpdm_rename'], WPDMAM_NONCE_KEY)) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
+        check_ajax_referer(WPDMAM_NONCE_KEY, '__wpdm_rename');
         if (!is_user_logged_in()) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
         global $current_user;
         $asset = new Asset();
@@ -510,8 +513,8 @@ class AssetManager
 
     function moveItem()
     {
-        if (isset($_REQUEST['__wpdm_cutpaste']) && !wp_verify_nonce($_REQUEST['__wpdm_cutpaste'], NONCE_KEY)) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
-        check_ajax_referer(NONCE_KEY, '__wpdm_cutpaste');
+        if (isset($_REQUEST['__wpdm_cutpaste']) && !wp_verify_nonce($_REQUEST['__wpdm_cutpaste'], WPDMAM_NONCE_KEY)) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
+        check_ajax_referer(WPDMAM_NONCE_KEY, '__wpdm_cutpaste');
         if (!is_user_logged_in()) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
 
         $opath = explode("|||", wpdm_query_var('source'));
@@ -538,8 +541,8 @@ class AssetManager
 
     function copyItem()
     {
-        if (isset($_REQUEST['__wpdm_copypaste']) && !wp_verify_nonce($_REQUEST['__wpdm_copypaste'], NONCE_KEY)) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
-        check_ajax_referer(NONCE_KEY, '__wpdm_copypaste');
+        if (isset($_REQUEST['__wpdm_copypaste']) && !wp_verify_nonce($_REQUEST['__wpdm_copypaste'], WPDMAM_NONCE_KEY)) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
+        check_ajax_referer(WPDMAM_NONCE_KEY, '__wpdm_copypaste');
         if (!is_user_logged_in()) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
         global $current_user;
         $root = AssetManager::root();
@@ -615,7 +618,7 @@ class AssetManager
 
     function upload($file)
     {
-        if (isset($_REQUEST['__wpdmfm_upload']) && wp_verify_nonce($_REQUEST['__wpdmfm_upload'], NONCE_KEY)) {
+        if (isset($_REQUEST['__wpdmfm_upload']) && wp_verify_nonce($_REQUEST['__wpdmfm_upload'], WPDMAM_NONCE_KEY)) {
             $working_dir = Session::get('working_dir');
             $root = AssetManager::root();
             if (!strstr($working_dir, $root)) wp_send_json(array('success' => false));

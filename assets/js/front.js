@@ -386,7 +386,10 @@ jQuery(function ($) {
 
     $body.on('click', '.wpdm-download-link.download-on-click', function (e) {
         e.preventDefault();
-        window.location.href = $(this).data('downloadurl');
+        if(this.target === '_blank')
+            window.open($(this).data('downloadurl'));
+        else
+            window.location.href = $(this).data('downloadurl');
     });
 
     $body.on('click', '.__wpdm_playvideo', function (e) {

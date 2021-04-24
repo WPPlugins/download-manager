@@ -551,28 +551,30 @@ function wpdm_valueof($var, $index, $params = [])
 
 
 /**
- * @usage Validate and sanitize input data
+ * Validate and sanitize input data
  * @param $var
- * @param array $params
- * @return int|null|string
+ * @param array $validate
+ * @param null $default
+ * @return array|float|int|mixed|string|string[]|null
  */
-function wpdm_query_var($var, $params = array())
+function wpdm_query_var($var, $validate = array(), $default = null)
 {
     $_var = explode("/", $var);
+
     if (count($_var) > 1) {
         $val = $_REQUEST;
         foreach ($_var as $key) {
             $val = is_array($val) && isset($val[$key]) ? $val[$key] : false;
         }
     } else
-        $val = isset($_REQUEST[$var]) ? $_REQUEST[$var] : null;
-    $validate = is_string($params) ? $params : '';
-    $validate = is_array($params) && isset($params['validate']) ? $params['validate'] : $validate;
+        $val = isset($_REQUEST[$var]) ? $_REQUEST[$var] : (isset($validate['default']) ? $validate['default'] : $default);
+    $_validate = is_string($validate) ? $validate : '';
+    $_validate = is_array($validate) && isset($validate['validate']) ? $validate['validate'] : $_validate;
 
     if (!is_array($val))
-        $val = wpdm_sanitize_var($val, $validate);
+        $val = wpdm_sanitize_var($val, $_validate);
     else
-        $val = wpdm_sanitize_array($val, $validate);
+        $val = wpdm_sanitize_array($val, $_validate);
 
     return $val;
 }
