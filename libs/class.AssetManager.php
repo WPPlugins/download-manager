@@ -294,7 +294,6 @@ class AssetManager
     {
         if (!isset($_REQUEST['__wpdm_createzip']) || !wp_verify_nonce($_REQUEST['__wpdm_createzip'], WPDMAM_NONCE_KEY)) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
         check_ajax_referer(WPDMAM_NONCE_KEY, '__wpdm_createzip');
-        if (!is_user_logged_in()) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
         if (!current_user_can(WPDM_ADMIN_CAP)) wp_send_json(array('success' => false, 'message' => __("<b>Unauthorized Action!</b><br/>Execution is cancelled by the system.", "download-manager")));
         global $current_user;
         $root = AssetManager::root();
@@ -310,7 +309,6 @@ class AssetManager
     function unZip(){
         if (!isset($_REQUEST['__wpdm_unzipit']) || !wp_verify_nonce($_REQUEST['__wpdm_unzipit'], WPDMAM_NONCE_KEY)) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
         check_ajax_referer(WPDMAM_NONCE_KEY, '__wpdm_unzipit');
-        if (!is_user_logged_in()) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
         if (!current_user_can(WPDM_ADMIN_CAP)) wp_send_json(array('success' => false, 'message' => __("<b>Unauthorized Action!</b><br/>Execution is cancelled by the system.", "download-manager")));
         global $current_user;
         $root = AssetManager::root();
@@ -446,7 +444,7 @@ class AssetManager
     {
         if (!isset($_REQUEST['__wpdm_updatelink']) || !wp_verify_nonce($_REQUEST['__wpdm_updatelink'], WPDMAM_NONCE_KEY)) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
         check_ajax_referer(WPDMAM_NONCE_KEY, '__wpdm_updatelink');
-        if (!is_user_logged_in()) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
+        if (!current_user_can('access_server_browser')) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
 
         $link_ID = wpdm_query_var('ID', 'int');
         $access = wpdm_query_var('access');
@@ -460,7 +458,7 @@ class AssetManager
     {
         if (!isset($_REQUEST['__wpdm_deletelink']) || !wp_verify_nonce($_REQUEST['__wpdm_deletelink'], WPDMAM_NONCE_KEY)) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
         check_ajax_referer(WPDMAM_NONCE_KEY, '__wpdm_deletelink');
-        if (!is_user_logged_in()) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
+        if (!current_user_can('access_server_browser')) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
 
         $link_ID = wpdm_query_var('linkid', 'int');
         $link = \WPDM\Asset::deleteLink($link_ID);
@@ -472,7 +470,7 @@ class AssetManager
     {
         if (isset($_REQUEST['__wpdm_savefile']) && !wp_verify_nonce($_REQUEST['__wpdm_savefile'], WPDMAM_NONCE_KEY)) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
         check_ajax_referer(WPDMAM_NONCE_KEY, '__wpdm_savefile');
-        if (!is_user_logged_in()) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
+        if (!current_user_can('access_server_browser')) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
 
         $ofilepath = \WPDM\Session::get(wpdm_query_var('opened'));
         $relpath = Crypt::decrypt(wpdm_query_var('file'));
@@ -495,7 +493,7 @@ class AssetManager
     {
         if (isset($_REQUEST['__wpdm_rename']) && !wp_verify_nonce($_REQUEST['__wpdm_rename'], WPDMAM_NONCE_KEY)) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
         check_ajax_referer(WPDMAM_NONCE_KEY, '__wpdm_rename');
-        if (!is_user_logged_in()) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
+        if (!current_user_can(WPDM_ADMIN_CAP)) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
         global $current_user;
         $asset = new Asset();
         $asset->get(wpdm_query_var('assetid', 'int'));
@@ -515,7 +513,7 @@ class AssetManager
     {
         if (isset($_REQUEST['__wpdm_cutpaste']) && !wp_verify_nonce($_REQUEST['__wpdm_cutpaste'], WPDMAM_NONCE_KEY)) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
         check_ajax_referer(WPDMAM_NONCE_KEY, '__wpdm_cutpaste');
-        if (!is_user_logged_in()) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
+        if (!current_user_can('access_server_browser')) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
 
         $opath = explode("|||", wpdm_query_var('source'));
         $olddir = Crypt::decrypt($opath[0]);
@@ -543,7 +541,7 @@ class AssetManager
     {
         if (isset($_REQUEST['__wpdm_copypaste']) && !wp_verify_nonce($_REQUEST['__wpdm_copypaste'], WPDMAM_NONCE_KEY)) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
         check_ajax_referer(WPDMAM_NONCE_KEY, '__wpdm_copypaste');
-        if (!is_user_logged_in()) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
+        if (!current_user_can('access_server_browser')) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
         global $current_user;
         $root = AssetManager::root();
         $opath = explode("|||", wpdm_query_var('source'));

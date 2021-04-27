@@ -181,6 +181,9 @@ Check download stats and get a push notification when someone downloads, install
 
 == Changelog ==
 
+= 3.1.23 - 2021.04.27 =
+* Improved asset manager
+
 = 3.1.22 - 2021.04.22 =
 * Fixed settings save issue with plugin update settings
 

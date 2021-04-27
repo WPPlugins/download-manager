@@ -392,32 +392,22 @@ function wpdm_package_link_legacy($params)
  */
 function wpdm_downloadable($content)
 {
-    if (defined('WPDM_THEME_SUPPORT') && WPDM_THEME_SUPPORT == true) return $content;
-    if (get_post_type(get_the_ID()) != 'wpdmpro') return $content;
+    global $post;
+    //echo "<pre>".print_r($post, 1)."</pre>";
 
-    global $wpdb, $current_user, $post, $wp_query, $wpdm_package;
-    if (isset($wp_query->query_vars[get_option('__wpdm_curl_base', 'downloads')]) && $wp_query->query_vars[get_option('__wpdm_curl_base', 'downloads')] != '')
-        return wpdm_embed_category(array("id" => $wp_query->query_vars[get_option('__wpdm_curl_base', 'downloads')]));
-    $postlink = site_url('/');
-    //get_currentuserinfo();
-    $permission_msg = WPDM_Messages::permission_denied();
-    $login_msg = WPDM_Messages::login_required();
-    $login_msg = wpdm_escs(htmlspecialchars_decode($login_msg));
-    $user = new WP_User(null);
-    if (isset($_GET[get_option('__wpdm_purl_base', 'download')]) && $_GET[get_option('__wpdm_purl_base', 'download')] != '' && $wp_query->query_vars[get_option('__wpdm_purl_base', 'download')] == '')
-        $wp_query->query_vars[get_option('__wpdm_purl_base', 'download')] = esc_attr($_GET[get_option('__wpdm_purl_base', 'download')]);
-    $wp_query->query_vars[get_option('__wpdm_purl_base', 'download')] = isset($wp_query->query_vars[get_option('__wpdm_purl_base', 'download')]) ? urldecode($wp_query->query_vars[get_option('__wpdm_purl_base', 'download')]) : '';
-
-    if (is_singular('wpdmpro')) {
-        if (get_option('_wpdm_custom_template') == 1 || current_theme_supports('wpdm')) return $content;
-
-        $template = get_post_meta(get_the_ID(), '__wpdm_page_template', true);
-        $data = FetchTemplate($template, get_the_ID(), 'page');
-        $siteurl = site_url('/');
-        return "<div class='w3eden'>{$data}</div>";
+    if ( ( defined('WPDM_THEME_SUPPORT') && WPDM_THEME_SUPPORT == true )
+        || current_theme_supports('wpdm')
+        || get_post_type(get_the_ID()) != 'wpdmpro'
+        || ! is_singular('wpdmpro')
+        || ! is_main_query()
+        || ! in_the_loop()) {
+        return $content;
     }
 
-    return $content;
+
+    $template = get_post_meta(get_the_ID(), '__wpdm_page_template', true);
+    $data = FetchTemplate($template, get_the_ID(), 'page');
+    return "<div class='w3eden'>{$data}</div>";
 
 
 }

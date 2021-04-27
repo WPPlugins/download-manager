@@ -111,7 +111,7 @@ if (!class_exists('\WPDM\Installer')):
               PRIMARY KEY (`ID`)
             )";
 
-            $sqls[] = "CREATE TABLE `{$wpdb->prefix}ahm_user_download_counts` (
+            $sqls[] = "CREATE TABLE IF EXISTS `{$wpdb->prefix}ahm_user_download_counts` (
               `ID` int(11) NOT NULL AUTO_INCREMENT,
               `user` varchar(255) NOT NULL,
               `package_id` int(11) NOT NULL,
