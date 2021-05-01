@@ -12,20 +12,17 @@ if (!class_exists('\WPDM\Installer')):
     class Installer
     {
 
-        private $dbVersion = 311.6;
-
         function __construct()
         {
 
         }
 
         public static function dbVersion(){
-            $inst = new Installer();
-            return $inst->dbVersion;
+            return WPDM_Version;
         }
 
         public static function dbUpdateRequired(){
-            return (Installer::dbVersion() !== (double)get_option('__wpdm_db_version'));
+            return (WPDM_Version !== (double)get_option('__wpdm_db_version'));
         }
 
         public static function init(){
@@ -111,7 +108,7 @@ if (!class_exists('\WPDM\Installer')):
               PRIMARY KEY (`ID`)
             )";
 
-            $sqls[] = "CREATE TABLE IF EXISTS `{$wpdb->prefix}ahm_user_download_counts` (
+            $sqls[] = "CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}ahm_user_download_counts` (
               `ID` int(11) NOT NULL AUTO_INCREMENT,
               `user` varchar(255) NOT NULL,
               `package_id` int(11) NOT NULL,
@@ -135,7 +132,7 @@ if (!class_exists('\WPDM\Installer')):
             $ach = maybe_unserialize($ach);
             $ach[] = time();
             update_option("__wpdm_activation_history", $ach);
-            update_option('__wpdm_db_version', $installer->dbVersion);
+            update_option('__wpdm_db_version', WPDM_Version);
 
         }
 

@@ -181,6 +181,10 @@ Check download stats and get a push notification when someone downloads, install
 
 == Changelog ==
 
+= 3.1.24 - 2021.05.01 =
+* Fixed an issue with user downoad count table creation
+* Fixed and issue with stats filtering options
+
 = 3.1.23 - 2021.04.27 =
 * Improved asset manager
 
