@@ -891,12 +891,7 @@ TBR;
  */
 function wpdm_basename($file)
 {
-    if (strpos("~" . $file, "\\"))
-        $basename = explode("\\", $file);
-    else
-        $basename = explode("/", $file);
-    $basename = end($basename);
-    return $basename;
+    return wp_basename($file);
 }
 
 

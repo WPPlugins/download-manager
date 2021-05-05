@@ -181,6 +181,9 @@ Check download stats and get a push notification when someone downloads, install
 
 == Changelog ==
 
+= 3.1.25 - 2021.05.05 =
+* Fixed an security issue with link/page template file path, thanks for Wordfence for pointing the issue.
+
 = 3.1.24 - 2021.05.01 =
 * Fixed an issue with user downoad count table creation
 * Fixed and issue with stats filtering options

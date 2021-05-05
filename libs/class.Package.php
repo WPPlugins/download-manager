@@ -1071,7 +1071,7 @@ class Package {
         if(isset($templates[$template]) && isset($templates[$template]['content'])) $template = $templates[$template]['content'];
         else
             if(!strpos(strip_tags($template), "]")){
-                $template = wpdm_basename($template);
+                $template = wp_basename($template);
                 $ltpldir = get_stylesheet_directory().'/download-manager/'.$type.'-templates/';
                 $pthemeltpldir = get_template_directory().'/download-manager/'.$type.'-templates/';
 
