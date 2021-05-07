@@ -181,6 +181,9 @@ Check download stats and get a push notification when someone downloads, install
 
 == Changelog ==
 
+= 3.1.27 - 2021.05.07 =
+* Fixed an issue with file type validation in file download function
+
 = 3.1.26 - 2021.05.07 =
 * Improved file type validation function
 
