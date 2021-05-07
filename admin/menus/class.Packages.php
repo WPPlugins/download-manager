@@ -89,9 +89,12 @@ class Packages
         array_shift($_exts);
         $_found = array_intersect($_exts, wpdm_get_allowed_file_types());
 
-        if($_exts !== $_found) die('-3');
+        //if($_exts !== $_found) die('-3');
 
         //if(!in_array($ext, wpdm_get_allowed_file_types())) die('-3');
+
+        //Validate file type
+        if(WPDM()->fileSystem->isBlocked($name, $_FILES['package_file']['tmp_name'])) die('-3');
 
         if(file_exists(UPLOAD_DIR.$name) && get_option('__wpdm_overwrrite_file',0) == 1){
             @unlink(UPLOAD_DIR.$name);

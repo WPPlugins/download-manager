@@ -329,7 +329,11 @@ function wpdm_get_allowed_file_types()
         $wp_allowed_file_exts = str_replace("|", ",", $wp_allowed_file_exts);
         $allowed_file_types = $wp_allowed_file_exts;
     }
-    return explode(",", $allowed_file_types);
+    $types = explode(",", $allowed_file_types);
+    foreach ($types as &$type){
+        $type = trim($type);
+    }
+    return $types;
 }
 
 

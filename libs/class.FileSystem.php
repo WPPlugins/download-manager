@@ -55,7 +55,7 @@ class FileSystem
             die();
         }
 
-        if (WPDM()->fileSystem->isBlocked($filepath)) \WPDM_Messages::error("Invalid File Type ({$filename})!", 1);
+        if (WPDM()->fileSystem->isBlocked($filename, $filepath)) \WPDM_Messages::error("Invalid File Type ({$filename})!", 1);
 
         $content_type = function_exists('mime_content_type') ? mime_content_type($filepath) : self::mime_type($filepath);
 
@@ -710,10 +710,18 @@ class FileSystem
      * @param $filename
      * @return bool
      */
-    function isBlocked($filename)
+    function isBlocked($filename, $abspath = '')
     {
         $types = wpdm_get_allowed_file_types();
-        $ext = self::fileExt($filename);
+
+        if(in_array('*', $types)) return false;
+
+        if($abspath && file_exists($abspath)) {
+            $fileinfo = wp_check_filetype_and_ext($abspath, $filename);
+            $ext = wpdm_valueof($fileinfo,'ext');
+        } else {
+            $ext = self::fileExt($filename);
+        }
         return !in_array($ext, $types);
     }
 

@@ -181,6 +181,9 @@ Check download stats and get a push notification when someone downloads, install
 
 == Changelog ==
 
+= 3.1.26 - 2021.05.07 =
+* Improved file type validation function
+
 = 3.1.25 - 2021.05.05 =
 * Fixed an security issue with link/page template file path, thanks for Wordfence for pointing the issue.
 
