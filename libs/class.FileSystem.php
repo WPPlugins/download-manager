@@ -708,6 +708,7 @@ class FileSystem
     /**
      * Check for blocked file types
      * @param $filename
+     * @param string $abspath
      * @return bool
      */
     function isBlocked($filename, $abspath = '')

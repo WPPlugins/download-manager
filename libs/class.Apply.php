@@ -789,7 +789,8 @@ class Apply {
      * @usage Add generator tag
      */
     function addGenerator(){
-        echo '<meta name="generator" content="WordPress Download Manager '.WPDM_Version.'" />'."\r\n";
+        if(apply_filters("wpdm_generator_meta", true))
+            echo '<meta name="generator" content="WordPress Download Manager '.WPDM_Version.'" />'."\r\n";
     }
 
     function oEmbed($content){
@@ -974,3 +975,4 @@ class Apply {
 
 
 }
+

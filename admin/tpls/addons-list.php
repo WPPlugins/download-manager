@@ -220,7 +220,7 @@
 <div class="wrap w3eden">
 
     <?php if(is_array($cats)){ ?>
-    <div class="container-fluid">
+    <div class="container">
         <div class="row" id="addonlist" style="margin-top: -15px">
             <div class="col-md-12"><div class="panel panel-default" style="margin-top: 30px">
                     <div class="panel-heading"><h3 style="font-size: 13pt;font-weight: 600;letter-spacing: 1px;line-height: 30px"><i class="fa fa-plug color-purple"></i> &nbsp;<?php _e('WPDM Add-Ons','download-manager'); ?></h3></div>
@@ -251,9 +251,6 @@
                         <div class="addonlist panel panel-default">
                             <div class="panel-body" style="height: 90px">
                                 <div class="media">
-                                    <div class="pull-left">
-                                        <img style="width: 64px" src="<?php echo $package->thumbnail; ?>" alt="Thumb"/>
-                                    </div>
                                     <div class="media-body">
                                         <b><a target="_blank" title="<?php echo $package->post_title; ?>" class="ttip"
                                               href="<?php echo $package->link; ?>"><?php echo $package->post_title; ?></a></b><br/>

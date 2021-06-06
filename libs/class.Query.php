@@ -292,7 +292,8 @@ class Query
      */
     function process()
     {
-        if(count($this->params['tax_query']) <= 1 && isset($this->params['tax_query']['relation'])) unset($this->params['tax_query']['relation']);
+        if(count($this->params['tax_query']) <= 2 && !isset($this->params['tax_query']['relation'])) $this->params['tax_query']['relation'] = 'OR';
+        //echo "<pre>".print_r($this->params, 1)."</pre>";
         $this->params = apply_filters('wpdm_packages_query_params', $this->params);
         $this->params['post_type'] = $this->post_type;
         //wpdmdd($this->params);

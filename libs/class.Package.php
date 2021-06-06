@@ -44,7 +44,9 @@ class Package {
 
         $post_vars['title'] = stripcslashes($post_vars['post_title']);
         $post_vars['description'] = stripcslashes($post_vars['post_content']);
+        $post_vars['description'] = str_replace("[wpdm", "[__wpdm", $post_vars['description']);
         $post_vars['description'] = wpautop(stripslashes($post_vars['description']));
+        $post_vars['description'] = do_shortcode($post_vars['description']);
         $post_vars['excerpt'] = stripcslashes(strip_tags($post_vars['post_excerpt']));
         $author = get_user_by('id', $post_vars['post_author']);
         if(is_object($author)) $post_vars['author_name'] = $author->display_name;

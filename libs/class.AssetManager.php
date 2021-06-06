@@ -243,6 +243,7 @@ class AssetManager
         $path = AssetManager::root($relpath);
         if (!$path) wp_send_json(array('success' => false, 'message' => __("Error! Unauthorized Path.", "download-manager")));
         $items = scandir($path, SCANDIR_SORT_ASCENDING);
+        if(!is_array($items)) $items = [];
         $items = array_diff($items, array('.', '..'));
         $_items = array();
         $_dirs = array();
@@ -616,7 +617,7 @@ class AssetManager
 
     function upload($file)
     {
-        if (isset($_REQUEST['__wpdmfm_upload']) && wp_verify_nonce($_REQUEST['__wpdmfm_upload'], WPDMAM_NONCE_KEY)) {
+        if (isset($_REQUEST['__wpdmfm_upload']) && wp_verify_nonce($_REQUEST['__wpdmfm_upload'], NONCE_KEY)) {
             $working_dir = Session::get('working_dir');
             $root = AssetManager::root();
             if (!strstr($working_dir, $root)) wp_send_json(array('success' => false));

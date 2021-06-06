@@ -144,6 +144,36 @@ class Form
         return "<select $_attrs>\r\n{$_options}\r\n</select>";
     }
 
+    function checkbox($attrs){
+        $_attrs = "";
+        if(isset($attrs['class'])) unset($attrs['class']);
+        $options = $attrs['options'];
+        unset($attrs['options']);
+        foreach ($attrs as $key => $value){
+            $_attrs .= "{$key}='{$value}' ";
+        }
+        $_options = "";
+        foreach ($options as $value => $label){
+            $_options .= "<div><label class='d-block option-label'><input type='checkbox' $_attrs value='{$value}'> {$label}</label></div>\r\n";
+        }
+        return $_options;
+    }
+
+    function radio($attrs){
+        $_attrs = "";
+        if(isset($attrs['class'])) unset($attrs['class']);
+        $options = $attrs['options'];
+        unset($attrs['options']);
+        foreach ($attrs as $key => $value){
+            $_attrs .= "{$key}='{$value}' ";
+        }
+        $_options = "";
+        foreach ($options as $value => $label){
+            $_options .= "<div><label class='d-block option-label'><input type='radio' $_attrs value='{$value}'> {$label}</label></div>\r\n";
+        }
+        return $_options;
+    }
+
     function reCaptcha($attrs){
         ob_start();
         ?>

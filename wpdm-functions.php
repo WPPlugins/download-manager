@@ -276,36 +276,6 @@ function wpdm_getlink()
         die();
     }
 
-    if (isset($_POST['force']) && $_POST['force'] != '') {
-        $vr = explode('|', base64_decode($_POST['force']));
-        if ($vr[0] == 'unlocked') {
-            $social = array('f' => 'wpdm_fb_likes', 'g' => 'wpdm_gplus1s', 't' => 'wpdm_tweets', 'l' => 'wpdm_lishare');
-            if ($_POST['social'] && isset($social[$_POST['social']]))
-                update_option($social[$_POST['social']], (int)get_option($social[$_POST['social']]) + 1);
-
-            $data['downloadurl'] = \WPDM\Package::expirableDownloadLink($file['ID'], 3, 10800);
-            $adata = apply_filters("wpdmgetlink", $data, $file);
-            $data = is_array($adata) ? $adata : $data;
-
-            if (!wpdm_is_ajax()) {
-
-                @setcookie("wpdm_getlink_data_" . $key, json_encode($data));
-
-                if (isset($data['downloadurl']) && $data['downloadurl'] != '') {
-                    header("location: " . $data['downloadurl']);
-                    die();
-                }
-
-                header("location: " . $_SERVER['HTTP_REFERER'] . "#nojs_popup|ckid:" . $key);
-                die();
-            }
-
-            header("Content-type: application/json");
-            die(json_encode($data));
-        }
-
-    }
-
     $decoded_pass = htmlspecialchars_decode($file['password']);
     if ($plock === 1 && $password !== $file['password'] && $password !== $decoded_pass && !strpos("__" . $file['password'], "[$password]") && !strpos("__" . $decoded_pass, "[$password]")) {
         $data['error'] = '<span style="font-size: 8pt"><i class="fas fa-sync"></i> ' . __('Wrong Password! Try Again.', 'download-manager') . "</span>";
@@ -746,6 +716,7 @@ function wpdm_embed_category($params = array('id' => '', 'operator' => 'IN', 'it
     $params['orderby'] = $order_field;
     $params['order'] = $order;
     $params = apply_filters("wpdm_embed_category_query_params", $params);
+
     $packs = new WP_Query($params);
 
     $total = $packs->found_posts;

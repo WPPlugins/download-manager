@@ -19,7 +19,13 @@ class Session
     function __construct()
     {
 
-        $deviceID = md5(wpdm_get_client_ip().$_SERVER['HTTP_USER_AGENT']);
+        if(isset($_COOKIE['__wpdm_client']))
+            $deviceID = $_COOKIE['__wpdm_client'];
+        else {
+            $agent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
+            $deviceID = md5(wpdm_get_client_ip() . $agent);
+            setcookie('__wpdm_client', $deviceID);
+        }
 
         if(file_exists(WPDM_CACHE_DIR."session-{$deviceID}.txt")) {
             $data = file_get_contents(WPDM_CACHE_DIR . "session-{$deviceID}.txt");
@@ -83,6 +89,4 @@ class Session
     }
 
 }
-
-new Session();
 

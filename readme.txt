@@ -181,6 +181,10 @@ Check download stats and get a push notification when someone downloads, install
 
 == Changelog ==
 
+= 3.1.28 - 2021.06.07 =
+* Fixed file upload issue with the asset manager
+* Fixed an issue with the password lock option
+
 = 3.1.27 - 2021.05.07 =
 * Fixed an issue with file type validation in file download function
 
