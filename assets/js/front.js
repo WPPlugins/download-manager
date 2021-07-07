@@ -1,3 +1,8 @@
+/**
+ * Version: 2.1.0
+ */
+
+//const { __, _x, _n, sprintf } = wp.i18n;
 var allps;
 
 String.prototype.wpdm_shuffle = function () {
@@ -12,7 +17,19 @@ String.prototype.wpdm_shuffle = function () {
     }
     return a.join("");
 }
-
+String.prototype.wpdm_hash = function(){
+    if (Array.prototype.reduce){
+        return this.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);
+    }
+    var hash = 0;
+    if (this.length === 0) return hash;
+    for (var i = 0; i < this.length; i++) {
+        var character  = this.charCodeAt(i);
+        hash  = ((hash<<5)-hash)+character;
+        hash = hash & hash; // Convert to 32bit integer
+    }
+    return hash;
+}
 
 var WPDM = {
 
@@ -26,6 +43,10 @@ var WPDM = {
         else
             var snd = new  Audio(WPDM.audio);
         snd.play();
+    },
+
+    hash: function (str) {
+        return str.wpdm_hash();
     },
 
     uniqueID: function(){
@@ -79,7 +100,6 @@ var WPDM = {
         return jQuery("#"+modal_id);
     },
 
-
     /**
      * Local push notification
      * @param title
@@ -89,7 +109,11 @@ var WPDM = {
      * @param url
      */
     pushNotify: function(title, message, icon, image, url){
+        var type = 'info';
+        if(title.includes('rror') || message.includes('rror')) type = 'error';
+
         if (!('Notification' in window) || !('ServiceWorkerRegistration' in window)) {
+            WPDM.notify("<strong>"+title+"</strong><br/>"+message, type, 'top-right');
             return;
         }
 
@@ -105,9 +129,11 @@ var WPDM = {
                         };
                     }
                 } catch (err) {
+                    WPDM.notify("<strong>"+title+"</strong><br/>"+message, type, 'top-right');
                     console.log('Notification API error: ' + err);
                 }
             } else {
+                WPDM.notify("<strong>"+title+"</strong><br/>"+message, type, 'top-right');
                 console.log('Notification: ' + result);
             }
         });
@@ -354,9 +380,10 @@ jQuery(function ($) {
     var $body = $('body');
 
     $body.on('click', '.wpdm-notify', function () {
-        /* $(this).addClass('wpdm-hide-right'); */
-        $(this).animate({marginRight: '-500px'}, 1000, function () {
-            $(this).remove();
+        $(this).animate({
+            opacity: 0
+        }, 1000, function() {
+            $(this).slideUp();
         });
     });
 
@@ -370,10 +397,8 @@ jQuery(function ($) {
 
         var parentWindow = document.createElement("a");
         parentWindow.href = document.referrer.toString();
-
         var __sep = '?';
         if(wpdm_home_url.indexOf('?') > 0) __sep = '&';
-
         if(parentWindow.hostname === window.location.hostname || 1)
             $(window.parent.document.body).append("<iframe id='wpdm-lock-frame' style='left:0;top:0;width: 100%;height: 100%;z-index: 999999999;position: fixed;background: rgba(255,255,255,0.4) url("+wpdm_home_url+"wp-content/plugins/download-manager/assets/images/loader.svg) center center no-repeat;background-size: 80px 80px;border: 0;' src='"+wpdm_home_url+__sep+"__wpdmlo="+$(this).data('package')+"'></iframe>");
         else
@@ -384,7 +409,7 @@ jQuery(function ($) {
 
     });
 
-    $body.on('click', '.wpdm-download-link.download-on-click', function (e) {
+    $body.on('click', '.wpdm-download-link.download-on-click[data-downloadurl]', function (e) {
         e.preventDefault();
         if(this.target === '_blank')
             window.open($(this).data('downloadurl'));
@@ -413,17 +438,17 @@ jQuery(function ($) {
 
     $body.on('click', '.wpdm-social-lock', function (e) {
 
-        try {
+            try {
 
 
-            _PopupCenter($(this).data('url'), 'Social Lock', 600, 400);
+                _PopupCenter($(this).data('url'), 'Social Lock', 600, 400);
 
-        }catch(e){}
+            }catch(e){}
 
     });
 
     $body.on('click', '#wpdm-dashboard-sidebar a.list-group-item', function (e) {
-        location.href = this.href;
+           location.href = this.href;
     });
 
     var $input_group_input = $('.input-group input');
@@ -454,14 +479,14 @@ jQuery(function ($) {
                 $(tis).data('dlurl', dlurl);
                 wpdm_boot_popup("Password Verified!", "<div style='padding: 50px;'>Please click following button to start download.<br/><br/><a href='"+dlurl+"' class='btn btn-lg btn-success' target='_blank'>Start Download</a></div>",
                     [{
-                        label: 'Close',
-                        class: 'btn btn-secondary',
-                        callback: function () {
-                            this.modal('hide');
-                            return false;
-                        }
-                    }]
-                );
+                            label: 'Close',
+                            class: 'btn btn-secondary',
+                            callback: function () {
+                                this.modal('hide');
+                                return false;
+                            }
+                        }]
+                    );
             }
         });
     });
@@ -479,7 +504,7 @@ jQuery(function ($) {
                 content: function () {
 
                     if(wpdm_ajax_popup === 1)
-                        return "<div id='popcnt_"+pid+"'><i class='fa fa-refresh fa-spin'></i> Loading...</div>"+'<div style="padding-top: 10px;border-top: 1px solid #eeeeee;text-align: right"><button class="btn btn-danger btn-xs po-close" s><i class="fa fa-times-circle"></i> Close</button></div>';
+                    return "<div id='popcnt_"+pid+"'><i class='fa fa-refresh fa-spin'></i> Loading...</div>"+'<div style="padding-top: 10px;border-top: 1px solid #eeeeee;text-align: right"><button class="btn btn-danger btn-xs po-close" s><i class="fa fa-times-circle"></i> Close</button></div>';
 
                     else
                         return $dc.html()+'<div style="padding-top: 10px;border-top: 1px solid #eeeeee;text-align: right"><button class="btn btn-danger btn-xs po-close" s><i class="fa fa-times-circle"></i> Close</button></div>';
@@ -524,13 +549,13 @@ jQuery(function ($) {
 
 
     $body.on('click', '.btn-wpdm-a2f', function (e) {
-        var a2fbtn = $(this);
-        $.post(ajax_url, {action: 'wpdm_addtofav', pid: $(this).data('package')}, function (res) {
-            if(a2fbtn.hasClass('btn-secondary'))
-                a2fbtn.removeClass('btn-secondary').addClass('btn-danger').html(a2fbtn.data('rlabel'));
-            else
-                a2fbtn.removeClass('btn-danger').addClass('btn-secondary').html(a2fbtn.data('alabel'));
-        });
+            var a2fbtn = $(this);
+            $.post(ajax_url, {action: 'wpdm_addtofav', pid: $(this).data('package')}, function (res) {
+                if(a2fbtn.hasClass('btn-secondary'))
+                    a2fbtn.removeClass('btn-secondary').addClass('btn-danger').html(a2fbtn.data('rlabel'));
+                else
+                    a2fbtn.removeClass('btn-danger').addClass('btn-secondary').html(a2fbtn.data('alabel'));
+            });
     });
 
     $body.on('click', '.wpdm-btn-play', function (e) {
@@ -661,6 +686,14 @@ jQuery(function ($) {
         });
     });
 
+    $body.on("keyup", '.wpdm-pack-search-file', function() {
+        var value = $(this).val().toLowerCase();
+        var filelist_item = $(this).data('filelist')+" tr";
+        $(filelist_item).filter(function() {
+            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+        });
+    });
+
     $('.__wpdm_submit_async').on('submit', function (e) {
         e.preventDefault();
         var _cont = $(this).data('container');
@@ -689,7 +722,7 @@ jQuery(function ($) {
 
     $('.terms_checkbox').on('click', function () {
         if($(this).is(':checked')){
-            unlocked[$(this).data('pid')] = 1;
+          unlocked[$(this).data('pid')] = 1;
             $('#term-panel-' + $(this).data('pid')).fadeOut('fast');
             $('.download_footer_'+$(this).data('pid')).slideDown();
         }

@@ -1,4 +1,4 @@
-﻿=== WordPress Download Manager ===
+=== WordPress Download Manager ===
 Contributors: w3eden, codename065, shahriar0822, shimo16ab, shafayat-alam
 Donate link:
 Tags: download manager, document management, file manager, digital store, ecommerce, document management plugin,  download monitor, download counter, password protection, download protection
@@ -180,6 +180,26 @@ Check download stats and get a push notification when someone downloads, install
 19. More features
 
 == Changelog ==
+
+= 3.2.04 - 2021.07.06 =
+* Fixed thumbnail issue with `link-template-bsthumnail`
+* Added option to hide admin notice for add-on update
+* Fixed an issue with the Top Downloads widget
+
+= 3.2.03 - 2021.07.05 =
+* Fixed the issue with the file duplicate option
+
+= 3.2.02 - 2021.07.05 =
+* Re-added missing link and page templates
+
+= 3.2.01 - 2021.07.05 =
+* Fixed an issue with file listing
+
+= 3.2.00 - 2021.07.04 =
+* Rebuilt codebase from the ground
+* Refreshed UI
+* Improved asset manager
+* Custom taxonomy ( wpdmtag ) as download/file tag
 
 = 3.1.28 - 2021.06.07 =
 * Fixed file upload issue with the asset manager
