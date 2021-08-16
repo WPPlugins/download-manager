@@ -23,7 +23,7 @@ $cpage['paging'] = 1;
 $cols  = 12/$cpage['cols'];
 $colspad  = 12/$cpage['colspad'];
 $colsphone  = 12/$cpage['colsphone'];
-if(wpdm_query_var('skw', 'txt') !== '') $cpage['s'] = wpdm_query_var('skw', 'txt');
+if(isset($_GET['skw'])) $cpage['s'] = esc_attr($_GET['skw']);
 ?>
 <div class="w3eden">
     <div class="container pt-3">

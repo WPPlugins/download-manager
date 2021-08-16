@@ -12,7 +12,7 @@ class Installer
         /**
          * @var float
          */
-        private $dbVersion = 535.6;
+        private $dbVersion = 534.0;
 
         function __construct()
         {
@@ -53,7 +53,7 @@ class Installer
               `month` int(2) NOT NULL,
               `day` int(2) NOT NULL,
               `timestamp` int(11) NOT NULL,
-              `ip` varchar(255) NOT NULL,
+              `ip` varchar(20) NOT NULL,
               `filename` text,
               `agent` text,         
               PRIMARY KEY (`id`)
@@ -103,6 +103,7 @@ class Installer
               PRIMARY KEY (`ID`)
             )";
 
+            $sqls[] = "DROP TABLE IF EXISTS `{$wpdb->prefix}ahm_sessions`";
             $sqls[] = "CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}ahm_sessions` (
               `ID` bigint(20) NOT NULL AUTO_INCREMENT,
               `deviceID` varchar(255) NOT NULL,
@@ -110,9 +111,7 @@ class Installer
               `value` text NOT NULL,
               `lastAccess` int(11) NOT NULL,
               `expire` int(11) NOT NULL,
-              PRIMARY KEY (`ID`),
-              KEY `name_device` (`name`(150),`deviceID`(40)),
-              KEY `expire` (`expire`)
+              PRIMARY KEY (`ID`)
             )";
 
             $sqls[] = "CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}ahm_user_download_counts` (
@@ -120,26 +119,8 @@ class Installer
               `user` varchar(255) NOT NULL,
               `package_id` int(11) NOT NULL,
               `download_count` int(11) NOT NULL,
-              PRIMARY KEY (`ID`),
-              KEY `package_user` (`package_id`,`user`(191))
+              PRIMARY KEY (`ID`)                          
             )";
-
-	        $sqls[] = "CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}ahm_cron_jobs` (
-			  `ID` int(11) NOT NULL AUTO_INCREMENT,		
-    		  `code` varchar(255) NOT NULL,
-			  `type` varchar(250) NOT NULL,
-			  `data` json DEFAULT NULL,
-			  `execute_at` int(11) NOT NULL,
-			  `repeat_execution` int(11) NOT NULL DEFAULT '0',
-    		  `execution_count` int(11) NOT NULL DEFAULT '0',
-			  `interval` int(11) NOT NULL DEFAULT '0',			  
-			  `created_at` int(11) NOT NULL DEFAULT '0',			  
-			  `created_by` int(11) NOT NULL DEFAULT '0',			  
-			  PRIMARY KEY (`ID`),
-    		  UNIQUE KEY `code` (`code`)
-			) ENGINE=InnoDB";
-
-	        //$sqls[] = "ALTER TABLE `{$wpdb->prefix}ahm_cron_jobs` ADD UNIQUE KEY `code` (`code`);";
 
             foreach ($sqls as $qry) {
                 $wpdb->query($qry);
@@ -150,43 +131,14 @@ class Installer
             $installer->addColumn('ahm_download_stats', 'version', 'varchar(255) NOT NULL');
             $installer->addColumn('ahm_download_stats', 'agent', 'TEXT');
             $installer->addColumn('ahm_download_stats', 'filename', 'TEXT');
-            $installer->changeColumn('ahm_download_stats', 'ip', 'ip', 'varchar(255) NOT NULL');
             $installer->addColumn('ahm_emails', 'request_status', "INT(1) NOT NULL");
             $installer->uniqueKey('ahm_asset_links', "asset_key");
-
-            // Every listed package looks up the visitor's download count; without this the lookup scans the whole table.
-            // Skipped where a site already added its own index on these columns.
-            if (!$installer->hasIndexOn('ahm_user_download_counts', ['package_id', 'user'])) {
-                $installer->addIndex('ahm_user_download_counts', 'package_user', '`package_id`,`user`(191)');
-            }
-
-            // Index ahm_sessions for the hot lookup + cleanup paths (existing installs).
-            $installer->addColumn('ahm_sessions', 'lastAccess', 'int(11) NOT NULL DEFAULT 0');
-            $installer->addIndex('ahm_sessions', 'name_device', '`name`(150),`deviceID`(40)');
-            $installer->addIndex('ahm_sessions', 'expire', '`expire`');
-
-            // Cron Jobs table improvements
-            $installer->addColumn('ahm_cron_jobs', 'queue', "VARCHAR(64) NOT NULL DEFAULT 'default'");
-            $installer->addColumn('ahm_cron_jobs', 'priority', "TINYINT NOT NULL DEFAULT 5");
-            $installer->addColumn('ahm_cron_jobs', 'status', "VARCHAR(20) NOT NULL DEFAULT 'pending'");
-            $installer->addColumn('ahm_cron_jobs', 'attempts', "TINYINT NOT NULL DEFAULT 0");
-            $installer->addColumn('ahm_cron_jobs', 'max_attempts', "TINYINT NOT NULL DEFAULT 3");
-            $installer->addColumn('ahm_cron_jobs', 'started_at', "INT(11) NULL");
-            $installer->addColumn('ahm_cron_jobs', 'completed_at', "INT(11) NULL");
-            $installer->addColumn('ahm_cron_jobs', 'next_retry_at', "INT(11) NULL");
-            $installer->addColumn('ahm_cron_jobs', 'interval_seconds', "INT(11) NOT NULL DEFAULT 0");
-            $installer->addColumn('ahm_cron_jobs', 'error_message', "TEXT NULL");
-            $installer->addColumn('ahm_cron_jobs', 'locked_by', "VARCHAR(64) NULL");
-            $installer->addColumn('ahm_cron_jobs', 'locked_at', "INT(11) NULL");
 
             $ach = get_option("__wpdm_activation_history", array());
             $ach = maybe_unserialize($ach);
             $ach[] = time();
             update_option("__wpdm_activation_history", $ach, false);
             update_option('__wpdm_db_version', $installer->dbVersion, false);
-	        $__wpdm_ui_colors = get_option('__wpdm_ui_colors', false);
-	        if(!$__wpdm_ui_colors)
-				update_option('__wpdm_ui_colors', 'a:18:{s:7:"primary";s:7:"#4a8eff";s:13:"primary_hover";s:7:"#5998ff";s:14:"primary_active";s:7:"#3281ff";s:9:"secondary";s:7:"#6c757d";s:15:"secondary_hover";s:7:"#6c757d";s:16:"secondary_active";s:7:"#6c757d";s:4:"info";s:7:"#2CA8FF";s:10:"info_hover";s:7:"#2CA8FF";s:11:"info_active";s:7:"#2CA8FF";s:7:"success";s:7:"#018e11";s:13:"success_hover";s:7:"#0aad01";s:14:"success_active";s:7:"#0c8c01";s:7:"warning";s:7:"#FFB236";s:13:"warning_hover";s:7:"#FFB236";s:14:"warning_active";s:7:"#FFB236";s:6:"danger";s:7:"#ff5062";s:12:"danger_hover";s:7:"#ff5062";s:13:"danger_active";s:7:"#ff5062";}', false);
 
         }
 
@@ -215,87 +167,10 @@ class Installer
             $wpdb->query("ALTER TABLE `{$wpdb->prefix}{$table}` ADD PRIMARY KEY(`{$column}`)");
         }
 
-        /**
-         * Add a unique key on a column, if it has none.
-         *
-         * Earlier versions added another copy on every database update, up to MySQL's limit of 64 indexes,
-         * so this also drops those copies.
-         *
-         * @param string $table  Table name without prefix.
-         * @param string $column Column name.
-         */
         function uniqueKey($table, $column)
         {
             global $wpdb;
-            $keys = [];
-            foreach ($this->indexes($table) as $name => $index) {
-                if ($name !== 'PRIMARY' && $index['unique'] && $index['columns'] === [$column]) {
-                    $keys[] = $name;
-                }
-            }
-            if (!$keys) {
-                $wpdb->query("ALTER TABLE `{$wpdb->prefix}{$table}` ADD UNIQUE(`{$column}`)");
-                return;
-            }
-            // Keep the first one, named after the column
-            $keep = in_array($column, $keys, true) ? $column : $keys[0];
-            $drops = [];
-            foreach (array_diff($keys, [$keep]) as $name) {
-                $drops[] = "DROP INDEX `{$name}`";
-            }
-            if ($drops) {
-                $wpdb->query("ALTER TABLE `{$wpdb->prefix}{$table}` " . implode(', ', $drops));
-            }
-        }
-
-        function addIndex($table, $indexName, $columns)
-        {
-            global $wpdb;
-            $exists = $wpdb->get_results("SHOW INDEX FROM `{$wpdb->prefix}{$table}` WHERE Key_name = '{$indexName}'");
-            if (count($exists) === 0)
-                $wpdb->query("ALTER TABLE `{$wpdb->prefix}{$table}` ADD KEY `{$indexName}` ({$columns})");
-        }
-
-        /**
-         * Whether an index starts with these columns, in any order.
-         *
-         * @param string   $table   Table name without prefix.
-         * @param string[] $columns Column names.
-         * @return bool
-         */
-        function hasIndexOn($table, array $columns)
-        {
-            sort($columns);
-            foreach ($this->indexes($table) as $index) {
-                $leading = array_slice($index['columns'], 0, count($columns));
-                sort($leading);
-                if ($leading === $columns) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        /**
-         * A table's indexes.
-         *
-         * @param string $table Table name without prefix.
-         * @return array Index name => ['unique' => bool, 'columns' => column names in index order].
-         */
-        private function indexes($table)
-        {
-            global $wpdb;
-            $indexes = [];
-            foreach ((array)$wpdb->get_results("SHOW INDEX FROM `{$wpdb->prefix}{$table}`") as $part) {
-                $indexes[$part->Key_name]['unique'] = !(int)$part->Non_unique;
-                $indexes[$part->Key_name]['columns'][(int)$part->Seq_in_index] = $part->Column_name;
-            }
-            foreach ($indexes as &$index) {
-                ksort($index['columns']);
-                $index['columns'] = array_values($index['columns']);
-            }
-            unset($index);
-            return $indexes;
+            $wpdb->query("ALTER TABLE `{$wpdb->prefix}{$table}` ADD UNIQUE(`{$column}`)");
         }
     }
 

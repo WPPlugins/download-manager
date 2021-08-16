@@ -14,7 +14,6 @@ class Category
     public $description;
     public $icon;
     public $access;
-	public $url;
     public $parent;
     public $packageCount;
 
@@ -32,7 +31,6 @@ class Category
             $this->parent           = $term->parent;
             $this->packageCount     = $term->count;
             $this->icon             = CategoryController::icon($this->ID);
-			$this->url              = get_term_link($this->ID);
 
         }
     }

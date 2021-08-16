@@ -7,9 +7,9 @@ use WPDM\__\TempStorage;
 
 if(!defined("ABSPATH")) die('!');
 
+error_reporting(0);
 
 global $current_user, $dfiles;
-$current_user = wp_get_current_user();
 
 //Check for blocked IPs
 if(wpdm_ip_blocked()) {
@@ -20,7 +20,7 @@ if(wpdm_ip_blocked()) {
 }
 
 //Check for blocked users by email
-if(is_user_logged_in() && $current_user->user_email && !wpdm_verify_email($current_user->user_email)) {
+if(is_user_logged_in() && !wpdm_verify_email($current_user->user_email)) {
     $emsg =  get_option('__wpdm_blocked_domain_msg');
     if(trim($emsg) === '') $emsg = __('Your email address is blocked!', 'download-manager');
     Messages::fullPage('Error!', $emsg, 'error');
@@ -31,9 +31,8 @@ do_action("wpdm_onstart_download", $package);
 $speed = (int)get_option('__wpdm_download_speed', 10240); //in KB - default 10 MB
 $speed = $speed > 0 ? $speed : 10240;
 $speed = apply_filters('wpdm_download_speed', $speed);
-//$user = get_user_by('id', $package['author']);
-
-//$user_upload_dir = UPLOAD_DIR . $user->user_login . '/';
+$user = get_user_by('id', $package['post_author']);
+$user_upload_dir = UPLOAD_DIR . $user->user_login . '/';
 
 $_content_dir = str_replace('\\','/',WP_CONTENT_DIR);
 $_old_up_dir = $_content_dir.'/uploads/download-manager-files/';
@@ -47,11 +46,11 @@ $limit_msg = Messages::download_limit_exceeded($package['ID']);
 if (wpdm_is_download_limit_exceed($package['ID'])) Messages::fullPage("Error!", $limit_msg, 'error');
 //$files = WPDM()->package->getFiles($package['ID']);
 $files = $package['files'];
-$files = array_values($files);
-$fileCount = count($files) && $files[0] !== '' ? 1 : 0;
+
+$fileCount = count($files) + (isset($package['package_dir']) && $package['package_dir'] !== '' ? 1 : 0);
 
 if($fileCount === 0){
-    Messages::fullPage(__( "No Files", "download-manager" ),  \WPDM\__\UI::div(__( "No file is attached with this package!", "download-manager" ), "alert alert-danger d-inline-block"));
+    Messages::fullPage(__( "No Files", "download-manager" ),  __( "No file is attached with this package!", "download-manager" ));
 }
 
 //$idvdl = Individual file download status
@@ -63,7 +62,7 @@ if($parallel_download === 0 && (int)TempStorage::get("download.".wpdm_get_client
     Messages::error(get_option('__wpdm_parallel_download_msg', "Another download is in progress from your IP, please wait until finished."), 1);
 
 if ($fileCount > 1 && !$idvdl) {
-	Messages::error(esc_attr__( 'Multi-file download is only available with the pro version!', "download-manager" ), 1);
+	Messages::error(esc_attr__( 'Multi-file download is only available with the pro version!', WPDM_TEXT_DOMAIN ), 1);
 }
 else {
 
@@ -80,7 +79,7 @@ else {
 
         if (!isset($package['url_protect']) || $package['url_protect'] == 0) {
             $indfile = wpdm_escs(htmlspecialchars_decode($indfile));
-            header('location: ' . urldecode($indfile));
+            header('location: ' . $indfile);
 
         } else {
             $r_filename = wpdm_basename($indfile);
@@ -94,10 +93,25 @@ else {
     }
 
 
-    $filepath = WPDM()->fileSystem->absPath($indfile, $package['ID']);
+    /*$tmp = explode("wp-content", $indfile);
+    $tmp = end($tmp);
+    if ($indfile != '' && file_exists(UPLOAD_DIR . $indfile))
+        $filepath = UPLOAD_DIR . $indfile;
+    else if ($indfile != '' && file_exists($user_upload_dir.$indfile))
+        $filepath = $user_upload_dir.$indfile;
+    else if ($indfile != '' && file_exists($indfile))
+        $filepath = $indfile;
+    else if ($indfile != '' && file_exists(WP_CONTENT_DIR . $tmp)) //path fix on site move
+        $filepath = WP_CONTENT_DIR . $tmp;
+    else if ($indfile != '' && file_exists($_old_up_dir . $indfile)) //path fix on site move
+        $filepath = $_old_up_dir . $indfile;
+    else {
+        $filepath = $firstfile;
+    }*/
 
+    $filepath = WPDM()->fileSystem->absPath($indfile, $package['ID']);
     if(!$filepath)
-        Messages::fullPage('Error!', "<div class='card bg-danger text-white p-4' style='max-width: 500px;margin: 0 auto;text-align: center'>" . __("Sorry! File not found!", "download-manager") . "</div>", 'error');
+        Messages::fullPage('Error!', "<div class='card bg-danger text-white p-4'>" . __("Sorry! File not found!", "download-manager") . "</div>", 'error');
     //$plock = get_wpdm_meta($file['id'],'password_lock',true);
     //$fileinfo = get_wpdm_meta($package['id'],'fileinfo');
 

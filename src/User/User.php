@@ -172,8 +172,7 @@ class User
 
     function members($params = array())
     {
-        $sid = isset($params['sid']) ? preg_replace('/[^a-zA-Z0-9_\-]/', '', $params['sid']) : '';
-        $params['sid'] = $sid;
+        $sid = isset($params['sid']) ? $params['sid'] : '';
         update_post_meta(get_the_ID(), '__wpdm_users_params' . $sid, $params);
         ob_start();
         include Template::locate("members.php", __DIR__.'/views');
@@ -184,11 +183,11 @@ class User
 
     {
 
-        if (!$params) $params = get_post_meta(wpdm_query_var('_pid', 'int'), '__wpdm_users_params' . preg_replace('/[^a-zA-Z0-9_\-]/', '', wpdm_query_var('_sid')), true);
+        if (!$params) $params = get_post_meta(wpdm_query_var('_pid', 'int'), '__wpdm_users_params' . wpdm_query_var('_sid'), true);
         $page = isset($_REQUEST['cp']) && $_REQUEST['cp'] > 0 ? (int)$_REQUEST['cp'] : 1;
         $items_per_page = isset($params['items_per_page']) ? $params['items_per_page'] : 12;
         //$offset = $page * $items_per_page;
-        $cols = isset($params['cols']) && in_array($params['cols'], [1, 2, 3, 4, 6]) ? $params['cols'] : 0;
+        $cols = isset($params['cols']) && in_array($params['cols'], array(1, 2, 3, 4, 6)) ? $params['cols'] : 0;
         if ($cols > 0) $cols_class = "col-md-" . (12 / $cols);
 
         $args = array(
@@ -223,6 +222,5 @@ class User
         if (isset($params['paging']) && (int)$params['paging'] == 1)
             echo wpdm_paginate_links($total, $items_per_page, $page, 'cp', array('async' => 1, 'container' => "#wpdm-authors{$contid}"));
     }
-
 
 }

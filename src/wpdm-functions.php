@@ -53,7 +53,7 @@ function wpdm_download_file($filepath, $filename, $speed = 0, $resume_support = 
 {
     do_action("wpdm_download_success", $extras);
     if (!file_exists($filepath)) Messages::fullPage("Download Error", "<div class='card bg-danger text-white text-left' style='min-width: 300px'><div class='card-header'>" . __("Download Error", "download-manager") . "</div><div class='card-body'>" . __("File Not Found!", "download-manager") . "</div></div>");
-    if (isset($_GET['play'])) $extras['play'] = sanitize_text_field($_GET['play']);
+    if (isset($_GET['play'])) $extras['play'] = $_GET['play'];
     \WPDM\__\FileSystem::downloadFile($filepath, $filename, $speed, $resume_support, $extras);
 }
 
@@ -103,6 +103,220 @@ function wpdm_verify_email($email)
 
 
 /**
+ * return download link after verifying password
+ * data format: json
+ */
+/*
+function wpdm_getlink()
+{
+    global $wpdb;
+    if (!isset($_POST['__wpdm_ID'])) return;
+    $id = (int)$_POST['__wpdm_ID'];
+    $password = isset($_POST['password']) ? stripslashes($_POST['password']) : '';
+
+
+    $key = uniqid();
+
+    $plock = isset($file['password_lock']) ? $file['password_lock'] : 0;
+
+    $data = array('error' => '', 'downloadurl' => '');
+
+    $limit = get_option('__wpdm_private_link_usage_limit', 3);
+    $xpire_period = ((int)get_option('__wpdm_private_link_expiration_period', 3)) * ((int)get_option('__wpdm_private_link_expiration_period_unit', 60));
+    $xpire_period = $xpire_period > 0 ? $xpire_period : 3600;
+
+    if (isset($_POST['reCaptchaVerify'])) {
+        $ret = wpdm_remote_post('https://www.google.com/recaptcha/api/siteverify', array('secret' => get_option('_wpdm_recaptcha_secret_key'), 'response' => $_POST['reCaptchaVerify'], 'remoteip' => $_SERVER['REMOTE_ADDR']));
+        $ret = json_decode($ret);
+        if ($ret->success == 1) {
+            $download_url = WPDM()->package->expirableDownloadLink($id, $limit, $xpire_period);
+            $data['downloadurl'] = $download_url;
+        } else {
+            $data['error'] = __("Captcha Verification Failed!", "wpmdpro");
+        }
+
+        wp_send_json($data);
+        die();
+    }
+
+    // Email Lock Verification
+    if (isset($_POST['verify']) && $_POST['verify'] == 'email' && $file['email_lock'] == 1) {
+        if (wpdm_verify_email($_POST['email'])) {
+            $subject = "Your Download Link";
+            $site = get_option('blogname');
+
+            $custom_form_data = isset($_POST['custom_form_field']) ? $_POST['custom_form_field'] : array();
+            if (isset($_REQUEST['name'])) $custom_form_data['name'] = $_REQUEST['name'];
+
+            //do something before sending download link
+            do_action("wpdm_before_email_download_link", $_POST, $file);
+
+            $idl = isset($file['email_lock_idl']) ? (int)$file['email_lock_idl'] : 3;
+            $idle = isset($file['email_lock_idl_email']) ? (int)$file['email_lock_idl_email'] : 0;
+
+            $request_status = $idl === 0 ? 3 : $idl; //($idl === 2)?$idl:1;
+            $wpdb->insert("{$wpdb->prefix}ahm_emails", array('email' => $_POST['email'], 'pid' => $file['ID'], 'date' => time(), 'custom_data' => serialize($custom_form_data), 'request_status' => $request_status));
+            $subscriberID = $wpdb->insert_id;
+
+            $download_url = add_query_arg(['subscriber' => Crypt::encrypt($subscriberID)], WPDM()->package->expirableDownloadLink($id, $limit, $xpire_period));
+            $download_page_url = add_query_arg(['subscriber' => Crypt::encrypt($subscriberID)], WPDM()->package->expirableDownloadPage($id, $limit, $xpire_period));
+
+            if ($idl === 0 || ($idl == 1 && $idle == 0)) {
+                $name = isset($cff['name']) ? $cff['name'] : '';
+                $email_params = array('to_email' => $_POST['email'], 'name' => $name, 'download_count' => $limit, 'package_name' => $file['post_title'], 'package_url' => get_permalink($id), 'download_url' => $download_url, 'download_page_url' => $download_page_url);
+                $email_params = apply_filters("wpdm_email_lock_mail_params", $email_params, $file);
+                Email::send("email-lock", $email_params);
+
+            }
+            $elmsg = sanitize_textarea_field(get_post_meta($id, '__wpdm_email_lock_msg', true));
+            if ($idl === 0) {
+                $data['downloadurl'] = "";
+                $data['msg'] = ($elmsg != '' ? $elmsg : __("Download link sent to your email!", "download-manager"));
+                $data['type'] = 'success';
+            } else if ($idl === 2) {
+                $data['downloadurl'] = "";
+                $data['msg'] = ($elmsg != '' ? $elmsg : __("Admin will review your request soon!", "download-manager"));
+                $data['type'] = 'success';
+            } else {
+                $data['downloadurl'] = $download_url;
+                if ($idle == 0)
+                    $data['msg'] = ($elmsg != '' ? $elmsg : __("Download link also sent to your email!", "download-manager"));
+                else
+                    $data['msg'] = ($elmsg != '' ? $elmsg : __("Download will be started shortly!", "download-manager"));
+            }
+
+            $data = apply_filters("wpdm_email_lock_response_data", $data);
+
+            if (!wpdm_is_ajax()) {
+
+                @setcookie("wpdm_getlink_data_" . $key, json_encode($data));
+
+                if (isset($data['downloadurl']) && $data['downloadurl'] != '') {
+                    header("location: " . $data['downloadurl']);
+                    die();
+                }
+
+                header("location: " . $_SERVER['HTTP_REFERER'] . "#nojs_popup|ckid:" . $key);
+                die();
+            }
+
+            $_pdata = $_POST;
+            $_pdata['pid'] = $file['ID'];
+            $_pdata['time'] = time();
+            Session::set("__wpdm_email_lock_verified", $_pdata, 604800);
+            wp_send_json($data);
+            die();
+        } else {
+            $data['downloadurl'] = "";
+            $data['msg'] = get_option('__wpdm_blocked_domain_msg');
+            if (trim($data['msg']) === '') $data['msg'] = __("Invalid Email Address!", "download-manager");
+            $data['type'] = 'error';
+
+            if (!wpdm_is_ajax()) {
+
+                @setcookie("wpdm_getlink_data_" . $key, json_encode($data));
+
+                if (isset($data['downloadurl']) && $data['downloadurl'] != '') {
+                    header("location: " . $data['downloadurl']);
+                    die();
+                }
+
+                header("location: " . $_SERVER['HTTP_REFERER'] . "#nojs_popup|ckid:" . $key);
+                die();
+            }
+
+            wp_send_json($data);
+            die();
+        }
+    }
+
+    if (isset($_POST['force']) && $_POST['force'] != '') {
+        $vr = explode('|', base64_decode($_POST['force']));
+        if ($vr[0] == 'unlocked') {
+            $social = array('f' => 'wpdm_fb_likes', 'g' => 'wpdm_gplus1s', 't' => 'wpdm_tweets', 'l' => 'wpdm_lishare');
+            if ($_POST['social'] && isset($social[$_POST['social']]))
+                update_option($social[$_POST['social']], (int)get_option($social[$_POST['social']]) + 1, false);
+
+            $download_url = WPDM()->package->expirableDownloadLink($id, $limit, $xpire_period);
+            $data['downloadurl'] = $download_url;
+            $adata = apply_filters("wpdmgetlink", $data, $file);
+            $data = is_array($adata) ? $adata : $data;
+
+            if (!wpdm_is_ajax()) {
+
+                @setcookie("wpdm_getlink_data_" . $key, json_encode($data));
+
+                if (isset($data['downloadurl']) && $data['downloadurl'] != '') {
+                    header("location: " . $data['downloadurl']);
+                    die();
+                }
+
+                header("location: " . $_SERVER['HTTP_REFERER'] . "#nojs_popup|ckid:" . $key);
+                die();
+            }
+
+            header("Content-type: application/json");
+            die(json_encode($data));
+        }
+
+    }
+
+    if ($plock == 1 && $password != $file['password'] && !strpos("__" . $file['password'], "[$password]")) {
+        $data['error'] = __("Wrong Password!", "download-manager") . " &nbsp; <span><i class='fas fa-redo'></i> " . __("Try Again", "download-manager") . " </span>";
+        $file = array();
+    }
+    if ($plock == 1 && $password == '') {
+        $data['error'] = __("Wrong Password!", "download-manager") . " &nbsp; <span class='color-blue'><i class='fas fa-redo'></i> " . __("Try Again", "download-manager") . " </span>";
+        $file = array();
+    }
+    $ux = "";
+
+    if (isset($file['ID']) && $file['ID'] != '') {
+        $pu = isset($file['password_usage']) && is_array($file['password_usage']) ? $file['password_usage'] : array();
+
+        $pul = (int)$file['password_usage_limit'];
+
+        if (is_array($pu) && isset($pu[$password]) && $pu[$password] >= $pul && $pul > 0)
+            $data['error'] = __("Password usages limit exceeded", "download-manager");
+        else {
+
+            if (!is_array($pu)) $pu = array();
+            $pu[$password] = isset($pu[$password]) ? $pu[$password] + 1 : 1;
+            \WPDM\__\Session::set("pass_verified_" . $file['ID'], 1);
+            update_post_meta($file['ID'], '__wpdm_password_usage', $pu);
+        }
+    }
+
+    if (isset($_COOKIE['unlocked_' . $file1['ID']]) && $_COOKIE['unlocked_' . $file1['ID']] == 1) {
+        $data['error'] = '';
+        $file = $file1;
+    }
+
+    if ($data['error'] == '') {
+
+        $data['downloadurl'] = WPDM()->package->expirableDownloadLink($id, $limit);
+    } // home_url('/?downloadkey='.md5($file['files']).'&file='.$id.$ux);
+    $adata = apply_filters("wpdmgetlink", $data, $file);
+    $data = is_array($adata) ? $adata : $data;
+
+    if (!wpdm_is_ajax()) {
+
+        @setcookie("wpdm_getlink_data_" . $key, json_encode($data));
+
+        if (isset($data['downloadurl']) && $data['downloadurl'] != '') {
+            header("location: " . $data['downloadurl']);
+            die();
+        }
+
+        header("location: " . $_SERVER['HTTP_REFERER'] . "#nojs_popup|ckid:" . $key);
+        die();
+    }
+
+    wp_send_json($data);
+    die();
+}
+*/
+/**
  * @usage Count files in a package
  * @param $id
  * @return int
@@ -130,9 +344,11 @@ function wpdm_package_size($id)
  */
 function wpdm_file_size($file)
 {
-    $file = WPDM()->fileSystem->absPath($file);
-    if(!$file) return '0.00 KB';
-	$size = filesize($file);
+    if (file_exists($file))
+        $size = filesize($file);
+    else if (file_exists(UPLOAD_DIR . $file))
+        $size = filesize(UPLOAD_DIR . $file);
+    else $size = 0;
     $size = $size / 1024;
     if ($size > 1024) $size = number_format($size / 1024, 2) . ' MB';
     else $size = number_format($size, 2) . ' KB';
@@ -169,9 +385,12 @@ function wpdm_get_excerpt($post, $length = 100, $word_break = false, $continue =
  */
 function wpdm_basename($file)
 {
-    // Split on both separators, so a path mixing "\\" and "/" cannot keep its directory part
-    $basename = preg_split('#[\\\\/]#', (string) $file);
-    return (string) end($basename);
+    if (strpos("~" . $file, "\\"))
+        $basename = explode("\\", $file);
+    else
+        $basename = explode("/", $file);
+    $basename = end($basename);
+    return $basename;
 }
 
 /**
@@ -210,7 +429,7 @@ function wpdm_post_thumb($size = '', $echo = true, $extra = null)
             $thumb = wpdm_dynamic_thumb($path, $size, $crop);
             $thumb = str_replace(ABSPATH, site_url('/'), $thumb);
             $alt = get_post_meta(get_post_thumbnail_id($post->ID), '_wp_attachment_image_alt', true);
-            $img = "<img src='" . $thumb . "' alt='".esc_attr($alt)."' class='".esc_attr($class)."' />";
+            $img = "<img src='" . $thumb . "' alt='{$alt}' class='{$class}' />";
             if ($echo) {
                 echo $img;
                 return true;
@@ -255,7 +474,7 @@ function wpdm_thumb($post, $size = '', $echo = true, $extra = null)
             $alt = get_post_meta(get_post_thumbnail_id($post->ID), '_wp_attachment_image_alt', true);
             if ($echo === 'url') return $thumb;
             if ($alt === '') $alt = esc_attr(strip_tags(get_the_title($post->ID)));
-            $img = "<img src='" . $thumb . "' alt='".esc_attr($alt)."' class='".esc_attr($class)."' />";
+            $img = "<img src='" . $thumb . "' alt='{$alt}' class='{$class}' />";
             if ($echo) {
                 echo $img;
                 return;
@@ -307,20 +526,20 @@ function wpdm_image_selector($data)
             $attrs .= "$attr='$value' ";
         }
     }
-    $id = isset($data['id']) ? sanitize_text_field($data['id']) : uniqid();
+    $id = uniqid();
     ?>
     <div class="panel panel-default text-center image-selector-panel" style="width: 250px">
         <div class="panel-body">
-            <img id="<?php echo esc_attr($id); ?>"
-                 src="<?php echo isset($data['value']) && $data['value'] != '' ? esc_attr(esc_url($data['value'])) : esc_attr(WPDM_BASE_URL . 'assets/images/image.png'); ?>"/>
+            <img id="<?php echo isset($data['id']) ? $data['id'] : $id; ?>"
+                 src="<?php echo isset($data['value']) && $data['value'] != '' ? $data['value'] : WPDM_BASE_URL . 'assets/images/image.png'; ?>"/>
         </div>
         <div class="panel-footer">
-            <input id="<?php echo esc_attr($id); ?>_hidden" type="hidden"
-                   name="<?php echo esc_attr($data['name']); ?>"
-                   value="<?php echo isset($data['value']) ? esc_attr($data['value']) : ''; ?>"/>
+            <input id="<?php echo isset($data['id']) ? $data['id'] : $id; ?>_hidden" type="hidden"
+                   name="<?php echo $data['name']; ?>"
+                   value="<?php echo isset($data['value']) ? $data['value'] : ''; ?>"/>
             <button class="btn btn-info btn-block btn-image-selector" type="button"
-                    rel="#<?php echo esc_attr($id); ?>"><i
-                        class="far fa-image"></i> <?php isset($data['btnlabel']) ? esc_html($data['btnlabel']) : esc_html__('Select Image', 'download-manager'); ?>
+                    rel="#<?php echo isset($data['id']) ? $data['id'] : $id; ?>"><i
+                        class="far fa-image"></i> <?php isset($data['btnlabel']) ? $data['btnlabel'] : _e('Select Image', 'download-manager'); ?>
             </button>
         </div>
     </div>
@@ -338,7 +557,7 @@ function wpdm_image_uploader($data)
         }
     }
     $default = isset($data['default']) ? $data['default'] : WPDM_BASE_URL . 'assets/images/image.png';
-	$id = isset($data['id']) ? sanitize_text_field($data['id']) : uniqid();
+    $id = uniqid();
     ?>
     <div id="wpdm-upload-ui" class="panel panel-default text-center image-selector-panel" style="width: 250px">
         <div class="panel-header text-muted" id="del-img">
@@ -346,16 +565,16 @@ function wpdm_image_uploader($data)
         </div>
         <div id="wpdm-drag-drop-area">
             <div class="panel-body">
-                <img id="<?php echo esc_attr($id); ?>"
-                     src="<?php echo isset($data['value']) && $data['value'] != '' ? esc_attr($data['value']) : esc_attr($default); ?>"/>
+                <img id="<?php echo isset($data['id']) ? $data['id'] : $id; ?>"
+                     src="<?php echo isset($data['value']) && $data['value'] != '' ? $data['value'] : $default; ?>"/>
             </div>
             <div class="panel-footer">
-                <input id="<?php echo esc_attr($id); ?>_hidden" type="hidden"
-                       name="<?php echo esc_attr($data['name']); ?>"
-                       value="<?php echo isset($data['value']) ? esc_attr($data['value']) : ''; ?>"/>
+                <input id="<?php echo isset($data['id']) ? $data['id'] : $id; ?>_hidden" type="hidden"
+                       name="<?php echo $data['name']; ?>"
+                       value="<?php echo isset($data['value']) ? $data['value'] : ''; ?>"/>
 
                 <button id="wpdm-browse-button" style="font-size: 9px;text-transform: unset" type="button"
-                        class="btn btn-info btn-block"><?php echo isset($data['btnlabel']) ? esc_html($data['btnlabel']) : esc_html__('SELECT IMAGE', 'download-manager'); ?></button>
+                        class="btn btn-info btn-block"><?php echo isset($data['btnlabel']) ? $data['btnlabel'] : __('SELECT IMAGE', 'download-manager'); ?></button>
                 <div class="progress" id="wmprogressbar"
                      style="height: 30px !important;border-radius: 3px !important;margin: 0;position: relative;background: #0d406799;display: none;box-shadow: none">
                     <div id="wmprogress" class="progress-bar progress-bar-striped progress-bar-animated"
@@ -386,7 +605,7 @@ function wpdm_image_uploader($data)
                     // additional post data to send to our ajax hook
                     'multipart_params' => array(
                         '_ajax_nonce' => wp_create_nonce(NONCE_KEY),
-                        'action' => esc_attr($data['action']),            // the ajax action name
+                        'action' => $data['action'],            // the ajax action name
                     ),
                 );
 
@@ -658,7 +877,7 @@ function wpdm_fetch_template($template, $vars, $type = 'link')
  */
 function wpdm_loginform()
 {
-    return wpdm_login_form(array('redirect' => __::valueof($_SERVER, 'REQUEST_URI', ['validate' => 'txt'])));
+    return wpdm_login_form(array('redirect' => $_SERVER['REQUEST_URI']));
 }
 
 
@@ -748,14 +967,7 @@ function wpdm_logout_url($redirect = '')
 
 function wpdm_rest_url($request)
 {
-    $url = get_rest_url(null, "wpdm/{$request}");
-    // REST cookie authentication needs the wp_rest nonce; without it the request runs as a guest,
-    // so a package whose access roles don't include "All Visitors" refuses the lock forms of a logged-in user
-    if (is_user_logged_in()) {
-        $url = add_query_arg('_wpnonce', wp_create_nonce('wp_rest'), $url);
-    }
-
-    return $url;
+    return get_rest_url(null, "wpdm/{$request}");
 }
 
 /**
@@ -777,7 +989,6 @@ function wpdm_tpl_path($file, $tpldir = '', $fallback = '')
  */
 function wpdm_admin_tpl_path($file, $tpldir = '', $fallback = '')
 {
-    if (!Template::isSafeName($file)) return '';
     if (file_exists(get_stylesheet_directory() . '/download-manager/admin/' . $file))
         $path = get_stylesheet_directory() . '/download-manager/admin/' . $file;
     else if (file_exists(get_template_directory() . '/download-manager/admin/' . $file))
@@ -914,7 +1125,26 @@ function wpdm_ip_blocked($ip = null)
  */
 function wpdm_get_client_ip()
 {
-    return __::get_client_ip();
+    $ipaddress = '';
+    if (isset($_SERVER['HTTP_CLIENT_IP']))
+        $ipaddress = $_SERVER['HTTP_CLIENT_IP'];
+    else if (isset($_SERVER['HTTP_X_FORWARDED_FOR']))
+        $ipaddress = $_SERVER['HTTP_X_FORWARDED_FOR'];
+    else if (isset($_SERVER['HTTP_X_FORWARDED']))
+        $ipaddress = $_SERVER['HTTP_X_FORWARDED'];
+    else if (isset($_SERVER['HTTP_FORWARDED_FOR']))
+        $ipaddress = $_SERVER['HTTP_FORWARDED_FOR'];
+    else if (isset($_SERVER['HTTP_FORWARDED']))
+        $ipaddress = $_SERVER['HTTP_FORWARDED'];
+    else if (isset($_SERVER['REMOTE_ADDR']))
+        $ipaddress = $_SERVER['REMOTE_ADDR'];
+    else
+        $ipaddress = false;
+    if ($ipaddress) {
+        $ipaddress = explode(",", $ipaddress);
+        $ipaddress = $ipaddress[0];
+    }
+    return $ipaddress;
 }
 
 /**
@@ -932,20 +1162,10 @@ function is_wpdmkey_valid($ID, $_key, $update = false)
     $_key = wpdm_sanitize_var($_key);
     $key = "__wpdmkey_{$_key}";
 
-    // Resolve from a SINGLE store; remember which so we only touch that one.
-    //   session => device-bound token (unlock, same browser)        -> Session
-    //   global  => durable shareable/emailed link                   -> ahm_sessions 'wpdmkey' scope
-    //   meta    => legacy global tokens issued before the migration  -> post_meta (fallback)
-    $store  = null;
-    $xlimit = Session::get("{$key}_{$ID}");
-    if ($xlimit) {
-        $store = 'session';
-    } elseif ($xlimit = TempStorage::get("{$key}_{$ID}", TempStorage::DURABLE_SCOPE)) {
-        $store = 'global';
-    } else {
+    $xlimit = TempStorage::get($key);
+
+    if (!$xlimit)
         $xlimit = get_post_meta($ID, $key, true);
-        if ($xlimit) $store = 'meta';
-    }
 
     if (!$xlimit) return 0; // Invalid
 
@@ -962,9 +1182,8 @@ function is_wpdmkey_valid($ID, $_key, $update = false)
     $expired = false;
 
     if ($limit <= 0) {
-        if ($store === 'session') Session::clear("{$key}_{$ID}");
-        elseif ($store === 'global') TempStorage::kill("{$key}_{$ID}", TempStorage::DURABLE_SCOPE);
-        else delete_post_meta($ID, $key);
+        delete_post_meta($ID, $key);
+        TempStorage::kill($key);
         return -1; // Limit exceeded
     } else {
 
@@ -974,18 +1193,12 @@ function is_wpdmkey_valid($ID, $_key, $update = false)
         if ((int)$xlimit['expire'] < time()) {
             $xlimit['use'] = $limit = 0;
             $expired = true;
-            if ($store === 'session') Session::clear("{$key}_{$ID}");
-            elseif ($store === 'global') TempStorage::kill("{$key}_{$ID}", TempStorage::DURABLE_SCOPE);
-            else delete_post_meta($ID, $key);
+            delete_post_meta($ID, $key);
+            TempStorage::kill($key);
         }
-        if ($update && !$expired) {
-            if ($store === 'session') {
-                Session::set("{$key}_{$ID}", $xlimit, max(1, (int)$xlimit['expire'] - time()));
-            } elseif ($store === 'global') {
-                TempStorage::set("{$key}_{$ID}", $xlimit, max(1, (int)$xlimit['expire'] - time()), TempStorage::DURABLE_SCOPE);
-            } else {
-                update_post_meta($ID, $key, $xlimit);
-            }
+        if ($update) {
+            update_post_meta($ID, $key, $xlimit);
+            TempStorage::set($key, $xlimit);
         }
         if ($expired) return -2; // Time expired
     }
@@ -1000,8 +1213,29 @@ function is_wpdmkey_valid($ID, $_key, $update = false)
  * @return array|bool|float|int|mixed|string|string[]|null
  */
 
-function wpdm_valueof( $var, $index, $default_or_params = [], $validate = '' ) {
-    return __::valueof( $var, $index, $default_or_params, $validate );
+function wpdm_valueof($var, $index, $params = [])
+{
+    $index = explode("/", $index);
+    $default = is_string($params) ? $params : '';
+    if (is_object($var)) $var = (array)$var;
+    $default = is_array($params) && isset($params['default']) ? $params['default'] : $default;
+    if (count($index) > 1) {
+        $val = $var;
+        foreach ($index as $key) {
+            $val = is_array($val) && isset($val[$key]) ? $val[$key] : '__not__set__';
+            if ($val === '__not__set__') return $default;
+        }
+    } else
+        $val = isset($var[$index[0]]) ? $var[$index[0]] : $default;
+
+    if (is_array($params) && isset($params['validate'])) {
+        if (!is_array($val))
+            $val = wpdm_sanitize_var($val, $params['validate']);
+        else
+            $val = wpdm_sanitize_array($val, $params['validate']);
+    }
+
+    return $val;
 }
 
 /**
@@ -1036,10 +1270,6 @@ function wpdm_sanitize_var($value, $sanitize = 'kses')
     return __::sanitize_var($value, $sanitize);
 }
 
-function wpdm_tzoffset() {
-	return __::timezoneOffset();
-}
-
 /**
  * @param $total
  * @param $item_per_page
@@ -1049,9 +1279,9 @@ function wpdm_tzoffset() {
  */
 function wpdm_paginate_links($total, $items_per_page, $current_page = 1, $var = 'cp', $params = array())
 {
+
     $items_per_page = $items_per_page > 0 ? $items_per_page : 10;
     $pages = ceil($total / $items_per_page);
-    if($current_page < 1) $current_page = 1;
     $format = isset($params['format']) ? $params['format'] : "?{$var}=%#%";
     $args = array(
         //'base'               => '%_%',
@@ -1059,9 +1289,9 @@ function wpdm_paginate_links($total, $items_per_page, $current_page = 1, $var = 
         'total' => $pages,
         'current' => $current_page,
         //'show_all'           => false,
-        'end_size'           => 2,
+        //'end_size'           => 2,
         //'mid_size'           => 1,
-        'prev_next'          => true,
+        //'prev_next'          => true,
         'prev_text' => isset($params['prev_text']) ? $params['prev_text'] : __('Previous'),
         'next_text' => isset($params['prev_text']) ? $params['next_text'] : __('Next'),
         'type' => 'array',
@@ -1070,7 +1300,7 @@ function wpdm_paginate_links($total, $items_per_page, $current_page = 1, $var = 
         //'before_page_number' => '',
         //'after_page_number'  => ''
     );
-    if (isset($params['base'])) {
+    if(isset($params['base'])) {
         $args['base'] = $params['base'];
     }
     //wpdmprecho($args);
@@ -1124,17 +1354,15 @@ function wpdm_hex2rgb($hex)
 }
 
 /*** developer fns **/
-function wpdmdd(...$data)
+function wpdmdd($data)
 {
-    foreach ($data as $d) {
-	    echo "<pre style='margin-bottom: 5px;padding: 10px;background: #eef1f5;border-radius: 8px'>" . print_r( $d, 1 ) . "</pre>";
-    }
+    echo "<pre>" . print_r($data, 1) . "</pre>";
     die();
 }
 
 function wpdmprecho($data, $ret = 0)
 {
-    $echo = "<pre style='margin-bottom: 5px;padding: 10px;background: #eef1f5;border-radius: 8px'>" . print_r($data, 1) . "</pre>";
+    $echo = "<pre>" . print_r($data, 1) . "</pre>";
     if ($ret == 1) return $echo;
     echo $echo;
 }

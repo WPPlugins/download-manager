@@ -10,51 +10,31 @@ class Template
         return $this;
     }
 
-    /**
-     * A template name must stay inside the template directories: no parent-directory segments, no null bytes.
-     *
-     * @param mixed $file
-     *
-     * @return bool
-     */
-    public static function isSafeName($file){
-        return is_string($file) && strpos($file, "\0") === false && !preg_match('#(^|[\\\\/])\.\.([\\\\/]|$)#', $file);
-    }
-
     public static function locate($file, $tpldir = '', $fallback = ''){
-
-        if(!self::isSafeName($file)) return '';
 
         $template_dirs = array(
             get_stylesheet_directory().'/download-manager/',
             get_template_directory().'/download-manager/',
+            ''
         );
         if($tpldir !== '') {
-            $template_dirs[] = trailingslashit($tpldir);
-			if(!substr_count(trailingslashit($tpldir), ABSPATH)) {
-				$template_dirs[] = trailingslashit(get_stylesheet_directory() . '/download-manager/' . trim( $tpldir, '/' ));
-				$template_dirs[] = trailingslashit(get_template_directory() . '/download-manager/' . trim( $tpldir, '/' ));
-			}
-        } else
-            $template_dirs[] = '';
+            $template_dirs[] = rtrim($tpldir, '/').'/';
+            $template_dirs[] = get_template_directory().'/download-manager/'.$tpldir.'/';
+        }
+        $template_dirs[] = trailingslashit(WPDM_TPL_DIR);
+        $template_dirs[] = trailingslashit(WPDM_TPL_FALLBACK);
 
         if($fallback !== '')
             $template_dirs[] = trailingslashit($fallback);
-		$template_dirs = apply_filters("wpdm_template_path", $template_dirs, $file);
+
+        $template_dirs = apply_filters("wpdm_template_path", $template_dirs, $file);
+        //wpdmprecho($template_dirs);
         foreach ($template_dirs as $template_dir){
-            if(file_exists($template_dir.$file)) {
-	            return $template_dir . $file;
-            }
+            if(file_exists($template_dir.$file))
+                return $template_dir.$file;
         }
-        //wpdmdd($file);
         return "";
     }
-
-	public static function locate_url($file, $tpldir = '', $fallback = ''){
-		$file = self::locate($file, $tpldir, $fallback);
-		$url = str_replace(ABSPATH, site_url('/'), $file);
-		return $url;
-	}
 
     function assign($var, $val = null){
         if(is_array($var) && is_array($val)){
@@ -102,4 +82,3 @@ class Template
     }
 
 }
-

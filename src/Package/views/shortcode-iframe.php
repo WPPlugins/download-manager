@@ -7,7 +7,7 @@ if (!defined('ABSPATH')) die();
  */
 error_reporting(0);
 
-$pid = wpdm_query_var('__wpdmxp', 'int');
+$pid = wpdm_query_var('__wpdmxp');
 //setup_postdata($post);
 //$pack = new \WPDM\Package();
 //$pack->Prepare(get_the_ID());
@@ -18,14 +18,11 @@ $pid = wpdm_query_var('__wpdmxp', 'int');
 <head>
     <title>Download <?php the_title(); ?></title>
     <script>
-        var wpdm_url = <?= json_encode(WPDM()->wpdm_urls) ?>;
+        var wpdm_home_url = "<?php echo home_url('/'); ?>";
     </script>
     <link rel="stylesheet" href="<?php echo WPDM_BASE_URL; ?>assets/bootstrap/css/bootstrap.css" />
     <link rel="stylesheet" href="<?php echo WPDM_BASE_URL; ?>assets/css/front.css" />
-    <?php $color_scheme = get_option('__wpdm_color_scheme', 'system'); if ($color_scheme !== 'light') { ?>
-    <link rel="stylesheet" href="<?php echo WPDM_BASE_URL; ?>assets/css/front-dark.css" />
-    <?php } ?>
-    <link rel="stylesheet" href="<?php echo WPDM_ASSET_URL; ?>fontawesome/css/fontawesome.min.css" />
+    <link rel="stylesheet" href="<?php echo WPDM_BASE_URL; ?>assets/font-awesome/css/font-awesome.min.css" />
     <script src="<?php echo includes_url(); ?>/js/jquery/jquery.js"></script>
     <script src="<?php echo includes_url(); ?>/js/jquery/jquery.form.min.js"></script>
     <script src="<?php echo WPDM_BASE_URL; ?>assets/bootstrap/js/bootstrap.min.js"></script>
@@ -219,6 +216,9 @@ echo do_shortcode("[wpdm_package id='{$pid}']");
         });
 
 
+        //window.parent.document.wpdm_adjust_frame_height("<?php echo $_REQUEST['frameid']; ?>", $(document).height());
+        //window.parent.document.getElementById("<?php echo $_REQUEST['frameid']; ?>").style.height = $(document).height()+"px";
+        //window.parent.document.getElementById("<?php echo $_REQUEST['frameid']; ?>").height = $(document).height()+"px";
 
 
     });

@@ -32,7 +32,7 @@ class Query
     /**
      * @var string WPDM Tag
      */
-    public $tag_tax = WPDM_TAG;
+    public $tag_tax = 'wpdmtag';
 
     public $tax_relation = null;
 
@@ -43,35 +43,11 @@ class Query
     }
 
     /**
-     * Static factory method for convenient instantiation
-     * @return Query
-     */
-    static function create()
-    {
-        return new self();
-    }
-
-    /**
-     * Reset query for reuse
-     * @return $this
-     */
-    function reset()
-    {
-        $this->params = [];
-        $this->result = null;
-        $this->packages = [];
-        $this->count = 0;
-        $this->tax_relation = null;
-        return $this;
-    }
-
-    /**
      * @param int $items_per_page
      */
     function items_per_page($items_per_page = 10)
     {
-		if($items_per_page)
-			$this->params['posts_per_page'] = $items_per_page;
+        $this->params['posts_per_page'] = $items_per_page;
         return $this;
     }
 
@@ -81,10 +57,6 @@ class Query
      */
     function sort($order_field = 'date', $order = 'DESC')
     {
-
-		if($order_field === 'downloads') $order_field = 'download_count';
-		if($order_field === 'views') $order_field = 'view_count';
-		if(in_array($order_field, ['update_date', 'updated'])) $order_field = 'modified';
 
         $order_fields = ['__wpdm_download_count', '__wpdm_view_count', '__wpdm_package_size_b'];
         if (!in_array("__wpdm_" . $order_field, $order_fields)) {
@@ -106,7 +78,7 @@ class Query
      * @param string $operator
      * @param false $include_children
      */
-    function taxonomy($taxonomy, $terms, $field = 'slug', $operator = 'IN', $include_children = null)
+    function taxonomy($taxonomy, $terms, $field = 'slug', $operator = 'IN', $include_children = false)
     {
         if (!isset($this->params['tax_query']) || !is_array($this->params['tax_query'])) $this->params['tax_query'] = [];
         if (!is_array($terms)) $terms = explode(",", $terms);
@@ -119,8 +91,6 @@ class Query
             $tax_query['include_children'] = $include_children;
         if ($operator !== 'IN')
             $tax_query['operator'] = $operator;
-	    if( isset( $tax_query['operator'] ) && $tax_query['operator'] === '' )
-		    $tax_query['operator'] = 'IN';
         if ($taxonomy === 'wpdmcategory') {
             array_unshift($this->params['tax_query'], $tax_query);
         } else
@@ -161,15 +131,10 @@ class Query
         if ($categories) {
             if($field === 'slug') {
                 if(!is_array($categories)) $categories = explode(",", $categories);
-                // Batch lookup instead of N+1 queries
-                $terms = get_terms([
-                    'taxonomy' => 'wpdmcategory',
-                    'slug' => $categories,
-                    'fields' => 'ids',
-                    'hide_empty' => false,
-                ]);
-                if (!is_wp_error($terms) && !empty($terms)) {
-                    $categories = $terms;
+                foreach ($categories as &$category) {
+                    $tempTerm = get_term_by('slug', $category, 'wpdmcategory');
+                    if(is_object($tempTerm))
+                        $category = $tempTerm->term_id;
                 }
                 $field = 'term_id';
             }
@@ -277,8 +242,6 @@ class Query
     /**
      * From date filter
      * @param null $date
-     * @param bool $modified Use post_modified_gmt instead of post_date
-     * @return $this
      */
     function from_date($date = null, $modified = false)
     {
@@ -294,14 +257,11 @@ class Query
             if(isset($date[2]))
                 $this->params['date_query']['after']['day'] = $date[2];
         }
-        return $this;
     }
 
     /**
-     * To date filter
+     * From date filter
      * @param null $date
-     * @param bool $modified Use post_modified_gmt instead of post_date
-     * @return $this
      */
     function to_date($date = null, $modified = false)
     {
@@ -317,7 +277,6 @@ class Query
             if(isset($date[2]))
                 $this->params['date_query']['before']['day'] = $date[2];
         }
-        return $this;
     }
 
     /**
@@ -406,23 +365,19 @@ class Query
      */
     function process()
     {
+        global $wpdb;
+
         if($this->tax_relation && isset($this->params['tax_query']) && is_array($this->params['tax_query']))
-            $this->params['tax_query'] = ['relation' => $this->tax_relation] + $this->params['tax_query'];
+            array_unshift($this->params['tax_query'], ['relation' => $this->tax_relation]);
 
         $this->params = apply_filters('wpdm_packages_query_params', $this->params);
         $this->params['post_type'] = $this->post_type;
-        $this->params['suppress_filters'] = true;
-	    $this->result = new \WP_Query($this->params);
-		$this->packages = $this->result->posts;
+        //wpdmprecho($this->params);
+        $this->result = new \WP_Query($this->params);
+        //wpdmdd($this->result);
+        //wpdmprecho($this->result->tax_query->get_sql('wp_term_relationships', 'ID'));
+        $this->packages = $this->result->get_posts();
         $this->count = $this->result->found_posts;
-
-        // Prime caches for better performance when accessing package data
-        if (!empty($this->packages)) {
-            $post_ids = wp_list_pluck($this->packages, 'ID');
-            update_postmeta_cache($post_ids);
-            update_object_term_cache($post_ids, $this->post_type);
-        }
-
         wp_reset_postdata();
         return $this;
     }

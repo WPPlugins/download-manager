@@ -12,18 +12,14 @@ class Messages {
 
     public static function message($msg, $die = 0, $style = 'embed'){
         if(is_array($msg)) {
-	        $title = esc_js($msg['title']);
-	        $type = sanitize_html_class($msg['type']);
-	        $_message = esc_js($msg['message']);
             if($style === 'modal')
-                $message = "<script>WPDM.bootAlert('{$title}', '<div class=\'text-{$type}\'>{$_message}</div>')</script>";
+                $message = "<script>WPDM.bootAlert('{$msg['title']}', '<div class=\'text-{$msg['type']}\'>{$msg['message']}</div>')</script>";
             else if($style === 'notify')
-                $message = "<script>WPDM.notify('<strong>{$msg['title']}</strong><br/>{$_message}', '{$msg['type']}', 'top-right')</script>";
+                $message = "<script>WPDM.notify('<strong>{$msg['title']}</strong><br/>{$msg['message']}', '{$msg['type']}', 'top-right')</script>";
             else
-                $message = "<div class='w3eden'><div class='alert alert-{$msg['type']}' data-title='{$msg['title']}'>{$_message}</div></div>";
+                $message = "<div class='w3eden'><div class='alert alert-{$msg['type']}' data-title='{$msg['title']}'>{$msg['message']}</div></div>";
         }
         else {
-	        $msg = esc_js($msg);
             if($style === 'mpdal')
                 $message = "<script>WPDM.bootAlert('Attention Please!', '{$msg}')</script>";
             else if($style === 'notify')
@@ -33,9 +29,15 @@ class Messages {
         }
         if($die==-1) return $message;
         if($die==0)
-            echo wp_kses_post($message);
+            echo $message;
         if($die==1) {
-            wp_die($message);
+            $content = "<div style='display: table;vertical-align: middle;height: 90%;position: absolute;width: 90%;margin-left: 5%;'>
+                        <div style='text-align: center;height: 100%;display: table-cell;vertical-align: middle'>
+                        <div style='max-width: 70% !important;display: inline-block;font-size: 13pt'>
+                            $message
+                        </div></div></div>";
+            include Template::locate("blank.php", __DIR__.'/views');
+            die();
         }
         return true;
     }
@@ -98,24 +100,23 @@ class Messages {
     public static function download_limit_exceeded($ID = null){
         $message = get_option("__wpdm_download_limit_exceeded");
         $message = self::decode_html($message);
-	    $message = __::sanitize_var($message, 'kses');
+        $message = wpdm_escs($message);
         $message = trim($message) !== '' ? $message : __( "Download Limit Exceeded!", "download-manager" );
         return $message;
     }
 
     public static function login_required($ID = null){
         $message = get_option("wpdm_login_msg");
-	    $message = self::decode_html($message);
-	    $message = __::sanitize_var($message, 'kses');
+        $message = self::decode_html($message);
+        $message = wpdm_escs($message);
         $message = trim($message) !== '' ? $message : WPDM()->user->login->modalLoginFormBtn(['class' => 'btn btn-danger', 'label' => '<i class="fas fa-lock mr-3"></i>'.__( "Login", "download-manager" )]);
         return $message;
     }
 
-    public static function permission_denied($ID = null, $default = ''){
+    public static function permission_denied($ID = null){
         $message = get_option("__wpdm_permission_denied_msg");
         $message = self::decode_html($message);
-	    $message = __::sanitize_var($message, 'kses');
-		if(trim($message === '')) $message = wpdm_escs($default);
+        $message = wpdm_escs($message);
         $message = trim($message) !== '' ? $message : WPDM()->ui->button('<i class="fas fa-lock mr-3"></i>'.__( "Access Denied", "download-manager" ), ['class' => 'btn btn-danger']);
         return $message;
     }

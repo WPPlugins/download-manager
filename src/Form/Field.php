@@ -81,15 +81,10 @@ class Field
         foreach ($attrs as $key => $value) {
             $_attrs .= "{$key}='{$value}' ";
         }
-	    $strength = '';
-	    if(isset($attrs['strength']) && $attrs['strength'] === 1) {
-		    $strength = '<div  class="progress bg-gray-50" style="height: 5px;position: absolute;width: calc(100% - 40px);background: #eee;margin-top: -5px;"><div id="progressbar" class="progress-bar progress-bar-striped progress-bar-animated bg-danger" role="progressbar" style="width: 10%;height: 5px;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div></div>';
-		    $strength .= '<script type="text/javascript" src="'.WPDM_ASSET_URL.'js/password-strength.js"></script>';
-	    }
-	    return "<input type='password' {$_attrs} />{$strength}";
+        return "<input type='password' $_attrs />";
     }
 
-    static function checkbox($attrs){
+    function checkbox($attrs){
         $_attrs = "";
         if(isset($attrs['class'])) unset($attrs['class']);
         $options = $attrs['options'];
@@ -104,7 +99,7 @@ class Field
         return $_options;
     }
 
-    static function radio($attrs){
+    function radio($attrs){
         $_attrs = "";
         if(isset($attrs['class'])) unset($attrs['class']);
         $options = $attrs['options'];
@@ -161,24 +156,22 @@ class Field
         ?>
         <div class="form-group row">
             <div class="col-sm-12">
-                <input type="hidden" id="<?php echo esc_attr($attrs['id']) ?>" name="<?php echo esc_attr($attrs['name']) ?>" value=""/>
-                <script src="https://www.google.com/recaptcha/enterprise.js?onload=onloadCallback&render=explicit"
+                <input type="hidden" id="<?php echo $attrs['id'] ?>" name="<?php echo $attrs['name'] ?>" value=""/>
+                <script src="https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit"
                         async defer></script>
-                <div id="<?php echo esc_attr($attrs['id']) ?>_field" class="recap_field"></div>
+                <div id="<?php echo $attrs['id'] ?>_field"></div>
                 <style>
-                    .wp-core-ui .recap_field{ padding-bottom: 12px; }
-                    .wp-core-ui #<?php echo esc_attr($attrs['id']) ?>_field iframe{ transform: scale(0.89); margin-left: -16px; margin-bottom: 12px; clear:both; }
-                    .w3eden #<?php echo esc_attr($attrs['id']) ?>_field iframe{ transform: scale(1.16); margin-left: 24px; margin-top: 5px; margin-bottom: 5px; }
-                    .w3eden #<?php echo esc_attr($attrs['id']) ?>_field{ padding-bottom: 10px !important; }
+                    #<?php echo $attrs['id'] ?>_field iframe{ transform: scale(1.16); margin-left: 24px; margin-top: 5px; margin-bottom: 5px; }
+                    #<?php echo $attrs['id'] ?>_field{ padding-bottom: 10px !important; }
                 </style>
                 <script type="text/javascript">
                     var verifyCallback = function (response) {
-                        jQuery('#<?php echo esc_js($attrs['id']) ?>').val(response);
+                        jQuery('#<?php echo $attrs['id'] ?>').val(response);
                     };
                     var widgetId2;
                     var onloadCallback = function () {
-                        grecaptcha.enterprise.render('<?php echo esc_js($attrs['id']) ?>_field', {
-                            'sitekey': '<?php echo esc_js(get_option('_wpdm_recaptcha_site_key')); ?>',
+                        grecaptcha.render('<?php echo $attrs['id'] ?>_field', {
+                            'sitekey': '<?php echo get_option('_wpdm_recaptcha_site_key'); ?>',
                             'callback': verifyCallback,
                             'theme': 'light'
                         });

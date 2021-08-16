@@ -19,17 +19,16 @@ class Form
 
     function __construct($formFields, $attrs = array())
     {
-        /*if (!isset($attrs['id'])) {
+        if (!isset($attrs['id'])) {
             $this->error = '<div class="alert alert-danger">Form ID is require, field id is missing in $attrs<br/><pre style="border-radius: 0;margin-top: 10px;margin-bottom: 5px">' . print_r($attrs, 1) . '</pre></div>';
             return;
-        }*/
+        }
         if (isset($attrs['groups']))
             $this->fieldGroups = $attrs['groups'];
+        $this->formFields = apply_filters("{$attrs['id']}_fields", $formFields, $attrs);
         foreach ($attrs as $name => $value) {
             $this->$name = $value;
         }
-	    $this->formFields = apply_filters("{$this->id}_fields", $formFields, $attrs);
-
     }
 
     function div($class = '', $id = '')
@@ -49,7 +48,7 @@ class Form
 
     function row($id, $fields)
     {
-        $row = $this->div("row", $id);
+        $row = $this->div("form-row", $id);
         if (isset($fields['label']))
             $this->label($fields['label'], $id);
 
@@ -132,14 +131,14 @@ class Form
                         async defer></script>
                 <div id="<?php echo $attrs['id'] ?>_field"></div>
                 <style>
-                    #wpdmlogin #<?php echo $attrs['id'] ?>_field iframe {
+                    #<?php echo $attrs['id'] ?>_field iframe {
                         transform: scale(1.16);
                         margin-left: 24px;
                         margin-top: 5px;
                         margin-bottom: 5px;
                     }
 
-                    #wpdmlogin #<?php echo $attrs['id'] ?>_field {
+                    #<?php echo $attrs['id'] ?>_field {
                         padding-bottom: 10px !important;
                     }
                 </style>

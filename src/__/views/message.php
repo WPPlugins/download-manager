@@ -7,83 +7,56 @@ if (!defined('ABSPATH')) die();
  */
 
 
-?><!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" <?php language_attributes(); ?>>
+?>
+<!DOCTYPE html>
+<html style="background: transparent">
 <head>
-    <meta http-equiv="Content-Type"
-          content="<?php bloginfo( 'html_type' ); ?>; charset=<?php bloginfo( 'charset' ); ?>"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="<?php echo WPDM_ASSET_URL.'css/front.min.css'; ?>" />
-    <?php $color_scheme = get_option('__wpdm_color_scheme', 'system'); if ($color_scheme !== 'light') { ?>
-    <link rel="stylesheet" href="<?php echo WPDM_ASSET_URL.'css/front-dark.min.css'; ?>" />
-    <?php } ?>
+    <title>Download <?php the_title(); ?></title>
+    <script>
+        var wpdm_home_url = "<?php echo home_url('/'); ?>";
+    </script>
+    <link rel="stylesheet" href="<?php echo WPDM_BASE_URL; ?>assets/bootstrap/css/bootstrap.css" />
+    <link rel="stylesheet" href="<?php echo WPDM_BASE_URL; ?>assets/css/front.css" />
+    <link rel="stylesheet" href="<?php echo WPDM_BASE_URL; ?>assets/font-awesome/css/font-awesome.min.css" />
+    <link href="https://fonts.googleapis.com/css?family=Overpass:400,700" rel="stylesheet">
+    <!--
+    <script src="<?php echo includes_url(); ?>/js/jquery/jquery.js"></script>
+    <script src="<?php echo includes_url(); ?>/js/jquery/jquery.form.min.js"></script>
+    <script src="<?php echo WPDM_BASE_URL; ?>assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="<?php echo WPDM_BASE_URL; ?>assets/js/front.js"></script>
+    -->
     <?php
-    $_font = get_option('__wpdm_google_font', 'Sen');
-    $font = explode(":", $_font);
-    $font = $font[0];
-    $font = $font ? $font . ',' : '';
-    if($_font && \WPDM\__\Apply::googleFontsEnabled()) {
+    \WPDM\__\Apply::uiColors();
     ?>
-    <link href="https://fonts.googleapis.com/css2?family=<?php echo str_replace("regular", 400, $_font); ?>" rel="stylesheet">
-    <?php } ?>
-    <?php WPDM()->apply::uiColors(); ?>
     <style>
         body{
-            font-family: var(--wpdm-font);
-            background: #ffffff url("<?php echo get_the_post_thumbnail_url(); ?>") no-repeat;
-            background-size: cover;
+            font-family: Overpass, sans-serif;
+            font-weight: 400;
+            font-size: 14px;
         }
-        .outer {
-            display: table;
-            position: absolute;
-            top: 0;
-            left: 0;
-            height: 100%;
-            width: 100%;
+        .w3eden .alert:before{
+            text-transform: uppercase !important;
         }
-
-        .middle {
-            display: table-cell;
-            vertical-align: middle;
-            text-align: center;
+        .w3eden .alert{
+            letter-spacing: 0.5px !important;
         }
-
-
-        .w3eden .panel .panel-heading{
-            font-size: 10px;
+        .w3eden .card .card-header{
+            font-size: 13pt;
         }
-        .w3eden p{
-            margin: 15px 0 !important;
+        .w3eden .card .card-body{
+            font-size: 13pt;
         }
-
-        .w3eden .inner {
-            letter-spacing: 0.3px;
-        }
-        .w3eden .inner .card-header strong,
-        .w3eden .inner .card-header {
-            font-weight: 600;
-            font-size: 16px !important;
-        }
-        .w3eden .inner .card {
-            width: 500px;
-            margin: 0 auto;
-        }
-
     </style>
-
 </head>
 <body class="w3eden">
-<div class="outer">
-    <div class="middle">
-        <div class="inner">
-	        <?php
-	        echo do_shortcode($msg);
-	        ?>
-        </div>
-    </div>
-</div>
+<div style='display: table;vertical-align: middle;height: 90%;position: absolute;width: 90%;margin-left: 5%;'>
+    <div style='text-align: center;height: 100%;display: table-cell;vertical-align: middle'>
+        <div style='max-width: 70% !important;display: inline-block;font-size: 13pt'>
+            <?php
+            echo do_shortcode($msg);
+            ?>
+        </div></div></div>
+
 
 </body>
-
-
 </html>

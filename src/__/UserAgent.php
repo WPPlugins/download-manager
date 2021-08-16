@@ -13,7 +13,8 @@ class UserAgent
 
     function __construct()
     {
-	    $this->HTTP_USER_AGENT = isset($_SERVER, $_SERVER['HTTP_USER_AGENT']) && $_SERVER['HTTP_USER_AGENT'] !== '' ? $_SERVER['HTTP_USER_AGENT'] : 'MISSING';
+        $this->HTTP_USER_AGENT = isset($_SERVER, $_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
+        //$this->parse($this->HTTP_USER_AGENT);
     }
 
     function set($HTTP_USER_AGENT){
