@@ -9,8 +9,6 @@ if (!defined("ABSPATH")) die();
 ?>
 <div class='w3eden'>
     <div class='<?php echo $css_class; ?>'>
-        <?php if($title) { ?><h2><?php echo wpdm_escs($title); ?></h2><?php } ?>
-        <?php if($desc) echo wpautop(wpdm_escs($desc)); ?>
         <?php include \WPDM\__\Template::locate("packages-shortcode-toolbar.php", __DIR__); ?>
         <div id="content_<?php echo $scid; ?>">
             <?php echo $html ?>

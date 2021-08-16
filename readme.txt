@@ -181,6 +181,10 @@ Check download stats and get a push notification when someone downloads, install
 
 == Changelog ==
 
+= 3.2.14 - 2021.08.16 =
+* Fixed an issue with template file detection in child theme
+* Fixed file delete option with the asset manager
+
 = 3.2.13 - 2021.08.04 =
 * Fixed a security issue around email template function
 * Fixed an issue with the wpdm tag query

@@ -11,10 +11,8 @@
     padding: 0;
     margin: 0;
 }
-.w3eden .btn{
-    font-size: unset;
-}
-.w3eden .btn.wpdm-clear,
+
+.wpdm-clear,
 .w3eden .clear {
     clear: both;
 }
@@ -38,6 +36,7 @@
     overflow: hidden;
     position: relative;
     width: 100%;
+    display: block;
 }
 .w3eden .qdb {
     background: #0073ff;
@@ -429,7 +428,7 @@
 .w3eden .btn.btn-xs {
     border-radius: 1.5px;
     padding: 4px 8px;
-    font-size: 9px;
+    font-size: 10px;
 }
 
 .w3eden .btn.btn-xs.btn-icon {
@@ -805,7 +804,7 @@
     position: relative;
 }
 
-
+/*
 .w3eden .btn {
     -webkit-transition: all 0.2s ease;
     transition: all 0.2s ease;
@@ -923,6 +922,7 @@
 .w3eden .navbar .navbar-nav > a.btn.btn-icon.btn-simple {
     padding: 0;
 }
+
 .w3eden .btn.btn-icon.btn-sm,
 .w3eden .navbar .navbar-nav > a.btn.btn-icon.btn-sm {
     height: 1.875rem;
@@ -985,7 +985,7 @@
     box-shadow: none;
 }
 .w3eden .btn-primary:hover {
-    box-shadow: 0 3px 8px 0 rgba(0, 0, 0, 0.17);
+    box-shadow: 0 3px 8px 0 rgba(var(--color-primary-rgb), 0.4);
 }
 .w3eden .btn-primary.disabled,
 .w3eden .btn-primary.disabled:hover,
@@ -1248,6 +1248,7 @@
 }
 .w3eden .btn-danger {
     background-color: var(--color-danger);
+    border-color: var(--color-danger);
     color: #FFFFFF;
 }
 .w3eden .btn-danger:hover,
@@ -1367,6 +1368,7 @@
 .w3eden fieldset[disabled] .btn-link.active {
     background-color: transparent;
 }
+
 .w3eden .btn-lg {
     font-size: 1em;
     border-radius: 0.25rem;
@@ -1385,7 +1387,7 @@
     border: 0;
     padding: 0.5rem 0.7rem;
     background-color: transparent;
-}
+}*/
 .w3eden .btn-wd {
     min-width: 140px;
 }
@@ -1667,15 +1669,16 @@
     display: block;
     font-size: 14px;
     font-weight: 600;
-    border: 1px solid rgba(0,0,0,0.1);
+    border: 1px solid rgba(0,0,0,0.2);
+    background: rgba(0,0,0,0.01);
 }
 .pagination li span,
 .pagination li a.dot{
     border: 1px solid rgba(0,0,0,0) !important;
 }
 .w3eden .pagination li span{
-    background: #ffffff;
-    border-color: var(--color-primary);
+    background: rgba(var(--color-primary-rgb), 0.1) !important;
+    border-color: var(--color-primary) !important;
     color: var(--color-primary);
 
 }
@@ -2359,34 +2362,50 @@ svg#wpdm-loading rect{
     position: fixed;
     top:30px;
     right: 30px;
-    z-index: 999999 !important;
+    z-index: 999999999 !important;
+}
+#wpdm-floatify-bottom-left,
+#wpdm-notify-bottom-left{
+    position: fixed;
+    bottom:30px;
+    left: 30px;
+    z-index: 999999999 !important;
 }
 #wpdm-notify-bottom-full{
     position: fixed;
     bottom:0;
     left: 0;
     width: 100%;
-    z-index: 999999 !important;
+    z-index: 999999999 !important;
     text-align: center !important;
+}
+#wpdm-notify-top-center {
+    position: fixed;
+    left: 50% !important;
+    top: 40px !important;
+    z-index: 999999999;
 }
 .wpdm-floatify{
     margin-bottom: 10px;
-    font-size: 9pt;
+    font-size: 10pt !important;
     letter-spacing: 0.5px;
 }
 .wpdm-notify{
-    padding: 20px;
-    border-radius: 0px;
+    padding: 20px 40px !important;
+    border-radius: 0;
     clear: both;
     background: #ffffff;
     background-size: 24px !important;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
     margin-bottom: 10px;
     cursor: pointer;
-    font-size: 11pt;
+    font-size: 11pt !important;
     letter-spacing: 0.5px;
 }
-
+#wpdm-notify-top-center .wpdm-notify {
+    margin-left: -50% !important;
+    display: inline-block;
+}
 .wpdm-hide-right{
     display: none;
     position: absolute;
@@ -2408,11 +2427,12 @@ svg#wpdm-loading rect{
     color: var(--color-success-active);
 }
 #wpdm-notify-bottom-full .wpdm-notify-success{
-    background: #48a548;
+    background: var(--color-success-active);
     color: #ffffff;
     margin: 0 !important;
     border: 0 !important;
     box-shadow: none;
+    font-size: 11pt !important;
 }
 
 .wpdm-notify-error{
@@ -2626,6 +2646,7 @@ i.udbsap{
 #wpdm-audio-player-ui .progress-bar{
     border-radius: 2px;
     background: #239cef linear-gradient(180deg, #5b71e8d6, #4b5dbbde);
+    height: 100%;
 }
 #wpdm-audio-player-ui #mins{
     line-height: 36px;

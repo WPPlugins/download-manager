@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) die();
 <head>
     <title>Download <?php the_title(); ?></title>
     <script>
-        var wpdm_home_url = "<?php echo home_url('/'); ?>";
+        var wpdm_url = <?= json_encode(WPDM()->wpdm_urls) ?>;
     </script>
     <link rel="stylesheet" href="<?php echo WPDM_BASE_URL; ?>assets/bootstrap/css/bootstrap.css" />
     <link rel="stylesheet" href="<?php echo WPDM_BASE_URL; ?>assets/css/front.css" />

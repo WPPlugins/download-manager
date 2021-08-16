@@ -7,6 +7,7 @@ Version: 1.0.0
 
 namespace WPDM\AssetManager;
 
+use WPDM\__\__;
 use WPDM\__\Crypt;
 use WPDM\__\Messages;
 use WPDM\__\Session;
@@ -329,10 +330,7 @@ class AssetManager
     function deleteItem()
     {
 
-        if (wp_verify_nonce(wpdm_query_var('__wpdm_unlink'), WPDMAM_NONCE_KEY)) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
-        check_ajax_referer(WPDMAM_NONCE_KEY, '__wpdm_unlink');
-
-        if (!current_user_can(WPDM_ADMIN_CAP)) wp_send_json(array('success' => false, 'message' => __("Error! You are not authorized to execute this action.", "download-manager")));
+        __::isAuthentic('__wpdm_unlink', WPDMAM_NONCE_KEY, WPDM_ADMIN_CAP, true);
 
         $relpath = Crypt::decrypt(wpdm_query_var('delete'));
         $path = AssetManager::root($relpath);

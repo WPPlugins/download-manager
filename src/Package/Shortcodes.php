@@ -103,7 +103,7 @@ class Shortcodes
      * @param array $params
      * @return string
      */
-    function packages($params = array('items_per_page' => 10, 'title' => false, 'desc' => false, 'orderby' => 'date', 'order' => 'DESC', 'paging' => false, 'page_numbers' => true, 'toolbar' => 1, 'template' => '', 'cols' => 3, 'colspad' => 2, 'colsphone' => 1, 'tags' => '', 'categories' => '', 'year' => '', 'month' => '', 's' => '', 'css_class' => 'wpdm_packages', 'scid' => '', 'async' => 1, 'tax' => '', 'terms' => ''))
+    function packages($params = array('items_per_page' => 10, 'title' => '', 'desc' => '', 'orderby' => 'date', 'order' => 'DESC', 'paging' => false, 'page_numbers' => true, 'toolbar' => 1, 'template' => '', 'cols' => 3, 'colspad' => 2, 'colsphone' => 1, 'tags' => '', 'categories' => '', 'year' => '', 'month' => '', 's' => '', 'css_class' => 'wpdm_packages', 'scid' => '', 'async' => 1, 'tax' => '', 'terms' => ''))
     {
         global $current_user, $post;
 
@@ -129,6 +129,8 @@ class Shortcodes
         $cwdsm_class = "col-md-" . (int)(12 /  __::valueof($params, 'colspad', ['default' => 2, 'validate' => 'int']));
         $cwdxs_class = "col-" . (int)(12 /  __::valueof($params, 'colsphone', ['default' => 1, 'validate' => 'int']));
 
+        $title = __::valueof($params, 'title', ['validate' => 'txt']);
+        $desc = __::valueof($params, 'desc', ['validate' => 'txt']);
         $toolbar = __::valueof($params, 'toolbar', ['default' => 1, 'validate' => 'int']);
         $paging = __::valueof($params, 'paging', ['default' => 1, 'validate' => 'int']);
 
@@ -287,9 +289,6 @@ class Shortcodes
 
         $css_class = isset($scparams['css_class']) ? sanitize_text_field($scparams['css_class']) : '';
         $desc = isset($scparams['desc']) ? sanitize_text_field($scparams['desc']) : '';
-
-        $title = isset($title) && $title != '' && $total > 0 ? "<h3>$title</h3>" : "";
-
 
         $toolbar = isset($toolbar) ? $toolbar : 0;
 

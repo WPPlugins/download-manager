@@ -154,7 +154,7 @@ if(wpdm_query_var('_type') === 'custom-tags'){
             $('#preview-area').html("<i class='fa fa-spin fa-spinner'></i> Loading Preview...").load($(this).attr('data-href'));
         });
         $('#etmpl').on('change', function () {
-            $('#preview').attr('src', 'edit.php?action=email_template_preview&id=user-signup&etmpl='+$(this).val());
+            $('#preview').attr('src', 'edit.php?action=email_template_preview&id=user-signup&etmpl='+$(this).val()+"&__empnonce=<?php echo wp_create_nonce(WPDM_PRI_NONCE); ?>");
             $('#etplname').html($(this).val());
         });
         $('#etplname').html($('#etmpl').val());

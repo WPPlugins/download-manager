@@ -15,24 +15,23 @@ class Template
         $template_dirs = array(
             get_stylesheet_directory().'/download-manager/',
             get_template_directory().'/download-manager/',
-            ''
         );
         if($tpldir !== '') {
-            $template_dirs[] = rtrim($tpldir, '/').'/';
+            $template_dirs[] = trailingslashit($tpldir);
+            $template_dirs[] = get_stylesheet_directory().'/download-manager/'.$tpldir.'/';
             $template_dirs[] = get_template_directory().'/download-manager/'.$tpldir.'/';
-        }
-        $template_dirs[] = trailingslashit(WPDM_TPL_DIR);
-        $template_dirs[] = trailingslashit(WPDM_TPL_FALLBACK);
+        } else
+            $template_dir[] = '';
 
         if($fallback !== '')
             $template_dirs[] = trailingslashit($fallback);
 
         $template_dirs = apply_filters("wpdm_template_path", $template_dirs, $file);
-        //wpdmprecho($template_dirs);
         foreach ($template_dirs as $template_dir){
             if(file_exists($template_dir.$file))
                 return $template_dir.$file;
         }
+        //wpdmdd($file);
         return "";
     }
 
@@ -53,7 +52,7 @@ class Template
     function fetch($template, $tpldir = '' , $fallback = ''){
         $template = self::locate($template, $tpldir);
         if(is_array($this->vars))
-        extract($this->vars);
+            extract($this->vars);
         ob_start();
         include $template;
         return ob_get_clean();

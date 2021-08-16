@@ -3,7 +3,7 @@
  * Email Handler Class for WordPress Download Manager Pro
  * Since: v4.6.0
  * Author: Shahjada
- * Version: 2.0.1
+ * Version: 2.0.2
  */
 namespace WPDM\__;
 

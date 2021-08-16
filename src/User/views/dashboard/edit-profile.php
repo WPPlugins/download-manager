@@ -58,7 +58,7 @@ $user = get_userdata($current_user->ID);
             $('#edit_profile_sbtn').html("<i class='fa fa-sync fa-spin'></i> <?= esc_attr__( 'Please Wait...', WPDM_TEXT_DOMAIN ) ?>").attr('disabled','disabled');
             $(this).ajaxSubmit({
                 success: function (res) {
-                    WPPMSG.notify(res.msg, res.type, '#wpdm-fixed-top-center', 10000);
+                    WPDM.notify(res.msg, res.type, '#wpdm-fixed-top-center', 10000);
                     //$('#edit-profile-msg').html("<div class='alert alert-"+res.type+"' data-title='"+res.title+"'>"+res.msg+"</div>");
                     $('#edit_profile_sbtn').html(edit_profile_sbtn).removeAttr('disabled');
                 }

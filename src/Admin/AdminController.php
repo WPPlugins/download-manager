@@ -53,7 +53,7 @@ class AdminController {
 
     function pluginRowMeta($plugin_meta, $plugin_file, $plugin_data, $status){
         if($plugin_file === 'download-manager/download-manager.php') {
-            $plugin_meta[] = "<strong><a href='https://www.wpdownloadmanager.com/wordpress-download-manager-change-log/' target='_blank'>" . __("Changelog", "download-manager") . "</a></strong>";
+            $plugin_meta[] = "<strong><a href='https://wordpress.org/plugins/download-manager/#developers' target='_blank'>" . __("Changelog", "download-manager") . "</a></strong>";
             $plugin_meta[] = "<a href='https://www.wpdownloadmanager.com/docs/' target='_blank'>" . __("Docs", "download-manager") . "</a>";
             $plugin_meta[] = "<a href='https://www.wpdownloadmanager.com/support/' target='_blank'>" . __("Support Forum", "download-manager") . "</a>";
         }

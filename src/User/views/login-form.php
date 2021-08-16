@@ -88,10 +88,10 @@ if(!defined('ABSPATH')) die();
         var llbl = $('#loginform-submit').html();
         $('#loginform').submit(function () {
             $('#loginform-submit').html("<i class='fa fa-spin fa-sync'></i> <?php _e( "Logging In..." , WPDM_TEXT_DOMAIN ); ?>").attr('disabled', 'disabled');
-            WPPMSG.blockUI('#loginform');
+            WPDM.blockUI('#loginform');
             $(this).ajaxSubmit({
                 error: function(error) {
-                    WPPMSG.unblockUI('#loginform');
+                    WPDM.unblockUI('#loginform');
                     $('#loginform').prepend("<div class='alert alert-danger' data-title='<?php _e( "LOGIN FAILED!" , WPDM_TEXT_DOMAIN ); ?>'>"+error.responseJSON.message+"</div>");
                     $('#loginform-submit').html(llbl).removeAttr('disabled');
                     <?php if((int)get_option('__wpdm_recaptcha_loginform', 0) === 1 && get_option('_wpdm_recaptcha_site_key') != ''){ ?>
@@ -103,7 +103,7 @@ if(!defined('ABSPATH')) die();
                     <?php } ?>
                 },
                 success: function (res) {
-                    WPPMSG.unblockUI('#loginform');
+                    WPDM.unblockUI('#loginform');
                     if (!res.success) {
                         $('form .alert-danger').hide();
                         $('#loginform').prepend("<div class='alert alert-danger' data-title='<?php _e( "LOGIN FAILED!" , WPDM_TEXT_DOMAIN ); ?>'>"+res.message+"</div>");

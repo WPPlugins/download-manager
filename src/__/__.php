@@ -27,8 +27,8 @@ class __
             $ipaddress = getenv('REMOTE_ADDR');
         else
             $ipaddress = 'UNKNOWN';
-
-        return $ipaddress;
+        $ipaddress = explode(",", $ipaddress);
+        return $ipaddress[0];
     }
 
 
@@ -301,9 +301,7 @@ class __
      */
     static function is_ajax()
     {
-        if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest')
-            return true;
-        return false;
+        return (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest');
     }
 
     /**
@@ -432,10 +430,12 @@ class __
 
     static function isAuthentic($nonce_var, $nonce_key, $access_level, $is_ajax = true){
         $nonce_var = __::sanitize_var($nonce_var, 'txt');
-        if($is_ajax)
-            check_ajax_referer($nonce_key, $nonce_var);
-        if(!wp_verify_nonce(wpdm_query_var($nonce_var), $nonce_key)) die(__('Security token is expired! Refresh the page and try again.', 'download-manager'));
-        if(!current_user_can($access_level)) die(__( "You are not allowed to change settings!", "download-manager" ));
+        if($is_ajax) {
+            if(!check_ajax_referer($nonce_key, $nonce_var, false))
+                wp_send_json(['success' => false, 'message' => esc_attr__( 'Referer verification failed', WPDM_TEXT_DOMAIN )]);
+        }
+        if(!wp_verify_nonce(wpdm_query_var($nonce_var), $nonce_key)) wp_send_json(['success' => false, 'message' => __('Security token is expired! Refresh the page and try again.', 'download-manager')]);
+        if(!current_user_can($access_level)) wp_send_json(['success' => false, 'message' => __( "You are not allowed to change settings!", "download-manager" )]);
     }
 
     static function p(...$args)

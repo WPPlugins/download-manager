@@ -5,7 +5,7 @@ Plugin URI: https://www.wpdownloadmanager.com/purchases/
 Description: Manage, Protect and Track file downloads, and sell digital products from your WordPress site. A complete digital asset management solution.
 Author: W3 Eden, Inc.
 Author URI: https://www.wpdownloadmanager.com/
-Version: 3.2.13
+Version: 3.2.14
 Text Domain: download-manager
 Domain Path: /languages
 */
@@ -39,7 +39,7 @@ use WPDM\Widgets\WidgetController;
 
 global $WPDM;
 
-define('WPDM_VERSION','3.2.13');
+define('WPDM_VERSION','3.2.14');
 
 define('WPDM_TEXT_DOMAIN','download-manager');
 
@@ -137,6 +137,7 @@ final class WordPressDownloadManager{
     public $message;
     public $updater;
     public $ui;
+    public $wpdm_urls;
 
     private static $wpdm_instance = null;
 
@@ -165,6 +166,12 @@ final class WordPressDownloadManager{
         add_action( 'wp_footer', array($this, 'wpFooter') );
 
         $this->autoLoadClasses();
+
+        $this->wpdm_urls = array(
+            'home' => esc_url_raw(home_url('/')),
+            'site' => esc_url_raw(site_url('/')),
+            'ajax' => esc_url_raw(admin_url('/admin-ajax.php'))
+        );
 
         include_once(dirname(__FILE__) . "/src/wpdm-functions.php");
         include(dirname(__FILE__)."/src/wpdm-core.php");
@@ -476,11 +483,7 @@ final class WordPressDownloadManager{
         $wpdm_js = apply_filters("wpdm_js_vars", $wpdm_js);
 
 
-        wp_localize_script('wpdm-frontjs', 'wpdm_url', array(
-            'home' => esc_url_raw(home_url('/')),
-            'site' => esc_url_raw(site_url('/')),
-            'ajax' => esc_url_raw(admin_url('/admin-ajax.php'))
-        ));
+        wp_localize_script('wpdm-frontjs', 'wpdm_url', $this->wpdm_urls);
 
         wp_localize_script('wpdm-frontjs', 'wpdm_js', $wpdm_js);
 
