@@ -8,6 +8,7 @@ namespace WPDM\MediaLibrary;
 
 
 use WPDM\__\Crypt;
+use WPDM\__\Messages;
 use WPDM\__\Template;
 use WPDM\__\TempStorage;
 use WPDM\__\FileSystem;
@@ -79,9 +80,12 @@ class MediaAccessControl
 
     function protectMediaLibrary(){
         if(isset($_REQUEST['wpdmmediaid'])){
-            global $wpdb, $current_user;
-            $media = get_post($_REQUEST['wpdmmediaid']);
-            $media_meta = wp_get_attachment_metadata($_REQUEST['wpdmmediaid']);
+            global $wpdb;
+            $current_user = wp_get_current_user();
+            $ID = wpdm_query_var('wpdmmediaid', 'int');
+            $media = get_post($ID);
+            if(!$media) Messages::fullPage('404', esc_attr__( 'Media not found!', WPDM_TEXT_DOMAIN ));
+            $media_meta = wp_get_attachment_metadata($ID);
             //wpdmdd($media_meta);
             //wpdmdd($media);
             $media->path = str_replace(home_url('/'), ABSPATH.'/', $media->guid);
@@ -119,18 +123,18 @@ class MediaAccessControl
         $upload_dir = $upload_dir['basedir'];
         $htaccess_rules = "<IfModule mod_rewrite.c>\nRewriteEngine On\n";
         foreach ($protected as $id => $path){
-           $path = str_replace($upload_dir.'/', "", $path);
-           $file_dir = preg_replace("/\/([^\/]+)$/i", "/", $path);
-           $htaccess_rules .= "RewriteRule ^({$path})$ ../../index.php?wpdmmediaid={$id}&wpdmmedia=$1\n";
-           if(wp_attachment_is_image($id))
-           {
-               $meta = wp_get_attachment_metadata($id);
-               $thumbs = $meta['sizes'];
-               foreach ($thumbs as $size => $thumb) {
-                   $_path = $file_dir.$thumb['file'];
-                   $htaccess_rules .= "RewriteRule ^({$_path})$ ../../index.php?wpdmmediaid={$id}&wpdmmedia=$1&thumb={$size}\n";
-               }
-           }
+            $path = str_replace($upload_dir.'/', "", $path);
+            $file_dir = preg_replace("/\/([^\/]+)$/i", "/", $path);
+            $htaccess_rules .= "RewriteRule ^({$path})$ ../../index.php?wpdmmediaid={$id}&wpdmmedia=$1\n";
+            if(wp_attachment_is_image($id))
+            {
+                $meta = wp_get_attachment_metadata($id);
+                $thumbs = $meta['sizes'];
+                foreach ($thumbs as $size => $thumb) {
+                    $_path = $file_dir.$thumb['file'];
+                    $htaccess_rules .= "RewriteRule ^({$_path})$ ../../index.php?wpdmmediaid={$id}&wpdmmedia=$1&thumb={$size}\n";
+                }
+            }
 
         }
         $htaccess_rules .= "</IfModule>";

@@ -128,7 +128,7 @@ class PackageController extends PackageTemplate
             $post_vars['play_button'] = self::audioPlayer($post_vars);
 
 
-        $post_vars['link_label'] = isset($post_vars['link_label']) ? $post_vars['link_label'] : __("Download", "download-manager");
+        $post_vars['link_label'] = isset($post_vars['link_label']) ? esc_attr($post_vars['link_label']) : esc_attr__("Download", "download-manager");
         $post_vars['page_url'] = get_permalink($post_vars['ID']);
         $post_vars['page_link'] = "<a href='" . $post_vars['page_url'] . "'>{$post_vars['title']}</a>";
         $post_vars['page_url_qr'] = "<img class='wpdm-qr-code wpdm-qr-code{$post_vars['ID']}' style='max-width: 250px' src='http://chart.googleapis.com/chart?cht=qr&chs=450x450&choe=UTF-8&chld=H|0&chl={$post_vars['page_url']}' alt='{$post_vars['title']}' />";
@@ -666,8 +666,7 @@ class PackageController extends PackageTemplate
         if ($audio != null) {
             $song = FileSystem::mediaURL($package['ID'], $audx, basename($audio));  //home_url("/?wpdmdl={$package['ID']}&ind=".$audx."&play=".basename($audio));
             $audiohtml = "<button data-player='wpdm-audio-player' data-song='{$song}' class='btn btn-{$style} wpdm-btn-play'><i class='fa fa-play'></i></button>";
-
-
+            $audiohtml = apply_filters("wpdm_audio_play_button", $audiohtml, $song, $package, 0);
         }
 
         if ($return)
@@ -799,7 +798,7 @@ class PackageController extends PackageTemplate
                 //if($metaValidate[$metaDataRow->meta_key] === 'array' && !is_array($metaDataRow->meta_value)) $metaDataRow->meta_value = unserialize($metaDataRow->meta_value);
                 //else
                 //    $metaDataRow->meta_value = __::sanitize_var($metaDataRow->meta_value, $metaValidate[$metaDataRow->meta_key]);
-                $data[$key] = maybe_unserialize($metaDataRow->meta_value);
+                $data[$key] = wpdm_sanitize_var(maybe_unserialize($metaDataRow->meta_value), $metaValidate[$metaDataRow->meta_key]);
             }
         }
         unset($metaData);
@@ -1239,7 +1238,7 @@ class PackageController extends PackageTemplate
             }
 
             if ($data != "") {
-                $data = apply_filters('wpdm_download_link', $data, array('ID' => $ID, 'id' => $ID));
+                $data = apply_filters('wpdm_download_link', $data, $extras + array('ID' => $ID, 'id' => $ID));
                 return $data;
             }
 
@@ -1251,7 +1250,7 @@ class PackageController extends PackageTemplate
             $data = "<button class='btn btn-danger btn-block' type='button' disabled='disabled' data-title='DOWNLOAD ERROR:'>" . __("Limit Over!", "download-manager") . "</button>";
         }
         if ($data == 'loginform') return WPDM()->user->login->form();
-        $data = apply_filters('wpdm_download_link', $data, array('ID' => $ID, 'id' => $ID));
+        $data = apply_filters('wpdm_download_link', $data, $extras + array('ID' => $ID, 'id' => $ID));
         return $data;
 
     }
@@ -1782,6 +1781,7 @@ class PackageController extends PackageTemplate
     public function linkLabel($ID)
     {
         $link_label = get_post_meta($ID, '__wpdm_link_label', true);
+        $link_label = esc_attr($link_label);
         $link_label = $link_label ? $link_label : __("Download", "download-manager");
         return $link_label;
     }

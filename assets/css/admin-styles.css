@@ -2190,3 +2190,30 @@ body.wpdm-iframe-modal-open {
     font-size: 12px;
     text-align: center;
 }
+
+
+body.rtl #wpdm-admin-page-body {
+    margin-right: 250px !important;
+}
+body.rtl.wpdmpro_page_settings #wpcontent{
+    padding-right: 0 !important;
+}
+body.rtl #wpdm-admin-main-header {
+    padding-left: 0 !important;
+    margin-left: 0 !important;
+}
+body.rtl.wpdmpro_page_settings #wpdm-admin-page-header .pull-right
+{
+    float: left !important;
+    padding-left: 0 !important;
+}
+body.rtl #wpdm-admin-page-container {
+    padding-left: 0 !important;
+}
+body.rtl .w3eden .chosen-container .chosen-drop,
+body.rtl .w3eden .chosen-container-single-nosearch .chosen-search input[type="text"]{
+    display: none;
+}
+body.rtl .w3eden .chosen-container.chosen-with-drop .chosen-drop {
+    display: block;
+}

@@ -212,7 +212,6 @@ if(isset($params['jstable']) && $params['jstable']==1):
 
 
             $cfurl = get_permalink();
-
             $query_params = array("post_type"=>"wpdmpro","posts_per_page"=>$items,"offset"=>$offset);
             if(isset($tax_query)) $query_params['tax_query'] = $tax_query;
             $query_params['orderby'] = (isset($params['order_by']))?$params['order_by']:'date';
@@ -290,7 +289,7 @@ if(isset($params['jstable']) && $params['jstable']==1):
                 $data['download_link'] = WPDM()->package->downloadLink($data['ID'], 0, array('template_type' => 'link'));
                 $data = apply_filters("wpdm_after_prepare_package_data", $data);
                 $download_link = htmlspecialchars_decode($data['download_link']);
-                if(((isset($data['base_price']) && $data['base_price'] > 0) || (isset($data['pay_as_you_want']) && (int)$data['pay_as_you_want'] === 1)) && function_exists('wpdmpp_currency_sign'))
+                if (function_exists('wpdmpp_effective_price') && wpdmpp_effective_price($data['ID']) > 0)
                     $download_link = wpdmpp_waytocart($data, 'btn-primary');
 
                 if(WPDM()->package->userCanAccess($data['ID']) || !get_option("_wpdm_hide_all", 0)){
@@ -396,26 +395,7 @@ if(isset($params['jstable']) && $params['jstable']==1):
 
         isset($wp_query->query_vars['paged']) && $wp_query->query_vars['paged'] > 1 ? $current = $wp_query->query_vars['paged'] : $current = 1;
 
-        $pagination = array(
-            'base' => @add_query_arg('paged','%#%'),
-            'format' => '',
-            'total' => ceil($total_files/$items),
-            'current' => $cp,
-            'show_all' => false,
-            'type' => 'list',
-            'prev_next'    => True,
-            'prev_text' => '<i class="fa fa-long-arrow-left"></i> '.__('Previous', 'download-manager'),
-            'next_text' => __('Next', 'download-manager').' <i class="fa fa-long-arrow-right"></i>',
-        );
-
-        if( $wp_rewrite->using_permalinks() )
-            $pagination['base'] = user_trailingslashit( trailingslashit( remove_query_arg('s',get_pagenum_link(1) ) ) . 'page/%#%/', 'paged');
-
-        if( !empty($wp_query->query_vars['s']) )
-            $pagination['add_args'] = array('s'=>get_query_var('s'));
-
-        echo  "<div class='text-center'>".str_replace("<ul class='page-numbers'>","<ul class='page-numbers pagination pagination-centered'>",paginate_links($pagination))."</div>";
-
+        echo  wpdm_paginate_links($total_files, $items, $cp);
         wp_reset_query();
         ?>
 

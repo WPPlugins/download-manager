@@ -23,6 +23,25 @@ class UI
         return "<div{$class} $_attrs>{$content}</div>";
     }
 
+    static function html($tag, $attrs = [], $content = '')
+    {
+        $_attrs = "";
+        foreach ($attrs as $name => $val){
+            $_attrs .= " {$name}='$val'";
+        }
+        return "<$tag $_attrs>{$content}</$tag>";
+    }
+
+    static function a($link, $label = '', $attrs = [])
+    {
+        $label = $label ? $label : $link;
+        $_attrs = "";
+        foreach ($attrs as $name => $val){
+            $_attrs .= " {$name}='$val'";
+        }
+        return "<a href='{$link}' $_attrs>{$label}</a>";
+    }
+
     static function button($label, $attrs = []){
         $button = "<button";
         foreach ($attrs as $name => $val){

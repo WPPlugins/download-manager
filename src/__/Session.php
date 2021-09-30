@@ -24,13 +24,8 @@ class Session
             $agent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
             $deviceID = md5(__::get_client_ip() . $agent);
             if(!defined('WPDM_ACCEPT_COOKIE') || WPDM_ACCEPT_COOKIE !== false) {
-                if(!headers_sent($filename, $linenumber)) {
-                    setcookie('__wpdm_client', $deviceID, 0, "", COOKIE_DOMAIN, is_ssl(), true);
-                    $_COOKIE['__wpdm_client'] = $deviceID;
-                }
-                else {
-                    error_log("WPDM Session may not work properly! Cannot modify header information – headers already sent in {$filename}, line number {$linenumber}");
-                }
+                @setcookie('__wpdm_client', $deviceID, 0, "", COOKIE_DOMAIN, is_ssl(), true);
+                $_COOKIE['__wpdm_client'] = $deviceID;
             }
         }
         self::$deviceID = $deviceID;
@@ -52,16 +47,21 @@ class Session
         }
     }
 
-    static function deviceID($deviceID)
+    static function deviceID($deviceID = null)
     {
+        if(!$deviceID) {
+            $agent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
+            $deviceID = md5(__::get_client_ip() . $agent);
+        }
         self::$deviceID = $deviceID;
+        return self::$deviceID;
     }
 
     static function set($name, $value, $expire = 1800)
     {
         global $wpdb;
         if(!$name) return;
-        if(!self::$deviceID) new Session();
+        if(!self::$deviceID) Session::deviceID();
         if (self::$store === 'file') self::$data[$name] = array('value' => $value, 'expire' => time() + $expire);
         else {
             self::clear($name);

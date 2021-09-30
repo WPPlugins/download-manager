@@ -46,8 +46,8 @@ $limit_msg = Messages::download_limit_exceeded($package['ID']);
 if (wpdm_is_download_limit_exceed($package['ID'])) Messages::fullPage("Error!", $limit_msg, 'error');
 //$files = WPDM()->package->getFiles($package['ID']);
 $files = $package['files'];
-
-$fileCount = count($files) + (isset($package['package_dir']) && $package['package_dir'] !== '' ? 1 : 0);
+$files = array_values($files);
+$fileCount = count($files) && $files[0] !== '' ? 1 : 0;
 
 if($fileCount === 0){
     Messages::fullPage(__( "No Files", "download-manager" ),  __( "No file is attached with this package!", "download-manager" ));

@@ -18,15 +18,15 @@ class WidgetController
     private function __construct()
     {
         add_action('widgets_init', function(){
-            include __DIR__.'/Affiliate.php';
-            include __DIR__.'/Categories.php';
-            include __DIR__.'/CatPackages.php';
-            include __DIR__.'/ListPackages.php';
-            include __DIR__.'/NewDownloads.php';
-            include __DIR__.'/PackageInfo.php';
-            include __DIR__.'/Tags.php';
-            include __DIR__.'/Search.php';
-            include __DIR__.'/TopDownloads.php';
+            include_once __DIR__.'/Affiliate.php';
+            include_once __DIR__.'/Categories.php';
+            include_once __DIR__.'/CatPackages.php';
+            include_once __DIR__.'/ListPackages.php';
+            include_once __DIR__.'/NewDownloads.php';
+            include_once __DIR__.'/PackageInfo.php';
+            include_once __DIR__.'/Tags.php';
+            include_once __DIR__.'/Search.php';
+            include_once __DIR__.'/TopDownloads.php';
         });
 
     }

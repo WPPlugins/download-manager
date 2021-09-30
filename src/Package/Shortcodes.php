@@ -386,12 +386,17 @@ class Shortcodes
     {
         global $wpdb, $current_user, $wp_query;
         $items = isset($params['items_per_page']) && $params['items_per_page'] > 0 ? $params['items_per_page'] : 20;
-        if (isset($params['jstable']) && $params['jstable'] == 1) $items = 2000;
-        $cp = isset($wp_query->query_vars['paged']) && $wp_query->query_vars['paged'] > 0 ? $wp_query->query_vars['paged'] : 1;
+        $offset = $cp = 0;
+        if (isset($params['jstable']) && $params['jstable'] == 1) {
+            $items = 2000;
+        } else {
+            $cp = wpdm_query_var('cp', ['validate' => 'int', 'default' => 1]);
+            $offset = ($cp - 1) * $items;
+
+        }
         $terms = isset($params['categories']) ? explode(",", $params['categories']) : array();
         $tag = isset($params['tag']) ? $params['tag'] : '';
         if (isset($_GET['wpdmc'])) $terms = array(esc_attr($_GET['wpdmc']));
-        $offset = ($cp - 1) * $items;
         $total_files = wp_count_posts('wpdmpro')->publish;
         if (count($terms) > 0) {
             $tax_query = array(array(

@@ -181,6 +181,18 @@ Check download stats and get a push notification when someone downloads, install
 
 == Changelog ==
 
+= 3.2.16 - 2021.09.27 =
+* Fixed an issue with the pagination function
+* Improved UI class
+* Improved category and packages shortcode
+* Fixed package sorting issue with the category and package shortcode
+* Fixed RTL layout issue with wpdm admin settings page
+
+= 3.2.15 - 2021.08.18 =
+* Improved session manager class
+* Fixed an issue with with asset access checking function
+* Fixed an issue with the WidgetController class
+
 = 3.2.14 - 2021.08.16 =
 * Fixed an issue with template file detection in child theme
 * Fixed file delete option with the asset manager

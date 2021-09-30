@@ -159,8 +159,8 @@ class Asset
         $ext = end($ext);
         $ext = strtolower($ext);
         $url = str_replace(ABSPATH, home_url('/'), $path);
-        $accessible = __::is_url($url) ? get_headers($url) : [403];
-        $accessible = strstr($accessible[0], '403') ? false : true;
+        $accessible = ini_get('allow_url_fopen') && __::is_url($url) ? get_headers($url) : [403];
+        $accessible = substr_count($accessible[0], '403') ? false : true;
         $relpath = str_replace(AssetManager::root(), "", $path);
         if(!$accessible)
             $url = home_url("/?wpdmfmdl={$relpath}");

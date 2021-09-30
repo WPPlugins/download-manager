@@ -1279,9 +1279,9 @@ function wpdm_sanitize_var($value, $sanitize = 'kses')
  */
 function wpdm_paginate_links($total, $items_per_page, $current_page = 1, $var = 'cp', $params = array())
 {
-
     $items_per_page = $items_per_page > 0 ? $items_per_page : 10;
     $pages = ceil($total / $items_per_page);
+    if($current_page < 1) $current_page = 1;
     $format = isset($params['format']) ? $params['format'] : "?{$var}=%#%";
     $args = array(
         //'base'               => '%_%',
@@ -1289,9 +1289,9 @@ function wpdm_paginate_links($total, $items_per_page, $current_page = 1, $var = 
         'total' => $pages,
         'current' => $current_page,
         //'show_all'           => false,
-        //'end_size'           => 2,
+        'end_size'           => 2,
         //'mid_size'           => 1,
-        //'prev_next'          => true,
+        'prev_next'          => true,
         'prev_text' => isset($params['prev_text']) ? $params['prev_text'] : __('Previous'),
         'next_text' => isset($params['prev_text']) ? $params['next_text'] : __('Next'),
         'type' => 'array',
@@ -1300,7 +1300,7 @@ function wpdm_paginate_links($total, $items_per_page, $current_page = 1, $var = 
         //'before_page_number' => '',
         //'after_page_number'  => ''
     );
-    if(isset($params['base'])) {
+    if (isset($params['base'])) {
         $args['base'] = $params['base'];
     }
     //wpdmprecho($args);

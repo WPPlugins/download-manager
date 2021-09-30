@@ -368,7 +368,7 @@ class Query
         global $wpdb;
 
         if($this->tax_relation && isset($this->params['tax_query']) && is_array($this->params['tax_query']))
-            array_unshift($this->params['tax_query'], ['relation' => $this->tax_relation]);
+            $this->params['tax_query'] = ['relation' => $this->tax_relation] + $this->params['tax_query'];
 
         $this->params = apply_filters('wpdm_packages_query_params', $this->params);
         $this->params['post_type'] = $this->post_type;
