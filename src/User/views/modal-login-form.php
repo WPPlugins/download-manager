@@ -112,7 +112,7 @@ if(!defined('ABSPATH')) die(); ?>
                         }
                         <?php } ?>
                     } else {
-                        $('#wpdmloginmodal-submit').html(wpdm_asset.spinner+" "+res.message);
+                        $('#wpdmloginmodal-submit').html(wpdm_js.spinner+" "+res.message);
                         location.href = __lm_redirect_to;
                     }
                 }

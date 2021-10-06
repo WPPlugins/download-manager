@@ -181,6 +181,13 @@ Check download stats and get a push notification when someone downloads, install
 
 == Changelog ==
 
+= 3.2.18 - 2021.10.06 =
+* Remove `mbstring` dependency
+
+= 3.2.17 - 2021.10.06 =
+* Fixed a sanitization issue with the wpdm client cookie
+* Fixed js undefined variable issue with the modal login form
+
 = 3.2.16 - 2021.09.27 =
 * Fixed an issue with the pagination function
 * Improved UI class

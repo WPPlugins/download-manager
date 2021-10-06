@@ -19,10 +19,11 @@ class Session
     function __construct()
     {
         if(isset($_COOKIE['__wpdm_client']))
-            $deviceID = $_COOKIE['__wpdm_client'];
+            $deviceID = __::sanitize_var($_COOKIE['__wpdm_client'], 'alphanum');
         else {
             $agent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
             $deviceID = md5(__::get_client_ip() . $agent);
+            $deviceID = __::sanitize_var($deviceID, 'alphanum');
             if(!defined('WPDM_ACCEPT_COOKIE') || WPDM_ACCEPT_COOKIE !== false) {
                 @setcookie('__wpdm_client', $deviceID, 0, "", COOKIE_DOMAIN, is_ssl(), true);
                 $_COOKIE['__wpdm_client'] = $deviceID;
@@ -53,6 +54,7 @@ class Session
             $agent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
             $deviceID = md5(__::get_client_ip() . $agent);
         }
+        $deviceID = __::sanitize_var($deviceID, 'alphanum');
         self::$deviceID = $deviceID;
         return self::$deviceID;
     }

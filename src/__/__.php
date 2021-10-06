@@ -27,9 +27,12 @@ class __
             $ipaddress = getenv('REMOTE_ADDR');
         else
             $ipaddress = 'UNKNOWN';
+
         $ipaddress = explode(",", $ipaddress);
+
         return $ipaddress[0];
     }
+
 
 
     static function media_field($data)
@@ -265,14 +268,14 @@ class __
                     $value = wpdm_escs($value);
                     break;
                 case 'filename':
-                    $value = mb_ereg_replace("([^\w\s\d\-_~,;\[\]\(\).])", '_', $value);
-                    $value = mb_ereg_replace("([\.]+)", '_', $value);
+                    $value = preg_replace("/([^\w\s\d\-_~,;\[\]\(\).])/", '_', $value);
+                    $value = preg_replace("/([\.]+)/", '_', $value);
                     break;
                 case 'alpha':
-                    $value = mb_ereg_replace("([^a-zA-Z])", '', $value);
+                    $value = preg_replace("/([^a-zA-Z])/", '', $value);
                     break;
                 case 'alphanum':
-                    $value = mb_ereg_replace("([^a-zA-Z0-9])", '', $value);
+                    $value = preg_replace("/([^a-zA-Z0-9])/", '', $value);
                     break;
                 case 'html':
 
