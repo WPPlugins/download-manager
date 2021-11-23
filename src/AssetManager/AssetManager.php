@@ -110,7 +110,7 @@ class AssetManager
     {
         global $wp_query;
         $url = parse_url($_SERVER['REQUEST_URI']);
-        if (preg_match('/wpdm\-asset\/([^\/]+)/', $url['path'], $matches)) {
+        if (preg_match('/wpdm\-asset\/([^\/]+)/', wpdm_valueof($url, 'path'), $matches)) {
             $asset = new Asset();
             $asset->resolveKey($matches[1]);
             http_response_code(200);

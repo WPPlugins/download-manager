@@ -27,6 +27,7 @@ class Packages
 
         add_action('wp_ajax_wpdm_admin_upload_file', array($this, 'uploadFile'));
         add_action('save_post', array($this, 'savePackage'));
+	    add_action('before_delete_post', array($this, 'deleteFiles'), 10, 2);
 
         add_action('manage_wpdmpro_posts_columns', array($this, 'columnsTH'));
         add_action('manage_wpdmpro_posts_custom_column', array($this, 'columnsTD'), 10, 2);
@@ -87,6 +88,15 @@ class Packages
         if(isset($_REQUEST['reset_udl'])) WPDM()->downloadHistory->resetUserDownloadCount($post, 'all');
         do_action('wpdm_admin_update_package',$post, $_POST['file']);
     }
+
+	function deleteFiles($post_id, $post)
+	{
+		$files = WPDM()->package->getFiles($post_id, false);
+		foreach ($files as $file) {
+			$file = WPDM()->fileSystem->locateFile($file);
+			@unlink($file);
+		}
+	}
 
     function duplicate()
     {

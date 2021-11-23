@@ -1,6 +1,8 @@
-:root{
-    --admin-color: #0e68ff
+:root {
+    --admin-color: #0e68ff;
+    --admin-color-rgb: 14, 104, 255;
 }
+
 .w3eden h3 {
     margin: 0;
     font-size: 10pt;
@@ -97,12 +99,15 @@ a:focus, a:active {
 }
 
 .wpdm-settings-fields > h3 {
-    font-size: 12pt;
-    font-weight: 800;
-    background: #eeeeee;
-    padding: 8px 20px;
+    font-size: 10pt;
+    font-weight: 700;
+    background: var(--color-secondary);
+    padding: 12px 14px;
+    margin: 20px 0 12px;
+    color: #fff;
+    border-radius: 3px;
+    letter-spacing: 0.6px;
 }
-
 
 .wpdm-settings-fields .form-group label {
     display: block;
@@ -132,6 +137,7 @@ a:focus, a:active {
     box-shadow: none;
     background: #ffffff;
 }
+
 .w3eden .alert.alert-info {
     position: relative;
     border: 1px solid var(--color-info) !important;
@@ -170,6 +176,7 @@ a:focus, a:active {
 .w3eden .alert.alert-warning, .alert.alert-warning * {
     color: var(--color-warning) !important;
 }
+
 .w3eden .alert.alert-success {
     border: 1px solid var(--color-success) !important;
     position: relative;
@@ -407,10 +414,6 @@ a:focus, a:active {
     border-bottom: 1px solid #999999;
 }
 
-#wpdm-wrapper-panel #tabs.nav-pills a {
-    border-radius: 8px !important;
-    color: var(--admin-color);
-}
 
 .w3eden code {
     color: #306139 !important;
@@ -418,10 +421,10 @@ a:focus, a:active {
     font-family: Courier, monospace !important;
 }
 
-.wrap.w3eden input[type="checkbox"], .w3eden input[type="radio"] {
+.w3eden input[type="checkbox"], .w3eden input[type="radio"] {
     line-height: normal;
     margin: 0 2px 2px 0;
-    position: relative;
+    position: relative !important;
 }
 
 #plugin-updates-nav a {
@@ -496,80 +499,6 @@ a:focus, a:active {
 
 }*/
 
-#wpdm-wrapper-panel .nav-wrapper-tabs {
-    padding-top: 80px;
-    background: #F5F5F5;
-}
-
-#wpdm-wrapper-panel > .settings-panel-body {
-    padding-top: 80px;
-    border-radius: 0px;
-    background: transparent none repeat scroll 0% 0%;
-    max-width: 1000px;
-}
-
-#wpdm-wrapper-panel > .settings-panel-body #tabs:hover{
-    overflow: auto;
-}
-
-#wpdm-wrapper-panel .settings-tabs a {
-    background: #ffffff;
-    border: 1px solid #ddd;
-}
-.settings-tabs a i {
-    display: inline-block;
-    width: 16px;
-}
-#wpdm-wrapper-panel .settings-tabs li.active a {
-    color: #fff !important;
-    background: var(--admin-color) linear-gradient(rgba(14, 104, 255, 0.5), rgba(71, 140, 255, 0.5)) !important;
-    box-shadow: 0 0 10px rgba(0, 88, 255, 0.55) !important;
-    border: 1px solid rgba(255, 255, 255, 0.07);
-}
-
-#wpdm-wrapper-panel .settings-tabs li:not(.active) a .fas,
-#wpdm-wrapper-panel .settings-tabs li:not(.active) a .far,
-#wpdm-wrapper-panel .settings-tabs li:not(.active) a .fab,
-#wpdm-wrapper-panel .settings-tabs li:not(.active) a .fa {
-    color: var(--color-primary);
-}
-
-#wpdm-wrapper-panel .settings-tabs li:not(.active) a .fas.fa-user-shield {
-    color: var(--color-danger);
-}
-
-#wpdm-wrapper-panel .settings-tabs li:not(.active) a#privacy {
-    color: var(--color-danger);
-}
-
-.w3eden #wpdm-wrapper-panel .nav-pills li:not(.active) a#privacy:hover {
-    border: 1px solid var(--color-danger);
-    background: rgba(var(--color-danger-rgb),0.1) !important;
-}
-.w3eden #wpdm-wrapper-panel .nav-pills li.active a#privacy {
-    border: 1px solid var(--color-danger);
-    background: var(--color-danger) linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.1)) !important;
-    box-shadow: 0 0 10px rgba(var(--color-danger-rgb), 0.4) !important;
-}
-
-.w3eden .panel.panel-danger {
-    border: 1px solid var(--color-danger);
-}
-
-.w3eden .panel.panel-danger .panel-heading {
-    background-color: var(--color-danger) !important;
-    border-bottom: 1px solid var(--color-danger);
-    color: #ffffff;
-}
-
-#wpdm-wrapper-panel .settings-tabs a:hover {
-    background: rgba(145, 183, 255, 0.09);
-    border: 1px solid rgba(var(--color-primary-rgb), 0.5);
-}
-
-#wpdm-wrapper-panel .nav-wrapper-tabs li.active a {
-    background: #f1f1f1;
-}
 
 #wpdm-wrapper-panel > .panel-heading b {
     font-size: 12pt !important;
@@ -1941,11 +1870,13 @@ body.wpdm-iframe-modal-open {
     z-index: 999999;
     max-width: 400px;
 }
+
 #wpdm-notify-top-center .wpdm-notify {
     float: none;
     margin-left: -50%;
     text-align: center;
 }
+
 .wpdm-hide-right {
     display: none;
     position: absolute;
@@ -2000,6 +1931,7 @@ body.wpdm-iframe-modal-open {
     background-image: none;
     border-bottom-color: #e7e7e7 !important;
 }
+
 .w3eden .txtsc:focus,
 .w3eden .txtsc {
     display: inline-block !important;
@@ -2114,6 +2046,7 @@ body.wpdm-iframe-modal-open {
 .w3eden input[type="checkbox"]:focus {
     outline: none !important;
 }
+
 .w3eden input[type="checkbox"]:checked {
     border: 1px solid var(--color-primary);
     transition: all ease-in-out 400ms;
@@ -2185,13 +2118,6 @@ body.wpdm-iframe-modal-open {
     width: 275px;
 }
 
-.short-code-wpdm .form-control {
-    font-family: monospace;
-    font-size: 12px;
-    text-align: center;
-}
-
-
 body.rtl #wpdm-admin-page-body {
     margin-right: 250px !important;
 }
@@ -2212,7 +2138,7 @@ body.rtl #wpdm-admin-page-container {
 }
 body.rtl .w3eden .chosen-container .chosen-drop,
 body.rtl .w3eden .chosen-container-single-nosearch .chosen-search input[type="text"]{
-    display: none;
+  display: none;
 }
 body.rtl .w3eden .chosen-container.chosen-with-drop .chosen-drop {
     display: block;

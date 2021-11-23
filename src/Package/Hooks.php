@@ -51,7 +51,7 @@ class Hooks
     {
         global $wp_query;
         $url = parse_url($_SERVER['REQUEST_URI']);
-        if (preg_match('/wpdm\-download\/([^\/]+)/', $url['path'], $matches)) {
+        if (preg_match('/wpdm\-download\/([^\/]+)/', wpdm_valueof($url, 'path'), $matches)) {
             $pack = Crypt::decrypt($matches[1], true);
             $package = get_post($pack['pid']);
             if(!$package) Messages::error(__( 'Package not found!', 'download-manager' ), 1);

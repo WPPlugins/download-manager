@@ -181,6 +181,15 @@ Check download stats and get a push notification when someone downloads, install
 
 == Changelog ==
 
+= 3.2.21 - 2021.11.23 =
+* Added option to delete file from server
+* Improved admin UI
+* Fixed an issue with temp storage option
+
+= 3.2.20 - 2021.10.24 =
+* Added function to clear temp storage and clear session data with `Clear All Cache` Button
+* Improved ui options
+
 = 3.2.19 - 2021.10.21 =
 * Fixed an issue with cache storage setting
 

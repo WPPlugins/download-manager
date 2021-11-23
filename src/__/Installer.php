@@ -139,6 +139,9 @@ class Installer
             $ach[] = time();
             update_option("__wpdm_activation_history", $ach, false);
             update_option('__wpdm_db_version', $installer->dbVersion, false);
+	        $__wpdm_ui_colors = get_option('__wpdm_ui_colors', false);
+	        if(!$__wpdm_ui_colors)
+				update_option('__wpdm_ui_colors', 'a:18:{s:7:"primary";s:7:"#4a8eff";s:13:"primary_hover";s:7:"#5998ff";s:14:"primary_active";s:7:"#3281ff";s:9:"secondary";s:7:"#6c757d";s:15:"secondary_hover";s:7:"#6c757d";s:16:"secondary_active";s:7:"#6c757d";s:4:"info";s:7:"#2CA8FF";s:10:"info_hover";s:7:"#2CA8FF";s:11:"info_active";s:7:"#2CA8FF";s:7:"success";s:7:"#018e11";s:13:"success_hover";s:7:"#0aad01";s:14:"success_active";s:7:"#0c8c01";s:7:"warning";s:7:"#FFB236";s:13:"warning_hover";s:7:"#FFB236";s:14:"warning_active";s:7:"#FFB236";s:6:"danger";s:7:"#ff5062";s:12:"danger_hover";s:7:"#ff5062";s:13:"danger_active";s:7:"#ff5062";}', false);
 
         }
 

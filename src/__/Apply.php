@@ -515,6 +515,9 @@ class Apply
         if (!current_user_can('manage_options')) die('You are not authorized!');
         FileSystem::deleteFiles(WPDM_CACHE_DIR, false);
         FileSystem::deleteFiles(WPDM_CACHE_DIR . 'pdfthumbs/', false);
+        global $wpdb;
+        Session::reset();
+        TempStorage::clear();
         die('ok');
     }
 

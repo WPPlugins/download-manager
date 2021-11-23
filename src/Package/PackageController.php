@@ -67,7 +67,7 @@ class PackageController extends PackageTemplate
         if (!has_shortcode($post_vars['description'], 'wpdm_package'))
             $post_vars['description'] = do_shortcode(stripslashes($post_vars['description']));
 
-        $post_vars['excerpt'] = stripcslashes(strip_tags($post_vars['post_excerpt']));
+	    $post_vars['excerpt'] = wpautop(stripcslashes(wpdm_escs($post_vars['post_excerpt'])));
         $author = get_user_by('id', $post_vars['post_author']);
         if (is_object($author)) $post_vars['author_name'] = $author->display_name;
         $post_vars['author_profile_url'] = get_author_posts_url($post_vars['post_author']);

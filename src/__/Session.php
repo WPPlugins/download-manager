@@ -111,6 +111,12 @@ class Session
         }
     }
 
+	static function reset()
+	{
+		global $wpdb;
+		$wpdb->query("delete from {$wpdb->prefix}ahm_sessions where deviceID != 'alldevice'");
+	}
+
     static function show()
     {
         wpdmprecho(self::$data);

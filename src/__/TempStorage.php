@@ -61,7 +61,8 @@ class TempStorage
 
     static function clear()
     {
-        file_put_contents(WPDM_CACHE_DIR . '/temp-storage.txt', '');
+	    global $wpdb;
+	    $wpdb->query("delete from {$wpdb->prefix}ahm_sessions where deviceID = 'alldevice'");
     }
 
     function __destruct()
