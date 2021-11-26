@@ -99,7 +99,7 @@ class AdminController {
             wp_enqueue_script('wpdm-admin-bootstrap' );
 
             wp_enqueue_script('wpdm-vue', WPDM_BASE_URL.'assets/js/vue.min.js');
-            wp_enqueue_script('wpdm-admin', WPDM_BASE_URL.'js/wpdm-admin.js', array('jquery'));
+            wp_enqueue_script('wpdm-admin', WPDM_BASE_URL.'assets/js/wpdm-admin.js', array('jquery'));
 
 
             wp_enqueue_style( 'wpdm-font-awesome' );
