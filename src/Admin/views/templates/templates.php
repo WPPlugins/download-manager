@@ -10,22 +10,14 @@ if(!defined("ABSPATH")) die();
 
 require_once __DIR__.'/header.php';
 
-if(wpdm_query_var('_type') === 'custom-tags'){
 
-    require_once __DIR__.'/custom-tags.php';
-
-} else if(wpdm_query_var('_type') === 'import'){
-
-    require_once __DIR__.'/import-template.php';
-
-} else {
 
     //List link, page and emaol templates
     require_once __DIR__.'/list-templates.php';
 
     require_once __DIR__.'/email-template-settings.php';
 
- } ?>
+ ?>
 
 
 </div>

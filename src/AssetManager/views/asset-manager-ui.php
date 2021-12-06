@@ -416,22 +416,6 @@ if(is_admin()){
             margin: 0 5px !important;
         }
 
-        #newcomment{
-            min-height: 50px;
-            font-size: 12px !important;
-        }
-
-        #__asset_comments .asset-comment{
-            border: 1px solid #e8e8e8;
-            margin: 5px 0;
-            border-radius: 3px;
-            padding: 15px;
-        }
-        #__asset_comments .asset-comment .avatar{
-            width: 32px;
-            height: auto;
-            border-radius: 500px;
-        }
 
         .w3eden .modal-header .close.pull-right {
             height: 16px;
@@ -612,9 +596,7 @@ if(is_admin()){
 
                                 <!-- Nav tabs -->
                                 <ul class="nav nav-tabs" id="__file_settings_tabs" role="tablist" style="margin-left: -15px;padding-left: 15px;margin-right: -15px;border-bottom: 1px solid #e8e8e8;">
-                                    <!-- li role="presentation" class="active"><a href="#activity" aria-controls="activity" role="tab" data-toggle="tab">Activity</a></li -->
                                     <li role="presentation" class="active"><a href="#share" aria-controls="share" role="tab" data-toggle="tab"><?= esc_attr__( 'Share', WPDM_TEXT_DOMAIN ); ?></a></li>
-                                    <li role="presentation"><a href="#comments" aria-controls="comments" role="tab" data-toggle="tab"><?= esc_attr__( 'Comments', WPDM_TEXT_DOMAIN ); ?></a></li>
                                 </ul>
 
                                 <!-- Tab panes -->
@@ -631,13 +613,11 @@ if(is_admin()){
                                             </div>
                                         </div>
 
-                                        <img src="<?= WPDM_BASE_URL ?>assets/images/share-links.png" style="max-width: 100%; margin-top: 10px; opacity: 0.2;" align="Share Links">
+
 
 
                                     </div>
-                                    <div role="tabpanel" class="tab-pane" id="comments">
-                                        <img src="<?= WPDM_BASE_URL ?>assets/images/asset-comments.png" style="max-width: 100%; margin-top: 15px; opacity: 0.5;" align="Comments">
-                                    </div>
+
                                 </div>
 
                             </div>
@@ -885,13 +865,6 @@ if(is_admin()){
     </div>
 
 
-    <ul id="contextMenu" class="dropdown-menu" role="menu" style="display:none" >
-        <li><a tabindex="-1" href="#"><?= esc_attr__( 'Action', WPDM_TEXT_DOMAIN ); ?></a></li>
-        <li><a tabindex="-1" href="#"><?= esc_attr__( 'Another action', WPDM_TEXT_DOMAIN ); ?></a></li>
-        <li><a tabindex="-1" href="#"><?= esc_attr__( 'Something else here', WPDM_TEXT_DOMAIN ); ?></a></li>
-        <li class="divider"></li>
-        <li><a tabindex="-1" href="#"><?= esc_attr__( 'Separated link', WPDM_TEXT_DOMAIN ); ?></a></li>
-    </ul>
 
 
 </div>
@@ -945,17 +918,6 @@ if(is_admin()){
         }
     }
 
-    function contentMenu(){
-        var $ = jQuery;
-        $("#scandir .file-row").contextMenu({
-            menuSelector: "#contextMenu",
-            menuSelected: function (invokedOn, selectedMenu) {
-                var msg = "You selected the menu item '" + selectedMenu.text() +
-                    "' on the value '" + invokedOn.text() + "'";
-                alert(msg);
-            }
-        });
-    }
 
     jQuery(function ($) {
 
@@ -1005,7 +967,7 @@ if(is_admin()){
                     WPDM.unblockUI('#filewin');
                     $('#reload').removeAttr('disabled', 'disabled').html("<i class='fa fa-sync'></i>");
                     $('#breadcrumb').html(data.breadcrumb);
-                    contentMenu();
+
                 } else {
                     WPDM.pushNotify("<?=esc_attr__( 'Error', 'download-manager' ); ?>!", data.message, 'https://cdn0.iconfinder.com/data/icons/small-n-flat/24/678080-shield-error-256.png', 'https://cdn0.iconfinder.com/data/icons/small-n-flat/24/678080-shield-error-256.png');
                 }
@@ -1183,15 +1145,6 @@ if(is_admin()){
             });
         });
 
-        $('body').on('click', '#addcomment', function (e) {
-            e.preventDefault();
-            WPDM.blockUI('#newcomment_panel');
-            var filepath = $(this).data('path');
-            $.post(ajaxurl, {__wpdm_addcomment:'<?php echo wp_create_nonce(NONCE_KEY); ?>', action: 'wpdm_addcomment', comment: $('#newcomment').val(), assetid: assetSettings.asset.ID }, function (data) {
-                assetSettings.asset.comments = data;
-                WPDM.unblockUI('#newcomment_panel');
-            });
-        });
 
         $('body').on('click', '.btn-open-file', function (e) {
             e.preventDefault();

@@ -90,7 +90,6 @@ class Settings
 
         $stabs = apply_filters("add_wpdm_settings_tab", $stabs);
 
-        $stabs['plugin-update'] = array('id' => 'plugin-update','icon'=>'fa fa-sync',  'link' => 'edit.php?post_type=wpdmpro&page=settings&tab=plugin-update', 'title' => 'Updates', 'callback' => array($this, 'pluginUpdate'));
         $stabs['privacy'] = array('id' => 'privacy','icon'=>'fas fa-user-shield',  'link' => 'edit.php?post_type=wpdmpro&page=settings&tab=privacy', 'title' => 'Privacy', 'callback' => array($this, 'privacy'));
 
     }
