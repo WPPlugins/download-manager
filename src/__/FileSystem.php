@@ -714,31 +714,31 @@ class FileSystem
             $color_rgba = wpdm_hex2rgb($color);
             $ext = substr($ext, 0, 3);
             ?>
-            <svg id="Layer_<?= $id ?>" style="enable-background:new 0 0 512 512;" version="1.1" viewBox="0 0 512 512"
+            <svg id="Layer_<?php echo $id ?>" style="enable-background:new 0 0 512 512;" version="1.1" viewBox="0 0 512 512"
                  xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><style
                         type="text/css">
-                    .st_<?= $id ?>_0 {
+                    .st_<?php echo $id ?>_0 {
                         fill: rgba(<?php echo $color_rgba; ?>, 0.3);
                     }
 
-                    .st_<?= $id ?>_1 {
+                    .st_<?php echo $id ?>_1 {
                         fill: rgba(<?php echo $color_rgba; ?>, 0.9);
                     }
 
-                    .st_<?= $id ?>_2 {
+                    .st_<?php echo $id ?>_2 {
                         fill: <?php echo $color; ?>;
                     }
 
-                    .st_<?= $id ?>_3 {
+                    .st_<?php echo $id ?>_3 {
                         fill: #FFFFFF;
                     }
                 </style>
                 <g id="XMLID_168_">
                     <g id="XMLID_83_">
-                        <polygon class="st_<?= $id ?>_0" id="XMLID_87_" points="330.7,6 87.9,6 87.9,506 449.2,506 449.2,122.8   "/>
-                        <polygon class="st_<?= $id ?>_1" id="XMLID_86_" points="330.7,6 449.2,122.8 330.7,122.8   "/>
-                        <rect class="st_<?= $id ?>_1" height="156.1" id="XMLID_85_" width="329" x="62.8" y="298.8"/>
-                        <polygon class="st_<?= $id ?>_2" id="XMLID_84_" points="62.8,454.9 87.9,476.1 87.9,454.9   "/>
+                        <polygon class="st_<?php echo $id ?>_0" id="XMLID_87_" points="330.7,6 87.9,6 87.9,506 449.2,506 449.2,122.8   "/>
+                        <polygon class="st_<?php echo $id ?>_1" id="XMLID_86_" points="330.7,6 449.2,122.8 330.7,122.8   "/>
+                        <rect class="st_<?php echo $id ?>_1" height="156.1" id="XMLID_85_" width="329" x="62.8" y="298.8"/>
+                        <polygon class="st_<?php echo $id ?>_2" id="XMLID_84_" points="62.8,454.9 87.9,476.1 87.9,454.9   "/>
                     </g>
                     <g xmlns="http://www.w3.org/2000/svg" id="XMLID_3113_">
                         <text x="20%" fill="white" style="font-family: sans-serif;font-size: 725%;font-weight: bold;"

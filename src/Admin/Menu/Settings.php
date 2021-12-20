@@ -275,65 +275,6 @@ class Settings
         include wpdm_admin_tpl_path("settings/cloud-storage.php");
     }
 
-    function pluginUpdate(){
-        if(isset($_REQUEST['__lononce']) && wp_verify_nonce($_REQUEST['__lononce'], WPDMSET_NONCE_KEY)){
-            __::isAuthentic('__lononce');
-            delete_option('__wpdm_suname');
-            delete_option('__wpdm_supass');
-            delete_option('__wpdm_purchased_items');
-            delete_option('__wpdm_freeaddons');
-            delete_option('__wpdm_core_update_check');
-            delete_option('__wpdm_access_token');
-            Session::clear('__wpdm_download_url');
-            die('<script>location.href="edit.php?post_type=wpdmpro&page=settings&tab=plugin-update";</script>Refreshing...');
-        }
-
-        if(isset($_POST['__wpdm_suname']) && $_POST['__wpdm_suname'] != ''){
-
-            if(!wp_verify_nonce($_POST['__wpdms_nonce'], WPDMSET_NONCE_KEY)) die(__('Security token is expired! Refresh the page and try again.', 'download-manager'));
-
-            update_option('__wpdm_suname',$_POST['__wpdm_suname'], false);
-            update_option('__wpdm_supass',$_POST['__wpdm_supass'], false);
-            delete_option('__wpdm_purchased_items');
-            delete_option('__wpdm_freeaddons');
-            delete_option('__wpdm_core_update_check');
-            delete_option('__wpdm_access_token');
-            Session::clear('__wpdm_download_url');
-            $access_token = wpdm_access_token();
-            if($access_token != '') {
-                $purchased_items = wpdm_remote_get('https://www.wpdownloadmanager.com/?wpdmppaction=getpurchaseditems&wpdm_access_token=' . $access_token);
-                $ret = json_decode($purchased_items);
-                update_option('__wpdm_purchased_items', $purchased_items, false);
-                die('<script>location.href=location.href;</script>Login successful. Refreshing...');
-            }  else{
-                die('Error: Invalid Login!');
-            }
-
-        }
-        if(isset($_POST['__wpdm_suname'], $_POST['__wpdm_supass']) && empty($_POST['__wpdm_suname'])){
-            die('Error: Must enter a valid username!');
-        }
-
-        if(get_option('__wpdm_suname') != '') {
-            $purchased_items = get_option('__wpdm_purchased_items', false);
-            if(!$purchased_items || wpdm_query_var('newpurchase') != '' ) {
-                $purchased_items = wpdm_remote_get('https://www.wpdownloadmanager.com/?wpdmppaction=getpurchaseditems&wpdm_access_token=' . wpdm_access_token());
-                update_option('__wpdm_purchased_items', $purchased_items, false);
-                delete_option('wpdm_latest');
-                delete_option('wpdm_latest_check');
-            }
-            $purchased_items = json_decode($purchased_items);
-            //wpdmdd($purchased_items);
-            if (isset($purchased_items->error)){ delete_option('__wpdm_suname');  delete_option('__wpdm_purchased_items'); }
-            if (isset($purchased_items->error)) $purchased_items->error = str_replace("[redirect]", admin_url("edit.php?post_type=wpdmpro&page=settings&tab=plugin-update"), $purchased_items->error);
-        }
-        if(get_option('__wpdm_freeaddons') == '' || wpdm_query_var('newpurchase') != '') {
-            $freeaddons = wpdm_remote_get('https://www.wpdownloadmanager.com/?wpdm_api_req=getPackageList&cat_id=1148');
-            update_option('__wpdm_freeaddons', $freeaddons, false);
-        }
-        $freeaddons = json_decode(get_option('__wpdm_freeaddons'));
-        include wpdm_admin_tpl_path("settings/addon-update.php");
-    }
 
     function License()
     {
@@ -342,7 +283,7 @@ class Settings
             if (is_valid_license_key()) {
                 delete_option('__wpdm_core_update_check');
                 Session::clear('__wpdm_download_url');
-                update_option('_wpdm_license_key', esc_attr($_POST['_wpdm_license_key']), false);
+                update_option('_wpdm_license_key', wpdm_query_var('_wpdm_license_key'), false);
                 die('Congratulation! Your <b>Download Manager</b> copy registered successfully!');
             } else {
                 delete_option('_wpdm_license_key');

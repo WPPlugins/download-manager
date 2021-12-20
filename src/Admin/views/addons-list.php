@@ -277,11 +277,7 @@
                                     </div>
                                 <?php } else { ?>
                                     <div class="btn-group btn-group-xs">
-                                        <a class="btn-install btn btn-success" data-toggle="modal"
-                                           data-addondir="<?php echo $file; ?>"
-                                           data-wpdmpinn="<?php echo wp_create_nonce($package->ID . NONCE_KEY); ?>"
-                                           rel="<?php echo $package->ID; ?>" data-backdrop="true"
-                                           data-target="#addonmodal" href="#"><?php echo $linklabel; ?></a><span
+                                        <a class="btn btn-success" target="_blank" href="<?php echo $package->link; ?>"><?php echo $linklabel; ?></a><span
                                                 class="btn btn-secondary">Free</span>
                                     </div>
                                 <?php } ?>
@@ -347,15 +343,6 @@
             jQuery('#modalcontents').html('<i class="fas fa-sun  fa-spin"></i> Please Wait...');
         });
         jQuery('#addonmodal').on('shown.bs.modal', function (e) {
-            if(jQuery(e.relatedTarget).hasClass('btn-install')){
-                jQuery('.modal-dialog').css('width','500px');
-                jQuery('.modal-footer .btn-danger').html('Close');
-                jQuery('#modalcontents').css('padding','20px').css('background','#ffffff');
-                jQuery.post(ajaxurl,{action:'wpdm-install-addon', __wpdmpinn: jQuery(e.relatedTarget).data('wpdmpinn'), addon: e.relatedTarget.rel, dirname: jQuery(e.relatedTarget).data('addondir')}, function(res){
-                    jQuery('#modalcontents').html(res.replace('Return to Plugin Installer',''));
-                });
-            }
-
             if(jQuery(e.relatedTarget).hasClass('btn-purchase')){
                 jQuery('.modal-dialog').css('width','800px');
                 jQuery('.modal-footer').css('margin',0);

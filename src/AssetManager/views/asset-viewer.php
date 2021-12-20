@@ -12,10 +12,10 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
-        <link rel="icon" href="https://cdn.wpdownloadmanager.com/wp-content/uploads/2019/07/download-manager-logo-only-clean-150x150.png" />
+        <link rel="icon" href="<?php echo WPDM_BASE_URL ?>assets/images/wpdm-logo.png" />
         <title><?php echo $asset->name; ?></title>
-        <link href="https://fonts.googleapis.com/css?family=IBM+Plex+Mono|IBM+Plex+Sans:400,600&display=swap" rel="stylesheet">
-        <script src="<?php echo includes_url('js/jquery/jquery.js') ?>"></script>
+
+        <?php do_action("wpdm_asset_viewer_head"); ?>
         <style>
 
             *, *:before, *:after {
@@ -429,16 +429,7 @@
                     </svg>
                     Download</a>
 
-                <!-- a href="#"><span>&#8230;</span></a>
-                <a href="#">
-                    <span>
 
-                    <svg class="nav-svg color-gray" enable-background="new 0 0 510 510" version="1.1" viewBox="0 0 510 510" xml:space="preserve" xmlns="http://www.w3.org/2000/svg">
-                            <path d="m255 510c28.05 0 51-22.95 51-51h-102c0 28.05 22.95 51 51 51zm165.75-153v-140.25c0-79.05-53.55-142.8-127.5-160.65v-17.85c0-20.4-17.85-38.25-38.25-38.25s-38.25 17.85-38.25 38.25v17.85c-73.95 17.85-127.5 81.6-127.5 160.65v140.25l-51 51v25.5h433.5v-25.5l-51-51zm-51 25.5h-229.5v-165.75c0-63.75 51-114.75 114.75-114.75s114.75 51 114.75 114.75v165.75z"/>
-                    </svg>
-
-                    </span>
-                </a -->
             </div>
         </header>
 
@@ -458,39 +449,12 @@
 
             <!-- Tabs -->
             <nav class="buttons" data-buttons>
-                <a class="tab-button button--active" data-trigger="tab-a">Comments</a>
-                <a class="tab-button" data-trigger="tab-b">Asset Info</a>
+                <a class="tab-button button--active" data-trigger="tab-b">Asset Info</a>
             </nav>
             <div class="tab-content">
-                <!-- Comment -->
-                <div data-target="tab-a" class="tab tab--active">
-                    <?php if(is_user_logged_in()){ ?>
-                    <form action="">
-                        <input id="commentcont" type="text" placeholder="Comment here..">
-
-                        <svg id="newcomment" class="submit nav-svg arrow color-gray" enable-background="new 0 0 485.808 485.808" version="1.1" viewBox="0 0 485.81 485.81" xml:space="preserve" xmlns="http://www.w3.org/2000/svg">
-                            <path d="m472.22 13.597c-13.4-13.4-32.5-17.2-50-10l-393.7 162c-17.9 7.4-29.1 24.6-28.5 43.9 0.4 19.3 12.6 35.8 30.9 42.1l134.6 46c6 2.1 12.6 0.8 17.5-3.3l170.1-144.3c7.6-6.4 8.5-17.8 2.1-25.4s-17.8-8.5-25.4-2.1l-162.3 137.7-124.9-42.7c-5.9-2-6.7-7.1-6.8-9.1-0.1-2.1 0.4-7.2 6.2-9.5l393.7-162.1c5.6-2.3 9.5 0.8 10.9 2.2s4.5 5.3 2.2 10.9l-162 393.7c-2.4 5.8-7.5 6.2-9.5 6.2-2.1-0.1-7.1-0.8-9.1-6.8l-36.7-107.5c-3.2-9.4-13.4-14.4-22.9-11.2-9.4 3.2-14.4 13.4-11.2 22.9l36.7 107.5c6.3 18.3 22.8 30.5 42.1 31.1h1.5c18.7 0 35.3-11.1 42.5-28.5l162-393.7c7.2-17.5 3.4-36.6-10-50z"/>
-                        </svg>
-                    </form>
-                    <?php } ?>
-                    <div class="comment-content" id="comment-contents">
-                        <?php
-                        if(is_array($asset->comments)){
-
-                        foreach ($asset->comments as $comment){ $comment = (array)$comment; ?>
-                        <div class="comment-media">
-                            <div class="avatar"><?php echo $comment['avatar']; ?></div>
-                            <div class="comment-data">
-                                <div class="comment-head"><strong><?php echo $comment['name']; ?></strong> - <?php echo date(get_option('date_format'), $comment['time']); ?></div>
-                                <?php echo wpautop($comment['comment']); ?>
-                            </div>
-                        </div>
-                        <?php }} ?>
-                    </div>
-                </div>
 
                 <!-- About -->
-                <div data-target="tab-b" class="tab">
+                <div data-target="tab-b" class="tab tab--active">
                     <div class="d-flex"><div class="meta-name">File Size</div><div class="meta-value"><?php echo $asset->size ?></div></div>
                     <?php
                     $mime = wp_check_filetype($asset->path);
@@ -564,26 +528,6 @@
                 target.classList.toggle('tab--active')
             });
 
-            jQuery(function ($) {
-                <?php if(is_user_logged_in()){ ?>
-                $('#newcomment').on('click', function (e) {
-                    e.preventDefault();
-                    var filepath = $(this).data('path');
-                    $.post('<?php echo admin_url('admin-ajax.php'); ?>', {__wpdm_addcomment:'<?php echo wp_create_nonce(NONCE_KEY); ?>', action: 'wpdm_addcomment', comment: $('#commentcont').val(), assetid: '<?php echo $asset->ID; ?>' }, function (data) {
-                        var comment = data[0];
-                        $('#commentcont').val('');
-                        $('#comment-contents').prepend('<div class="comment-media">\n' +
-                            '                            <div class="avatar">'+comment.avatar+'</div>\n' +
-                            '                            <div class="comment-data">\n' +
-                            '                                <div class="comment-head"><strong>'+comment.name+'</strong> - Just now</div>\n' +
-                            '                                <p>'+comment.comment+'</p>\n' +
-                            '                            </div>\n' +
-                            '                        </div>');
-
-                    });
-                });
-                <?php } ?>
-            });
 
 
         </script>

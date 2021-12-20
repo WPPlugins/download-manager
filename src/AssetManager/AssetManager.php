@@ -79,6 +79,8 @@ class AssetManager
         add_action('wp_ajax_wpdm_updatelink', array($this, 'updateLink'));
         add_action('wp_ajax_wpdm_deletelink', array($this, 'deleteLink'));
 
+		add_action('wpdm_asset_viewer_head', [$this, 'enqueueScripts']);
+
         add_action('wpdm_after_upload_file', array($this, 'upload'), 1);
         //add_action('wp_enqueue_scripts', array($this,'siteScripts'));
         add_action('admin_enqueue_scripts', array($this, 'adminScripts'));
@@ -668,6 +670,12 @@ class AssetManager
             wp_send_json(array('success' => false, 'message' => __("Error! Couldn't open the zip file.", "download-manager")));
         }
     }
+
+	function enqueueScripts()
+	{
+		__::enqueueStyle('ttps://fonts.googleapis.com/css?family=IBM+Plex+Mono|IBM+Plex+Sans:400,600&display=swap');
+		__::enqueueScript(includes_url('js/jquery/jquery.js'));
+	}
 }
 
 

@@ -2,8 +2,6 @@
 
 namespace WPDM\__;
 
-use WPDM\AuthorDashboard\AuthorDashboard;
-
 
 class Apply
 {
@@ -32,7 +30,7 @@ class Apply
 
         add_action("wp_ajax_wpdm_generate_password", [$this, 'generatePassword']);
         add_action("wp_ajax_wpdm-activate-shop", [$this, 'activatePremiumPackage']);
-        add_action("wp_ajax_wpdm-install-addon", [$this, 'installAddon']);
+
 
         if (is_admin()) return;
 
@@ -774,7 +772,7 @@ class Apply
             include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
             include_once ABSPATH . 'wp-admin/includes/plugin-install.php';
             $upgrader = new \Plugin_Upgrader(new \Plugin_Installer_Skin(compact('title', 'url', 'nonce', 'plugin', 'api')));
-            $downloadlink = 'https://www.wpdownloadmanager.com/?wpdmdl=15671';
+            $downloadlink = 'https://downloads.wordpress.org/plugin/wpdm-premium-packages.zip';
             ob_start();
             echo "<div id='acto'>";
             if (file_exists(dirname(dirname(__FILE__)) . '/wpdm-premium-packages/'))
@@ -787,46 +785,12 @@ class Apply
                 activate_plugin('wpdm-premium-packages/wpdm-premium-packages.php');
                 echo "Congratulation! Your Digital Store is Activated. <a href='' class='btn btn-warning'>Refresh The Page!</a>";
             } else
-                echo "Automatic Installation Failed! Please <a href='https://www.wpdownloadmanager.com/?wpdmdl=15671' target='_blank' class='btn btn-warning'>Download</a> and install manually";
+                echo "Automatic Installation Failed! Please <a href='".admin_url('plugin-install.php?tab=plugin-information&plugin=wpdm-premium-packages')."' target='_blank' class='btn btn-warning'>Download</a> and install manually";
             die();
         } else {
             die("Only site admin is authorized to install add-on");
         }
     }
-
-    /**
-     * Added from v4.1.1
-     * WPDM add-on installer
-     */
-    function installAddon()
-    {
-        if (isset($_REQUEST['addon']) && current_user_can('manage_options') && wp_verify_nonce($_REQUEST['__wpdmpinn'], $_REQUEST['addon'] . NONCE_KEY)) {
-            include_once(ABSPATH . 'wp-admin/includes/plugin.php');
-            include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
-            include_once ABSPATH . 'wp-admin/includes/plugin-install.php';
-            $upgrader = new \Plugin_Upgrader(new \Plugin_Installer_Skin(compact('title', 'url', 'nonce', 'plugin', 'api')));
-            $plugin_dir = wpdm_query_var('dirname', 'txt', false);
-            if ($plugin_dir) {
-                $plugin_data = wpdm_plugin_data($plugin_dir);
-                $plugin_file = $plugin_data ? $plugin_data['plugin_index_file'] : false;
-                if ($plugin_file) {
-                    if (is_plugin_active($plugin_file)) {
-                        deactivate_plugins($plugin_file);
-                    }
-                    delete_plugins(array($plugin_file));
-                }
-            }
-            if (strpos(wpdm_query_var('addon', 'txt'), '.zip'))
-                $downloadlink = wpdm_query_var('addon', 'txt');
-            else
-                $downloadlink = 'https://www.wpdownloadmanager.com/?wpdmdl=' . wpdm_query_var('addon', 'int');
-            $upgrader->install($downloadlink);
-            die();
-        } else {
-            die("Only site admin is authorized to install add-on");
-        }
-    }
-
 
 
 }

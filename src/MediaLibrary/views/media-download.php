@@ -15,13 +15,9 @@ if (!defined('ABSPATH')) die();
     <script>
         var wpdm_url = <?= json_encode(WPDM()->wpdm_urls) ?>;
     </script>
-    <link rel="stylesheet" href="<?php echo WPDM_BASE_URL; ?>assets/bootstrap/css/bootstrap.css" />
-    <link rel="stylesheet" href="<?php echo WPDM_BASE_URL; ?>assets/css/front.css" />
-    <script src="<?php echo includes_url(); ?>/js/jquery/jquery.js"></script>
-    <script src="<?php echo includes_url(); ?>/js/jquery/jquery.form.js"></script>
-    <script src="<?php echo WPDM_BASE_URL; ?>assets/bootstrap/js/bootstrap.min.js"></script>
-    <link href="https://fonts.googleapis.com/css?family=Merriweather+Sans:300,400,700" rel="stylesheet">
+
     <?php
+    do_action("wpdm_media_download_header");
     WPDM()->apply::uiColors();
     ?>
     <style>

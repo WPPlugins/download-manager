@@ -7,6 +7,7 @@
 namespace WPDM\MediaLibrary;
 
 
+use WPDM\__\__;
 use WPDM\__\Crypt;
 use WPDM\__\Messages;
 use WPDM\__\Template;
@@ -30,6 +31,7 @@ class MediaAccessControl
         }
         else {
             add_action("init", array($this, 'protectMediaLibrary'), 8);
+            add_action("wpdm_media_download_header", [$this, 'mediaDownloadHeader']);
         }
 
         add_shortcode('wpdm_media', array($this, 'mediaShortcode'));
@@ -109,7 +111,7 @@ class MediaAccessControl
             }
 
             $upload_dir = wp_upload_dir();
-            $file_path = $upload_dir['basedir'].'/'.$_REQUEST['wpdmmedia'];
+            $file_path = wpdm_valueof($upload_dir, 'basedir').'/'.wpdm_query_var('wpdmmedia');
             $file_path = apply_filters("wpdm_media_download", $file_path, $media->ID);
             FileSystem::downloadFile($file_path, basename($file_path), 10240, 0, array('play' => 1));
             die();
@@ -270,35 +272,6 @@ class MediaAccessControl
         <script>
             var xhr = null;
             jQuery(function ($) {
-                /*$('body').on('click', '.media-modal-content .attachment', function () {
-                    //if(xhr) xhr.abort();
-                    //$('.attachment-info').after("<div class='w3eden'><div class='panel panel-default'><div class='panel-body'><?php echo __( "This file is not protected yet!", "download-manager" ); ?></div><div class='panel-footer'><button type='button' class='btn btn-success btn-block'>Protect It!</button></div></div></div><hr/>");
-                    $('.w3eden.media-access-control-container').remove();
-                    $('.attachment-info').after("<div class='w3eden media-access-control-container'><div  id='wpdm-media-access'><div class='panel panel-default'><div class='panel-body'><i class='fa fa-sun fa-spin'></i> <?php echo __( "Checking status...", "download-manager" ); ?></div></div></div><hr/></div>");
-                    xhr = $.ajax({
-                        type: "GET",
-                        url: ajaxurl,
-                        data: "action=wpdm_media_access&mediaid="+$(this).data('id'),
-                        success: function(res){
-                            $('#wpdm-media-access').html(res);
-                        }
-                    });
-                });
-
-                $('body').on('click', '#wp-media-grid .attachment', function () {
-                    //if(xhr) xhr.abort();
-                    //$('.attachment-info').after("<div class='w3eden'><div class='panel panel-default'><div class='panel-body'><?php echo __( "This file is not protected yet!", "download-manager" ); ?></div><div class='panel-footer'><button type='button' class='btn btn-success btn-block'>Protect It!</button></div></div></div><hr/>");
-                    $('.w3eden.media-access-control-container').remove();
-                    $('.media-modal-content .attachment-info .details').after("<div class='w3eden media-access-control-container'><div  id='wpdm-media-access'><div class='panel panel-default'><div class='panel-body'><i class='fa fa-sun fa-spin'></i> <?php echo __( "Checking status...", "download-manager" ); ?></div></div></div><hr/></div>");
-                    xhr = $.ajax({
-                        type: "GET",
-                        url: ajaxurl,
-                        data: "action=wpdm_media_access&mediaid="+$(this).data('id'),
-                        success: function(res){
-                            $('#wpdm-media-access').html(res);
-                        }
-                    });
-                });*/
 
                 $('body').on('click', '#__makepublic', function () {
                     $('#__prots').addClass('blockui');
@@ -353,6 +326,16 @@ class MediaAccessControl
 
 
         return $form_fields;
+    }
+
+    function mediaDownloadHeader()
+    {
+        __::enqueueStyle(WPDM_BASE_URL.'assets/bootstrap/css/bootstrap.css');
+        __::enqueueStyle(WPDM_BASE_URL.'assets/css/front.css');
+        __::enqueueStyle('https://fonts.googleapis.com/css?family=Merriweather+Sans:300,400,700');
+        __::enqueueScript(includes_url('/js/jquery/jquery.js'));
+        __::enqueueScript(includes_url('/js/jquery/jquery.form.js'));
+        __::enqueueScript(WPDM_BASE_URL.'assets/bootstrap/js/bootstrap.min.js');
     }
 
 

@@ -462,4 +462,16 @@ class __
         }
         die();
     }
+
+    static function enqueueScript($script)
+    {
+	    $script = esc_url_raw($script);
+        echo "<script src='{$script}'></script>";
+    }
+
+	static function enqueueStyle($style)
+	{
+		$style = esc_url_raw($style);
+		echo "<link rel='stylesheet' href='{$style}'/>";
+	}
 }

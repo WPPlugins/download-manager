@@ -135,9 +135,9 @@ class Shortcodes
         $paging = __::valueof($params, 'paging', ['default' => 1, 'validate' => 'int']);
 
         $order_field = __::valueof($params, 'orderby', 'date');
-        $order_field = isset($_REQUEST['orderby'])? esc_attr($_REQUEST['orderby']) : $order_field;
+        $order_field = isset($_REQUEST['orderby'])? wpdm_query_var('orderby') : $order_field;
         $order = __::valueof($params, 'order', 'desc');
-        $order = isset($_REQUEST['order'])? esc_attr($_REQUEST['order']) : $order;
+        $order = isset($_REQUEST['order'])? wpdm_query_var('order') : $order;
 
         $currentPage = __::query_var('cp', 'int');
         if (!$currentPage) $currentPage = 1;

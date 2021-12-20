@@ -323,8 +323,8 @@ class Login
                 $regurl = get_permalink($regurl);
         }
         $log_redirect = $_SERVER['REQUEST_URI'];
-        if (isset($params['redirect'])) $log_redirect = esc_url($params['redirect']);
-        if (isset($_GET['redirect_to'])) $log_redirect = esc_url($_GET['redirect_to']);
+        if (isset($params['redirect'])) $log_redirect = esc_url_raw($params['redirect']);
+        if (isset($_GET['redirect_to'])) $log_redirect = esc_url_raw($_GET['redirect_to']);
 
         $up = parse_url($log_redirect);
         if (isset($up['host']) && $up['host'] != $_SERVER['SERVER_NAME']) $log_redirect = $_SERVER['REQUEST_URI'];
