@@ -200,12 +200,12 @@ class Login
 
             if (empty($_POST['user_login'])) {
                 die('error');
-            } elseif (strpos($_POST['user_login'], '@')) {
-                $user_data = get_user_by('email', trim(wp_unslash($_POST['user_login'])));
+            } elseif (is_email($_POST['user_login'])) {
+                $user_data = get_user_by('email', sanitize_email($_POST['user_login']));
                 if (empty($user_data))
                     die('error');
             } else {
-                $login = trim($_POST['user_login']);
+                $login = sanitize_text_field($_POST['user_login']);
                 $user_data = get_user_by('login', $login);
             }
             if (Session::get('__reset_time') && time() - Session::get('__reset_time') < 60) {

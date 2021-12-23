@@ -122,7 +122,7 @@ $pagination = array(
                     <div class="input-group-addon">
                         <span class="input-group-text"><?php _e("From Date", "download-manager"); ?>:</span>
                     </div>
-                    <input type="text" name="from_date" value="<?= $selected_from_date->format('Y-m-d') ?>" class="datepicker form-control bg-white text-right" readonly="readonly" />
+                    <input type="text" name="from_date" value="<?php echo  $selected_from_date->format('Y-m-d') ?>" class="datepicker form-control bg-white text-right" readonly="readonly" />
                 </div>
             </div>
 
@@ -132,7 +132,7 @@ $pagination = array(
                     <div class="input-group-addon">
                         <span class="input-group-text"><?php _e("To Date", "download-manager"); ?>:</span>
                     </div>
-                    <input type="text" name="to_date" value="<?= $selected_to_date->format('Y-m-d') ?>" class="datepicker form-control bg-white text-right" readonly="readonly" />
+                    <input type="text" name="to_date" value="<?php echo  $selected_to_date->format('Y-m-d') ?>" class="datepicker form-control bg-white text-right" readonly="readonly" />
                 </div>
             </div>
 
@@ -145,7 +145,7 @@ $pagination = array(
 
                     <select id="user_ids" name="user_ids[]" multiple="multiple" style="width: 100%; height: 100%">
                         <?php foreach ($selected_users as $u) : ?>
-                            <option selected value="<?= $u->ID ?>"> <?= $u->display_name . "($u->user_login)" ?> </option>
+                            <option selected value="<?php echo  $u->ID ?>"> <?php echo  $u->display_name . "($u->user_login)" ?> </option>
                         <?php endforeach ?>
                     </select>
 
@@ -173,7 +173,7 @@ $pagination = array(
                     </div>
                     <select id="package_ids" name="package_ids[]" multiple="multiple" style="width: 100%; height: 100%">
                         <?php foreach ($selected_packages as $p) : ?>
-                            <option selected value="<?= $p->ID ?>"> <?= $p->post_title ?> </option>
+                            <option selected value="<?php echo  $p->ID ?>"> <?php echo  $p->post_title ?> </option>
                         <?php endforeach ?>
                     </select>
                     <!-- remove package filter -->
@@ -190,7 +190,7 @@ $pagination = array(
                 </div>
             </div>
             <div class="col-md-3">
-                <label class="form-control input-lg" style="border-radius: 0;font-size: 10pt;font-weight: 400"><input type="checkbox" value="1" <?php checked(1, wpdm_query_var('uniq', 'int')); ?> name="uniq"> <?=__( 'Count Unique Downloads Only', 'download-manager' ); ?></label>
+                <label class="form-control input-lg" style="border-radius: 0;font-size: 10pt;font-weight: 400"><input type="checkbox" value="1" <?php checked(1, wpdm_query_var('uniq', 'int')); ?> name="uniq"> <?php echo __( 'Count Unique Downloads Only', 'download-manager' ); ?></label>
             </div>
 
 
@@ -200,7 +200,7 @@ $pagination = array(
                 <br/>
                 <div style="float:right">
                     <button type="submit" class="btn btn-primary btn-lg"><?php echo __("Filter", "download-manager") ?></button>
-                    <a href="edit.php?post_type=wpdmpro&page=wpdm-stats&task=export&__xnonce=<?=wp_create_nonce(NONCE_KEY); ?>&hash=<?=$hash; ?>" class="btn btn-info btn-lg"><?php echo __("Export", "download-manager") ?></a>
+                    <a href="edit.php?post_type=wpdmpro&page=wpdm-stats&task=export&__xnonce=<?php echo wp_create_nonce(NONCE_KEY); ?>&hash=<?php echo $hash; ?>" class="btn btn-info btn-lg"><?php echo __("Export", "download-manager") ?></a>
                     <a href="edit.php?post_type=wpdmpro&page=wpdm-stats&type=history" class="btn btn-danger btn-lg"><?php echo __("Reset", "download-manager") ?></a>
                 </div>
             </div>
@@ -216,7 +216,7 @@ $pagination = array(
 
 
 <?php if ($count_downloads_without_paging) : ?>
-    <p> <strong>Showing downloads <?= $start + 1 ?> - <?= $start + count($filtered_result_rows) ?> of total <?= $count_downloads_without_paging ?> </strong></p>
+    <p> <strong>Showing downloads <?php echo  $start + 1 ?> - <?php echo  $start + count($filtered_result_rows) ?> of total <?php echo  $count_downloads_without_paging ?> </strong></p>
 
 <!-- Result table -->
 <div class="panel panel-default dashboard-panel">
@@ -306,14 +306,14 @@ $pagination = array(
 
 <!-- SCRIPTS -->
 
-<link href="<?= WPDM_BASE_URL ?>assets/select2/css/select2.min.css" rel="stylesheet" />
-<script src="<?= WPDM_BASE_URL ?>assets/select2/js/select2.min.js"></script>
+<link href="<?php echo  WPDM_BASE_URL ?>assets/select2/css/select2.min.css" rel="stylesheet" />
+<script src="<?php echo  WPDM_BASE_URL ?>assets/select2/js/select2.min.js"></script>
 <script>
     jQuery(function($) {
 
         $(".datepicker").datepicker({
             dateFormat: 'yy-mm-dd',
-            minDate: new Date(<?= intval($min_timestamp) * 1000 ?>),
+            minDate: new Date(<?php echo  intval($min_timestamp) * 1000 ?>),
             maxDate: new Date()
         });
 
@@ -328,7 +328,7 @@ $pagination = array(
                 data: function(params) {
                     return {
                         action: 'wpdm_stats_get_packages',
-                        __spnonce: '<?= wp_create_nonce(WPDM_PUB_NONCE); ?>',
+                        __spnonce: '<?php echo  wp_create_nonce(WPDM_PUB_NONCE); ?>',
                         term: params.term, // search term
                     };
                 },
@@ -348,7 +348,7 @@ $pagination = array(
                 data: function(params) {
                     return {
                         action: 'wpdm_stats_get_users',
-                        __spnonce: '<?= wp_create_nonce(WPDM_PUB_NONCE); ?>',
+                        __spnonce: '<?php echo  wp_create_nonce(WPDM_PUB_NONCE); ?>',
                         term: params.term, // search term
                     };
                 },

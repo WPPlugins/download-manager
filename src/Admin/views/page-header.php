@@ -4,9 +4,9 @@ use WPDM\__\__;
 
 if(!defined("ABSPATH")) die("Shit happens!");
 ?>
-<link rel="stylesheet" href="<?= WPDM_BASE_URL ?>/assets/css/settings-ui.css" />
+<link rel="stylesheet" href="<?php echo  WPDM_BASE_URL ?>/assets/css/settings-ui.css" />
 <div id="wpdm-admin-page-header">
-    <div id="wpdm-admin-main-header" class="<?=wpdm_valueof($params, 'class')?>">
+    <div id="wpdm-admin-main-header" class="<?php echo wpdm_valueof($params, 'class')?>">
         <div class="media">
             <div class="pull-right">
                 <?php
@@ -43,7 +43,7 @@ if(!defined("ABSPATH")) die("Shit happens!");
                 <div class="media">
                     <div class="media-body">
                         <h3>
-                           <?= __::is_url($icon) ? "<img src='{$icon}' />" : "<i class='fa fa-{$icon}'></i>" ?> <?= $title; ?>
+                           <?php echo  __::is_url($icon) ? "<img src='{$icon}' />" : "<i class='fa fa-{$icon}'></i>" ?> <?php echo  $title; ?>
                         </h3>
                     </div>
                 </div>

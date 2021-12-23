@@ -10,7 +10,7 @@ if (!defined('ABSPATH')) die();
 
 ?>
 <div class='panel panel-default card'><div class='panel-heading card-header'>
-        <span id="capc_label_<?php echo $package['ID']; ?>"><?=esc_attr__("Verify CAPTCHA to Download", "download-manager"); ?></span>
+        <span id="capc_label_<?php echo $package['ID']; ?>"><?php echo esc_attr__("Verify CAPTCHA to Download", "download-manager"); ?></span>
         <span id="capcv_label_<?php echo $package['ID']; ?>" style="display: none"><?php _e( "Your Download Link is Ready" , "download-manager" ); ?></span>
     </div>
     <div class='panel-body card-body wpdm-social-locks text-center'>

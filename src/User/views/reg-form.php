@@ -26,7 +26,7 @@
                         </div>
                     <?php } ?>
 
-                    <?= $form_html; ?>
+                    <?php echo  $form_html; ?>
 
                     <?php  if(isset($params['note_after']) && trim($params['note_after']) != '') {  ?>
                         <div class="alert alert-info alter-note-after mb-3" >

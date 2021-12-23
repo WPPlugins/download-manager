@@ -6,7 +6,7 @@ use WPDM\__\FileSystem;
 if(!defined("ABSPATH")) die("Shit happens!");
 ?>
 
-<div class="tab-pane hide" id="file_info_<?= $id ?>">
+<div class="tab-pane hide" id="file_info_<?php echo  $id ?>">
     <div class="form-group">
         <div class="media">
             <div class="pull-left">
@@ -89,7 +89,7 @@ if(!defined("ABSPATH")) die("Shit happens!");
                         } ?>
                     </tr>
                     <tr>
-                        <td colspan="<?= count($pre_licenses); ?>"><?php _e('License specific file price:', 'download-manager'); ?></td>
+                        <td colspan="<?php echo  count($pre_licenses); ?>"><?php _e('License specific file price:', 'download-manager'); ?></td>
                     </tr>
                     <tr>
                         <?php foreach ($pre_licenses as $licid => $pre_license) { ?>
@@ -104,7 +104,7 @@ if(!defined("ABSPATH")) die("Shit happens!");
                         } ?>
                     </tr>
                     <tr>
-                        <td colspan="<?= count($pre_licenses); ?>"><?php _e('File availability with license pack:', 'download-manager'); ?></td>
+                        <td colspan="<?php echo  count($pre_licenses); ?>"><?php _e('File availability with license pack:', 'download-manager'); ?></td>
                     </tr>
                     <tr>
                         <?php

@@ -53,7 +53,7 @@ function wpdm_download_file($filepath, $filename, $speed = 0, $resume_support = 
 {
     do_action("wpdm_download_success", $extras);
     if (!file_exists($filepath)) Messages::fullPage("Download Error", "<div class='card bg-danger text-white text-left' style='min-width: 300px'><div class='card-header'>" . __("Download Error", "download-manager") . "</div><div class='card-body'>" . __("File Not Found!", "download-manager") . "</div></div>");
-    if (isset($_GET['play'])) $extras['play'] = $_GET['play'];
+    if (isset($_GET['play'])) $extras['play'] = sanitize_text_field($_GET['play']);
     \WPDM\__\FileSystem::downloadFile($filepath, $filename, $speed, $resume_support, $extras);
 }
 

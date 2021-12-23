@@ -7,7 +7,6 @@ use WPDM\__\TempStorage;
 
 if(!defined("ABSPATH")) die('!');
 
-error_reporting(0);
 
 global $current_user, $dfiles;
 

@@ -184,7 +184,7 @@
 
     </div>
         <div class="panel-footer" id="importstatus">
-             <?= esc_attr__( 'Download sample csv file', WPDM_TEXT_DOMAIN ); ?>: <a href="<?php echo plugins_url('/download-manager/assets/sample.csv'); ?>">sample.csv</a>
+             <?php echo  esc_attr__( 'Download sample csv file', WPDM_TEXT_DOMAIN ); ?>: <a href="<?php echo plugins_url('/download-manager/assets/sample.csv'); ?>">sample.csv</a>
         </div>
     </div>
 
@@ -200,7 +200,7 @@
 
             <div class="progress" id="wxprogressbar" style="height: 43px !important;border-radius: 3px !important;margin: 0;position: relative;background: #0d406799;display: none;box-shadow: none">
                 <div id="wxprogress" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;line-height: 43px;background-color: #007bff"></div>
-                <div class="fetfont" style="font-size:12px;position: absolute;line-height: 43px;height: 43px;width: 100%;z-index: 999;text-align: center;color: #ffffff;font-weight: 600;letter-spacing: 1px"><?= esc_attr__( 'Processing', WPDM_TEXT_DOMAIN ); ?>... <span id="wxloaded">0</span>%</div>
+                <div class="fetfont" style="font-size:12px;position: absolute;line-height: 43px;height: 43px;width: 100%;z-index: 999;text-align: center;color: #ffffff;font-weight: 600;letter-spacing: 1px"><?php echo  esc_attr__( 'Processing', WPDM_TEXT_DOMAIN ); ?>... <span id="wxloaded">0</span>%</div>
             </div>
 
         </div>
@@ -219,7 +219,7 @@
                 color: #333333
             }
             #dirselector li > .handle {
-                background: url("<?= WPDM_BASE_URL ?>/assets/images/folder.svg") left center no-repeat;
+                background: url("<?php echo  WPDM_BASE_URL ?>/assets/images/folder.svg") left center no-repeat;
                 background-size: 16px;
                 display: inline-block;
                 width: 20px;
@@ -232,7 +232,7 @@
                 background-size: 16px;
             }
             #dirselector li.expanded > .handle {
-                background: url("<?= WPDM_BASE_URL ?>/assets/images/folder-o.svg") left center no-repeat;
+                background: url("<?php echo  WPDM_BASE_URL ?>/assets/images/folder-o.svg") left center no-repeat;
                 background-size: 16px;
             }
             #dirselector ul ul {
@@ -358,19 +358,19 @@
     </tr>
       <tr>
         <th width="20" class="check-column"><input type="checkbox" class="multicheck"></th>
-        <th ><?= esc_attr__( 'File name', WPDM_TEXT_DOMAIN ); ?></th>
-        <th ><?= esc_attr__( 'Title', WPDM_TEXT_DOMAIN ); ?></th>
-        <th ><?= esc_attr__( 'Description', WPDM_TEXT_DOMAIN ); ?></th>
-        <th width=100><?= esc_attr__( 'Password', WPDM_TEXT_DOMAIN ); ?></th>
+        <th ><?php echo  esc_attr__( 'File name', WPDM_TEXT_DOMAIN ); ?></th>
+        <th ><?php echo  esc_attr__( 'Title', WPDM_TEXT_DOMAIN ); ?></th>
+        <th ><?php echo  esc_attr__( 'Description', WPDM_TEXT_DOMAIN ); ?></th>
+        <th width=100><?php echo  esc_attr__( 'Password', WPDM_TEXT_DOMAIN ); ?></th>
       </tr>
     </thead>
     <tfoot>
     <tr>
         <th width="20" class="check-column"><input type="checkbox" class="multicheck"></th>
-        <th ><?= esc_attr__( 'File name', WPDM_TEXT_DOMAIN ); ?></th>
-        <th ><?= esc_attr__( 'Title', WPDM_TEXT_DOMAIN ); ?></th>
-        <th ><?= esc_attr__( 'Description', WPDM_TEXT_DOMAIN ); ?></th>
-        <th width=100><?= esc_attr__( 'Password', WPDM_TEXT_DOMAIN ); ?></th>
+        <th ><?php echo  esc_attr__( 'File name', WPDM_TEXT_DOMAIN ); ?></th>
+        <th ><?php echo  esc_attr__( 'Title', WPDM_TEXT_DOMAIN ); ?></th>
+        <th ><?php echo  esc_attr__( 'Description', WPDM_TEXT_DOMAIN ); ?></th>
+        <th width=100><?php echo  esc_attr__( 'Password', WPDM_TEXT_DOMAIN ); ?></th>
     </tr>
     </tfoot>
     <tbody id="__the_list">
@@ -477,7 +477,7 @@
 
         $('body').on('click', '.slctdir', function(){
             WPDM.blockUI('#importarea');
-            $.post(ajaxurl, {action: 'wpdm_select_import_dir', _ids_nonce: '<?= wp_create_nonce(WPDM_PRI_NONCE)?>', importdir: $(this).val()}, function (res){
+            $.post(ajaxurl, {action: 'wpdm_select_import_dir', _ids_nonce: '<?php echo  wp_create_nonce(WPDM_PRI_NONCE)?>', importdir: $(this).val()}, function (res){
                 if(res.success) {
                     __dim_files.files = res.files;
                 }

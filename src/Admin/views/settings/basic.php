@@ -148,8 +148,8 @@
             <?php
             $allowed_file_types = get_option("__wpdm_allowed_file_types", '');
             ?>
-            <input type="text" class="form-control" value="<?= $allowed_file_types; ?>"
-                   placeholder="<?= esc_attr__('Keep empty to use wordpress defaults', 'download-manager'); ?>"
+            <input type="text" class="form-control" value="<?php echo  $allowed_file_types; ?>"
+                   placeholder="<?php echo  esc_attr__('Keep empty to use wordpress defaults', 'download-manager'); ?>"
                    name="__wpdm_allowed_file_types"/>
             <em><?php _e('Enter the file extensions you want to allow to upload through WPDM ( ex: png,jpg,pdf )', 'download-manager'); ?></em>
             <br/>

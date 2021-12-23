@@ -31,13 +31,7 @@ class Messages {
         if($die==0)
             echo $message;
         if($die==1) {
-            $content = "<div style='display: table;vertical-align: middle;height: 90%;position: absolute;width: 90%;margin-left: 5%;'>
-                        <div style='text-align: center;height: 100%;display: table-cell;vertical-align: middle'>
-                        <div style='max-width: 70% !important;display: inline-block;font-size: 13pt'>
-                            $message
-                        </div></div></div>";
-            include Template::locate("blank.php", __DIR__.'/views');
-            die();
+            wp_die($message);
         }
         return true;
     }

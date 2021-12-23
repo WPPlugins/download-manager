@@ -506,7 +506,7 @@ if(is_admin()){
                     <button class="btn btn-primary btn-simple btn-sm ttip" title="Reload" id="reload"><i class="fa fa-sync"></i></button>
                     <div class="btn-group">
                         <button class="btn btn-simple btn-sm" data-toggle="modal" data-target="#newfol"><i class="fa fa-folder-open"></i> <?php echo __( "New Folder", "download-manager" ) ?></button>
-                        <button class="btn btn-simple btn-sm" data-toggle="modal" data-target="#newfile"><i class="far fa-file"></i> <?= esc_attr__( 'New File', WPDM_TEXT_DOMAIN ); ?></button>
+                        <button class="btn btn-simple btn-sm" data-toggle="modal" data-target="#newfile"><i class="far fa-file"></i> <?php echo  esc_attr__( 'New File', WPDM_TEXT_DOMAIN ); ?></button>
                         <button class="btn btn-simple btn-sm" id="btn-upload-file" ><i class="fa fa-cloud-upload-alt"></i> <?php echo __( "Upload File", "download-manager" ) ?></button>
                     </div>
                     <button class="btn btn-info btn-simple btn-sm ttip" id="btn-paste" disabled="disabled" title="Paste"><i class="fa fa-clipboard"></i></button>
@@ -527,7 +527,7 @@ if(is_admin()){
             </div>
         </div>
         <div class="panel-heading" style="border-radius: 0;border-top: 1px solid #dddddd">
-            <div id="ldn" style="float:right;font-size: 9pt;margin-top: 10px;display: none" class="text-danger"><i class="fa fa-sun fa-spin"></i> <?= esc_attr__( 'Loading', WPDM_TEXT_DOMAIN ); ?>...</div>
+            <div id="ldn" style="float:right;font-size: 9pt;margin-top: 10px;display: none" class="text-danger"><i class="fa fa-sun fa-spin"></i> <?php echo  esc_attr__( 'Loading', WPDM_TEXT_DOMAIN ); ?>...</div>
             <div id="breadcrumb" style="margin: 0"></div>
         </div>
         <div class="panel-body-c" id="wpdmfm_explorer">
@@ -537,7 +537,7 @@ if(is_admin()){
                 <div class="col-md-3 wpdm-dir-locator">
                     <div data-simplebar ss-container>
                         <ul class="wpdmfm-folder-tree" id="wpdmfm-folder-tree">
-                            <li data-path="" id="<?php echo md5('home'); ?>" class="expand-dir"><i class="fa fa-hdd color-purple"></i> <a class="explore-dir" href="#" data-path=""> <?= esc_attr__( 'Home', WPDM_TEXT_DOMAIN ); ?></a></li>
+                            <li data-path="" id="<?php echo md5('home'); ?>" class="expand-dir"><i class="fa fa-hdd color-purple"></i> <a class="explore-dir" href="#" data-path=""> <?php echo  esc_attr__( 'Home', WPDM_TEXT_DOMAIN ); ?></a></li>
                         </ul>
                     </div>
                 </div>
@@ -559,14 +559,14 @@ if(is_admin()){
                     <div class="panel panel-default blockui" style="left:0;width: 100%;height: 900px;border: 0;border-left: 1px solid #eee;border-radius: 0;position: absolute;">
                         <div class="panel-heading" style="border-radius: 0;border-top: 0 !important;">
                             <a href="#" class="pull-right" id="close-settings"><i class="fas fa-times-circle text-muted"></i></a>
-                            <?= esc_attr__( 'Asset Settings', WPDM_TEXT_DOMAIN ); ?>
+                            <?php echo  esc_attr__( 'Asset Settings', WPDM_TEXT_DOMAIN ); ?>
                         </div>
                         <div class="panel-body" id="__asset_settings">
                             <div class="thumbnail text-center" v-html="asset.preview"></div>
                             <div class="form-group">
                                 <div class="media" style="border:1px solid #e8e8e8;border-radius: 3px;padding: 10px;">
                                     <div class="pull-right">
-                                        <button class="btn btn-xs btn-secondary btn-rename" type="button" title="<?= esc_attr__( 'Rename', WPDM_TEXT_DOMAIN ); ?>" data-toggle="modal" data-target="#rename"><i class="fas fa-i-cursor"></i> <?= esc_attr__( 'Rename', WPDM_TEXT_DOMAIN ); ?></button>
+                                        <button class="btn btn-xs btn-secondary btn-rename" type="button" title="<?php echo  esc_attr__( 'Rename', WPDM_TEXT_DOMAIN ); ?>" data-toggle="modal" data-target="#rename"><i class="fas fa-i-cursor"></i> <?php echo  esc_attr__( 'Rename', WPDM_TEXT_DOMAIN ); ?></button>
                                     </div>
                                     <div class="media-body">
                                         &nbsp;{{ asset.name }}
@@ -578,13 +578,13 @@ if(is_admin()){
                                         <div class="modal-content">
                                             <div class="modal-header">
                                                 <button type="button" class="close pull-right" data-dismiss="modal" aria-label="Close"><span aria-hidden="true"><i class="fa fa-times-circle"></i></span></button>
-                                                <strong class="modal-title" id="myModalLabel"><?= esc_attr__( 'Rename', WPDM_TEXT_DOMAIN ); ?></strong>
+                                                <strong class="modal-title" id="myModalLabel"><?php echo  esc_attr__( 'Rename', WPDM_TEXT_DOMAIN ); ?></strong>
                                             </div>
                                             <div id="upload" class="modal-body">
-                                                <input type="text" v-bind:value="asset.name" placeholder="<?= esc_attr__( 'New Name', WPDM_TEXT_DOMAIN ); ?>" id="newname" class="form-control form-control-lg" style="margin: 0px;border: 1px dashed #d4d4d4;">
+                                                <input type="text" v-bind:value="asset.name" placeholder="<?php echo  esc_attr__( 'New Name', WPDM_TEXT_DOMAIN ); ?>" id="newname" class="form-control form-control-lg" style="margin: 0px;border: 1px dashed #d4d4d4;">
                                             </div>
                                             <div class="modal-footer text-right">
-                                                <button type="button" id="renamenow" class="btn btn-info"  :data-assetid="asset.ID" :data-oldname="asset.name" :data-path="asset.path"><?= esc_attr__( 'Rename', WPDM_TEXT_DOMAIN ); ?></button>
+                                                <button type="button" id="renamenow" class="btn btn-info"  :data-assetid="asset.ID" :data-oldname="asset.name" :data-path="asset.path"><?php echo  esc_attr__( 'Rename', WPDM_TEXT_DOMAIN ); ?></button>
                                             </div>
                                         </div>
                                     </div>
@@ -596,7 +596,7 @@ if(is_admin()){
 
                                 <!-- Nav tabs -->
                                 <ul class="nav nav-tabs" id="__file_settings_tabs" role="tablist" style="margin-left: -15px;padding-left: 15px;margin-right: -15px;border-bottom: 1px solid #e8e8e8;">
-                                    <li role="presentation" class="active"><a href="#share" aria-controls="share" role="tab" data-toggle="tab"><?= esc_attr__( 'Share', WPDM_TEXT_DOMAIN ); ?></a></li>
+                                    <li role="presentation" class="active"><a href="#share" aria-controls="share" role="tab" data-toggle="tab"><?php echo  esc_attr__( 'Share', WPDM_TEXT_DOMAIN ); ?></a></li>
                                 </ul>
 
                                 <!-- Tab panes -->
@@ -609,7 +609,7 @@ if(is_admin()){
                                                 <div onclick="jQuery('#sharecode').select();document.execCommand('copy');" class="input-group-addon ttip" title="<?php echo __( "Copy Shortcode", "download-manager" ) ?>" style="border: 0 !important;background: #ffffff;cursor: pointer;"><i class="fa fa-copy color-purple"></i></div>
                                             </div>
                                             <div class="panel-footer text-center">
-                                                <?= esc_attr__( 'Use the shortcode to embed this asset on any page or post', WPDM_TEXT_DOMAIN ); ?>
+                                                <?php echo  esc_attr__( 'Use the shortcode to embed this asset on any page or post', WPDM_TEXT_DOMAIN ); ?>
                                             </div>
                                         </div>
 
@@ -768,14 +768,14 @@ if(is_admin()){
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close pull-right" data-dismiss="modal" aria-label="Close"><span aria-hidden="true"><i class="fa fa-times-circle"></i></span></button>
-                    <strong class="modal-title" id="myModalLabel"><?= esc_attr__( 'New Folder', WPDM_TEXT_DOMAIN ); ?></strong>
+                    <strong class="modal-title" id="myModalLabel"><?php echo  esc_attr__( 'New Folder', WPDM_TEXT_DOMAIN ); ?></strong>
                 </div>
                 <div id="upload" class="modal-body">
                     <input type="text" placeholder="Folder Name" id="folname" class="form-control form-control-lg" style="margin: 0">
                 </div>
                 <div class="modal-footer text-right">
-                    <button type="button" id="createfol" class="btn btn-info"><?= esc_attr__( 'Create Folder', WPDM_TEXT_DOMAIN ); ?></button>
-                    <div style="float:left;display: none;" id="fcd" class="text-success"><i class="fa fa-check-circle"></i> <?= esc_attr__( 'Folder Created', WPDM_TEXT_DOMAIN ); ?></div>
+                    <button type="button" id="createfol" class="btn btn-info"><?php echo  esc_attr__( 'Create Folder', WPDM_TEXT_DOMAIN ); ?></button>
+                    <div style="float:left;display: none;" id="fcd" class="text-success"><i class="fa fa-check-circle"></i> <?php echo  esc_attr__( 'Folder Created', WPDM_TEXT_DOMAIN ); ?></div>
                 </div>
             </div>
         </div>
@@ -786,14 +786,14 @@ if(is_admin()){
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close pull-right" data-dismiss="modal" aria-label="Close"><span aria-hidden="true"><i class="fa fa-times-circle"></i></span></button>
-                    <strong class="modal-title" id="myModalLabel"><?= esc_attr__( 'New File', WPDM_TEXT_DOMAIN ); ?></strong>
+                    <strong class="modal-title" id="myModalLabel"><?php echo  esc_attr__( 'New File', WPDM_TEXT_DOMAIN ); ?></strong>
                 </div>
                 <div id="upload" class="modal-body">
                     <input type="text" placeholder="File Name" id="filename" class="form-control form-control-lg" style="margin: 0">
                 </div>
                 <div class="modal-footer text-right">
-                    <button type="button" id="createfile" class="btn btn-info"><?= esc_attr__( 'Create File', WPDM_TEXT_DOMAIN ); ?></button>
-                    <div style="float:left;display: none;" id="fcd" class="text-success"><i class="fa fa-check-circle"></i> <?= esc_attr__( 'File Created', WPDM_TEXT_DOMAIN ); ?></div>
+                    <button type="button" id="createfile" class="btn btn-info"><?php echo  esc_attr__( 'Create File', WPDM_TEXT_DOMAIN ); ?></button>
+                    <div style="float:left;display: none;" id="fcd" class="text-success"><i class="fa fa-check-circle"></i> <?php echo  esc_attr__( 'File Created', WPDM_TEXT_DOMAIN ); ?></div>
                 </div>
             </div>
         </div>
@@ -804,7 +804,7 @@ if(is_admin()){
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close pull-right" data-dismiss="modal" aria-label="Close"><span aria-hidden="true"><i class="fa fa-times-circle"></i></span></button>
-                    <strong class="modal-title"><?= esc_attr__( 'Update link', WPDM_TEXT_DOMAIN ); ?></strong>
+                    <strong class="modal-title"><?php echo  esc_attr__( 'Update link', WPDM_TEXT_DOMAIN ); ?></strong>
                 </div>
                 <div class="modal-body">
                     <form id="update_sharelink_form" method="post" action="<?php echo admin_url('admin-ajax.php'); ?>">
@@ -853,7 +853,7 @@ if(is_admin()){
                         </div>
 
                         <div class="text-right">
-                            <button type="submit" id="create_sharelink" class="btn btn-info"><?= esc_attr__( 'Update Link', WPDM_TEXT_DOMAIN ); ?></button>
+                            <button type="submit" id="create_sharelink" class="btn btn-info"><?php echo  esc_attr__( 'Update Link', WPDM_TEXT_DOMAIN ); ?></button>
                         </div>
 
 
@@ -969,7 +969,7 @@ if(is_admin()){
                     $('#breadcrumb').html(data.breadcrumb);
 
                 } else {
-                    WPDM.pushNotify("<?=esc_attr__( 'Error', 'download-manager' ); ?>!", data.message, 'https://cdn0.iconfinder.com/data/icons/small-n-flat/24/678080-shield-error-256.png', 'https://cdn0.iconfinder.com/data/icons/small-n-flat/24/678080-shield-error-256.png');
+                    WPDM.pushNotify("<?php echo esc_attr__( 'Error', 'download-manager' ); ?>!", data.message, 'https://cdn0.iconfinder.com/data/icons/small-n-flat/24/678080-shield-error-256.png', 'https://cdn0.iconfinder.com/data/icons/small-n-flat/24/678080-shield-error-256.png');
                 }
             });
         }

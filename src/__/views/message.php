@@ -7,51 +7,56 @@ if (!defined('ABSPATH')) die();
  */
 
 
-?>
-<!DOCTYPE html>
-<html style="background: transparent">
+?><!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" <?php language_attributes(); ?>>
 <head>
-    <title>Download <?php the_title(); ?></title>
-    <script>
-        var wpdm_url = <?= json_encode(WPDM()->wpdm_urls) ?>;
-    </script>
-    <link rel="stylesheet" href="<?php echo WPDM_BASE_URL; ?>assets/bootstrap/css/bootstrap.css" />
-    <link rel="stylesheet" href="<?php echo WPDM_BASE_URL; ?>assets/css/front.css" />
-    <link rel="stylesheet" href="<?php echo WPDM_BASE_URL; ?>assets/font-awesome/css/font-awesome.min.css" />
-    <link href="https://fonts.googleapis.com/css?family=Overpass:400,700" rel="stylesheet">
-
-    <?php
-    \WPDM\__\Apply::uiColors();
-    ?>
+    <meta http-equiv="Content-Type"
+          content="<?php bloginfo( 'html_type' ); ?>; charset=<?php bloginfo( 'charset' ); ?>"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<?php wp_head(); ?>
     <style>
         body{
-            font-family: Overpass, sans-serif;
-            font-weight: 400;
-            font-size: 14px;
+            font-family: var(--wpdm-font);
+            background: #ffffff url("<?php echo get_the_post_thumbnail_url(); ?>") no-repeat;
+            background-size: cover;
         }
-        .w3eden .alert:before{
-            text-transform: uppercase !important;
+        .outer {
+            display: table;
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 100%;
         }
-        .w3eden .alert{
-            letter-spacing: 0.5px !important;
+
+        .middle {
+            display: table-cell;
+            vertical-align: middle;
         }
-        .w3eden .card .card-header{
-            font-size: 13pt;
+
+
+
+        .w3eden .panel .panel-heading{
+            font-size: 10px;
         }
-        .w3eden .card .card-body{
-            font-size: 13pt;
+        .w3eden p{
+            margin: 15px 0 !important;
         }
+
     </style>
 </head>
-<body class="w3eden">
-<div style='display: table;vertical-align: middle;height: 90%;position: absolute;width: 90%;margin-left: 5%;'>
-    <div style='text-align: center;height: 100%;display: table-cell;vertical-align: middle'>
-        <div style='max-width: 70% !important;display: inline-block;font-size: 13pt'>
-            <?php
-            echo do_shortcode($msg);
-            ?>
-        </div></div></div>
-
+<body>
+<div class="outer">
+    <div class="middle">
+        <div class="inner">
+	        <?php
+	        echo do_shortcode($msg);
+	        ?>
+        </div>
+    </div>
+</div>
 
 </body>
+
+
 </html>

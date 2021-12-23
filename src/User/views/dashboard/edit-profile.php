@@ -9,7 +9,7 @@ $user = get_userdata($current_user->ID);
         <?php wp_nonce_field(NONCE_KEY, '__wpdm_epnonce'); ?>
         <div class="card card-default dashboard-panel">
             <div class="card-header bg-white">
-                <h3 class="m-0 pt-2 pb-2"><i class="fa fa-user-edit title-icon color-primary"></i> <?= __('Basic Profile', WPDM_TEXT_DOMAIN); ?></h3>
+                <h3 class="m-0 pt-2 pb-2"><i class="fa fa-user-edit title-icon color-primary"></i> <?php echo  __('Basic Profile', WPDM_TEXT_DOMAIN); ?></h3>
             </div>
             <div class="card-body">
                 <div class="row">
@@ -55,7 +55,7 @@ $user = get_userdata($current_user->ID);
         $('#edit_profile').on('submit', function (e) {
             e.preventDefault();
             var edit_profile_sbtn = $('#edit_profile_sbtn').html();
-            $('#edit_profile_sbtn').html("<i class='fa fa-sync fa-spin'></i> <?= esc_attr__( 'Please Wait...', WPDM_TEXT_DOMAIN ) ?>").attr('disabled','disabled');
+            $('#edit_profile_sbtn').html("<i class='fa fa-sync fa-spin'></i> <?php echo  esc_attr__( 'Please Wait...', WPDM_TEXT_DOMAIN ) ?>").attr('disabled','disabled');
             $(this).ajaxSubmit({
                 success: function (res) {
                     WPDM.notify(res.msg, res.type, '#wpdm-fixed-top-center', 10000);

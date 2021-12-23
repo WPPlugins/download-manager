@@ -128,15 +128,15 @@ $fileinfo = get_post_meta($post->ID, '__wpdm_fileinfo', true);
 <div class="w3eden">
     <div class="wpdm-split-container">
         <div class="wpdm-sidebar">
-            <input type="text" style="border: 0;border-radius: 0;border-bottom: 1px solid #ccd0d4;" class="form-control input-lg" id="searchfile" placeholder="<?=__( 'Search in Attached Files...', 'download-manager' ); ?>" />
+            <input type="text" style="border: 0;border-radius: 0;border-bottom: 1px solid #ccd0d4;" class="form-control input-lg" id="searchfile" placeholder="<?php echo __( 'Search in Attached Files...', 'download-manager' ); ?>" />
             <div id="wpdm-attach-files">
                 <?php foreach ($files as $file_id => $file) { ?>
-                <div class="wpdm-list-item" style="position: relative" data-target="#file_info_<?= $file_id ?>">
+                <div class="wpdm-list-item" style="position: relative" data-target="#file_info_<?php echo  $file_id ?>">
                     <button type="button" class="btn btn-sm btn-danger show-on-hover" style="position: absolute;right: 20px" rel="del"><i class="fas fa-trash"></i></button>
                     <div>
-                        <input class="faz" type="hidden" value="<?= $file ?>" name="file[files][<?= $file_id ?>]" />
-                        <strong class="d-block"><?= wpdm_valueof($fileinfo, "{$file_id}/title"); ?></strong>
-                        <?= $file ?>
+                        <input class="faz" type="hidden" value="<?php echo  $file ?>" name="file[files][<?php echo  $file_id ?>]" />
+                        <strong class="d-block"><?php echo  wpdm_valueof($fileinfo, "{$file_id}/title"); ?></strong>
+                        <?php echo  $file ?>
                     </div>
                 </div>
                 <?php } ?>

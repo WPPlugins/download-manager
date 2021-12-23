@@ -10,7 +10,7 @@ if(!defined("ABSPATH")) die();
 <div class="panel panel-default">
     <div class="panel-heading">
         <a href="#" data-toggle="modal" data-target="#newtagmodal" class="btn btn-success pull-right btn-xs"><i class="fa fa-plus-circle"></i> <?php _e( "Add New Tag", "download-manager" ); ?></a>
-        <?= esc_attr__( 'Custom Template Tags', WPDM_TEXT_DOMAIN ); ?>
+        <?php echo  esc_attr__( 'Custom Template Tags', WPDM_TEXT_DOMAIN ); ?>
     </div>
     <table class="table table-striped" id="tagstable">
         <thead>

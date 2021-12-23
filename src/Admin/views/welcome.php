@@ -251,7 +251,7 @@
                              </div>
                          </div>
                          <div style="line-height: 30px;" class="panel-footer">
-                             <a href="<?=admin_url('plugin-install.php?tab=plugin-information&plugin=wpdm-gutenberg-blocks&TB_iframe=true&width=600&height=550')?>" class="btn btn-primary btn-block thickbox open-plugin-details-modal">Install</a>
+                             <a href="<?php echo admin_url('plugin-install.php?tab=plugin-information&plugin=wpdm-gutenberg-blocks&TB_iframe=true&width=600&height=550')?>" class="btn btn-primary btn-block thickbox open-plugin-details-modal">Install</a>
                          </div>
                      </div>
                  </div>
@@ -268,7 +268,7 @@
                          </div>
                      </div>
                      <div style="line-height: 30px;" class="panel-footer">
-                         <a href="<?=admin_url('plugin-install.php?tab=plugin-information&plugin=wpdm-premium-packages&TB_iframe=true&width=600&height=550')?>" class="btn btn-primary btn-block thickbox open-plugin-details-modal">Install</a>
+                         <a href="<?php echo admin_url('plugin-install.php?tab=plugin-information&plugin=wpdm-premium-packages&TB_iframe=true&width=600&height=550')?>" class="btn btn-primary btn-block thickbox open-plugin-details-modal">Install</a>
                      </div>
                  </div>
              </div>
@@ -285,7 +285,7 @@
                          </div>
                      </div>
                      <div style="line-height: 30px;" class="panel-footer">
-                         <a href="<?=admin_url('plugin-install.php?tab=plugin-information&plugin=liveforms&TB_iframe=true&width=600&height=550')?>" class="btn btn-success btn-block thickbox open-plugin-details-modal">Install</a>
+                         <a href="<?php echo admin_url('plugin-install.php?tab=plugin-information&plugin=liveforms&TB_iframe=true&width=600&height=550')?>" class="btn btn-success btn-block thickbox open-plugin-details-modal">Install</a>
                      </div>
                  </div>
              </div>

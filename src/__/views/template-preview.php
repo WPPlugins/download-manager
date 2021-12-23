@@ -40,7 +40,7 @@
 <div class="outer">
     <div class="middle">
         <div class="inner">
-            <?= $template; ?>
+            <?php echo wpdm_escs($template); ?>
         </div>
     </div>
 </div>

@@ -708,40 +708,40 @@ class Apply
         <style>
 
             :root {
-                --color-primary: <?php echo esc_attr($primary); ?>;
-                --color-primary-rgb: <?php echo wpdm_hex2rgb($primary); ?>;
-                --color-primary-hover: <?php echo isset($uicolors['primary'])?$uicolors['primary_hover']:'#4a8eff'; ?>;
-                --color-primary-active: <?php echo isset($uicolors['primary'])?$uicolors['primary_active']:'#4a8eff'; ?>;
-                --color-secondary: <?php echo esc_attr($secondary); ?>;
-                --color-secondary-rgb: <?php echo wpdm_hex2rgb($secondary); ?>;
-                --color-secondary-hover: <?php echo isset($uicolors['secondary'])?esc_attr($uicolors['secondary_hover']):'#4a8eff'; ?>;
-                --color-secondary-active: <?php echo isset($uicolors['secondary'])?esc_attr($uicolors['secondary_active']):'#4a8eff'; ?>;
-                --color-success: <?php echo $success; ?>;
-                --color-success-rgb: <?php echo wpdm_hex2rgb($success); ?>;
-                --color-success-hover: <?php echo isset($uicolors['success_hover'])?esc_attr($uicolors['success_hover']):'#4a8eff'; ?>;
-                --color-success-active: <?php echo isset($uicolors['success_active'])?esc_attr($uicolors['success_active']):'#4a8eff'; ?>;
-                --color-info: <?php echo esc_attr($info); ?>;
-                --color-info-rgb: <?php echo wpdm_hex2rgb($info); ?>;
-                --color-info-hover: <?php echo isset($uicolors['info_hover'])?esc_attr($uicolors['info_hover']):'#2CA8FF'; ?>;
-                --color-info-active: <?php echo isset($uicolors['info_active'])?esc_attr($uicolors['info_active']):'#2CA8FF'; ?>;
-                --color-warning: <?php echo esc_attr($warning); ?>;
-                --color-warning-rgb: <?php echo wpdm_hex2rgb($warning); ?>;
-                --color-warning-hover: <?php echo isset($uicolors['warning_hover'])?esc_attr($uicolors['warning_hover']):'orange'; ?>;
-                --color-warning-active: <?php echo isset($uicolors['warning_active'])?esc_attr($uicolors['warning_active']):'orange'; ?>;
-                --color-danger: <?php echo $danger; ?>;
+                --color-primary: <?php echo sanitize_text_field($primary); ?>;
+                --color-primary-rgb: <?php echo sanitize_text_field(wpdm_hex2rgb($primary)); ?>;
+                --color-primary-hover: <?php echo sanitize_text_field($uicolors['primary'] ?? '#4a8eff' ); ?>;
+                --color-primary-active: <?php echo sanitize_text_field($uicolors['primary'] ?? '#4a8eff' ); ?>;
+                --color-secondary: <?php echo sanitize_text_field($secondary); ?>;
+                --color-secondary-rgb: <?php echo sanitize_text_field(wpdm_hex2rgb($secondary)); ?>;
+                --color-secondary-hover: <?php echo sanitize_text_field($uicolors['secondary'] ?? '#4a8eff'); ?>;
+                --color-secondary-active: <?php echo sanitize_text_field($uicolors['secondary'] ?? '#4a8eff' ); ?>;
+                --color-success: <?php echo sanitize_text_field($success); ?>;
+                --color-success-rgb: <?php echo sanitize_text_field(wpdm_hex2rgb($success)); ?>;
+                --color-success-hover: <?php echo sanitize_text_field($uicolors['success_hover'] ?? '#4a8eff'); ?>;
+                --color-success-active: <?php echo sanitize_text_field($uicolors['success_active'] ?? '#4a8eff' ); ?>;
+                --color-info: <?php echo sanitize_text_field($info); ?>;
+                --color-info-rgb: <?php echo sanitize_text_field(wpdm_hex2rgb($info)); ?>;
+                --color-info-hover: <?php echo sanitize_text_field($uicolors['info_hover'] ?? '#2CA8FF' ); ?>;
+                --color-info-active: <?php echo sanitize_text_field($uicolors['info_active'] ?? '#2CA8FF'); ?>;
+                --color-warning: <?php echo sanitize_text_field($warning); ?>;
+                --color-warning-rgb: <?php echo sanitize_text_field(wpdm_hex2rgb($warning)); ?>;
+                --color-warning-hover: <?php echo sanitize_text_field($uicolors['warning_hover'] ?? 'orange' ); ?>;
+                --color-warning-active: <?php echo sanitize_text_field($uicolors['warning_active'] ?? 'orange'); ?>;
+                --color-danger: <?php echo sanitize_text_field($danger); ?>;
                 --color-danger-rgb: <?php echo wpdm_hex2rgb($danger); ?>;
-                --color-danger-hover: <?php echo isset($uicolors['danger_hover'])?esc_attr($uicolors['danger_hover']):'#ff5062'; ?>;
-                --color-danger-active: <?php echo isset($uicolors['danger_active'])?esc_attr($uicolors['danger_active']):'#ff5062'; ?>;
-                --color-green: <?php echo isset($uicolors['green'])?esc_attr($uicolors['green']):'#30b570'; ?>;
-                --color-blue: <?php echo isset($uicolors['blue'])?esc_attr($uicolors['blue']):'#0073ff'; ?>;
-                --color-purple: <?php echo isset($uicolors['purple'])?esc_attr($uicolors['purple']):'#8557D3'; ?>;
-                --color-red: <?php echo isset($uicolors['red'])?esc_attr($uicolors['red']):'#ff5062'; ?>;
+                --color-danger-hover: <?php echo sanitize_text_field($uicolors['danger_hover'] ?? '#ff5062'); ?>;
+                --color-danger-active: <?php echo sanitize_text_field($uicolors['danger_active'] ?? '#ff5062'); ?>;
+                --color-green: <?php echo sanitize_text_field($uicolors['green'] ?? '#30b570'); ?>;
+                --color-blue: <?php echo sanitize_text_field($uicolors['blue'] ?? '#0073ff'); ?>;
+                --color-purple: <?php echo sanitize_text_field($uicolors['purple'] ?? '#8557D3'); ?>;
+                --color-red: <?php echo sanitize_text_field($uicolors['red'] ?? '#ff5062'); ?>;
                 --color-muted: rgba(69, 89, 122, 0.6);
-                --wpdm-font: <?php echo __::sanitize_var($font); ?> -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+                --wpdm-font: <?php echo sanitize_text_field($font); ?> -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
             }
 
-            .wpdm-download-link<?php echo $class; ?> {
-                border-radius: <?php echo (isset($ui_button['borderradius'])?esc_attr($ui_button['borderradius']):4); ?>px;
+            .wpdm-download-link<?php echo sanitize_text_field($class); ?> {
+                border-radius: <?php echo (int)($ui_button['borderradius'] ?? 4 ); ?>px;
             }
 
 

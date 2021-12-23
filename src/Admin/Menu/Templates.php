@@ -93,7 +93,6 @@ class Templates
      */
     function preview()
     {
-        error_reporting(0);
 
         $wposts = array();
         __::isAuthentic('_tplnonce', WPDM_PUB_NONCE, WPDM_ADMIN_CAP);

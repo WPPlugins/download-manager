@@ -5,7 +5,7 @@ Plugin URI: https://www.wpdownloadmanager.com/purchases/
 Description: Manage, Protect and Track file downloads, and sell digital products from your WordPress site. A complete digital asset management solution.
 Author: W3 Eden, Inc.
 Author URI: https://www.wpdownloadmanager.com/
-Version: 3.2.27
+Version: 3.2.28
 Text Domain: download-manager
 Domain Path: /languages
 */
@@ -24,7 +24,6 @@ use WPDM\__\Session;
 use WPDM\__\Settings;
 use WPDM\__\Template;
 use WPDM\__\UI;
-use WPDM\__\Updater;
 use WPDM\__\UserAgent;
 use WPDM\Admin\AdminController;
 use WPDM\AssetManager\AssetManager;
@@ -39,7 +38,7 @@ use WPDM\Widgets\WidgetController;
 
 global $WPDM;
 
-define('WPDM_VERSION','3.2.27');
+define('WPDM_VERSION','3.2.28');
 
 define('WPDM_TEXT_DOMAIN','download-manager');
 
@@ -136,7 +135,6 @@ final class WordPressDownloadManager{
     public $bsversion = '';
     public $userAgent;
     public $message;
-    public $updater;
     public $ui;
     public $wpdm_urls;
 
@@ -195,7 +193,6 @@ final class WordPressDownloadManager{
         $this->downloadHistory  = new DownloadStats();
         $this->userAgent        = new UserAgent();
         $this->message          = new Messages();
-        $this->updater          = new Updater();
         $this->ui               = new UI();
         $this->email            = new Email();
 
@@ -409,16 +406,16 @@ final class WordPressDownloadManager{
 
         if(is_admin()) return;
 
-        wp_register_style('wpdm-front-bootstrap3', plugins_url('/download-manager/assets/bootstrap3/css/bootstrap.min.css'));
+        wp_register_style('wpdm-front-bootstrap3', plugins_url('/assets/bootstrap3/css/bootstrap.min.css', __FILE__));
         wp_register_style('wpdm-front-bootstrap', plugins_url('/download-manager/assets/bootstrap/css/bootstrap.min.css'));
         wp_register_style('wpdm-font-awesome', WPDM_FONTAWESOME_URL);
-        wp_register_style('wpdm-front3', plugins_url() . '/download-manager/assets/css/front3.css');
-        wp_register_style('wpdm-front', plugins_url() . '/download-manager/assets/css/front.css', 99999999);
+        wp_register_style('wpdm-front3', plugins_url('/assets/css/front3.css', __FILE__));
+        wp_register_style('wpdm-front', plugins_url('/assets/css/front.css', __FILE__) , 99999999);
 
-        wp_register_script('wpdm-front-bootstrap3', plugins_url('/download-manager/assets/bootstrap3/js/bootstrap.min.js'), array('jquery'));
-        wp_register_script('wpdm-poper', plugins_url('/download-manager/assets/bootstrap/js/popper.min.js'), array('jquery'));
-        wp_register_script('wpdm-front-bootstrap', plugins_url('/download-manager/assets/bootstrap/js/bootstrap.min.js'), array('jquery'));
-        wp_register_script('jquery-validate', plugins_url('/download-manager/assets/js/jquery.validate.min.js'), array('jquery'));
+        wp_register_script('wpdm-front-bootstrap3', plugins_url('/assets/bootstrap3/js/bootstrap.min.js', __FILE__), array('jquery'));
+        wp_register_script('wpdm-poper', plugins_url('/assets/bootstrap/js/popper.min.js', __FILE__), array('jquery'));
+        wp_register_script('wpdm-front-bootstrap', plugins_url('/assets/bootstrap/js/bootstrap.min.js', __FILE__), array('jquery'));
+        wp_register_script('jquery-validate', plugins_url('/assets/js/jquery.validate.min.js', __FILE__), array('jquery'));
 
     }
 
@@ -459,7 +456,7 @@ final class WordPressDownloadManager{
         }
 
         //wp_enqueue_script('audio-player', plugins_url('/download-manager/assets/js/audio-player.js'), array('jquery'));
-        wp_register_script('wpdm-frontjs', plugins_url('/download-manager/assets/js/front.js'), array('jquery'), WPDM_VERSION);
+        wp_register_script('wpdm-frontjs', plugins_url('/assets/js/front.js', __FILE__), array('jquery'), WPDM_VERSION);
 
         $wpdm_js = array(
             'spinner' => '<i class="fas fa-sun fa-spin"></i>'
@@ -472,6 +469,12 @@ final class WordPressDownloadManager{
         wp_localize_script('wpdm-frontjs', 'wpdm_js', $wpdm_js);
 
         wp_enqueue_script('wpdm-frontjs');
+
+        if(substr_count($post->post_content, "wpdm_all_packages")){
+            wp_enqueue_script("datatable", plugins_url('/assets/js/jquery.dataTables.min.js', __FILE__));
+            wp_enqueue_script("datatable-bs4", plugins_url('/assets/js/dataTables.bootstrap4.min.js', __FILE__));
+            wp_enqueue_style("datatable-css", plugins_url('/assets/css/jquery.dataTables.min.css', __FILE__));
+        }
 
 
     }

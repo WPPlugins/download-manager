@@ -29,7 +29,7 @@ if(!defined('ABSPATH')) die();
                     if($wpdm_signup_success == '') $wpdm_signup_success = apply_filters("wpdm_signup_success", __("Your account has been created successfully.", "download-manager"));
                     ?>
                     <div class="alert alert-success dismis-on-click">
-                        <?= $wpdm_signup_success; ?>
+                        <?php echo  $wpdm_signup_success; ?>
                     </div>
                     <?php
                 }
@@ -39,16 +39,16 @@ if(!defined('ABSPATH')) die();
             <?php
             if(isset($params['note_before']) && $params['note_before'] !== '') {  ?>
                 <div class="alert alert-info alert-note-before mb-3" >
-                    <?= esc_attr($params['note_before']); ?>
+                    <?php echo  esc_attr($params['note_before']); ?>
                 </div>
             <?php } ?>
 
-            <?= $this->formFields($params); ?>
+            <?php echo  $this->formFields($params); ?>
 
 
             <?php  if(isset($params['note_after']) && $params['note_before'] !== '') {  ?>
                 <div class="alert alert-info alter-note-after mb-3" >
-                    <?= esc_attr($params['note_after']); ?>
+                    <?php echo  esc_attr($params['note_after']); ?>
                 </div>
             <?php } ?>
 

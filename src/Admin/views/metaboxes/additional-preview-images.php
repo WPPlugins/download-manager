@@ -16,7 +16,7 @@ if(!defined("ABSPATH")) die("Shit happens!");
             ?>
             <div id='<?php echo ++$mmv; ?>' style='float:left;margin:3px;' class='adp'>
                 <input type='hidden'  id='in_<?php echo $mmv; ?>' name='file[additional_previews][]' value='<?php echo esc_attr($mpv); ?>' />
-                <img style='position:absolute;z-index:9999;cursor:pointer;width: 16px;height: 16px' id='del_<?php echo $mmv; ?>' rel="<?php echo $mmv; ?>" src='<?= WPDM_BASE_URL ?>assets/images/delete.svg' class="del_adp"  />
+                <img style='position:absolute;z-index:9999;cursor:pointer;width: 16px;height: 16px' id='del_<?php echo $mmv; ?>' rel="<?php echo $mmv; ?>" src='<?php echo  WPDM_BASE_URL ?>assets/images/delete.svg' class="del_adp"  />
                 <?php echo $image; ?>
                 <div style='clear:both'></div>
             </div>

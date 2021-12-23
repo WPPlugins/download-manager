@@ -219,7 +219,7 @@ $_scparams =  \WPDM\__\Crypt::encrypt($scparams);
     </div>
 </div>
 </div>
-<script src="<?= WPDM_BASE_URL ?>assets/js/vue.min.js"></script>
+<script src="<?php echo  WPDM_BASE_URL ?>assets/js/vue.min.js"></script>
 <script>
     var datatable_<?php echo $scid;  ?> = new Vue({
         el: '#wpdm_datatable_<?php echo $scid;  ?>',

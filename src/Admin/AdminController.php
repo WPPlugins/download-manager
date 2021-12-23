@@ -35,9 +35,6 @@ class AdminController {
         add_action('admin_head', array($this, 'adminHead'));
         add_action('admin_footer', array($this, 'adminFooter'));
 
-        add_action('wp_ajax_updateaddon', array($this, 'updateAddon'));
-        add_action('wp_ajax_installaddon', array($this, 'installAddon'));
-
 	    add_action("admin_notices", [$this, 'notices']);
         add_action("wp_ajax_wpdm_remove_admin_notice", [$this, 'removeNotices']);
         add_action("wp_ajax_hide_wpdmpro_notice", [$this, 'hideProNotice']);
@@ -116,6 +113,7 @@ class AdminController {
 
 
         }
+
         wp_enqueue_style('wpdm-gutenberg-styles',WPDM_BASE_URL.'assets/css/gutenberg-styles.css', 9999);
     }
 
@@ -124,49 +122,6 @@ class AdminController {
        include wpdm_admin_tpl_path("page-header.php", __DIR__.'/views');
     }
 
-
-    /**
-     * @usage Single click add-on update
-     */
-    function updateAddon() {
-        if (isset($_POST['updateurl'])) {
-            __::isAuthentic('__upanonce', WPDM_PRI_NONCE, WPDM_ADMIN_CAP);
-            include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
-            include_once ABSPATH . 'wp-admin/includes/plugin-install.php';
-            $upgrader = new \Plugin_Upgrader(new \Plugin_Installer_Skin(compact('title', 'url', 'nonce', 'plugin', 'api')));
-            $downloadlink = wpdm_query_var('updateurl') . '&wpdm_access_token=' . wpdm_access_token() . '&__wpdmnocache=' . uniqid();
-            $update = new \stdClass();
-            $plugininfo = wpdm_plugin_data(wpdm_query_var('plugin'));
-            deactivate_plugins($plugininfo['plugin_index_file'], true);
-            delete_plugins(array($plugininfo['plugin_index_file']));
-            $upgrader->install($downloadlink);
-            if (file_exists(dirname(WPDM_BASE_DIR) . '/' . $plugininfo['plugin_index_file']))
-                activate_plugin($plugininfo['plugin_index_file']);
-            die("Updated Successfully");
-        } else {
-            die("Only site admin is authorized to install add-on");
-        }
-    }
-
-    /**
-     * @usage Single click add-on install
-     */
-    function installAddon() {
-        if (isset($_POST['updateurl'])) {
-	        __::isAuthentic('__upanonce', WPDM_PRI_NONCE, WPDM_ADMIN_CAP);
-            include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
-            include_once ABSPATH . 'wp-admin/includes/plugin-install.php';
-            $upgrader = new \Plugin_Upgrader(new \Plugin_Installer_Skin(compact('title', 'url', 'nonce', 'plugin', 'api')));
-            $downloadlink = wpdm_query_var('updateurl') . '&wpdm_access_token=' . wpdm_access_token();
-            $upgrader->install($downloadlink);
-            $plugininfo = wpdm_plugin_data(wpdm_query_var('plugin'));
-            if (file_exists(dirname(WPDM_BASE_DIR) . '/' . $plugininfo['plugin_index_file']))
-                activate_plugin($plugininfo['plugin_index_file']);
-            die("Installed Successfully");
-        } else {
-            die("Only site admin is authorized to install add-on");
-        }
-    }
 
     function usersRowAction($actions, $user)
     {
@@ -206,7 +161,7 @@ class AdminController {
                 });
 
                 jQuery('body').on('click', '#wpdmvnotice .notice-dismiss', function (){
-                    jQuery.post(ajaxurl, {action: 'wpdm_remove_admin_notice', __rnnonce: '<?= wp_create_nonce(WPDM_PUB_NONCE) ?>'});
+                    jQuery.post(ajaxurl, {action: 'wpdm_remove_admin_notice', __rnnonce: '<?php echo wp_create_nonce(WPDM_PUB_NONCE) ?>'});
                 });
 
             });
@@ -290,7 +245,7 @@ class AdminController {
                 #wpdmpro_notice .xcontent{
                     flex: 4;
                     position: relative;
-                    background: url('<?= WPDM_BASE_URL ?>assets/images/wpdm-logo.png') left center no-repeat;
+                    background: url('<?php echo  WPDM_BASE_URL ?>assets/images/wpdm-logo.png') left center no-repeat;
                     background-size: contain;
                     padding-left: 60px
                 }
@@ -365,7 +320,7 @@ class AdminController {
                     $('#wnxclose').on('click', function (e) {
                         e.preventDefault();
                         $('#wpdmpro_notice').fadeOut();
-                        $.get(ajaxurl, {__wpnnonce: '<?= wp_create_nonce(WPDM_PUB_NONCE)?>', action: 'hide_wpdmpro_notice'});
+                        $.get(ajaxurl, {__wpnnonce: '<?php echo  wp_create_nonce(WPDM_PUB_NONCE)?>', action: 'hide_wpdmpro_notice'});
                     });
                 });
             </script>

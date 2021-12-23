@@ -31,7 +31,7 @@ class MediaAccessControl
         }
         else {
             add_action("init", array($this, 'protectMediaLibrary'), 8);
-            add_action("wpdm_media_download_header", [$this, 'mediaDownloadHeader']);
+
         }
 
         add_shortcode('wpdm_media', array($this, 'mediaShortcode'));
@@ -94,6 +94,7 @@ class MediaAccessControl
             $media->filesize = wpdm_file_size($media->path);
 
             $access = get_post_meta($media->ID, '__wpdm_media_access', true);
+            if(!is_array($access)) $access = [];
             $password = get_post_meta($media->ID, '__wpdm_media_pass', true);
             $private = get_post_meta($media->ID, '__wpdm_private', true);
             if(current_user_can('manage_options')) $private = false;
@@ -106,8 +107,8 @@ class MediaAccessControl
                 $keyvalid = true;
                 $__hash = Crypt::encrypt($media->ID);
                 $download_url = "";
-                include Template::locate("media-download.php", __DIR__.'/views');
-                die();
+                wp_die('Direct access disabled!');
+
             }
 
             $upload_dir = wp_upload_dir();
@@ -327,17 +328,6 @@ class MediaAccessControl
 
         return $form_fields;
     }
-
-    function mediaDownloadHeader()
-    {
-        __::enqueueStyle(WPDM_BASE_URL.'assets/bootstrap/css/bootstrap.css');
-        __::enqueueStyle(WPDM_BASE_URL.'assets/css/front.css');
-        __::enqueueStyle('https://fonts.googleapis.com/css?family=Merriweather+Sans:300,400,700');
-        __::enqueueScript(includes_url('/js/jquery/jquery.js'));
-        __::enqueueScript(includes_url('/js/jquery/jquery.form.js'));
-        __::enqueueScript(WPDM_BASE_URL.'assets/bootstrap/js/bootstrap.min.js');
-    }
-
 
 }
 

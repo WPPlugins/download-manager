@@ -61,8 +61,6 @@ class FileSystem
 
         $bandwidth = 0;
 
-        if (function_exists('ini_set'))
-            @ini_set('display_errors', 0);
 
         @session_write_close();
 

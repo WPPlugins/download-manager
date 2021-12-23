@@ -109,45 +109,11 @@ class Packages
     }
 
 
-    /*
-    function uploadFile1(){
-        check_ajax_referer('wpdm_admin_upload_file');
-        if(!current_user_can('upload_files')) die('-2');
-
-        $ext = explode('.', $_FILES['package_file']['name']);
-        $ext = end($ext);
-        $ext = strtolower($ext);
-        if(in_array($ext, array('php', 'js', 'html', 'py', 'pl', 'htaccess'))) die('-3');
-
-        if(file_exists(UPLOAD_DIR.$_FILES['package_file']['name']) && get_option('__wpdm_overwrrite_file',0)==1){
-            @unlink(UPLOAD_DIR.$_FILES['package_file']['name']);
-        }
-        if(file_exists(UPLOAD_DIR.$_FILES['package_file']['name']))
-            $filename = time().'wpdm_'.$_FILES['package_file']['name'];
-        else
-            $filename = $_FILES['package_file']['name'];
-
-        do_action("wpdm_before_upload_file", $_FILES['package_file']);
-
-        $filename = esc_html($filename);
-
-        if(get_option('__wpdm_sanitize_filename', 0) == 1)
-            $filename = sanitize_file_name($filename);
-
-        move_uploaded_file($_FILES['package_file']['tmp_name'],UPLOAD_DIR.$filename);
-
-        $filename = apply_filters("wpdm_after_upload_file", $filename);
-
-        echo "|||".$filename."|||";
-        exit;
-    }
-    */
-
     function uploadFile(){
         check_ajax_referer(NONCE_KEY);
         if(!current_user_can('upload_files')) die('-2');
 
-        $name = isset($_FILES['package_file']['name']) && !isset($_REQUEST["chunks"])?$_FILES['package_file']['name']:wpdm_query_var('name', 'escs');
+        $name = isset($_FILES['package_file']['name']) && !isset($_REQUEST["chunks"])?sanitize_text_field($_FILES['package_file']['name']):wpdm_query_var('name', 'txt');
 
         $ext = FileSystem::fileExt($name);
 
@@ -331,38 +297,38 @@ class Packages
                                 <div class="input-group input-group-lg">
                                     <input type="text" value="[wpdm_package id='{{ID}}']" id="cpsc" readonly="readonly" class="form-control bg-white" style="font-family: monospace;font-weight: bold;text-align: center">
                                     <div class="input-group-btn">
-                                        <button style="padding-left: 30px;padding-right: 30px" onclick="WPDM.copy('cpsc');" type="button" class="btn btn-secondary"><i class="fa fa-copy"></i> <?=esc_attr__( 'Copy', 'download-manager' );?></button>
+                                        <button style="padding-left: 30px;padding-right: 30px" onclick="WPDM.copy('cpsc');" type="button" class="btn btn-secondary"><i class="fa fa-copy"></i> <?php echo esc_attr__( 'Copy', 'download-manager' );?></button>
                                     </div>
                                 </div>
                                 <div class="alert alert-info" style="margin-top: 20px">
-                                    <?=esc_attr__( 'If you are on Gutenberg Editor or elementor, you may use gutenberg block or elementor add-on for wpdm to embed wpdm packages and categories or generate another available layouts', 'download-manager' ); ?>
+                                    <?php echo esc_attr__( 'If you are on Gutenberg Editor or elementor, you may use gutenberg block or elementor add-on for wpdm to embed wpdm packages and categories or generate another available layouts', 'download-manager' ); ?>
                                 </div>
 
                                 <div class="panel panel-default card-plain">
                                     <div class="panel-heading">
-                                        <?=esc_attr__( 'Go To Page', 'download-manager' );?>
+                                        <?php echo esc_attr__( 'Go To Page', 'download-manager' );?>
                                     </div>
                                     <div class="panel-body">
                                         <div class="row">
                                             <div class="col-md-9"><?php wp_dropdown_pages(['class' => 'form-control wpdm-custom-select', 'id' => 'gotopg']); ?></div>
-                                            <div class="col-md-3"><button onclick="location.href='post.php?action=edit&post='+jQuery('#gotopg').val()" type="button" class="btn btn-secondary btn-block"><?=esc_attr__( 'Go', 'download-manager' ); ?></button></div>
+                                            <div class="col-md-3"><button onclick="location.href='post.php?action=edit&post='+jQuery('#gotopg').val()" type="button" class="btn btn-secondary btn-block"><?php echo esc_attr__( 'Go', 'download-manager' ); ?></button></div>
                                         </div>
 
                                     </div>
                                     <div class="panel-footer bg-white">
-                                        <a href="post-new.php?post_type=page"><?=esc_attr__( 'Create new page', 'download-manager' );?></a>
+                                        <a href="post-new.php?post_type=page"><?php echo esc_attr__( 'Create new page', 'download-manager' );?></a>
                                     </div>
                                 </div>
 
 
                                     <?php if(!defined('__WPDM_GB__')) { ?>
-                                        <a class="btn btn-block btn-secondary thickbox open-plugin-details-modal" href="<?=admin_url('/plugin-install.php?tab=plugin-information&plugin=wpdm-gutenberg-blocks&TB_iframe=true&width=600&height=550')?>"><?=esc_attr__( 'Install Gutenberg Blocks by WordPress Download Manager', 'download-manager' );?></a>
+                                        <a class="btn btn-block btn-secondary thickbox open-plugin-details-modal" href="<?php echo admin_url('/plugin-install.php?tab=plugin-information&plugin=wpdm-gutenberg-blocks&TB_iframe=true&width=600&height=550')?>"><?php echo esc_attr__( 'Install Gutenberg Blocks by WordPress Download Manager', 'download-manager' );?></a>
                                     <?php } ?>
                                     <?php if(!defined('__WPDM_ELEMENTOR__')) { ?>
-                                        <a class="btn btn-block btn-secondary thickbox open-plugin-details-modal" style="margin-top: 10px" href="<?=admin_url('/plugin-install.php?tab=plugin-information&plugin=wpdm-elementor&TB_iframe=true&width=600&height=550')?>"><?=esc_attr__( 'Install Download Manager Addons for Elementor', 'download-manager' );?></a>
+                                        <a class="btn btn-block btn-secondary thickbox open-plugin-details-modal" style="margin-top: 10px" href="<?php echo admin_url('/plugin-install.php?tab=plugin-information&plugin=wpdm-elementor&TB_iframe=true&width=600&height=550')?>"><?php echo esc_attr__( 'Install Download Manager Addons for Elementor', 'download-manager' );?></a>
                                     <?php } ?>
                                 <?php if(!function_exists('LiveForms')) { ?>
-                                    <a class="btn btn-block btn-info thickbox open-plugin-details-modal" style="margin-top: 10px" href="<?=admin_url('/plugin-install.php?tab=plugin-information&plugin=liveforms&TB_iframe=true&width=600&height=550')?>"><?=esc_attr__( 'Install The Best WordPress Contact Form Builder', 'download-manager' );?></a>
+                                    <a class="btn btn-block btn-info thickbox open-plugin-details-modal" style="margin-top: 10px" href="<?php echo admin_url('/plugin-install.php?tab=plugin-information&plugin=liveforms&TB_iframe=true&width=600&height=550')?>"><?php echo esc_attr__( 'Install The Best WordPress Contact Form Builder', 'download-manager' );?></a>
                                 <?php } ?>
 
 

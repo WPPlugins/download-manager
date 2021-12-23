@@ -56,7 +56,6 @@ class AssetManager
     private function actions()
     {
 
-        add_action('wp', array($this, 'assetPage'), 1);
         add_action('init', array($this, 'assetPicker'), 1);
         add_action('init', array($this, 'download'), 1);
 
@@ -79,7 +78,7 @@ class AssetManager
         add_action('wp_ajax_wpdm_updatelink', array($this, 'updateLink'));
         add_action('wp_ajax_wpdm_deletelink', array($this, 'deleteLink'));
 
-		add_action('wpdm_asset_viewer_head', [$this, 'enqueueScripts']);
+		//add_action('wpdm_asset_viewer_head', [$this, 'enqueueScripts']);
 
         add_action('wpdm_after_upload_file', array($this, 'upload'), 1);
         //add_action('wp_enqueue_scripts', array($this,'siteScripts'));
@@ -108,18 +107,6 @@ class AssetManager
         }
     }
 
-    function assetPage()
-    {
-        global $wp_query;
-        $url = parse_url($_SERVER['REQUEST_URI']);
-        if (preg_match('/wpdm\-asset\/([^\/]+)/', wpdm_valueof($url, 'path'), $matches)) {
-            $asset = new Asset();
-            $asset->resolveKey($matches[1]);
-            http_response_code(200);
-            include Template::locate("asset-viewer.php", __DIR__.'/views');
-            die();
-        }
-    }
 
     function siteScripts()
     {
@@ -671,11 +658,6 @@ class AssetManager
         }
     }
 
-	function enqueueScripts()
-	{
-		__::enqueueStyle('ttps://fonts.googleapis.com/css?family=IBM+Plex+Mono|IBM+Plex+Sans:400,600&display=swap');
-		__::enqueueScript(includes_url('js/jquery/jquery.js'));
-	}
 }
 
 

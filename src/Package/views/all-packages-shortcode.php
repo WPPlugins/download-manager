@@ -26,9 +26,6 @@ if(isset($params['jstable']) && $params['jstable']==1):
     $datatable_order = ( isset($params['order']) && $params['order'] == 'DESC' ) ? 'desc' : 'asc';
 
     ?>
-    <script src="<?php echo WPDM_BASE_URL.'assets/js/jquery.dataTables.min.js' ?>"></script>
-    <script src="<?php echo WPDM_BASE_URL.'assets/js/dataTables.bootstrap4.min.js' ?>"></script>
-    <link href="<?php echo WPDM_BASE_URL.'assets/css/jquery.dataTables.min.css' ?>" rel="stylesheet" />
 
     <script>
         jQuery(function($){
@@ -65,7 +62,7 @@ if(isset($params['jstable']) && $params['jstable']==1):
             });
 
             <?php if(count($_GET) > 0){ ?>
-            $("div.wpdmdt-toolbar .dataTables_filter").append('<a href="<?php the_permalink(); ?>" class="btn btn-secondary ml-3" style="margin-top: -5px;border: 0;"><?= esc_attr__( 'Reset Filter', WPDM_TEXT_DOMAIN ); ?></a>');
+            $("div.wpdmdt-toolbar .dataTables_filter").append('<a href="<?php the_permalink(); ?>" class="btn btn-secondary ml-3" style="margin-top: -5px;border: 0;"><?php echo  esc_attr__( 'Reset Filter', WPDM_TEXT_DOMAIN ); ?></a>');
             <?php } ?>
         });
     </script>

@@ -5,7 +5,7 @@ if (!defined('ABSPATH')) die();
  * Date: 1/16/18
  * Time: 12:33 AM
  */
-error_reporting(0);
+
 //global $post;
 $ID = wpdm_query_var('__wpdmlo');
 //$post = get_post(wpdm_query_var('__wpdmlo'));
@@ -22,7 +22,7 @@ $base_price = (double)get_post_meta($ID, '__wpdm_base_price', true);
     <?php if($form_lock === 1  || $base_price > 0) wp_head(); else { ?>
         <link rel="stylesheet" href="<?php echo WPDM_BASE_URL; ?>assets/bootstrap/css/bootstrap.min.css" />
         <link rel="stylesheet" href="<?php echo WPDM_BASE_URL; ?>assets/css/front.css" />
-        <link rel="stylesheet" href="<?= WPDM_FONTAWESOME_URL ?>" />
+        <link rel="stylesheet" href="<?php echo  WPDM_FONTAWESOME_URL ?>" />
         <script src="<?php echo includes_url(); ?>/js/jquery/jquery.js"></script>
         <script src="<?php echo includes_url(); ?>/js/jquery/jquery.form.min.js"></script>
         <script src="<?php echo WPDM_BASE_URL; ?>assets/bootstrap/js/bootstrap.min.js"></script>

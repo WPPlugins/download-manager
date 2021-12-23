@@ -3,9 +3,11 @@
 
 namespace WPDM\__;
 
-
 class __
 {
+
+	static public $custom_scripts = [];
+	static public $custom_styles = [];
     /**
      * Get the client's IP address
      *
@@ -38,14 +40,17 @@ class __
     static function media_field($data)
     {
         ob_start();
+        $id = uniqid();
+        $id = $data['id'] ?? $id;
+        $value = $data['value'] ?? "";
         ?>
         <div class="input-group">
-            <input placeholder="<?php echo $data['placeholder']; ?>" type="url" name="<?php echo $data['name']; ?>"
-                   id="<?php echo isset($data['id']) ? $data['id'] : ($id = uniqid()); ?>" class="form-control"
-                   value="<?php echo isset($data['value']) ? $data['value'] : ''; ?>"/>
+            <input placeholder="<?php echo sanitize_text_field($data['placeholder']); ?>" type="url" name="<?php echo sanitize_text_field($data['name']); ?>"
+                   id="<?php echo sanitize_text_field($id); ?>" class="form-control"
+                   value="<?php echo sanitize_text_field($value); ?>"/>
             <span class="input-group-btn">
                         <button class="btn btn-default btn-media-upload" type="button"
-                                rel="#<?php echo isset($data['id']) ? $data['id'] : $id; ?>"><i
+                                rel="#<?php echo sanitize_text_field($id); ?>"><i
                                     class="fa fa-picture-o"></i></button>
                     </span>
         </div>
@@ -239,7 +244,7 @@ class __
                     break;
                 case 'txt':
                 case 'str':
-                    $value = esc_attr($value);
+                    $value = sanitize_text_field($value);
                     break;
                 case 'kses':
                     $allowedtags = wp_kses_allowed_html();
@@ -261,7 +266,7 @@ class __
                     $value = esc_html($value);
                     break;
                 case 'url':
-                    $value = esc_url($value);
+                    $value = esc_url_raw($value);
                     break;
                 case 'noscript':
                 case 'escs':
@@ -448,30 +453,6 @@ class __
         if(!current_user_can($access_level)) wp_send_json(['success' => false, 'message' => __( "You are not allowed to change settings!", "download-manager" )]);
     }
 
-    static function p(...$args)
-    {
-        foreach ($args as $arg) {
-            echo "<pre>".print_r($arg, 1)."</pre>";
-        }
-    }
 
-    static function d(...$args)
-    {
-        foreach ($args as $arg) {
-            echo "<pre>".print_r($arg, 1)."</pre>";
-        }
-        die();
-    }
 
-    static function enqueueScript($script)
-    {
-	    $script = esc_url_raw($script);
-        echo "<script src='{$script}'></script>";
-    }
-
-	static function enqueueStyle($style)
-	{
-		$style = esc_url_raw($style);
-		echo "<link rel='stylesheet' href='{$style}'/>";
-	}
 }

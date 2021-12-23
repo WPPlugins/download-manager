@@ -105,12 +105,10 @@ class Settings
 
         foreach ($stabs as $tab) {
             if ($sel == $tab['id'])
-                echo "<li class='active'><a id='{$tab['id']}' href='{$tab['link']}'><i class='{$tab['icon']}' style='margin-right: 6px'></i>{$tab['title']}</a></li>";
+                echo "<li class='active'><a id='".sanitize_text_field($tab['id'])."' href='".esc_url_raw($tab['link'])."'><i class='".sanitize_text_field($tab['icon'])."' style='margin-right: 6px'></i>".sanitize_text_field($tab['title'])."</a></li>";
             else
-                echo "<li class=''><a id='{$tab['id']}' href='{$tab['link']}'><i class='{$tab['icon']}' style='margin-right: 6px'></i>{$tab['title']}</a></li>";
-            //if (isset($tab['func']) && function_exists($tab['func'])) {
-            //    add_action('wp_ajax_' . $tab['func'], $tab['func']);
-            //}
+                echo "<li class=''><a id='".sanitize_text_field($tab['id'])."' href='".esc_url_raw($tab['link'])."'><i class='".sanitize_text_field($tab['icon'])."' style='margin-right: 6px'></i>".sanitize_text_field($tab['title'])."</a></li>";
+
         }
     }
 
@@ -276,30 +274,6 @@ class Settings
     }
 
 
-    function License()
-    {
-        if (isset($_POST['task']) && $_POST['task'] == 'wdm_save_settings') {
-
-            if (is_valid_license_key()) {
-                delete_option('__wpdm_core_update_check');
-                Session::clear('__wpdm_download_url');
-                update_option('_wpdm_license_key', wpdm_query_var('_wpdm_license_key'), false);
-                die('Congratulation! Your <b>Download Manager</b> copy registered successfully!');
-            } else {
-                delete_option('_wpdm_license_key');
-                die('Invalid License Key!');
-            }
-        }
-        ?>
-        <div class="panel panel-default">
-
-            <div class="panel-heading"><b>License Key&nbsp;</b></div>
-            <div class="panel-body"><input type="text" placeholder="Enter License Key" class="form-control input-lg" value="<?php echo get_option('_wpdm_license_key'); ?>"
-                                           name="_wpdm_license_key"/></div>
-
-        </div>
-        <?php
-    }
 
     function Privacy(){
         if (wpdm_query_var('task') == 'wdm_save_settings' && wpdm_query_var('section') == 'privacy') {
