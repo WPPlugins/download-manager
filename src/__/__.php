@@ -182,15 +182,14 @@ class __
 
         $_var = explode("/", $var);
         if (count($_var) > 1) {
-            $val = $_REQUEST;
             foreach ($_var as $key) {
-                $val = is_array($val) && isset($val[$key]) ? $val[$key] : false;
+                $val = $_REQUEST[$key] ?? false;
             }
         } else {
             $default = $default ? $default : (isset($params['default']) ? $params['default'] : null);
-            $val = isset($_REQUEST[$var]) ? $_REQUEST[$var] : null;
+            $val = $_REQUEST[$var] ?? null;
             if(!$val)
-                $val = isset($wp_query->query_vars[$var]) ? $wp_query->query_vars[$var] : $default;
+                $val = $wp_query->query_vars[$var] ?? $default;
         }
         $validate = is_string($params) ? $params : '';
         $validate = is_array($params) && isset($params['validate']) ? $params['validate'] : $validate;
@@ -449,7 +448,7 @@ class __
             if(!check_ajax_referer($nonce_key, $nonce_var, false))
                 wp_send_json(['success' => false, 'message' => esc_attr__( 'Referer verification failed', WPDM_TEXT_DOMAIN )]);
         }
-        if(!wp_verify_nonce(wpdm_query_var($nonce_var), $nonce_key)) wp_send_json(['success' => false, 'message' => __('Security token is expired! Refresh the page and try again.', 'download-manager')]);
+        if(!wp_verify_nonce(__::query_var($nonce_var), $nonce_key)) wp_send_json(['success' => false, 'message' => __('Security token is expired! Refresh the page and try again.', 'download-manager')]);
         if(!current_user_can($access_level)) wp_send_json(['success' => false, 'message' => __( "You are not allowed to change settings!", "download-manager" )]);
     }
 
