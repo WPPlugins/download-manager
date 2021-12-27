@@ -183,11 +183,13 @@ class __
         $_var = explode("/", $var);
         if (count($_var) > 1) {
             foreach ($_var as $key) {
-                $val = $_REQUEST[$key] ?? false;
+	            $key = sanitize_text_field($key);
+                $val = isset($_REQUEST[$key]) ? sanitize_textarea_field($_REQUEST[$key]) : false;
             }
         } else {
             $default = $default ? $default : (isset($params['default']) ? $params['default'] : null);
-            $val = $_REQUEST[$var] ?? null;
+	        $var = sanitize_text_field($var);
+            $val = isset($_REQUEST[$var]) ? sanitize_textarea_field($_REQUEST[$var]) : null;
             if(!$val)
                 $val = $wp_query->query_vars[$var] ?? $default;
         }
