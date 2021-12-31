@@ -179,22 +179,21 @@ class __
     static function query_var($var, $params = array(), $default = null)
     {
         global $wp_query;
-
+	    $validate = is_string($params) ? $params : '';
+	    $validate = is_array($params) && isset($params['validate']) ? $params['validate'] : $validate;
         $_var = explode("/", $var);
+
         if (count($_var) > 1) {
+	        $val = self::sanitize_array($_REQUEST, $validate);
             foreach ($_var as $key) {
-	            $key = sanitize_text_field($key);
-                $val = isset($_REQUEST[$key]) ? sanitize_textarea_field($_REQUEST[$key]) : false;
+                $val = isset($val[$key]) ? __::sanitize_array($val[$key]) : false;
             }
         } else {
             $default = $default ? $default : (isset($params['default']) ? $params['default'] : null);
-	        $var = sanitize_text_field($var);
-            $val = isset($_REQUEST[$var]) ? sanitize_textarea_field($_REQUEST[$var]) : null;
+            $val = isset($_REQUEST[$var]) ? __::sanitize_array($_REQUEST[$var]) : null;
             if(!$val)
                 $val = $wp_query->query_vars[$var] ?? $default;
         }
-        $validate = is_string($params) ? $params : '';
-        $validate = is_array($params) && isset($params['validate']) ? $params['validate'] : $validate;
 
         if (!is_array($val))
             $val = __::sanitize_var($val, $validate);

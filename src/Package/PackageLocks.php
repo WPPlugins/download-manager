@@ -5,10 +5,11 @@ namespace WPDM\Package;
 global $gp1c, $tbc;
 
 
+use WPDM\__\__;
 use WPDM\__\Crypt;
 use WPDM\__\Session;
 use WPDM\__\Template;
-use WPDM\SocialConnect\SocialConnect;
+
 
 class PackageLocks
 {
@@ -16,16 +17,6 @@ class PackageLocks
     public function __construct(){
 
     }
-
-
-    public static function linkedInShare($package)
-    {
-
-        return "<button class='wpdm-social-lock btn wpdm-linkedin' data-url='".SocialConnect::LinkedinAuthUrl($package['ID'])."'><i class='fab fa-linkedin-in'></i> ".__( "Share", "download-manager" )."</button>";
-
-
-    }
-
 
     public static function askPassword($package){
         ob_start();
@@ -129,8 +120,8 @@ class PackageLocks
             $subject = esc_attr__( "Your Download Link", 'download-manager' );
             $site = get_option('blogname');
 
-            $custom_form_data = isset($_POST['custom_form_field']) ? $_POST['custom_form_field'] : array();
-            if (isset($_REQUEST['name'])) $custom_form_data['name'] = $_REQUEST['name'];
+            $custom_form_data = wpdm_query_var('custom_form_field', 'html');
+            if (isset($_REQUEST['name'])) $custom_form_data['name'] = wpdm_query_var('name', 'txt');
 
             /**
              * Do something before sending download link

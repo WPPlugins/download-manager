@@ -95,9 +95,21 @@ class AssetManager
 
     }
 
+	function dequeueScripts() {
+		global $wp_scripts;
+		$wp_scripts->queue = array();
+	}
+
+
+	function dequeueStyles() {
+		global $wp_styles;
+		$wp_styles->queue = array();
+	}
 
     function assetPicker()
     {
+		//$this->dequeueScripts();
+		//$this->dequeueStyles();
         global $wp_query;
         if (wpdm_query_var('assetpicker', 'int') === 1) {
             if(!current_user_can('access_server_browser')) Messages::fullPage("Error", esc_attr__( 'You are not authorized to access this page', 'download-manager' ), 'error');

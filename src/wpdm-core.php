@@ -187,6 +187,31 @@ foreach ($files as $file) {
 		include(dirname(__FILE__) . '/Modules/' . $file);
 }
 
+
+function wpdm_plugin_update_email($plugin_name, $version, $update_url)
+{
+
+	$admin_email = get_option('admin_email');
+	$hash = "__wpdm_" . md5($plugin_name . $version);
+	$sent = get_option($hash, false);
+	if (!$sent) {
+
+		$message = 'New version available. Please update your copy.<br/><table class="email" style="width: 100%" cellpadding="5px"><tr><th>Plugin Name</th><th>Version</th></tr><tr><td>' . $plugin_name . '</td><td>' . $version . '</td></tr></table><div style="padding-top: 10px;"><a style="display: block;text-align: center" class="button" href="' . $update_url . '">Update Now</a></div>';
+
+		$params = array(
+			'subject' => sprintf(__("[%s] Update Available"), $plugin_name, 'download-manager'),
+			'to_email' => get_option('admin_email'),
+			'from_name' => 'WordPress Download Manager',
+			'from_email' => 'support@wpdownloadmanager.com',
+			'message' => $message
+		);
+
+		\WPDM\__\Email::send("default", $params);
+		update_option($hash, 1, false);
+
+	}
+}
+
 function wpdmpro_required(){
     ?>
     <div class="panel panel-default" style="position: relative;z-index: 99999999">

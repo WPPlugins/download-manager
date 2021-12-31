@@ -1,5 +1,7 @@
 <?php
 if(!defined('ABSPATH')) die('Error!');
+global $wp_scripts;
+
 ?>
     <!DOCTYPE html>
     <html style="background: transparent">
@@ -18,6 +20,7 @@ if(!defined('ABSPATH')) die('Error!');
 
 
         <?php
+        //wp_head();
         \WPDM\__\Apply::googleFont();
         ?>
         <style>

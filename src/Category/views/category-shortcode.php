@@ -8,10 +8,10 @@
 if (!defined("ABSPATH")) die();
 ?>
 <div class='w3eden'>
-    <div class='<?php echo $css_class; ?>'>
+    <div class='<?php echo esc_attr($css_class); ?>'>
         <?php include \WPDM\__\Template::locate("category-shortcode-toolbar.php", __DIR__); ?>
 
-        <div id="content_<?php echo $scid; ?>">
+        <div id="content_<?php echo esc_attr($scid); ?>">
             <?php echo $cimg ?>
             <?php echo $subcats ?>
             <?php echo $html ?>

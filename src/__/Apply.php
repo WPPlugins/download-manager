@@ -450,9 +450,7 @@ class Apply
                     update_post_meta($fileid, '__wpdm_password_usage', $pu);
                 }
 
-                //$id = uniqid();
-                //Session::set( '__wpdm_unlocked_'.$_POST['wpdmfileid'] , 1 );
-                //update_post_meta($fileid, "__wpdmkey_".$id, 8);
+
                 $_data['error'] = '';
                 $_data['downloadurl'] = WPDM()->package->expirableDownloadLink($fileid, $limit);
                 $_data['downloadurl'] .= "&ind=" . wpdm_query_var('wpdmfile');
@@ -708,36 +706,36 @@ class Apply
         <style>
 
             :root {
-                --color-primary: <?php echo sanitize_text_field($primary); ?>;
-                --color-primary-rgb: <?php echo sanitize_text_field(wpdm_hex2rgb($primary)); ?>;
-                --color-primary-hover: <?php echo sanitize_text_field($uicolors['primary'] ?? '#4a8eff' ); ?>;
-                --color-primary-active: <?php echo sanitize_text_field($uicolors['primary'] ?? '#4a8eff' ); ?>;
-                --color-secondary: <?php echo sanitize_text_field($secondary); ?>;
-                --color-secondary-rgb: <?php echo sanitize_text_field(wpdm_hex2rgb($secondary)); ?>;
-                --color-secondary-hover: <?php echo sanitize_text_field($uicolors['secondary'] ?? '#4a8eff'); ?>;
-                --color-secondary-active: <?php echo sanitize_text_field($uicolors['secondary'] ?? '#4a8eff' ); ?>;
-                --color-success: <?php echo sanitize_text_field($success); ?>;
-                --color-success-rgb: <?php echo sanitize_text_field(wpdm_hex2rgb($success)); ?>;
-                --color-success-hover: <?php echo sanitize_text_field($uicolors['success_hover'] ?? '#4a8eff'); ?>;
-                --color-success-active: <?php echo sanitize_text_field($uicolors['success_active'] ?? '#4a8eff' ); ?>;
-                --color-info: <?php echo sanitize_text_field($info); ?>;
-                --color-info-rgb: <?php echo sanitize_text_field(wpdm_hex2rgb($info)); ?>;
-                --color-info-hover: <?php echo sanitize_text_field($uicolors['info_hover'] ?? '#2CA8FF' ); ?>;
-                --color-info-active: <?php echo sanitize_text_field($uicolors['info_active'] ?? '#2CA8FF'); ?>;
-                --color-warning: <?php echo sanitize_text_field($warning); ?>;
-                --color-warning-rgb: <?php echo sanitize_text_field(wpdm_hex2rgb($warning)); ?>;
-                --color-warning-hover: <?php echo sanitize_text_field($uicolors['warning_hover'] ?? 'orange' ); ?>;
-                --color-warning-active: <?php echo sanitize_text_field($uicolors['warning_active'] ?? 'orange'); ?>;
-                --color-danger: <?php echo sanitize_text_field($danger); ?>;
-                --color-danger-rgb: <?php echo wpdm_hex2rgb($danger); ?>;
-                --color-danger-hover: <?php echo sanitize_text_field($uicolors['danger_hover'] ?? '#ff5062'); ?>;
-                --color-danger-active: <?php echo sanitize_text_field($uicolors['danger_active'] ?? '#ff5062'); ?>;
-                --color-green: <?php echo sanitize_text_field($uicolors['green'] ?? '#30b570'); ?>;
-                --color-blue: <?php echo sanitize_text_field($uicolors['blue'] ?? '#0073ff'); ?>;
-                --color-purple: <?php echo sanitize_text_field($uicolors['purple'] ?? '#8557D3'); ?>;
-                --color-red: <?php echo sanitize_text_field($uicolors['red'] ?? '#ff5062'); ?>;
+                --color-primary: <?php echo esc_attr($primary); ?>;
+                --color-primary-rgb: <?php echo esc_attr(wpdm_hex2rgb($primary)); ?>;
+                --color-primary-hover: <?php echo esc_attr( isset($uicolors['primary'])?$uicolors['primary_hover']:'#4a8eff' ); ?>;
+                --color-primary-active: <?php echo esc_attr( isset($uicolors['primary'])?$uicolors['primary_active']:'#4a8eff' ); ?>;
+                --color-secondary: <?php echo esc_attr( $secondary ); ?>;
+                --color-secondary-rgb: <?php echo esc_attr(wpdm_hex2rgb($secondary)); ?>;
+                --color-secondary-hover: <?php echo esc_attr( isset($uicolors['secondary'])?$uicolors['secondary_hover']:'#4a8eff' ); ?>;
+                --color-secondary-active: <?php echo esc_attr( isset($uicolors['secondary'])?$uicolors['secondary_active']:'#4a8eff' ); ?>;
+                --color-success: <?php echo esc_attr( $success ); ?>;
+                --color-success-rgb: <?php echo esc_attr(wpdm_hex2rgb($success)); ?>;
+                --color-success-hover: <?php echo esc_attr( isset($uicolors['success_hover'])?$uicolors['success_hover']:'#4a8eff' ); ?>;
+                --color-success-active: <?php echo esc_attr( isset($uicolors['success_active'])?$uicolors['success_active']:'#4a8eff' ); ?>;
+                --color-info: <?php echo esc_attr( $info ); ?>;
+                --color-info-rgb: <?php echo esc_attr(wpdm_hex2rgb($info)); ?>;
+                --color-info-hover: <?php echo esc_attr( isset($uicolors['info_hover'])?$uicolors['info_hover']:'#2CA8FF' ); ?>;
+                --color-info-active: <?php echo esc_attr( isset($uicolors['info_active'])?$uicolors['info_active']:'#2CA8FF' ); ?>;
+                --color-warning: <?php echo esc_attr( $warning ); ?>;
+                --color-warning-rgb: <?php echo esc_attr(wpdm_hex2rgb($warning)); ?>;
+                --color-warning-hover: <?php echo esc_attr( isset($uicolors['warning_hover'])?$uicolors['warning_hover']:'orange' ); ?>;
+                --color-warning-active: <?php echo esc_attr( isset($uicolors['warning_active'])?$uicolors['warning_active']:'orange' ); ?>;
+                --color-danger: <?php echo esc_attr( $danger ); ?>;
+                --color-danger-rgb: <?php echo esc_attr(wpdm_hex2rgb($danger)); ?>;
+                --color-danger-hover: <?php echo esc_attr( isset($uicolors['danger_hover'])?$uicolors['danger_hover']:'#ff5062' ); ?>;
+                --color-danger-active: <?php echo esc_attr( isset($uicolors['danger_active'])?$uicolors['danger_active']:'#ff5062' ); ?>;
+                --color-green: <?php echo esc_attr( isset($uicolors['green'])?$uicolors['green']:'#30b570' ); ?>;
+                --color-blue: <?php echo esc_attr( isset($uicolors['blue'])?$uicolors['blue']:'#0073ff' ); ?>;
+                --color-purple: <?php echo esc_attr( isset($uicolors['purple'])?$uicolors['purple']:'#8557D3' ); ?>;
+                --color-red: <?php echo esc_attr( isset($uicolors['red'])?$uicolors['red']:'#ff5062' ); ?>;
                 --color-muted: rgba(69, 89, 122, 0.6);
-                --wpdm-font: <?php echo sanitize_text_field($font); ?> -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+                --wpdm-font: <?php echo esc_attr( $font ); ?> -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
             }
 
             .wpdm-download-link<?php echo sanitize_text_field($class); ?> {
