@@ -179,6 +179,10 @@ function wpdm_plugin_data($dir)
     return false;
 }
 
+function wpdm_access_token(){
+    return get_option("__wpdm_access_token", false);
+}
+
 
 $files = scandir(dirname(__FILE__) . '/Modules/');
 foreach ($files as $file) {
