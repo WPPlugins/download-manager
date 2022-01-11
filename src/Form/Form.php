@@ -144,7 +144,7 @@ class Form
                 </style>
                 <script type="text/javascript">
                     var verifyCallback = function (response) {
-                        jQuery('#<?php echo $attrs['id'] ?>').val(response);
+                        jQuery('#<?php echo esc_attr($attrs['id']) ?>').val(response);
                     };
                     var widgetId2;
                     var onloadCallback = function () {

@@ -13,7 +13,7 @@
         <?php
         global $wp_rewrite, $wp_query;
         $items_per_page = 30;
-        $start = isset($_GET['pgd'])?($_GET['pgd']-1)*$items_per_page:0;
+        $start = isset($_GET['pgd'])?((int)$_GET['pgd']-1)*$items_per_page:0;
         $res = $wpdb->get_results("select p.post_title,s.* from {$wpdb->prefix}posts p, {$wpdb->prefix}ahm_download_stats s where s.uid = '{$current_user->ID}' and s.pid = p.ID order by `timestamp` desc limit $start, $items_per_page");
         foreach($res as $stat){
             ?>
@@ -31,7 +31,7 @@
     <div class="card-footer">
         <?php
 
-            isset($_GET['pgd']) && $_GET['pgd'] > 1 ? $current = $_GET['pgd'] : $current = 1;
+            isset($_GET['pgd']) && $_GET['pgd'] > 1 ? $current = (int)$_GET['pgd'] : $current = 1;
             $pagination = array(
                 'base' => @add_query_arg('pgd','%#%'),
                 'format' => '',

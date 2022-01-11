@@ -41,18 +41,16 @@ class __
     {
         ob_start();
         $id = uniqid();
-        $id = $data['id'] ?? $id;
-        $value = $data['value'] ?? "";
+        $id = isset($data['id']) ? $data['id'] : $id;
+        $value = __::valueof($data, 'value');
         ?>
         <div class="input-group">
-            <input placeholder="<?php echo sanitize_text_field($data['placeholder']); ?>" type="url" name="<?php echo sanitize_text_field($data['name']); ?>"
-                   id="<?php echo sanitize_text_field($id); ?>" class="form-control"
-                   value="<?php echo sanitize_text_field($value); ?>"/>
+            <input placeholder="<?php echo esc_attr($data['placeholder']); ?>" type="url" name="<?php echo esc_attr($data['name']); ?>"
+                   id="<?php echo esc_attr($id); ?>" class="form-control"
+                   value="<?php echo esc_attr($value); ?>"/>
             <span class="input-group-btn">
-                        <button class="btn btn-default btn-media-upload" type="button"
-                                rel="#<?php echo sanitize_text_field($id); ?>"><i
-                                    class="fa fa-picture-o"></i></button>
-                    </span>
+                        <button class="btn btn-default btn-media-upload" type="button" rel="#<?php echo esc_attr($id); ?>"><i class="fa fa-picture-o"></i></button>
+            </span>
         </div>
         <?php
         return ob_get_clean();

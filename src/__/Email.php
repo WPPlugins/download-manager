@@ -282,7 +282,7 @@ class Email {
             $params['template_file'] = wpdm_query_var('etmpl');
         }
         $template = self::prepare( $id, $params );
-        echo $template['message'];
+        echo wpdm_valueof($template, 'message', 'html');
         die();
 
     }
@@ -309,7 +309,7 @@ class Email {
     {
         if(substr_count($matched[1], "acfx_user_meta_")){
             $meta_name = str_replace("acfx_user_meta_", "", $matched[1]);
-            $meta_value = get_field($meta_name, 'user_'.get_current_user_id());
+            $meta_value = function_exists('get_field') ? get_field($meta_name, 'user_'.get_current_user_id()) : '';
             return $meta_value;
         }
         if(substr_count($matched[1], "acf_user_meta_")){

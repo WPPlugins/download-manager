@@ -30,9 +30,9 @@ do_action("wpdm_onstart_download", $package);
 $speed = (int)get_option('__wpdm_download_speed', 10240); //in KB - default 10 MB
 $speed = $speed > 0 ? $speed : 10240;
 $speed = apply_filters('wpdm_download_speed', $speed);
-$user = get_user_by('id', $package['author']);
+//$user = get_user_by('id', $package['author']);
 
-$user_upload_dir = UPLOAD_DIR . $user->user_login . '/';
+//$user_upload_dir = UPLOAD_DIR . $user->user_login . '/';
 
 $_content_dir = str_replace('\\','/',WP_CONTENT_DIR);
 $_old_up_dir = $_content_dir.'/uploads/download-manager-files/';

@@ -1,4 +1,4 @@
-=== WordPress Download Manager ===
+=== Download Manager ===
 Contributors: w3eden, codename065, shahriar0822, shimo16ab, shafayat-alam
 Donate link:
 Tags: download manager, document management, file manager, digital store, ecommerce, document management plugin,  download monitor, download counter, password protection, download protection
@@ -180,6 +180,10 @@ Check download stats and get a push notification when someone downloads, install
 19. More features
 
 == Changelog ==
+
+= 3.2.33 - 2021.12.21 =
+* Codebase optimization
+* Changed name from `WordPress Download Manager` to `Download Manager`
 
 = 3.2.32 - 2021.12.21 =
 * Fixed a wpdm add-on compatibility issue

@@ -105,8 +105,8 @@ class Register
         $loginurl = wpdm_login_url();
         $reg_redirect = $loginurl;
         if (isset($params['autologin']) && (int)$params['autologin'] === 1) $reg_redirect = wpdm_user_dashboard_url();
-        if (isset($params['redirect'])) $reg_redirect = esc_url($params['redirect']);
-        if (isset($_GET['redirect_to'])) $reg_redirect = esc_url($_GET['redirect_to']);
+        if (isset($params['redirect'])) $reg_redirect = esc_url_raw($params['redirect']);
+        if (isset($_GET['redirect_to'])) $reg_redirect = esc_url_raw($_GET['redirect_to']);
 
         $force = uniqid();
 

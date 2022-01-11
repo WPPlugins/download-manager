@@ -73,12 +73,7 @@ if(!isset($_GET['_type']) || $_GET['_type'] !== 'email'){ ?>
                 </td>
                 <td style="text-align: right">
                     <a data-toggle="modal" href="#" data-href="admin-ajax.php?action=template_preview&_type=<?php echo $ttype; ?>&template=<?php echo $ctpl; ?>&_tplnonce=<?php echo  wp_create_nonce(WPDM_PUB_NONCE) ?>" data-target="#preview-modal" rel="<?php echo $ctpl; ?>" class="template_preview btn btn-sm btn-success"><i class="fa fa-desktop"></i> Preview</a>
-                    <?php if(!in_array($ctpl, $ctemplates)){ ?>
-                        <a href="edit.php?post_type=wpdmpro&page=templates&_type=<?php echo $ttype; ?>&task=NewTemplate&clone=<?php echo $ctpl; ?>" class="btn btn-sm btn-primary"><i class="fa fa-copy"></i> <?php echo __( "Clone" , "download-manager" ); ?></a>
-                    <?php } else { ?>
-                        <a href="edit.php?post_type=wpdmpro&page=templates&_type=<?php echo $ttype; ?>&task=EditTemplate&tplid=<?php echo $ctpl; ?>" class="btn btn-sm btn-info"><i class="fas fa-pencil-alt"></i> <?php echo __( "Edit" , "download-manager" ); ?></a>
-                        <a data-ttype="<?php echo $ttype; ?>" data-tplid="<?php echo $ctpl; ?>" href="edit.php?post_type=wpdmpro&page=templates&_type=<?php echo $ttype; ?>&task=DeleteTemplate&tplid=<?php echo $ctpl; ?>" class="submitdelete delete-template btn btn-sm btn-danger"><i class="fa fa-trash-o"></i> <?php echo __( "Delete" , "download-manager" ); ?></a>
-                    <?php } ?>
+
                 </td>
 
 
@@ -90,7 +85,7 @@ if(!isset($_GET['_type']) || $_GET['_type'] !== 'email'){ ?>
             ?>
             <tr valign="top" class="author-self status-inherit" id="post-8">
                 <td class="column-icon media-icon" style="text-align: left;">
-                    <?php echo $template['label']; ?> ( <?php _e( "To:" , "download-manager" ); ?> <?php echo ucfirst($template['for']); ?> )
+                    <?php echo esc_attr($template['label']); ?> ( <?php _e( "To:" , "download-manager" ); ?> <?php echo ucfirst($template['for']); ?> )
 
                 </td>
                 <td>

@@ -34,8 +34,9 @@ class Session
         self::$store = get_option('__wpdm_tmp_storage', 'db');
 
         if (self::$store === 'file') {
-            if (file_exists(WPDM_CACHE_DIR . "/session-{$deviceID}.txt")) {
-                $data = file_get_contents(WPDM_CACHE_DIR . "/session-{$deviceID}.txt");
+			$session_file = realpath(WPDM_CACHE_DIR . "/session-{$deviceID}.txt");
+            if (file_exists($session_file) && substr_count($session_file, WPDM_CACHE_DIR)) {
+                $data = file_get_contents($session_file);
                 $data = Crypt::decrypt($data, true);
                 if (!is_array($data)) $data = array();
             } else {

@@ -228,39 +228,6 @@ class Apply
         return $vars;
     }
 
-    function playMedia()
-    {
-
-        if (strstr("!{$_SERVER['REQUEST_URI']}", "/wpdm-media/")) {
-            $media = explode("wpdm-media/", $_SERVER['REQUEST_URI']);
-            $media = explode("/", $media[1]);
-            list($ID, $file, $name) = $media;
-            $key = wpdm_query_var('_wpdmkey');
-
-            if (isset($_SERVER['HTTP_RANGE'])) {
-                $partialContent = true;
-                preg_match('/bytes=(\d+)-(\d+)?/', $_SERVER['HTTP_RANGE'], $matches);
-                $offset = intval($matches[1]);
-                $length = intval($matches[2]) - $offset;
-            } else {
-                $partialContent = false;
-            }
-
-            $keyValid = is_wpdmkey_valid($ID, $key, true);
-            wpdmdd($keyValid);
-            if (!$partialContent) {
-                if ($key == '' || !$keyValid)
-                    Messages::Error(stripslashes(get_option('__wpdm_permission_denied_msg')), 1);
-            }
-            $files = WPDM()->package->getFiles($ID);
-            $file = $files[$file];
-            $file = FileSystem::fullPath($file, $ID);
-            $stream = new StreamMedia($file);
-            $stream->start();
-            die();
-        }
-    }
-
 
     /**
      * @usage Process Download Request from lock options

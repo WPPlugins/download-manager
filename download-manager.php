@@ -5,7 +5,7 @@ Plugin URI: https://www.wpdownloadmanager.com/purchases/
 Description: Manage, Protect and Track file downloads, and sell digital products from your WordPress site. A complete digital asset management solution.
 Author: W3 Eden, Inc.
 Author URI: https://www.wpdownloadmanager.com/
-Version: 3.2.32
+Version: 3.2.33
 Text Domain: download-manager
 Domain Path: /languages
 */
@@ -39,7 +39,7 @@ use WPDM\Widgets\WidgetController;
 
 global $WPDM;
 
-define('WPDM_VERSION','3.2.32');
+define('WPDM_VERSION','3.2.33');
 
 define('WPDM_TEXT_DOMAIN','download-manager');
 
@@ -473,7 +473,7 @@ final class WordPressDownloadManager{
 
         wp_enqueue_script('wpdm-frontjs');
 
-        if(substr_count($post->post_content, "wpdm_all_packages")){
+        if(is_object($post) && substr_count($post->post_content, "wpdm_all_packages")){
             wp_enqueue_script("datatable", plugins_url('/assets/js/jquery.dataTables.min.js', __FILE__));
             wp_enqueue_script("datatable-bs4", plugins_url('/assets/js/dataTables.bootstrap4.min.js', __FILE__));
             wp_enqueue_style("datatable-css", plugins_url('/assets/css/jquery.dataTables.min.css', __FILE__));
