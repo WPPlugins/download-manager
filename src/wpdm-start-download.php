@@ -110,6 +110,7 @@ else {
     }*/
 
     $filepath = WPDM()->fileSystem->absPath($indfile, $package['ID']);
+
     if(!$filepath)
         Messages::fullPage('Error!', "<div class='card bg-danger text-white p-4'>" . __("Sorry! File not found!", "download-manager") . "</div>", 'error');
     //$plock = get_wpdm_meta($file['id'],'password_lock',true);

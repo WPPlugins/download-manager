@@ -22,8 +22,8 @@ $page_no = wpdm_query_var('page_no', 'int') ?: 1;
  */
 $from_date_string = sanitize_text_field($from_date_string);
 $to_date_string = sanitize_text_field($to_date_string);
-$user_ids = array_map('sanitize_text_field', $user_ids);
-$package_ids = array_map('sanitize_text_field', $package_ids);
+$user_ids = \WPDM\__\__::sanitize_array($user_ids, 'int');
+$package_ids =  \WPDM\__\__::sanitize_array($package_ids, 'int');
 
 /**
  * Selected/Initial Values for the fields

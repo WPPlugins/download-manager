@@ -130,11 +130,8 @@ function wpdm_package_size($id)
  */
 function wpdm_file_size($file)
 {
-    if (file_exists($file))
-        $size = filesize($file);
-    else if (file_exists(UPLOAD_DIR . $file))
-        $size = filesize(UPLOAD_DIR . $file);
-    else $size = 0;
+    $file = WPDM()->fileSystem->absPath($file);
+	$size = filesize($file);
     $size = $size / 1024;
     if ($size > 1024) $size = number_format($size / 1024, 2) . ' MB';
     else $size = number_format($size, 2) . ' KB';

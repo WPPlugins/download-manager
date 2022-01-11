@@ -13,7 +13,7 @@ $afile = wpdm_valueof($afiles, 0);
 		<?php
 		$filesize = "<em style='color: darkred'>( ".__("attached file is missing/deleted",'download-manager')." )</em>";
 		$afile = trim($afile);
-		$mfz = get_post_meta(get_the_ID(), '__wpdm_package_size', true);
+
 		$url = false;
 		if($afile !=''){
 			if(substr_count($afile, "://") > 0){
@@ -37,7 +37,7 @@ $afile = wpdm_valueof($afiles, 0);
                 <a href="#" id="dcf" title="Delete Current File" class="pull-right" style="font-size:24px">
                     <i class="fa fa-trash color-red"></i>
                 </a>
-                <div class="media-body"><strong><?php echo  basename($afile); ?></strong><br><span class="text-success"><?php echo (double)$mfz && !$url ?$mfz:$filesize; ?></span></div>
+                <div class="media-body"><strong><?php echo  basename($afile); ?></strong><br><span class="text-success"><?php echo $filesize; ?></span></div>
             </div>
 
 		<?php } else echo "<span style='font-weight:bold;color:#ddd'>". __('No file uploaded yet!', 'download-manager')."</span>"; ?>

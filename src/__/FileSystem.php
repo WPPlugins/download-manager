@@ -91,7 +91,7 @@ class FileSystem
             $fsize = filesize($filepath);
         else
             $fsize = 0;
-        $org_size = $fsize;
+        $orig_size = $fsize;
 
         nocache_headers();
         header("X-Robots-Tag: noindex, nofollow", true);
@@ -116,7 +116,7 @@ class FileSystem
         }
 
         if ((isset($extras['play']) && strpos($_SERVER['HTTP_USER_AGENT'], "Safari")) || get_option('__wpdm_download_resume', 1) == 2) {
-            header("Content-Length: " . $fsize);
+            header("Content-Length: " . $orig_size);
             header("Content-disposition: attachment;filename=\"{$filename}\"");
             TempStorage::set("download." . wpdm_get_client_ip(), 1, 60);
             readfile($filepath);
@@ -136,17 +136,17 @@ class FileSystem
             $new_length = $fsize - $set_pointer;
 
             header("Accept-Ranges: bytes");
-            header("Accept-Ranges: 0-$fsize");
+            header("Accept-Ranges: 0-".($orig_size - 1));
             $proto = isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.1';
             header("{$proto} 206 Partial Content");
 
             header("Content-Length: $new_length");
-            header("Content-Range: bytes $http_range-$fsize/$org_size");
+            header("Content-Range: bytes $set_pointer-".($fsize-1)."/$orig_size");
 
             fseek($file, $set_pointer);
 
         } else {
-            header("Content-Length: " . $fsize);
+            header("Content-Length: " . $orig_size);
         }
         $packet = 1;
 
@@ -180,6 +180,7 @@ class FileSystem
         return;
 
     }
+
 
     /**
      * @usage Download any content as a file
