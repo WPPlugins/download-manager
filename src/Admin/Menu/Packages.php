@@ -60,7 +60,7 @@ class Packages
                 delete_post_meta($post, $k);
 
         }
-        
+
         foreach ($_POST['file'] as $meta_key => $meta_value) {
             $key_name = "__wpdm_" . $meta_key;
             if($meta_key == 'package_dir' && $meta_value != '') {

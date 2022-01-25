@@ -84,7 +84,7 @@ class Field
         return "<input type='password' $_attrs />";
     }
 
-    function checkbox($attrs){
+    static function checkbox($attrs){
         $_attrs = "";
         if(isset($attrs['class'])) unset($attrs['class']);
         $options = $attrs['options'];
@@ -99,7 +99,7 @@ class Field
         return $_options;
     }
 
-    function radio($attrs){
+	static function radio($attrs){
         $_attrs = "";
         if(isset($attrs['class'])) unset($attrs['class']);
         $options = $attrs['options'];

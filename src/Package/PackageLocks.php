@@ -66,6 +66,15 @@ class PackageLocks
 
         $data = [ 'success' => false ];
         $error = false;
+
+	    //Check if given password lock is not active
+	    if (!$passwords) {
+		    $data['message'] = __("Invalid request!", "download-manager");
+		    $file = array();
+		    $error = true;
+		    wp_send_json($data);
+	    }
+
         //Check if the given password is matched
         if ($passwords && $password != $passwords && substr_count($passwords, "[$password]") < 1) {
             $data['message'] = __("Wrong Password!", "download-manager") . " &nbsp; <span><i class='fas fa-redo'></i> " . __("Try Again", "download-manager") . " </span>";

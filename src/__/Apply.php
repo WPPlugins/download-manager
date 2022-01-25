@@ -52,8 +52,6 @@ class Apply
 
         add_filter('the_excerpt_embed', array($this, 'oEmbed'));
 
-        add_filter('get_avatar_data', array($this, 'shopLogo'), 10, 3);
-
         add_action('wp_head', array($this, 'wpHead'), 999999);
 
 
@@ -193,17 +191,6 @@ class Apply
         // And current page is dashboard shorotcode
         if ((int)$page_id === 0 && has_shortcode($post->post_content, "wpdm_user_dashboard")) {
             update_option('__wpdm_user_dashboard', $post_id);
-            $flush = 1;
-        }
-
-        if (has_shortcode($post->post_content, "wpdm_package_form")) {
-            update_option('__wpdm_package_form', $post_id);
-        }
-
-        $page_id = get_option('__wpdm_author_dashboard', 0);
-
-        if ((int)$page_id === 0 && has_shortcode($post->post_content, "wpdm_frontend")) {
-            update_option('__wpdm_author_dashboard', $post_id);
             $flush = 1;
         }
 
@@ -572,21 +559,6 @@ class Apply
             $feed = false;
         return $feed;
     }
-
-    function shopLogo($args, $id)
-    {
-        if (is_object($id)) $id = $id->user_id;
-        if (is_email($id)) {
-            $user = get_user_by('email', $id);
-            $id = $user->ID;
-        }
-
-        $store = get_user_meta($id, '__wpdm_public_profile', true);
-        if (isset($store['logo']) && $store['logo'] != '')
-            $args['url'] = $store['logo'];
-        return $args;
-    }
-
 
     function wpHead(){
 
