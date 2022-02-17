@@ -62,14 +62,6 @@ class Template
         echo $this->fetch($template, $tpldir, $fallback);
     }
 
-    function execute($code){
-        ob_start();
-        if(is_array($this->vars))
-            extract($this->vars);
-        echo $code;
-        return ob_get_clean();
-    }
-
     static function output($data, $vars, $tpldir = '')
     {
         if(strstr($data, '.php')) {

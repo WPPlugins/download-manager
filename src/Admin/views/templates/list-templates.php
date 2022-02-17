@@ -21,6 +21,9 @@ if(!isset($_GET['_type']) || $_GET['_type'] !== 'email'){ ?>
     <thead>
     <tr>
         <th style="min-width: 400px"><?php echo __( "Template Name" , "download-manager" ); ?></th>
+	    <?php if(wpdm_query_var('_type') === 'email'){ ?>
+            <th style="width: 150px"><?php echo __( "Mail Receiver" , "download-manager" ); ?></th>
+	    <?php } ?>
         <th style="width: 250px;"><?php echo __( "Template ID" , "download-manager" ); ?></th>
         <?php if(!isset($_GET['_type']) || $_GET['_type'] != 'email'){ ?>
             <th style="width: 150px"><?php echo __( "Status" , "download-manager" ); ?></th>
@@ -85,9 +88,12 @@ if(!isset($_GET['_type']) || $_GET['_type'] !== 'email'){ ?>
             ?>
             <tr valign="top" class="author-self status-inherit" id="post-8">
                 <td class="column-icon media-icon" style="text-align: left;">
-                    <?php echo esc_attr($template['label']); ?> ( <?php _e( "To:" , "download-manager" ); ?> <?php echo ucfirst($template['for']); ?> )
+                    <?php echo esc_attr($template['label']); ?>
 
                 </td>
+
+                    <td style="width: 150px"><?php echo ucfirst($template['for']); ?></td>
+
                 <td>
                     <?php echo $ctpl; ?>
                 </td>

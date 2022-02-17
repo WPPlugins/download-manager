@@ -2118,6 +2118,10 @@ body.wpdm-iframe-modal-open {
     width: 275px;
 }
 
+#all-package-settings .card {
+    margin-bottom: 15px !important;
+}
+
 body.rtl #wpdm-admin-page-body {
     margin-right: 250px !important;
 }

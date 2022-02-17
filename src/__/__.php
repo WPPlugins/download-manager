@@ -190,7 +190,7 @@ class __
             $default = $default ? $default : (isset($params['default']) ? $params['default'] : null);
             $val = isset($_REQUEST[$var]) ? __::sanitize_array($_REQUEST[$var]) : null;
             if(!$val)
-                $val = $wp_query->query_vars[$var] ?? $default;
+                $val = isset($wp_query->query_vars[$var]) ? $wp_query->query_vars[$var] : $default;
         }
 
         if (!is_array($val))

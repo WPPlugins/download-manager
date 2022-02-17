@@ -109,7 +109,7 @@ class Field
         }
         $_options = "";
         foreach ($options as $value => $label){
-            $_options .= "<div><label class='d-block option-label'><input type='radio' $_attrs value='{$value}'> {$label}</label></div>\r\n";
+            $_options .= "<div><label class='d-block option-label'><input type='radio' $_attrs value='".esc_attr($value)."'> " . esc_attr($label) . "</label></div>\r\n";
         }
         return $_options;
     }
@@ -136,14 +136,15 @@ class Field
         $_attrs = '';
         if (is_array($attrs)) {
             foreach ($attrs as $attr => $value) {
+	            $value = esc_attr($value);
                 $_attrs .= "$attr='$value' ";
             }
         }
         ?>
         <div class="input-group">
-            <input <?php echo $_attrs; ?> type="url" value="<?php echo $value; ?>"/>
+            <input <?php echo $_attrs; ?> type="url" value="<?php echo esc_attr($value); ?>"/>
             <span class="input-group-append">
-                <button class="btn btn-secondary btn-media-upload" type="button" rel="#<?php echo $attrs['id']; ?>"><i
+                <button class="btn btn-secondary btn-media-upload" type="button" rel="#<?php echo esc_attr($attrs['id']); ?>"><i
                             class="far fa-image"></i></button>
             </span>
         </div>
@@ -156,21 +157,21 @@ class Field
         ?>
         <div class="form-group row">
             <div class="col-sm-12">
-                <input type="hidden" id="<?php echo $attrs['id'] ?>" name="<?php echo $attrs['name'] ?>" value=""/>
+                <input type="hidden" id="<?php echo esc_attr($attrs['id']) ?>" name="<?php echo esc_attr($attrs['name']) ?>" value=""/>
                 <script src="https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit"
                         async defer></script>
-                <div id="<?php echo $attrs['id'] ?>_field"></div>
+                <div id="<?php echo esc_attr($attrs['id']) ?>_field"></div>
                 <style>
-                    #<?php echo $attrs['id'] ?>_field iframe{ transform: scale(1.16); margin-left: 24px; margin-top: 5px; margin-bottom: 5px; }
-                    #<?php echo $attrs['id'] ?>_field{ padding-bottom: 10px !important; }
+                    #<?php echo esc_attr($attrs['id']) ?>_field iframe{ transform: scale(1.16); margin-left: 24px; margin-top: 5px; margin-bottom: 5px; }
+                    #<?php echo esc_attr($attrs['id']) ?>_field{ padding-bottom: 10px !important; }
                 </style>
                 <script type="text/javascript">
                     var verifyCallback = function (response) {
-                        jQuery('#<?php echo $attrs['id'] ?>').val(response);
+                        jQuery('#<?php echo esc_attr($attrs['id']) ?>').val(response);
                     };
                     var widgetId2;
                     var onloadCallback = function () {
-                        grecaptcha.render('<?php echo $attrs['id'] ?>_field', {
+                        grecaptcha.render('<?php echo esc_attr($attrs['id']) ?>_field', {
                             'sitekey': '<?php echo get_option('_wpdm_recaptcha_site_key'); ?>',
                             'callback': verifyCallback,
                             'theme': 'light'

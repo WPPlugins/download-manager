@@ -94,10 +94,10 @@ class PackageController extends PackageTemplate {
 		//Featured Image
 		$post_vars['preview'] = $post_vars['thumb'] = "";
 		if ( has_post_thumbnail( $ID ) ) {
-			$src                         = wp_get_attachment_image_src( get_post_thumbnail_id( $ID ), 'full', false );
-			$post_vars['preview']        = $src['0'];
-			$post_vars['featured_image'] = get_the_post_thumbnail( $ID, 'full' );
+			$src = wp_get_attachment_image_src( get_post_thumbnail_id( $ID ), 'full', false );
 
+			$post_vars['preview']        = is_array($src) ? $src['0'] : '';
+			$post_vars['featured_image'] = get_the_post_thumbnail( $ID, 'full' );
 			if ( in_array( 'thumb', $template_tags ) ) {
 				$post_vars['thumb'] = get_the_post_thumbnail( $ID );
 			}
@@ -1200,41 +1200,6 @@ class PackageController extends PackageTemplate {
 		}
 
 		$sociallock = "";
-
-		if ( isset( $package['email_lock'] ) && (int) $package['email_lock'] == 1 ) {
-			$data .= PackageLocks::AskEmail( $package );
-			$lock = 'locked';
-		}
-
-		if ( isset( $package['linkedin_lock'] ) && (int) $package['linkedin_lock'] == 1 ) {
-			$lock       = 'locked';
-			$sociallock .= PackageLocks::LinkedInShare( $package );
-
-		}
-
-		if ( isset( $package['twitterfollow_lock'] ) && (int) $package['twitterfollow_lock'] == 1 ) {
-			$lock       = 'locked';
-			$sociallock .= PackageLocks::TwitterFollow( $package );
-
-		}
-
-		if ( isset( $package['gplusone_lock'] ) && (int) $package['gplusone_lock'] == 1 ) {
-			$lock       = 'locked';
-			$sociallock .= PackageLocks::GooglePlusOne( $package, true );
-
-		}
-
-		if ( isset( $package['tweet_lock'] ) && (int) $package['tweet_lock'] == 1 ) {
-			$lock       = 'locked';
-			$sociallock .= PackageLocks::Tweet( $package );
-
-		}
-
-		if ( isset( $package['facebooklike_lock'] ) && (int) $package['facebooklike_lock'] == 1 ) {
-			$lock       = 'locked';
-			$sociallock .= PackageLocks::FacebookLike( $package, true );
-
-		}
 
 
 		$extralocks = '';

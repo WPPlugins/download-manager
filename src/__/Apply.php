@@ -678,7 +678,7 @@ class Apply
             }
 
             .wpdm-download-link<?php echo sanitize_text_field($class); ?> {
-                border-radius: <?php echo (int)($ui_button['borderradius'] ?? 4 ); ?>px;
+                border-radius: <?php echo (int)( isset($ui_button['borderradius']) ? $ui_button['borderradius'] : 4 ); ?>px;
             }
 
 
