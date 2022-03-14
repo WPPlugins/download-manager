@@ -634,7 +634,7 @@ class Apply
         $warning = isset($uicolors['warning']) ? $uicolors['warning'] : '#f29e0f';
         $danger = isset($uicolors['danger']) ? $uicolors['danger'] : '#ff5062';
         $font = get_option('__wpdm_google_font', 'Rubik');
-        $font = $font ? "\"{$font}\"," : '';
+        $font = $font ? "{$font}" : '-apple-system';
         if (is_singular('wpdmpro'))
             $ui_button = get_option('__wpdm_ui_download_button');
         else
@@ -674,7 +674,7 @@ class Apply
                 --color-purple: <?php echo esc_attr( isset($uicolors['purple'])?$uicolors['purple']:'#8557D3' ); ?>;
                 --color-red: <?php echo esc_attr( isset($uicolors['red'])?$uicolors['red']:'#ff5062' ); ?>;
                 --color-muted: rgba(69, 89, 122, 0.6);
-                --wpdm-font: <?php echo esc_attr( $font ); ?> -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+                --wpdm-font: "<?php echo esc_attr( $font ); ?>", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
             }
 
             .wpdm-download-link<?php echo sanitize_text_field($class); ?> {

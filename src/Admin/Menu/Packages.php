@@ -79,11 +79,12 @@ class Packages
             update_post_meta($post, $key_name, $meta_value);
         }
 
+	    $masterKey = Crypt::encrypt(['id' => $post, 'time' => time()]);
         if(get_post_meta($post, '__wpdm_masterkey', true) == '')
-            update_post_meta($post, '__wpdm_masterkey', uniqid());
+            update_post_meta($post, '__wpdm_masterkey', $masterKey);
 
         if (isset($_POST['reset_key']) && $_POST['reset_key'] == 1)
-            update_post_meta($post, '__wpdm_masterkey', uniqid());
+            update_post_meta($post, '__wpdm_masterkey', $masterKey);
 
         if(isset($_REQUEST['reset_udl'])) WPDM()->downloadHistory->resetUserDownloadCount($post, 'all');
         do_action('wpdm_admin_update_package',$post, $_POST['file']);

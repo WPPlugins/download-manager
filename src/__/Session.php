@@ -68,7 +68,8 @@ class Session
         if (self::$store === 'file') self::$data[$name] = array('value' => $value, 'expire' => time() + $expire);
         else {
             self::clear($name);
-            $wpdb->insert("{$wpdb->prefix}ahm_sessions", array('deviceID' => self::$deviceID, 'name' => $name, 'value' => maybe_serialize($value), 'expire' => time() + $expire));
+			if($value)
+				$wpdb->insert("{$wpdb->prefix}ahm_sessions", array('deviceID' => self::$deviceID, 'name' => $name, 'value' => maybe_serialize($value), 'expire' => time() + $expire));
         }
     }
 

@@ -19,7 +19,7 @@
             ?>
             <tr>
                 <td><a href="<?php echo get_permalink($stat->pid); ?>"><?php echo $stat->post_title; ?></a></td>
-                <td><?php echo date_i18n(get_option('date_format')." H:i",$stat->timestamp); ?></td>
+                <td><?php echo date_i18n(get_option('date_format')." H:i", $stat->timestamp); ?></td>
                 <td><?php echo $stat->ip; ?></td>
             </tr>
             <?php
