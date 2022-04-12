@@ -55,7 +55,7 @@ if(!is_wp_error($user)){
                         if(res.success) {
                             $('#updatePassword').html("<div class='alert alert-success' data-title='<?php _e( "DONE!" , "download-manager" ); ?>'><b><?php _e( "Password Updated" , "download-manager" ); ?></b><br/><a style='margin-top:5px;text-decoration:underline !important;' href='<?php echo wpdm_user_dashboard_url(); ?>'><?php _e( "Go to your account dashboard" , "download-manager" ); ?></a></div>");
                         } else
-                            $('#updatePassword').html("<div class='alert alert-danger' data-title='<?php _e( "ERROR!" , "download-manager" ); ?>'><b><?php _e( "Password Update Failed" , "download-manager" ); ?></b><br/><a style='margin-top:5px;text-decoration:underline !important;' href='<?php echo __::lostpassword_url(); ?>'>"+res.message+"</a></div>");
+                            $('#updatePassword').html("<div class='alert alert-danger' data-title='<?php _e( "ERROR!" , "download-manager" ); ?>'><b><?php _e( "Password Update Failed" , "download-manager" ); ?></b><br/><a style='margin-top:5px;text-decoration:underline !important;' href='<?php echo wpdm_lostpassword_url(); ?>'>"+res.message+"</a></div>");
                         $('#updatePassword-submit').html(llbl);
                     }
                 });
