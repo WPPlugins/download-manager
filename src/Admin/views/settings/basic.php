@@ -54,8 +54,7 @@
         <div class="form-group">
             <label><?php echo __("File Browser Access:", "download-manager"); ?></label><br/>
             <input type="hidden" name="_wpdm_file_browser_access[]" value="[NONE]"/>
-            <select style="width: 100%" name="_wpdm_file_browser_access[]" multiple="multiple"
-                    data-placeholder="<?php _e("Who will have access to server file browser", "download-manager"); ?>">
+            <select style="width: 100%" name="_wpdm_file_browser_access[]" multiple="multiple" data-placeholder="<?php _e("Who will have access to server file browser", "download-manager"); ?>">
                 <?php
 
                 $currentAccess = maybe_unserialize(get_option('_wpdm_file_browser_access', array('administrator')));
@@ -88,10 +87,8 @@
     <div class="panel-body">
         <div class="form-group">
             <label><a name="liappid"></a><?php echo __("reCAPTCHA Site Key", "download-manager"); ?></label>
-            <input type="text" class="form-control" name="_wpdm_recaptcha_site_key"
-                   value="<?php echo get_option('_wpdm_recaptcha_site_key'); ?>">
-            <em>Register a new site for reCAPTCHA from <a target="_blank"
-                                                          href='https://www.google.com/recaptcha/admin#list'>here</a></em>
+            <input type="text" class="form-control" name="_wpdm_recaptcha_site_key" value="<?php echo get_option('_wpdm_recaptcha_site_key'); ?>">
+            <em>Register a new site for reCAPTCHA from <a target="_blank" href='https://www.google.com/recaptcha/admin#list'>here</a></em>
         </div>
         <div class="form-group">
             <label><a name="liappid"></a><?php echo __("reCAPTCHA Secret Key", "download-manager"); ?></label>

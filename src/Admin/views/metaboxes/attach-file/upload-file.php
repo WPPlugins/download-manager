@@ -12,7 +12,7 @@ $afile = wpdm_valueof($afiles, 0);
     <div class="cfile" id="cfl" style="padding: 10px;border:2px solid #ddd;background: #ffffff;margin-bottom: 10px">
 		<?php
 		$filesize = "<em style='color: darkred'>( ".__("attached file is missing/deleted",'download-manager')." )</em>";
-		$afile = trim($afile);
+        $afile = rtrim($afile);
 
 		$url = false;
 		if($afile !=''){

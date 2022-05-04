@@ -5,7 +5,7 @@ Tags: download manager, document management, file manager, digital store, ecomme
 Requires at least: 5.3
 Tested up to: 5.9
 License: GPLv2 or later
-Stable tag: 3.2.40
+Stable tag: 3.2.41
 
 
 This File Management & Digital Store plugin will help you to control file downloads & sell digital products from your WP site.
@@ -180,6 +180,13 @@ Check download stats and get a push notification when someone downloads, install
 19. More features
 
 == Changelog ==
+
+= 3.2.41 - 2022.05.04 =
+* Improved select2 ui
+* Fixed an issue with template path detection
+* Fixed the password validation issue with the password lock
+* Fixed ssl error issue with the QR code template tag
+* Fixed the file download issue for the files when file name starts with space
 
 = 3.2.40 - 2022.04.12 =
 * Fixed an issue with the password reset form

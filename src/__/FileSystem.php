@@ -260,7 +260,7 @@ class FileSystem
             return false;
         }
         foreach ($files as $file) {
-            $file = trim($file);
+            $file = rtrim($file);
             $filename = wp_basename($file);
             $file = WPDM()->fileSystem->absPath($file);
             /*if (file_exists(UPLOAD_DIR . $file)) {

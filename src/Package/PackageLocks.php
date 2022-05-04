@@ -54,7 +54,7 @@ class PackageLocks
 
     function validatePassword()
     {
-        $password = wpdm_query_var('password', ['validate' => 'html']);
+        $password = sanitize_text_field($_REQUEST['password']);
         $packageID = wpdm_query_var('__wpdm_ID', ['validate' => 'int']);
         $passwords = WPDM()->package->isPasswordProtected($packageID);
         $passwordUsage = maybe_unserialize(get_post_meta($packageID, '__wpdm_password_usage', true));

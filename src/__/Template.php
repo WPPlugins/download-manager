@@ -50,9 +50,10 @@ class Template
     }
 
     function fetch($template, $tpldir = '' , $fallback = ''){
-        $template = self::locate($template, $tpldir);
+		$template = self::locate($template, $tpldir);
         if(is_array($this->vars))
             extract($this->vars);
+	    if(!$template) return "";
         ob_start();
         include $template;
         return ob_get_clean();

@@ -153,7 +153,7 @@ class PackageController extends PackageTemplate {
 		$post_vars['link_label']  = isset( $post_vars['link_label'] ) ? esc_attr( $post_vars['link_label'] ) : esc_attr__( "Download", "download-manager" );
 		$post_vars['page_url']    = get_permalink( $post_vars['ID'] );
 		$post_vars['page_link']   = "<a href='" . $post_vars['page_url'] . "'>{$post_vars['title']}</a>";
-		$post_vars['page_url_qr'] = "<img class='wpdm-qr-code wpdm-qr-code{$post_vars['ID']}' style='max-width: 250px' src='http://chart.googleapis.com/chart?cht=qr&chs=450x450&choe=UTF-8&chld=H|0&chl={$post_vars['page_url']}' alt='{$post_vars['title']}' />";
+		$post_vars['page_url_qr'] = "<img class='wpdm-qr-code wpdm-qr-code{$post_vars['ID']}' style='max-width: 250px' src='https://chart.googleapis.com/chart?cht=qr&chs=450x450&choe=UTF-8&chld=H|0&chl={$post_vars['page_url']}' alt='{$post_vars['title']}' />";
 
 
 		if ( ! isset( $post_vars['btnclass'] ) ) {
@@ -679,7 +679,7 @@ class PackageController extends PackageTemplate {
 			$files = array();
 		}
 		foreach ( $files as &$file ) {
-			$file = trim( $file );
+			$file = rtrim( $file );
 		}
 		if ( $include_dir ) {
 			$package_dir = get_post_meta( $ID, '__wpdm_package_dir', true );
