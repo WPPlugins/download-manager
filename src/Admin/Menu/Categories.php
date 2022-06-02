@@ -242,9 +242,8 @@ class Categories
         $MetaData = get_option( "__wpdmcategory" );
         $MetaData = maybe_unserialize($MetaData);
         $icon = get_term_meta(wpdm_query_var('tag_ID', 'int'), '__wpdm_icon', true);
-        $tag_ID = (int)$_GET['tag_ID'];
         if($icon == '')
-            $icon = __::valueof($MetaData, "$tag_ID/icon", '');
+            $icon = isset($MetaData[$_GET['tag_ID']]['icon'])?$MetaData[$_GET['tag_ID']]['icon']:'';
 
         ?>
 
@@ -258,7 +257,7 @@ class Categories
                         <div class="panel-body">
 
                             <div class="input-group">
-                                <input type="text" id="catimurl" placeholder="<?php _e( "Image URL" , "download-manager" ); ?>" class="form-control" name="__wpdmcategory[icon]" value="<?php echo esc_url($icon); ?>">
+                                <input type="text" id="catimurl" placeholder="<?php _e( "Image URL" , "download-manager" ); ?>" class="form-control" name="__wpdmcategory[icon]" value="<?php echo $icon; ?>">
                                 <div class="input-group-btn">
                                     <button data-uploader_button_text="Insert" data-uploader_title="<?php _e('Select Category Image', 'download-manager'); ?>" id="catim" type="button" class="btn btn-info"><?php _e('Browse', 'download-manager'); ?></button>
                                 </div>
@@ -331,9 +330,9 @@ class Categories
                                 <input name="__wpdmcategory[access][]" type="hidden" value="__wpdm__" />
                                 <?php
 
-                                $currentAccess = maybe_unserialize(get_term_meta($tag_ID, '__wpdm_access', true));
+                                $currentAccess = maybe_unserialize(get_term_meta(wpdm_query_var('tag_ID', 'int'), '__wpdm_access', true));
                                 if(!is_array($currentAccess))
-                                    $currentAccess = isset($MetaData[$tag_ID], $MetaData[$tag_ID]['access'])?$MetaData[$tag_ID]['access']:array();
+                                    $currentAccess = isset($MetaData[$_GET['tag_ID']])?$MetaData[$_GET['tag_ID']]['access']:array();
 
                                 $selz = '';
                                 if(  $currentAccess ) $selz = (in_array('guest',$currentAccess))?'checked=checked':'';

@@ -12,11 +12,7 @@ use WPDM\__\Template;
 
 class UI
 {
-	static $elements = [];
 
-	static function el($element) {
-		self::$elements['name'] = $element;
-	}
     static function div($content, $class = '', $attrs = [])
     {
         $class = $class ? " class='{$class}'" : '';
@@ -41,9 +37,9 @@ class UI
         $label = $label ? $label : $link;
         $_attrs = "";
         foreach ($attrs as $name => $val){
-            $_attrs .= esc_attr($name) . '="'.esc_attr($val).'"';
+            $_attrs .= " {$name}='$val'";
         }
-        return '<a href="'.esc_attr($link).'"'.$_attrs.'>'.$label.'</a>';
+        return "<a href='{$link}' $_attrs>{$label}</a>";
     }
 
     static function button($label, $attrs = []){
@@ -74,15 +70,11 @@ class UI
 
     static function img($src, $alt = '', $attrs = [])
     {
-        // Escape every interpolated value: $src as a URL, and $alt plus all
-        // attribute names/values as HTML attributes, so a caller-supplied value
-        // (e.g. a shortcode attribute) cannot break out of the quoted attribute
-        // and inject markup such as an onerror handler.
         $_attrs = "";
         foreach ($attrs as $name => $val){
-            $_attrs .= " " . esc_attr($name) . "='" . esc_attr($val) . "'";
+            $_attrs .= " {$name}='$val'";
         }
-        return "<img src='" . esc_url($src) . "' alt='" . esc_attr($alt) . "' {$_attrs} />";
+        return "<img src='{$src}' alt='{$alt}' {$_attrs} />";
     }
 
     static function minifyHTML($html)

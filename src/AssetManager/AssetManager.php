@@ -37,32 +37,20 @@ class AssetManager
 
     public static function root($path = '')
     {
-		if(!function_exists('get_home_path'))
-			include_once ABSPATH.'wp-admin/includes/file.php';
-	    $current_user = wp_get_current_user();
-		$fbRoot = get_option('_wpdm_file_browser_root');
-	    $fbRoot = str_replace(get_home_path(), "", $fbRoot);
-        $userRoot = current_user_can(WPDM_ADMIN_CAP) ? trailingslashit(get_home_path().$fbRoot) : trailingslashit(UPLOAD_DIR . $current_user->user_login);
+        global $current_user;
+        $root = current_user_can(WPDM_ADMIN_CAP) ? rtrim(get_option('_wpdm_file_browser_root'), '/') . '/' : UPLOAD_DIR . $current_user->user_login . '/';
+        $_root = str_replace("\\", "/", $root);
+        if ($path !== '') $root .= $path;
+        $root = str_replace(array("./", "../"), "", $root);
+        $root = str_replace("\\", "/", $root);
+        if ($path !== '' && !strstr($root, $_root)) return "[INVALID_PATH]";
+        if (is_dir($root)) $root = rtrim($root, "/") . "/";
+        if ($path === '' && !file_exists($root)) {
+            @mkdir($root, 0775, true);
+            \WPDM\__\FileSystem::blockHTTPAccess($root);
 
-		//Create user root if dir doesn't already exist
-	    if(!current_user_can(WPDM_ADMIN_CAP) && !file_exists($userRoot))
-	    {
-		    @mkdir($userRoot, 0775, true);
-		    FileSystem::blockHTTPAccess($userRoot);
-	    }
-
-        $userRoot = self::fsPath($userRoot);
-		$userRootExt = $path !== '' ? $userRoot.$path : $userRoot;
-	    $userRootExt = preg_replace(array('/\.\.\//', '/\.\//', '/\/\.\.$/'), "", $userRootExt);
-	    $realUserRootExt = realpath($userRootExt);
-		if($realUserRootExt) $realUserRootExt = self::fsPath($realUserRootExt);
-	    $userRootExt = self::fsPath($userRootExt);
-
-		if(substr_count($userRootExt, $userRoot) == 0 || !$realUserRootExt || substr_count($realUserRootExt, $userRoot) === 0) return "[INVALID_PATH]";
-
-        if (is_dir($userRootExt)) $userRootExt = trailingslashit($userRootExt);
-
-        return $userRootExt;
+        }
+        return $root;
     }
 
     private function actions()
@@ -168,21 +156,18 @@ class AssetManager
     {
         if (isset($_REQUEST['asset']) && isset($_REQUEST['key'])) {
             $asset = new Asset();
-            $found = $asset->get(wpdm_query_var('asset', 'int'));
-            // The key only shows the link came from this site. The file is served to people on the asset's
-            // access list, or with a grant from a page that was allowed to share it (embed, share link)
-            if (!$found || !wp_verify_nonce($_REQUEST['key'], $asset->path))
-                \WPDM\__\Messages::error(apply_filters('wpdm_asset_download_link_expired_message', __("Download link is expired! Go back and Refresh the page to regenerate download link", "download-manager")), 1);
-            elseif (!$asset->hasAccess() && !$asset->isGranted(wpdm_query_var('grant')))
-                \WPDM\__\Messages::error(__("You do not have access to this asset", "download-manager"), 1);
-            else
+            $asset->get(wpdm_query_var('asset', 'int'));
+            if (wp_verify_nonce($_REQUEST['key'], $asset->path))
                 $asset->download();
+            else
+                \WPDM\__\Messages::error(apply_filters('wpdm_asset_download_link_expired_message', __("Download link is expired! Go back and Refresh the page to regenerate download link", "download-manager")), 1);
             die();
         }
         if (isset($_REQUEST['wpdmfmdl']) && is_user_logged_in()) {
+            global $current_user;
             $file = AssetManager::root(Crypt::decrypt(wpdm_query_var('wpdmfmdl')));
             if (!$file) \WPDM\__\Messages::error("File Not Found!", 1);
-            FileSystem::downloadFile($file, wp_basename($file), 10240, false, [ 'play' => wpdm_query_var('play')]);
+            \WPDM\__\FileSystem::downloadFile($file, wp_basename($file), 10240, false, ['play' => wpdm_query_var('play')]);
             die();
         }
     }
@@ -239,7 +224,7 @@ class AssetManager
         $path = AssetManager::root($relpath);
         if (!$path) wp_send_json(array('success' => false, 'message' => __("Error! Unauthorized Path.", "download-manager")));
 
-        $name = wpdm_query_var('name', 'filename');
+        $name = wpdm_query_var('name');
         //Check file is in allowed types
         if (WPDM()->fileSystem->isBlocked($name)) wp_send_json(array('success' => false, 'message' => __("Error! FileType is not allowed.", "download-manager")));
 
@@ -262,28 +247,9 @@ class AssetManager
         $relpath = Crypt::decrypt(wpdm_query_var('path'));
         $path = AssetManager::root($relpath);
         if (!$path) wp_send_json(array('success' => false, 'message' => __("Error! Unauthorized Path.", "download-manager")));
-        $keyword = null;
-	    if(!wpdm_query_var('keyword', 'txt'))
-		    $items = scandir($path, SCANDIR_SORT_ASCENDING);
-	    else {
-		    $keyword = wpdm_query_var('keyword', 'txt');
-		    $items = glob( "{$path}*{$keyword}*");
-		    foreach ($items as &$item) {
-			    $item = str_replace($path, "", $item);
-		    }
-	    }
+        $items = scandir($path, SCANDIR_SORT_ASCENDING);
         if(!is_array($items)) $items = [];
         $items = array_diff($items, ['.', '..']);
-
-	    if ((int)wpdm_query_var('dirs') !== 1) {
-		    $page           = wpdm_query_var( 'sdpage', 'int' );
-		    $page           = $page < 1 ? 1 : $page;
-		    $items_per_page = $keyword ? 90 : 50;
-		    $total_pages    = $keyword ? 1 : (int) ceil( count( $items ) / $items_per_page );
-		    $start          = $keyword ? 0 : ( $page - 1 ) * $items_per_page;
-		    $items          = array_slice( $items, $start, $items_per_page );
-	    }
-
         $_items = [];
         $_dirs = [];
         update_user_meta(get_current_user_id(), 'working_dir', $path);
@@ -294,7 +260,7 @@ class AssetManager
             //$item_label = strlen($item_label) > 30 ? substr($item_label, 0, 15) . "..." . substr($item_label, strlen($item_label) - 15) : $item_label;
             $ext = explode('.', $item);
             $ext = end($ext);
-            $icon = FileSystem::fileTypeIcon($ext);
+            $icon = \WPDM\__\FileSystem::fileTypeIcon($ext);
             $type = is_dir($path . $item) ? 'dir' : 'file';
             $note = is_dir($path . $item) ? (count(scandir($path . $item)) - 2) . ' items' : number_format((filesize($path . $item) / 1024), 2) . ' KB';
             $rpath = str_replace($root, "", $path . $item);
@@ -326,7 +292,7 @@ class AssetManager
         if ((int)wpdm_query_var('dirs') === 1)
             wp_send_json($_dirs);
         else
-            wp_send_json(array('success' => true, 'total_pages' => $total_pages, 'current_page' => $page, 'items_per_page' => $items_per_page, 'items' => $allitems, 'breadcrumb' => $breadcrumb, 'root' => $root, WPDM_ADMIN_CAP => current_user_can(WPDM_ADMIN_CAP), 'roles' => $current_user->roles));
+            wp_send_json(array('success' => true, 'items' => $allitems, 'breadcrumb' => $breadcrumb, 'root' => $root, WPDM_ADMIN_CAP => current_user_can(WPDM_ADMIN_CAP), 'roles' => $current_user->roles));
         die();
     }
 
@@ -365,7 +331,7 @@ class AssetManager
     function deleteItem()
     {
 
-        __::isAuthentic('__wpdm_unlink', WPDMAM_NONCE_KEY, 'manage_options', true);
+        __::isAuthentic('__wpdm_unlink', WPDMAM_NONCE_KEY, WPDM_ADMIN_CAP, true);
 
         $relpath = Crypt::decrypt(wpdm_query_var('delete'));
         $path = AssetManager::root($relpath);
@@ -384,7 +350,7 @@ class AssetManager
     {
         if (!isset($_REQUEST['__wpdm_openfile']) || !wp_verify_nonce($_REQUEST['__wpdm_openfile'], WPDMAM_NONCE_KEY)) wp_send_json(array('success' => false, 'message' => __("Error! Session Expired. Try refreshing page.", "download-manager")));
         check_ajax_referer(WPDMAM_NONCE_KEY, '__wpdm_openfile');
-        if (!current_user_can('upload_files')) wp_send_json(array('success' => false, 'message' => __("Error! You are not authorized to execute this action.", "download-manager")));
+        if (!current_user_can(WPDM_ADMIN_CAP)) wp_send_json(array('success' => false, 'message' => __("Error! You are not authorized to execute this action.", "download-manager")));
         $relpath = Crypt::decrypt(wpdm_query_var('file'));
         $path = AssetManager::root($relpath);
         if (!$path) wp_send_json(array('success' => false, 'message' => __("Error! Unauthorized Path.", "download-manager")));
@@ -425,7 +391,7 @@ class AssetManager
 
 
         } else {
-            wp_send_json(array('content' => 'Failed to open file! '. $path, 'id' => uniqid()));
+            wp_send_json(array('content' => 'Failed to open file!', 'id' => uniqid()));
             die();
         }
 
@@ -459,8 +425,7 @@ class AssetManager
 
         $asset_id = wpdm_query_var('assetid', 'int');
         $asset = new Asset();
-        if (!$asset->get($asset_id) || !$asset->hasAccess()) wp_send_json(array('success' => false, 'message' => __("Error! You are not authorized to execute this action.", "download-manager")));
-        $asset->newComment(wpdm_query_var('comment', 'txts'), get_current_user_id())->save();
+        $asset->get($asset_id)->newComment(wpdm_query_var('comment', 'txts'), get_current_user_id())->save();
         wp_send_json($asset->comments);
     }
 
@@ -659,21 +624,7 @@ class AssetManager
         if (!isset($params['id'])) return \WPDM\__\Messages::error(__("Asset not found!", "download-manager"), -1);
         $path_or_id = (int)$params['id'];
         $asset = new Asset();
-        if (!$asset->get($path_or_id)) return \WPDM\__\Messages::error(__("Asset not found!", "download-manager"), -1);
-
-        // Only hand out a download link if the post's author may share this file, or the viewer may have it anyway.
-        // Otherwise anyone who can preview a post could put any asset's ID in it and download the file.
-        $post = get_post();
-        $author = $post ? (int)$post->post_author : 0;
-        if (!$asset->hasAccess() && !($author && $asset->hasAccess($author))) {
-            return $post && current_user_can('edit_post', $post->ID)
-                ? \WPDM\__\Messages::error(__("This Asset Manager file is not shared with the author of this post, so it cannot be embedded here.", "download-manager"), -1)
-                : '';
-        }
-
-        // Passed the check above: the link in the embed may serve the file to this viewer
-        $asset->grantDownload();
-
+        $asset->get($path_or_id);
         ob_start();
         include Template::locate("embed-asset.php", __DIR__.'/views');
         $content = ob_get_clean();
@@ -718,13 +669,6 @@ class AssetManager
             wp_send_json(array('success' => false, 'message' => __("Error! Couldn't open the zip file.", "download-manager")));
         }
     }
-
-	static function fsPath($path)
-	{
-		$path = str_replace("\\", "/", $path);
-		$path = is_dir($path) ? trailingslashit($path) : $path;
-		return $path;
-	}
 
 }
 

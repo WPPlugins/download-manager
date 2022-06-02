@@ -14,11 +14,7 @@
 if(!defined("ABSPATH")) die();
 list($sr, $ob, $od, $bt) = [6,2,2,2];
 if(isset($tbgrid)){
-    list($sr, $ob, $od, $bt) = explode(",", esc_attr($tbgrid));
-    $sr = (int)$sr;
-	$ob = (int)$ob;
-    $od = (int)$od;
-    $bt = (int)$bt;
+    list($sr, $ob, $od, $bt) = explode(",", $tbgrid);
 }
 //Show  toolbar on post type archive
 if(is_post_type_archive()) $toolbar = 1;
@@ -43,7 +39,7 @@ if ($toolbar) {
                 <div class="panel-footer card-footer">
                     <div class="row">
                         <div class="col-lg-<?php echo $sr; ?> col-md-12">
-                            <input type="text" name="skw" value="<?php echo stripslashes_deep(wpdm_query_var('skw', 'esc_attr')) ?>" placeholder="<?php echo __( "Search Keyword...", "download-manager" ); ?>" class="form-control" />
+                            <input type="text" name="skw" value="<?php echo stripslashes_deep(wpdm_query_var('skw', 'txt')) ?>" placeholder="<?php echo __( "Search Keyword...", "download-manager" ); ?>" class="form-control" />
                         </div>
                         <div class="col-lg-<?php echo $ob; ?> col-md-4">
                             <select name="orderby" class="wpdm-custom-select custom-select">
@@ -51,8 +47,8 @@ if ($toolbar) {
                                 <option value="date" <?php selected('date', wpdm_query_var('orderby')) ?>><?php echo __( "Publish Date", "download-manager" ) ?></option>
                                 <option value="title" <?php selected('title', wpdm_query_var('orderby')) ?>><?php echo __( "Title", "download-manager" ) ?></option>
                                 <option value="update_date" <?php selected('update_date', wpdm_query_var('orderby')) ?>><?php echo __( "Update Date", "download-manager" ) ?></option>
-                                <option value="downloads" <?php selected('downloads', wpdm_query_var('orderby')) ?>><?php echo __( "Downloads", "download-manager" ) ?></option>
-                                <option value="views" <?php selected('views', wpdm_query_var('orderby')) ?>><?php echo __( "Views", "download-manager" ) ?></option>
+                                <option value="download_count" <?php selected('downloads', wpdm_query_var('orderby')) ?>><?php echo __( "Downloads", "download-manager" ) ?></option>
+                                <option value="view_count" <?php selected('views', wpdm_query_var('orderby')) ?>><?php echo __( "Views", "download-manager" ) ?></option>
                             </select>
                         </div>
                         <div class="col-lg-<?php echo $od; ?> col-md-4">
@@ -63,7 +59,7 @@ if ($toolbar) {
                             </select>
                         </div>
                         <div class="col-lg-<?php echo $bt; ?> col-md-4">
-                            <button type="submit" class="btn btn-info btn-block"><?php echo __( "Apply Filter", "download-manager" ) ?></button>
+                            <button type="submit" class="btn btn-secondary btn-block"><?php echo __( "Apply Filter", "download-manager" ) ?></button>
                         </div>
                     </div>
 
@@ -77,7 +73,7 @@ if ($toolbar) {
                 <div class="card-body panel-body">
                     <div class="row">
                         <div class="col-lg-<?php echo $sr; ?> col-md-12">
-                            <input type="search" name="skw" value="<?php echo stripslashes_deep(wpdm_query_var('skw', 'esc_attr')) ?>" placeholder="<?php echo __( "Search Keyword...", "download-manager" ); ?>" class="form-control" />
+                            <input type="search" name="skw" value="<?php echo stripslashes_deep(wpdm_query_var('skw', 'txt')) ?>" placeholder="<?php echo __( "Search Keyword...", "download-manager" ); ?>" class="form-control" />
                         </div>
                         <div class="col-lg-<?php echo $ob; ?> col-md-4">
                             <select name="orderby" class="wpdm-custom-select custom-select">
@@ -97,7 +93,7 @@ if ($toolbar) {
                             </select>
                         </div>
                         <div class="col-lg-<?php echo $bt; ?> col-md-4">
-                            <button type="submit" class="btn btn-info btn-block"><?php echo __( "Apply Filter", "download-manager" ) ?></button>
+                            <button type="submit" class="btn btn-secondary btn-block"><?php echo __( "Apply Filter", "download-manager" ) ?></button>
                         </div>
                     </div>
                 </div>

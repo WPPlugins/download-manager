@@ -18,6 +18,7 @@ class WidgetController
     private function __construct()
     {
         add_action('widgets_init', function(){
+            include_once __DIR__.'/Affiliate.php';
             include_once __DIR__.'/Categories.php';
             include_once __DIR__.'/CatPackages.php';
             include_once __DIR__.'/ListPackages.php';

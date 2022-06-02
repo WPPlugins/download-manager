@@ -68,13 +68,12 @@ function __print_items($items, $level = 0){
 </div>
 <script src="<?php echo WPDM_BASE_URL ?>assets/js/vue.min.js"></script>
 <script>
-    var dirviewer = Vue.createApp({
-        data() {
-            return {
-                files: []
-            };
+    var dirviewer = new Vue({
+        el: '#dircontent',
+        data: {
+            files: []
         }
-    }).mount('#dircontent');
+    });
 
     var assets = <?php echo json_encode($flatList); ?>;
     jQuery(function ($) {

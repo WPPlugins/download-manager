@@ -1,5 +1,6 @@
 <?php
 
+
 namespace WPDM\User;
 
 use WPDM\__\__;
@@ -49,27 +50,17 @@ class EditProfile
 
     function updateProfile()
     {
-        $current_user = wp_get_current_user();
+        global $current_user;
+
         if (isset($_POST['wpdm_profile']) && is_user_logged_in() && wp_verify_nonce(wpdm_query_var('__wpdm_epnonce'), NONCE_KEY)) {
 
             $error = 0;
 
-            // Plain text only. Fully decode first (bounded, covers named and numeric entities) so
-            // entity-encoded markup such as &lt;img …&gt; or &#60;img …&#62; is stripped as markup instead
-            // of being stored as text that an HTML consumer could later revive.
-            $display_name = wp_unslash($_POST['wpdm_profile']['display_name']);
-            for ($i = 0; $i < 5; $i++) {
-                $decoded = html_entity_decode($display_name, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-                if ($decoded === $display_name) {
-                    break;
-                }
-                $display_name = $decoded;
-            }
-            $pfile_data['display_name'] = sanitize_text_field(wp_strip_all_tags($display_name));
+            $pfile_data['display_name'] = wpdm_sanitize_var($_POST['wpdm_profile']['display_name']);
             $pfile_data['user_email'] = sanitize_email($_POST['wpdm_profile']['user_email']);
 
 
-            if ($_POST['password'] !== $_POST['cpassword']) {
+            if ($_POST['password'] != $_POST['cpassword']) {
                 Session::set('member_error', 'Password not matched');
                 $error = 1;
             }
@@ -80,21 +71,9 @@ class EditProfile
 
                 wp_update_user($pfile_data);
 
-                update_user_meta($current_user->ID, '__wpdm_title', __::query_var('wpdm_profile/title', 'txt'));
-                update_user_meta($current_user->ID, 'description', __::query_var('wpdm_profile/description', 'txt'));
-
-				if(isset($_POST['payment_account']))
-					update_user_meta($current_user->ID, 'payment_account', $_POST['payment_account']);
-
+                update_user_meta($current_user->ID, 'payment_account', wpdm_query_var('payment_account'));
                 Session::set('member_success', 'Profile data updated successfully.');
             }
-
-			if(__::query_var('__wpdm_profile_pic')) {
-				$profile = maybe_unserialize(get_user_meta(get_current_user_id(), '__wpdm_public_profile', true));
-				if(!is_array($profile)) $profile = [];
-				$profile['logo'] = __::query_var('__wpdm_profile_pic', 'url');
-				update_user_meta(get_current_user_id(), '__wpdm_public_profile', $profile);
-			}
 
             do_action("wpdm_update_profile", $current_user->ID);
 

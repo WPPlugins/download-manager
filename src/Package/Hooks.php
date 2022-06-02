@@ -27,6 +27,7 @@ class Hooks
     {
         $this->wpdmIframe();
         $this->shortcodeIframe();
+        WPDM()->package->addViewCount();
     }
 
     function wpdmIframe()

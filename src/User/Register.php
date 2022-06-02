@@ -33,40 +33,7 @@ class Register
 
         add_action('registration_errors', [$this, 'verifyEmail'], 10, 3);
 
-		add_action('user_register', [$this, 'pendingApproval'], 10, 2);
-
-	    add_action("register_form", [$this, 'reCaptcha']);
-	    add_action("registration_errors", [$this, 'reCaptchaVerify'], 10, 3);
-
     }
-
-	function reCpathcaActive() {
-		$active_captcha = (int)get_option('__wpdm_recaptcha_regform', 0) === 1 && get_option('_wpdm_recaptcha_secret_key', '') != '';
-		$active_captcha = apply_filters("signup_form_captcha", $active_captcha);
-		return $active_captcha;
-	}
-
-	function reCaptcha() {
-		if($this->reCpathcaActive()) {
-			$form = new Form(['__recap' => [
-				'type' => 'reCaptcha',
-				'attrs' => ['name' => '__recap', 'id' => '__recap'],
-			]], ['noForm' => true]);
-			echo $form->render();
-		}
-	}
-
-
-	function reCaptchaVerify($errors, $sanitized_user_login, $user_email) {
-		if ($this->reCpathcaActive()) {
-			$ret = wpdm_recaptcha_enterprise_verify(wpdm_query_var('__recap'), 'REGISTER');
-			if (!$ret['success']) {
-				if (!$errors) $errors = new \WP_Error();
-				$errors->add('recaptcha_failed', __('<strong>Error:</strong> Captcha verification failed', 'download-manager'));
-			}
-		}
-		return $errors;
-	}
 
     static function formFields($params = [])
     {
@@ -84,7 +51,7 @@ class Register
         $reg_data_fields['username'] = array(
             'label' => __("Username", "download-manager"),
             'type' => 'text',
-            'attrs' => array('name' => 'wpdm_reg[user_login]', 'id' => 'user_login', 'placeholder' => __('User Login ID', 'download-manager'), 'required' => 'required', 'validate' => 'alphanum'),
+            'attrs' => array('name' => 'wpdm_reg[user_login]', 'id' => 'user_login', 'placeholder' => __('User Login ID', 'download-manager'), 'required' => 'required'),
         );
         $reg_data_fields['email'] = [
             'label' => __("Email", "download-manager"),
@@ -95,12 +62,12 @@ class Register
         if ((int)get_option('__wpdm_signup_email_verify', 0) === 0) {
             $reg_data_fields['password'] = array(
                 'cols' => [
-                    ['label' => __("Password", "download-manager"), 'type' => 'password', 'grid_class' => 'col-md-6 col-sm-12', 'attrs' => ['name' => 'wpdm_reg[user_pass]', 'id' => 'reg_password', 'placeholder' => __("Password", "download-manager"), 'required' => 'required', 'strength' => (int)get_option('__wpdm_pwsc', 0)]],
-                    ['label' => __("Confirm Password", "download-manager"), 'type' => 'password', 'grid_class' => 'col-md-6 col-sm-12', 'attrs' => ['name' => 'confirm_user_pass', 'data-match' => '#reg_password', 'id' => 'reg_confirm_pass', 'placeholder' => __("Confirm Password", "download-manager"), 'required' => 'required']]
+                    ['label' => __("Password", "download-manager"), 'type' => 'password', 'grid_class' => 'col-md-6 col-sm-12', 'attrs' => ['name' => 'wpdm_reg[user_pass]', 'id' => 'reg_password', 'placeholder' => __("Be Secure", "download-manager"), 'required' => 'required']],
+                    ['label' => __("Confirm Password", "download-manager"), 'type' => 'password', 'grid_class' => 'col-md-6 col-sm-12', 'attrs' => ['name' => 'confirm_user_pass', 'data-match' => '#reg_password', 'id' => 'reg_confirm_pass', 'placeholder' => __("Do Not Forget", "download-manager"), 'required' => 'required']]
                 ]
             );
         }
-        /*if (!isset($params['captcha']) || $params['captcha'] === true) {
+        if (!isset($params['captcha']) || $params['captcha'] === true) {
             $show_captcha = (int)get_option('__wpdm_recaptcha_regform', 0) === 1 && get_option('_wpdm_recaptcha_secret_key', '') != '';
             $show_captcha = apply_filters("signup_form_captcha", $show_captcha);
             if ($show_captcha) {
@@ -109,7 +76,7 @@ class Register
                     'attrs' => array('name' => '__recap', 'id' => '__recap'),
                 );
             }
-        }*/
+        }
         $reg_data_fields = apply_filters("wpdm_register_form_fields", $reg_data_fields);
         $form = new Form($reg_data_fields, ['name' => 'wpdm_reg_form', 'id' => 'wpdm_reg_form', 'method' => 'POST', 'action' => '', 'submit_button' => [], 'noForm' => true]);
         return $form->render();
@@ -138,8 +105,8 @@ class Register
         $loginurl = wpdm_login_url();
         $reg_redirect = $loginurl;
         if (isset($params['autologin']) && (int)$params['autologin'] === 1) $reg_redirect = wpdm_user_dashboard_url();
-        if (isset($params['redirect'])) $reg_redirect = esc_url($params['redirect']);
-        if (isset($_GET['redirect_to'])) $reg_redirect = esc_url($_GET['redirect_to']);
+        if (isset($params['redirect'])) $reg_redirect = esc_url_raw($params['redirect']);
+        if (isset($_GET['redirect_to'])) $reg_redirect = esc_url_raw($_GET['redirect_to']);
 
         $force = uniqid();
 
@@ -149,6 +116,8 @@ class Register
         $reg_redirect = esc_attr(esc_url($reg_redirect));
 
         if (!isset($params['logo'])) $params['logo'] = get_site_icon_url();
+
+        \WPDM\__\Session::set('__wpdm_reg_params', $params);
 
         $tmp_reg_info = \WPDM\__\Session::get('tmp_reg_info');
 
@@ -175,7 +144,6 @@ class Register
         global $wp_query, $wpdb;
         if (!isset($_POST['wpdm_reg'])) return;
 
-		__::isAuthentic('wdpmregnonce', WPDM_PUB_NONCE, 'read');
 
         $shortcode_params = Crypt::decrypt(wpdm_query_var('__phash'), true);
 
@@ -194,7 +162,7 @@ class Register
             die();
         }
 
-        /*if(!isset($shortcode_params['captcha']) || $shortcode_params['captcha'] ===  true) {
+        if(!isset($shortcode_params['captcha']) || $shortcode_params['captcha'] ===  true) {
             $active_captcha = (int)get_option('__wpdm_recaptcha_regform', 0) === 1 && get_option('_wpdm_recaptcha_secret_key', '') != '';
             $active_captcha = apply_filters("signup_form_captcha", $active_captcha);
             if ($active_captcha) {
@@ -211,7 +179,7 @@ class Register
                     die();
                 }
             }
-        }*/
+        }
 
         if (!get_option('users_can_register') && isset($_POST['wpdm_reg'])) {
             $reg_error = apply_filters("wpdm_signup_error", __("Error: User registration is disabled!", "download-manager"), $error_type = 'signup_disabled');
@@ -233,20 +201,6 @@ class Register
         $user_pass = wpdm_query_var('wpdm_reg/user_pass', 'html');
         $full_name = $first_name . " " . $last_name;
         $display_name = $full_name;
-
-		// WordPress refuses logins longer than 60 characters, so refuse them here too
-		if(!validate_username($user_login) || mb_strlen($user_login) > 60) {
-			$reg_error = apply_filters("wpdm_signup_error", __("Invalid Username!", "download-manager"), $error_type = 'invalid_username');
-
-			if (wpdm_is_ajax()) {
-				wp_send_json(array('success' => false, 'message' => $reg_error));
-				die();
-			}
-
-			Session::set('wpdm_signup_error', $reg_error, 300);
-			wp_safe_redirect(wpdm_query_var('permalink', 'url'));
-			die();
-		}
 
         $user_id = username_exists($user_login);
 
@@ -277,7 +231,7 @@ class Register
 
             Session::set('wpdm_signup_error', $reg_error, 300);
             wp_safe_redirect(wpdm_query_var('permalink', 'url'));
-            die();
+
         }
 
         //If username is available - no other user with the username
@@ -290,7 +244,7 @@ class Register
 
                 $user_pass = $_verify_email || !isset($user_pass) || $user_pass == '' ? wp_generate_password(12, false) : $user_pass;
 
-                if(!$_verify_email && isset($user_pass) && isset($_REQUEST['confirm_user_pass'])){
+                if(!$_verify_email && isset($user_pass) && wpdm_query_var('comfirm_user_pass')){
                     if($user_pass !== wpdm_query_var('confirm_user_pass', 'html')){
                         $reg_error = apply_filters("wpdm_signup_error", __("Passwords not matched!", "download-manager"), $error_type = 'password_match');
 
@@ -301,7 +255,6 @@ class Register
 
                         Session::set('wpdm_signup_error', $reg_error, 300);
                         wp_safe_redirect(wpdm_query_var('permalink', 'url'));
-                        die();
                     }
                 }
 
@@ -323,21 +276,6 @@ class Register
                 }
 
                 $user_id = wp_create_user($user_login, $user_pass, $user_email);
-
-                // WordPress can still refuse the account. Its error must never stand in for a user ID:
-                // wp_update_user() would read it as user 1 and rewrite that account's names.
-                if (is_wp_error($user_id)) {
-                    $reg_error = apply_filters("wpdm_signup_error", 'Error: ' . $user_id->get_error_message(), $error_type = 'create_user');
-
-                    if (wpdm_is_ajax()) {
-                        wp_send_json(array('success' => false, 'message' => $reg_error));
-                        die();
-                    }
-
-                    Session::set('wpdm_signup_error', $reg_error, 300);
-                    wp_safe_redirect(wpdm_query_var('permalink', 'url'));
-                    die();
-                }
 
                 $user_meta = array('ID' => $user_id, 'display_name' => $display_name, 'first_name' => $first_name, 'last_name' => $last_name);
                 wp_update_user($user_meta);
@@ -362,7 +300,7 @@ class Register
 
 
                 //To User
-                $usparams = array('to_email' => $user_email, 'name' => $display_name, 'first_name' => $first_name, 'last_name' => $last_name, 'user_email' => $user_email, 'email' => $user_email, 'username' => $user_login, 'password' => $user_pass);
+                $usparams = array('to_email' => $user_email, 'name' => $display_name, 'first_name' => $first_name, 'last_name' => $last_name, 'user_email' => $user_email, 'username' => $user_login, 'password' => $user_pass);
 
                 foreach ($_POST['wpdm_reg'] as $key => $value) {
                     $usparams["user_" . $key] = $value;
@@ -387,7 +325,6 @@ class Register
                 $params['name'] = $display_name;
                 $params['username'] = $user_login;
                 $params['email'] = $user_email;
-                $params['user_email'] = $user_email;
                 $params['user_ip'] = $ip;
                 $params['edit_user_btn'] = "<a class='button' style='display:block;margin:10px 0 0;text-decoration: none;text-align:center;' href='" . admin_url('user-edit.php?user_id=' . $user_id) . "'> " . __("Edit User", "download-manager") . " </a>";
                 //Include all data from signup form
@@ -465,7 +402,6 @@ class Register
     function verifyEmail($errors, $sanitized_user_login, $user_email)
     {
         if (!$errors) $errors = new \WP_Error();
-		if(!is_email($user_email)) return $errors;
         if (!wpdm_verify_email($user_email)) {
             $emsg = get_option('__wpdm_blocked_domain_msg');
             if (trim($emsg) === '') $emsg = __('Your email address is blocked!', 'download-manager');
@@ -473,13 +409,6 @@ class Register
         }
         return $errors;
     }
-
-	function pendingApproval($userID, $userData = [])
-	{
-		if(WPDM()->user->requiresApproval()) {
-			update_user_meta($userID, '__wpdm_user_status', 'pending');
-		}
-	}
 
 }
 

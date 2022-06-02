@@ -25,10 +25,12 @@ class Apply
         add_action("wp_ajax_nopriv_showLockOptions", array($this, 'showLockOptions'));
         add_action("wp_ajax_showLockOptions", array($this, 'showLockOptions'));
 
+        add_action('wp_ajax_wpdm_verify_file_pass', array($this, 'checkFilePassword'));
+        add_action('wp_ajax_nopriv_wpdm_verify_file_pass', array($this, 'checkFilePassword'));
+
         add_action("wp_ajax_wpdm_generate_password", [$this, 'generatePassword']);
         add_action("wp_ajax_wpdm-activate-shop", [$this, 'activatePremiumPackage']);
 
-        add_filter( 'wp_kses_allowed_html', [$this, 'allowStyleTagInKses'], 10, 2 );
 
         if (is_admin()) return;
 
@@ -222,7 +224,7 @@ class Apply
 
         global $wpdb, $current_user, $wp_query;
         if (preg_match("/\/wpdmdl\/([\d]+)-([^\/]+)\/(.+)/", $_SERVER['REQUEST_URI'])) {
-            $uri = trim(__::valueof($_SERVER, 'REQUEST_URI', ['validate' => 'txt']), '/');
+            $uri = trim($_SERVER['REQUEST_URI'], '/');
             $download_url_base = get_option('__wpdm_download_url_base', 'download');
             $uri = explode("/" . $download_url_base . "/", $uri);
             $parts = explode("/", $uri[1]);
@@ -232,7 +234,7 @@ class Apply
             $parts = json_decode(base64_decode($parts[1]));
             if (is_array($parts)) {
                 foreach ($parts as $key => $val) {
-                    $_REQUEST[$key] = $_GET[$key] = sanitize_text_field($val);
+                    $_REQUEST[$key] = $_GET[$key] = $val;
                 }
             }
         }
@@ -286,37 +288,31 @@ class Apply
         //$package = get_post($id, ARRAY_A);
         $package = WPDM()->package->init($id);
         $package = (array)$package;
+
+        //$package['files'] = WPDM()->package->getFiles($id);
+        //if(!is_array($package)) \WPDM\__\Messages::error(__("&mdash; Package Not Found &mdash;", "download-manager"), 1);
+        //$package = array_merge($package, WPDM()->package->metaData($id));
+
+
+        //if (isset($package['files']))
+        //    $package['files'] = maybe_unserialize($package['files']);
+        //else
+        //    $package['files'] = array();
+        //$package = wpdm_setup_package_data($package);
+
         $package['access'] = WPDM()->package->allowedRoles($id);
 
-	    $package = apply_filters("wpdm_before_download", $package);
 
         if ($isMaster || $keyValid) {
             $package['access'] = array('guest');
         }
 
-        //Only published packages are downloadable by everyone; other statuses need read_post on the package
-        if(!WPDM()->package->userCanReadPackage($id)) {
-	        Messages::error( __( '403 - Access Forbidden!', 'download-manager' ), 1 );
-        }
 
         $matched = (is_array(@maybe_unserialize($package['access'])) && is_user_logged_in()) ? array_intersect($current_user->roles, @maybe_unserialize($package['access'])) : array();
 
 
         if ((($id != '' && is_user_logged_in() && count($matched) < 1 && !@in_array('guest', $package['access'])) || (!is_user_logged_in() && !@in_array('guest', $package['access']) && $id != ''))) {
             do_action("wpdm_download_permission_denied", $id);
-            // Send the visitor somewhere useful instead of a "permission-denied.txt" download:
-            // the login page when logged out (returning to the package after login), otherwise the package page
-            $package_url  = get_permalink( $id );
-            $redirect_url = '';
-            if ( $package_url ) {
-                $redirect_url = is_user_logged_in() ? $package_url : wpdm_login_url( $package_url );
-            }
-            $redirect_url = apply_filters( 'wpdm_download_permission_denied_redirect', $redirect_url, $id );
-            if ( $redirect_url ) {
-                nocache_headers();
-                wp_safe_redirect( $redirect_url );
-                die();
-            }
             wpdm_download_data("permission-denied.txt", __("You don't have permission to download this file", "download-manager"));
             die();
         } else {
@@ -383,6 +379,43 @@ class Apply
     }
 
     /**
+     * @usage Validate individual file password
+     */
+    function checkFilePassword()
+    {
+        if (isset($_POST['actioninddlpvr'], $_POST['wpdmfileid']) && $_POST['actioninddlpvr'] != '') {
+            $limit = get_option('__wpdm_private_link_usage_limit', 3);
+            $fileid = wpdm_query_var('wpdmfileid', 'int');
+            $filepass = wpdm_query_var('filepass', 'escs');
+            $data = get_post_meta(wpdm_query_var('wpdmfileid', 'int'), '__wpdm_fileinfo', true);
+            $data = $data ? $data : array();
+            $package = get_post($fileid);
+            $packagemeta = wpdm_custom_data($fileid);
+            $password = isset($data[$fileid]['password']) && $data[$fileid]['password'] != "" ? $data[$fileid]['password'] : $packagemeta['password'];
+            $pu = isset($packagemeta['password_usage']) && is_array($packagemeta['password_usage']) ? $packagemeta['password_usage'] : array();
+            if ($password == $filepass || substr_count($password, "[" . $filepass . "]") > 0) {
+                $pul = $packagemeta['password_usage_limit'];
+                if (is_array($pu) && isset($pu[$password]) && $pu[$password] >= $pul && $pul > 0) {
+                    $data['error'] = __("Password usages limit exceeded", "download-manager");
+                    die('|error|');
+                } else {
+                    if (!is_array($pu)) $pu = array();
+                    $pu[$password] = isset($pu[$password]) ? $pu[$password] + 1 : 1;
+                    update_post_meta($fileid, '__wpdm_password_usage', $pu);
+                }
+
+
+                $_data['error'] = '';
+                $_data['downloadurl'] = WPDM()->package->expirableDownloadLink($fileid, $limit);
+                $_data['downloadurl'] .= "&ind=" . wpdm_query_var('wpdmfile');
+                wp_send_json($_data);
+
+            } else
+                wp_send_json(array('error' => __("Invalid password", "download-manager"), 'downloadurl' => ''));
+        }
+    }
+
+    /**
      * @usage Allow front-end users to access their own files only
      * @param $query_params
      * @return string
@@ -423,7 +456,7 @@ class Apply
      */
     function clearCache()
     {
-        __::isAuthentic('ccnonce', WPDM_PRI_NONCE, 'manage_options');
+        if (!current_user_can('manage_options')) die('You are not authorized!');
         FileSystem::deleteFiles(WPDM_CACHE_DIR, false);
         FileSystem::deleteFiles(WPDM_CACHE_DIR . 'pdfthumbs/', false);
         global $wpdb;
@@ -437,8 +470,8 @@ class Apply
      */
     function clearStats()
     {
-	    __::isAuthentic('csnonce', WPDM_PRI_NONCE, 'manage_options');
-	    global $wpdb;
+        if (!current_user_can('manage_options')) return;
+        global $wpdb;
         $wpdb->query('truncate table ' . $wpdb->prefix . 'ahm_download_stats');
         $wpdb->query('truncate table ' . $wpdb->prefix . 'ahm_user_download_counts');
         $wpdb->query("delete from {$wpdb->prefix}postmeta where meta_key='__wpdmx_user_download_count'");
@@ -467,11 +500,7 @@ class Apply
     function showLockOptions()
     {
         if (!isset($_REQUEST['id'])) die('ID Missing!');
-        $id = wpdm_query_var('id', 'int');
-        if (!WPDM()->package->userCanReadPackage($id) || !WPDM()->package->userCanAccess($id)) {
-            wp_die(esc_html__('403 - Access Forbidden!', 'download-manager'), '', ['response' => 403]);
-        }
-        echo WPDM()->package->downloadLink($id, 1);
+        echo WPDM()->package->downloadLink(wpdm_query_var('id', 'int'), 1);
         die();
     }
 
@@ -537,34 +566,20 @@ class Apply
 
     }
 
-    /**
-     * Whether pages may load fonts from Google's servers.
-     * Follows Settings > User Interface > Google Fonts (off by default).
-     *
-     * @return bool
-     */
-    static function googleFontsEnabled()
-    {
-        return (bool) apply_filters('wpdm_google_fonts_enabled', (int) get_option('__wpdm_enable_gf', 0) === 1);
-    }
-
     static function googleFont()
     {
         $wpdmss = maybe_unserialize(get_option('__wpdm_disable_scripts', array()));
         $uicolors = maybe_unserialize(get_option('__wpdm_ui_colors', array()));
         //$ltemplates = maybe_unserialize(get_option("_fm_link_templates", true));
         //$ptemplates = maybe_unserialize(get_option("_fm_page_templates", true));
-	    $font      = get_option( '__wpdm_google_font', 'Sen' );
-	    $font      = explode( ":", $font );
-        $font      = str_replace("+", " ", $font[0]);
-	    $font      = $font ? "{$font}" : '';
-	    $font = $font ? "{$font}" : '-apple-system';
+        $font = get_option('__wpdm_google_font', 'Rubik');
+        $font = $font ? $font . ',' : '';
 
         $css = WPDM()->packageTemplate->getStyles('link');
 
         ?>
-        <?php if (self::googleFontsEnabled() && get_option('__wpdm_google_font') !== '') { ?>
-        <link href="https://fonts.googleapis.com/css2?family=<?php echo get_option('__wpdm_google_font', 'Sen'); ?>"
+        <?php if (get_option('__wpdm_google_font') !== '') { ?>
+        <link href="https://fonts.googleapis.com/css?family=<?php echo get_option('__wpdm_google_font', 'Rubik'); ?>"
               rel="stylesheet">
         <style>
             .w3eden .fetfont,
@@ -583,7 +598,7 @@ class Apply
             .w3eden .wpdm_cart thead th,
             .w3eden #csp .list-group-item,
             .w3eden .modal-title {
-                font-family: "<?php echo __::sanitize_var($font); ?>", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+                font-family: <?php echo __::sanitize_var($font); ?> -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
                 text-transform: uppercase;
                 font-weight: 700;
             }
@@ -618,10 +633,7 @@ class Apply
         $info = isset($uicolors['info']) ? $uicolors['info'] : '#2CA8FF';
         $warning = isset($uicolors['warning']) ? $uicolors['warning'] : '#f29e0f';
         $danger = isset($uicolors['danger']) ? $uicolors['danger'] : '#ff5062';
-        $font      = get_option( '__wpdm_google_font', 'Sen' );
-	    $font      = explode( ":", $font );
-	    $font      = $font[0];
-	    $font      = $font ? "{$font}" : '';
+        $font = get_option('__wpdm_google_font', 'Rubik');
         $font = $font ? "{$font}" : '-apple-system';
         if (is_singular('wpdmpro'))
             $ui_button = get_option('__wpdm_ui_download_button');
@@ -637,10 +649,6 @@ class Apply
                 --color-primary-rgb: <?php echo esc_attr(wpdm_hex2rgb($primary)); ?>;
                 --color-primary-hover: <?php echo esc_attr( isset($uicolors['primary'])?$uicolors['primary_hover']:'#4a8eff' ); ?>;
                 --color-primary-active: <?php echo esc_attr( isset($uicolors['primary'])?$uicolors['primary_active']:'#4a8eff' ); ?>;
-                --clr-sec: <?php echo $secondary; ?>;
-                --clr-sec-rgb: <?php echo wpdm_hex2rgb($secondary); ?>;
-                --clr-sec-hover: <?php echo isset($uicolors['secondary'])?$uicolors['secondary_hover']:'#4a8eff'; ?>;
-                --clr-sec-active: <?php echo isset($uicolors['secondary'])?$uicolors['secondary_active']:'#4a8eff'; ?>;
                 --color-secondary: <?php echo esc_attr( $secondary ); ?>;
                 --color-secondary-rgb: <?php echo esc_attr(wpdm_hex2rgb($secondary)); ?>;
                 --color-secondary-hover: <?php echo esc_attr( isset($uicolors['secondary'])?$uicolors['secondary_hover']:'#4a8eff' ); ?>;
@@ -693,35 +701,10 @@ class Apply
     }
 
     /**
-     * Allow <style> tag in wp_kses_post filter.
-     *
-     * @param array  $allowed_tags Allowed HTML tags and attributes.
-     * @param string $context      The context for which to retrieve tags.
-     * @return array Modified allowed tags.
-     */
-    function allowStyleTagInKses( $allowed_tags, $context ) {
-        if ( 'post' !== $context ) {
-            return $allowed_tags;
-        }
-
-        $allowed_tags['style'] = array(
-                'type'  => true,
-                'media' => true,
-                'nonce' => true,
-                'id'    => true,
-                'class' => true,
-        );
-
-        return $allowed_tags;
-    }
-
-    /**
      * @usage Active premium package add-on / shopping cart
      */
     function activatePremiumPackage()
     {
-        __::isAuthentic('wpdmappnonce', WPDM_PRI_NONCE, WPDM_ADMIN_CAP);
-
         if (current_user_can(WPDM_ADMIN_CAP)) {
             include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
             include_once ABSPATH . 'wp-admin/includes/plugin-install.php';
@@ -748,4 +731,3 @@ class Apply
 
 
 }
-

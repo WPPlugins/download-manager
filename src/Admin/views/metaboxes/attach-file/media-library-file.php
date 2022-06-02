@@ -23,9 +23,7 @@ if(!defined("ABSPATH")) die("Shit happens!");
                     var attachment = file_frame.state().get('selection').first().toJSON();
                     console.log(attachment);
                     $('#wpdmfile').val(attachment.url);
-                    let atftpl = $('#atftpl').html();
-                    atftpl = wpdm_html_compile(atftpl, {filetitle: attachment.filename});
-                    $('#cfl').html(atftpl);
+                    $('#cfl').html('<div><strong>'+attachment.filename+'</strong><br/>'+attachment.filesizeHumanReadable).slideDown();
                     $('input[name="file[package_size]"]').val(attachment.filesizeHumanReadable);
 
                 });
