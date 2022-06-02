@@ -334,7 +334,7 @@ if(is_admin()){
             top: 0;
             border: 0;
             width: 100%;
-            height: 100%;
+            height: calc(100vh - 150px);
             z-index: 9;
             box-shadow: none;
             border-radius: 0;
@@ -494,6 +494,17 @@ if(is_admin()){
         .w3eden .modal.fade.in{
             background: rgba(0,0,0,0.3);
         }
+        #__asset_settings {
+            height: calc(100vh - 190px);
+            overflow: auto;
+        }
+        [data-simplebar]{
+            height: calc(100vh - 175px);
+        }
+        #cogwin > .panel{
+            height: calc(100vh - 146px);
+            box-shadow: none;
+        }
     </style>
 
 <div class="w3eden" id="mainfmarea">
@@ -542,7 +553,7 @@ if(is_admin()){
                     </div>
                 </div>
                 <div class="col-md-9 wpdm-file-locator" id="filewin">
-                    <div id="wpdmeditor" class="panel panel-default blockui" style="display: none">
+                    <div id="wpdmeditor" class="panel panel-default blockui" style="display: none;">
                         <div class="panel-heading"><div class="pull-right"><a id="close-editor" href="#"><i class="fa fa-times-circle text-muted"></i></a></div><span id="wpdmefn"></span></div>
                         <textarea id="filecontent"></textarea>
                         <div id="filecontent_alt" style="display: none"></div>
@@ -556,7 +567,7 @@ if(is_admin()){
                     </div>
                 </div>
                 <div class="col-md-3" id="cogwin" style="display: none;">
-                    <div class="panel panel-default blockui" style="left:0;width: 100%;height: 900px;border: 0;border-left: 1px solid #eee;border-radius: 0;position: absolute;">
+                    <div class="panel panel-default blockui" style="left:0;width: 100%;border: 0;border-left: 1px solid #eee;border-radius: 0;position: absolute;margin: 0">
                         <div class="panel-heading" style="border-radius: 0;border-top: 0 !important;">
                             <a href="#" class="pull-right" id="close-settings"><i class="fas fa-times-circle text-muted"></i></a>
                             <?php echo  esc_attr__( 'Asset Settings', WPDM_TEXT_DOMAIN ); ?>
@@ -1495,13 +1506,13 @@ if(is_admin()){
 <?php if(is_admin()){ ?>
     <script>
         jQuery(function ($) {
-            $('[data-simplebar], #cogwin > .panel').css('height', (window.innerHeight - 160)+'px');
+            /*$('[data-simplebar], #cogwin > .panel').css('height', (window.innerHeight - 160)+'px');
             $(window).on('resize', function() {
                 $('[data-simplebar], #cogwin > .panel').css('height', (window.innerHeight - 160) + 'px');
                 if($('#mainfmarea').is(":fullscreen")){
                     $('[data-simplebar]').css('height', (window.innerHeight - 135) + 'px');
                 }
-            });
+            });*/
         });
     </script>
     </div>

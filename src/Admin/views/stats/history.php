@@ -117,7 +117,7 @@ $pagination = array(
 
         <section class="row">
             <!-- From date filter -->
-            <div class="col-md-3">
+            <div class="col-md-4">
                 <div class="input-group input-group-lg">
                     <div class="input-group-addon">
                         <span class="input-group-text"><?php _e("From Date", "download-manager"); ?>:</span>
@@ -127,7 +127,7 @@ $pagination = array(
             </div>
 
             <!-- To date filter -->
-            <div class="col-md-3">
+            <div class="col-md-4">
                 <div class="input-group input-group-lg">
                     <div class="input-group-addon">
                         <span class="input-group-text"><?php _e("To Date", "download-manager"); ?>:</span>
@@ -136,68 +136,71 @@ $pagination = array(
                 </div>
             </div>
 
-            <!-- User names filter -->
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <div class="input-group input-group-lg">
-                    <div class="input-group-addon">
-                        <span class="input-group-text"><?php _e("Users", "download-manager"); ?></span>
+                    <label style="display: table-cell;width: 100%;" for="unq" class="input-group-addon"><?php echo __( 'Count Unique Downloads Only', 'download-manager' ); ?></label>
+                    <div class="form-control" style="font-size: 17px;font-weight: 400;width: 60px">
+                        <input id="unq" type="checkbox" value="1" <?php checked(1, wpdm_query_var('uniq', 'int')); ?> name="uniq">
+
                     </div>
-
-                    <select id="user_ids" name="user_ids[]" multiple="multiple" style="width: 100%; height: 100%">
-                        <?php foreach ($selected_users as $u) : ?>
-                            <option selected value="<?php echo  $u->ID ?>"> <?php echo  $u->display_name . "($u->user_login)" ?> </option>
-                        <?php endforeach ?>
-                    </select>
-
-                    <!-- remove user filter -->
-                    <?php if (count($user_ids)) {
-                        $get_params_xu = $get_params;
-                        unset($get_params_xu['user_ids']);
-
-                        $reset_url = add_query_arg($get_params_xu, 'edit.php');
-                    ?>
-                        <div class="input-group-btn">
-                            <a href="<?php echo $reset_url; ?>" class="btn btn-secondary"><i class="fa fa-times-circle"></i></a>
-                        </div>
-                    <?php } ?>
                 </div>
             </div>
         </section>
 
         <section class="row" style="margin-top: 20px">
-            <!-- Package title filter -->
-            <div class="col-md-9">
-                <div class="input-group input-group-lg">
-                    <div class="input-group-addon">
-                        <span class="input-group-text"><?php _e("Packages", "download-manager"); ?></span>
+            <div class="col-md-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading"><?php _e("Users", "download-manager"); ?></div>
+                    <div class="panel-body">
+                        <select id="user_ids" name="user_ids[]" multiple="multiple" style="width: 100%; height: 100%" class="form-control">
+		                    <?php foreach ($selected_users as $u) : ?>
+                                <option selected value="<?php echo  $u->ID ?>"> <?php echo  $u->display_name . "($u->user_login)" ?> </option>
+		                    <?php endforeach ?>
+                        </select>
+
+                        <!-- remove user filter -->
+	                    <?php if (count($user_ids)) {
+		                    $get_params_xu = $get_params;
+		                    unset($get_params_xu['user_ids']);
+
+		                    $reset_url = add_query_arg($get_params_xu, 'edit.php');
+		                    ?>
+                            <div class="input-group-btn">
+                                <a href="<?php echo $reset_url; ?>" class="btn btn-secondary"><i class="fa fa-times-circle"></i></a>
+                            </div>
+	                    <?php } ?>
                     </div>
-                    <select id="package_ids" name="package_ids[]" multiple="multiple" style="width: 100%; height: 100%">
-                        <?php foreach ($selected_packages as $p) : ?>
-                            <option selected value="<?php echo  $p->ID ?>"> <?php echo  $p->post_title ?> </option>
-                        <?php endforeach ?>
-                    </select>
-                    <!-- remove package filter -->
-                    <?php if (count($package_ids)) {
-                        $get_params_xp = $get_params;
-                        unset($get_params_xp['package_ids']);
-
-                        $reset_url = add_query_arg($get_params_xp, 'edit.php');
-                    ?>
-                        <div class="input-group-btn">
-                            <a href="<?php echo $reset_url; ?>" class="btn btn-secondary"><i class="fa fa-times-circle"></i></a>
-                        </div>
-                    <?php } ?>
                 </div>
-            </div>
-            <div class="col-md-3">
-                <label class="form-control input-lg" style="border-radius: 0;font-size: 10pt;font-weight: 400"><input type="checkbox" value="1" <?php checked(1, wpdm_query_var('uniq', 'int')); ?> name="uniq"> <?php echo __( 'Count Unique Downloads Only', 'download-manager' ); ?></label>
-            </div>
 
+            </div>
+            <div class="col-md-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading"><?php _e("Packages", "download-manager"); ?></div>
+                    <div class="panel-body">
+                        <select id="package_ids" name="package_ids[]" multiple="multiple" style="width: 100%; height: 100%">
+		                    <?php foreach ($selected_packages as $p) : ?>
+                                <option selected value="<?php echo  $p->ID ?>"> <?php echo  $p->post_title ?> </option>
+		                    <?php endforeach ?>
+                        </select>
+                        <!-- remove package filter -->
+	                    <?php if (count($package_ids)) {
+		                    $get_params_xp = $get_params;
+		                    unset($get_params_xp['package_ids']);
+
+		                    $reset_url = add_query_arg($get_params_xp, 'edit.php');
+		                    ?>
+                            <div class="input-group-btn">
+                                <a href="<?php echo $reset_url; ?>" class="btn btn-secondary"><i class="fa fa-times-circle"></i></a>
+                            </div>
+	                    <?php } ?>
+                    </div>
+                </div>
+
+            </div>
 
 
             <!-- Filter submit button -->
             <div class="col-md-12">
-                <br/>
                 <div style="float:right">
                     <button type="submit" class="btn btn-primary btn-lg"><?php echo __("Filter", "download-manager") ?></button>
                     <a href="edit.php?post_type=wpdmpro&page=wpdm-stats&task=export&__xnonce=<?php echo wp_create_nonce(NONCE_KEY); ?>&hash=<?php echo $hash; ?>" class="btn btn-info btn-lg"><?php echo __("Export", "download-manager") ?></a>
@@ -369,5 +372,17 @@ $pagination = array(
 
     .select2-container--classic .select2-selection--multiple {
         padding-bottom: 10px;
+    }
+    .w3eden .select2-selection{
+        border: 1px solid #ccc;
+        height: 46px;
+        margin: 0;
+        padding: 0 10px;
+    }
+    .select2-selection textarea{
+        min-height: 32px;
+        line-height: 32px;
+        padding: 0;
+        margin: 0;
     }
 </style>

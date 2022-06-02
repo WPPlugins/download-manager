@@ -354,7 +354,10 @@ class Packages
 
 
                                 <div class="panel panel-default">
-                                    <div class="panel-heading"><?php _e("Master Download Link:", "download-manager"); ?></div>
+                                    <div class="panel-heading">
+                                        <div class="pull-right"><a id="mdlx" href="#" class="btn btn-xs btn-primary"><i class="fas fa-arrow-alt-circle-down"></i> <?php _e('Download', WPDM_TEXT_DOMAIN); ?></a></div>
+                                        <?php _e("Master Download Link:", "download-manager"); ?>
+                                    </div>
                                     <div class="panel-body"><input readonly="readonly" onclick="this.select()"
                                                                    type="text" class="form-control color-purple"
                                                                    style="background: #fdfdfd;font-size: 10px;text-align: center;font-family: monospace;font-weight: bold;"
@@ -428,6 +431,7 @@ class Packages
                     $('.gdl_action').on('click', function () {
                         tdlpid = $(this).attr('data-pid');
                         $('#mdl').val($(this).attr('data-mdlu'));
+                        $('#mdlx').attr('href', $(this).attr('data-mdlu'));
                         $('#tmpgdl').val('');
                         $('#tmpgdlp').val('');
                     });

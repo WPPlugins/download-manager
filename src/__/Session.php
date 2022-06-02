@@ -25,8 +25,11 @@ class Session
             $deviceID = md5(__::get_client_ip() . $agent);
             $deviceID = __::sanitize_var($deviceID, 'alphanum');
             if(!defined('WPDM_ACCEPT_COOKIE') || WPDM_ACCEPT_COOKIE !== false) {
-                @setcookie('__wpdm_client', $deviceID, 0, "", COOKIE_DOMAIN, is_ssl(), true);
-                $_COOKIE['__wpdm_client'] = $deviceID;
+				//Implement user consent
+				if(apply_filters('wpdm_user_accept_cookies', true)) {
+					@setcookie( '__wpdm_client', $deviceID, 0, "", COOKIE_DOMAIN, is_ssl(), true );
+					$_COOKIE['__wpdm_client'] = $deviceID;
+				}
             }
         }
         self::$deviceID = $deviceID;

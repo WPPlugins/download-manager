@@ -487,7 +487,7 @@ global $wp_scripts;
                 top: 0;
                 border: 0;
                 width: 100%;
-                height: 100%;
+                height: calc(100vh - 148px);
                 z-index: 9;
                 box-shadow: none;
                 border-radius: 0;
