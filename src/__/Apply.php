@@ -224,7 +224,7 @@ class Apply
 
         global $wpdb, $current_user, $wp_query;
         if (preg_match("/\/wpdmdl\/([\d]+)-([^\/]+)\/(.+)/", $_SERVER['REQUEST_URI'])) {
-            $uri = trim($_SERVER['REQUEST_URI'], '/');
+            $uri = trim(__::valueof($_SERVER, 'REQUEST_URI', ['validate' => 'escs']), '/');
             $download_url_base = get_option('__wpdm_download_url_base', 'download');
             $uri = explode("/" . $download_url_base . "/", $uri);
             $parts = explode("/", $uri[1]);
@@ -234,7 +234,7 @@ class Apply
             $parts = json_decode(base64_decode($parts[1]));
             if (is_array($parts)) {
                 foreach ($parts as $key => $val) {
-                    $_REQUEST[$key] = $_GET[$key] = $val;
+                    $_REQUEST[$key] = $_GET[$key] = esc_attr($val);
                 }
             }
         }

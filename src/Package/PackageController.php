@@ -298,14 +298,14 @@ class PackageController extends PackageTemplate {
 		else if ( ! is_user_logged_in() && ! self::userCanAccess( $post_vars['ID'] ) ) {
 			$packurl                    = get_permalink( $post_vars['ID'] );
 			$loginform                  = WPDM()->user->login->form( array( 'redirect' => $packurl ) );
-			$post_vars['download_url']  = WPDM()->user->login->url( $_SERVER['REQUEST_URI'] );
+			$post_vars['download_url']  = WPDM()->user->login->url( __::valueof($_SERVER, 'REQUEST_URI', ['validate' => 'escs']) );
 			$post_vars['download_link'] =
 			$post_vars['download_link_extended'] =
 			$post_vars['download_link_popup'] = stripcslashes( str_replace( array(
 				"[loginform]",
 				"[this_url]",
 				"[package_url]"
-			), array( $loginform, $_SERVER['REQUEST_URI'], $packurl ), $loginmsg ) );
+			), array( $loginform, __::valueof($_SERVER, 'REQUEST_URI', ['validate' => 'escs']), $packurl ), $loginmsg ) );
 			$post_vars['download_link'] =
 			$post_vars['download_link_extended'] =
 			$post_vars['download_link_popup'] = get_option( '__wpdm_login_form', 0 ) == 1 ? $loginform : $post_vars['download_link'];
@@ -786,7 +786,6 @@ class PackageController extends PackageTemplate {
 			return;
 		}
 		$audios = array();
-		$nonce  = wp_create_nonce( $_SERVER['REQUEST_URI'] );
 		$audio  = $audx = null;
 		foreach ( $package['files'] as $index => $file ) {
 			$realpath = file_exists( $file ) ? $file : UPLOAD_DIR . $file;
@@ -1046,13 +1045,13 @@ class PackageController extends PackageTemplate {
 			if ( get_option( '_wpdm_hide_all', 0 ) == 1 ) {
 				return 'loginform';
 			}
-			$package['download_url']  = $vars['download_link_extended'] = $vars['download_link_popup'] = home_url( '/wp-login.php?redirect_to=' . urlencode( $_SERVER['REQUEST_URI'] ) );
+			$package['download_url']  = $vars['download_link_extended'] = $vars['download_link_popup'] = home_url( '/wp-login.php?redirect_to=' . urlencode( __::valueof($_SERVER, 'REQUEST_URI', ['validate' => 'escs']) ) );
 			$loginmsg                 = Messages::login_required( $package['ID'] );
 			$package['download_link'] = stripcslashes( str_replace( array(
 				"[loginform]",
 				"[this_url]",
 				"[package_url]"
-			), array( $loginform, $_SERVER['REQUEST_URI'], get_permalink( $package['ID'] ) ), $loginmsg ) );
+			), array( $loginform, __::valueof($_SERVER, 'REQUEST_URI', ['validate' => 'escs']), get_permalink( $package['ID'] ) ), $loginmsg ) );
 
 			return get_option( '__wpdm_login_form', 0 ) == 1 ? $loginform : $package['download_link'];
 
@@ -1346,25 +1345,25 @@ class PackageController extends PackageTemplate {
 		//Login is required to download
 		if ( ! @in_array( 'guest', $access ) && ! is_user_logged_in() ) {
 
-			$loginform = WPDM()->user->login->form( array( 'redirect' => $_SERVER['REQUEST_URI'] ) );
+			$loginform = WPDM()->user->login->form( array( 'redirect' => __::valueof($_SERVER, 'REQUEST_URI', ['validate' => 'escs']) ) );
 			if ( get_option( '_wpdm_hide_all', 0 ) == 1 ) {
 				$hide_all_message = get_option( '__wpdm_login_form', 0 ) == 1 ? $loginform : stripcslashes( str_replace( array(
 					"[loginform]",
 					"[this_url]",
 					"[package_url]"
-				), array( $loginform, $_SERVER['REQUEST_URI'], get_permalink( $ID ) ), $loginmsg ) );
+				), array( $loginform, __::valueof($_SERVER, 'REQUEST_URI', ['validate' => 'escs']), get_permalink( $ID ) ), $loginmsg ) );
 				if ( $template_type == 'link' ) {
-					return "<a href='" . wpdm_login_url( $_SERVER['REQUEST_URI'] ) . "' class='btn btn-danger'>" . __( "Login", "download-manager" ) . "</a>";
+					return "<a href='" . wpdm_login_url( __::valueof($_SERVER, 'REQUEST_URI', ['validate' => 'escs']) ) . "' class='btn btn-danger'>" . __( "Login", "download-manager" ) . "</a>";
 				} else {
 					return $hide_all_message;
 				}
 			}
-			$download_url  = wpdm_login_url( $_SERVER['REQUEST_URI'] );
+			$download_url  = wpdm_login_url( __::valueof($_SERVER, 'REQUEST_URI', ['validate' => 'escs']) );
 			$download_link = $download_link_extended = $download_link_popup = stripcslashes( str_replace( array(
 				"[loginform]",
 				"[this_url]",
 				"[package_url]"
-			), array( $loginform, $_SERVER['REQUEST_URI'], get_permalink( $ID ) ), $loginmsg ) );
+			), array( $loginform, __::valueof($_SERVER, 'REQUEST_URI', ['validate' => 'escs']), get_permalink( $ID ) ), $loginmsg ) );
 
 			return get_option( '__wpdm_login_form', 0 ) == 1 ? $loginform : $download_link;
 
@@ -1578,7 +1577,7 @@ class PackageController extends PackageTemplate {
 				"[loginform]",
 				"[this_url]",
 				"[package_url]"
-			), array( $loginform, $_SERVER['REQUEST_URI'], get_permalink( $vars['ID'] ) ), $loginmsg ) );
+			), array( $loginform, __::valueof($_SERVER, 'REQUEST_URI', ['validate' => 'escs']), get_permalink( $vars['ID'] ) ), $loginmsg ) );
 			if ( get_option( '_wpdm_hide_all', 0 ) == 1 ) {
 				return $type == 'page' ? $hide_all_message : '';
 			}
@@ -1838,7 +1837,7 @@ class PackageController extends PackageTemplate {
 			"[loginform]",
 			"[this_url]",
 			"[package_url]"
-		), array( $loginform, $_SERVER['REQUEST_URI'], get_permalink( $vars['ID'] ) ), $loginmsg ) );
+		), array( $loginform, __::valueof($_SERVER, 'REQUEST_URI', ['validate' => 'escs']), get_permalink( $vars['ID'] ) ), $loginmsg ) );
 
 		if ( $vars['download_link'] == 'blocked' && $type == 'link' ) {
 			return "";
