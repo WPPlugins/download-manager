@@ -57,7 +57,7 @@ if(!defined('ABSPATH')) die();
 
             <div class="row login-form-meta-text text-muted mb-3" style="font-size: 10px">
                 <div class="col-md-5"><label><input class="wpdm-checkbox" name="rememberme" type="checkbox" id="rememberme" value="forever" /><?php _e( "Remember Me" , WPDM_TEXT_DOMAIN ); ?></label></div>
-                <div class="col-md-7 text-right"><a class="color-blue" href="<?php echo add_query_arg(['action' => 'lostpassword'], $_SERVER['REQUEST_URI']); ?>"><?php _e( "Forgot Password?" , WPDM_TEXT_DOMAIN ); ?></a></div>
+                <div class="col-md-7 text-right"><a class="color-blue" href="<?php echo wpdm_lostpassword_url(); ?>"><?php _e( "Forgot Password?" , WPDM_TEXT_DOMAIN ); ?></a></div>
             </div>
 
             <div class="row">

@@ -111,6 +111,35 @@ class PackageTemplate
         return false;
     }
 
+	function getInfo($template, $templateType = null)
+	{
+		if ($templateType !== null)
+			$this->type($templateType);
+
+		$info = $this->get($template, $templateType);
+		if (!$info) {
+			$theme_template_dir = get_stylesheet_directory().'/download-manager/'.$this->templateType . '-templates/';
+			$template_template_dir = get_template_directory().'/download-manager/'.$this->templateType . '-templates/';
+			$core_templates_dir = WPDM()->package->templateDir . $this->templateType . '-templates/';
+			$template_name = str_replace(".php", "", $template).".php";
+			$file = $core_templates_dir.str_replace(".php", "", $template).".php";
+			if(file_exists($theme_template_dir.$template_name))
+				$file = $theme_template_dir.$template_name;
+			else if(file_exists($template_template_dir.$template_name))
+				$file = $template_template_dir.$template_name;
+			if(file_exists($file)) {
+				$tmpdata = file_get_contents( $file );
+				$regx    = "/WPDM.*Template[\s]*:([^\-\->]+)/";
+				$name = $template;
+				if ( preg_match( $regx, $tmpdata, $matches ) ) {
+					$name = $matches[1];
+				}
+				$info = ['ID' => $template, 'name' => $name, 'content' => $tmpdata, 'css' => '', 'file' => $file];
+			}
+		}
+		return $info;
+	}
+
     function getCustomTemplates($templateType = null)
     {
         if ($templateType !== null)

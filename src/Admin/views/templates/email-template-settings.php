@@ -39,6 +39,14 @@ if($ttype == 'email'){ ?>
                             <?php echo wpdm_media_field(array('placeholder' => __("Logo URL" , "download-manager"), 'name' => '__wpdm_email_setting[logo]', 'id' => 'logo-url', 'value' => (isset($__wpdm_email_setting['logo'])?$__wpdm_email_setting['logo']:''))); ?>
                         </div>
                         <div class="form-group">
+		                    <?php _e( "Logo Dimension" , "download-manager" ); ?>
+                            <div class="input-group">
+                                <input name="__wpdm_email_setting[logo_w]" class="form-control" type="text" placeholder="<?php echo __('Width', WPDM_TEXT_DOMAIN); ?> px or %" value="<?= isset($__wpdm_email_setting['logo_w'])?$__wpdm_email_setting['logo_w']:''; ?>" />
+                                <div class="input-group-addon" style="border-left: 0;border-right: 0">&times;</div>
+                                <input name="__wpdm_email_setting[logo_h]" class="form-control" type="text" placeholder="<?php echo __('Height', WPDM_TEXT_DOMAIN); ?> px or %" value="<?= isset($__wpdm_email_setting['logo_h'])?$__wpdm_email_setting['logo_h']:''; ?>" />
+                            </div>
+                        </div>
+                        <div class="form-group">
                             <?php _e( "Banner/Background Image URL" , "download-manager" ); ?>
                             <?php echo wpdm_media_field(array('placeholder' => __("Banner/Background Image URL" , "download-manager"), 'name' => '__wpdm_email_setting[banner]', 'id' => 'banner-url', 'value' => (isset($__wpdm_email_setting['banner'])?$__wpdm_email_setting['banner']:''))); ?>
 

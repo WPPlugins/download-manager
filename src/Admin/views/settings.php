@@ -56,15 +56,15 @@ if (!defined("ABSPATH")) die("Shit happens!");
                             <?php Settings::renderMenu($tab = wpdm_query_var('tab', ['validate' => 'txt', 'default' => 'basic'])); ?>
                         </ul>
                     </div>
-                    <div id="pro">
+                    <a  target="_blank" href="https://wordpress.org/support/plugin/download-manager/reviews/#new-post" class="d-block" id="pro" style="text-decoration: none !important;">
                         <div class="panel panel-primary" style="margin-top: 64px;">
-                            <div class="panel-body text-center">
-                                Thanks for using Download Manager. When you get some free moments, please give us a "⭐⭐⭐⭐⭐" at wordpress.org.<br/>It will inspire us a lot.
+                            <div class="panel-body text-center text-muted">
+                                Thanks for using Download Manager. When you get some free moments, please give us a<br/>⭐⭐⭐⭐⭐<br/>at wordpress.org.<br/>It will inspire us a lot.
 
-                                <a target="_blank" href="https://wordpress.org/support/plugin/download-manager/reviews/#new-post" class="btn btn-primary btn-block btn-sm" style="margin-top: 12px">Let's Go 😊</a>
+                                <button type="button" class="btn btn-primary btn-block btn-sm" style="margin-top: 12px">Let's Go 😊</button>
                             </div>
                         </div>
-                    </div>
+                    </a>
                 </div>
                 <div id="wpdm-admin-page-body">
                     <div class="tab-content">

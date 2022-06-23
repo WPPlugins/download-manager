@@ -1,7 +1,6 @@
 <?php
 global $wpdb;
 if(!defined("ABSPATH")) die("Shit happens!");
-$get_params = $_GET;
 
 // Tables used
 $states_table = "{$wpdb->prefix}ahm_download_stats";
@@ -157,18 +156,6 @@ $pagination = array(
                                 <option selected value="<?php echo  $u->ID ?>"> <?php echo  $u->display_name . "($u->user_login)" ?> </option>
 		                    <?php endforeach ?>
                         </select>
-
-                        <!-- remove user filter -->
-	                    <?php if (count($user_ids)) {
-		                    $get_params_xu = $get_params;
-		                    unset($get_params_xu['user_ids']);
-
-		                    $reset_url = add_query_arg($get_params_xu, 'edit.php');
-		                    ?>
-                            <div class="input-group-btn">
-                                <a href="<?php echo $reset_url; ?>" class="btn btn-secondary"><i class="fa fa-times-circle"></i></a>
-                            </div>
-	                    <?php } ?>
                     </div>
                 </div>
 
@@ -182,17 +169,7 @@ $pagination = array(
                                 <option selected value="<?php echo  $p->ID ?>"> <?php echo  $p->post_title ?> </option>
 		                    <?php endforeach ?>
                         </select>
-                        <!-- remove package filter -->
-	                    <?php if (count($package_ids)) {
-		                    $get_params_xp = $get_params;
-		                    unset($get_params_xp['package_ids']);
 
-		                    $reset_url = add_query_arg($get_params_xp, 'edit.php');
-		                    ?>
-                            <div class="input-group-btn">
-                                <a href="<?php echo $reset_url; ?>" class="btn btn-secondary"><i class="fa fa-times-circle"></i></a>
-                            </div>
-	                    <?php } ?>
                     </div>
                 </div>
 

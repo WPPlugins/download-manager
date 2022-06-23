@@ -190,8 +190,10 @@ class Email {
         $params                 = $params + $__wpdm_email_setting;
         $logo = isset($params['logo']) ? esc_url($params['logo']) : '';
         $banner = isset($params['banner']) ? esc_url($params['banner']) : '';
-        $params['img_logo']     = isset( $params['logo'] ) && $params['logo'] != '' ? "<img style='max-width: 70%' src='{$logo}' alt='".esc_attr(get_option('blogname'))."' />" : get_bloginfo('name');
-        $params['banner']       = isset( $params['banner'] ) && $params['banner'] != '' ? esc_url($params['banner']) : "";
+	    $logo_wh  = isset( $params['logo_w'] ) ? "width:{$params['logo_w']};" : "";
+	    $logo_wh .= isset($params['logo_h']) ? "height:{$params['logo_h']};" : "";
+	    $params['img_logo']     = isset( $params['logo'] ) && $params['logo'] != '' ? "<img style='max-width: 70%;{$logo_wh}' src='{$logo}' alt='".esc_attr(get_option('blogname'))."' />" : get_bloginfo('name');
+	    $params['banner']       = isset( $params['banner'] ) && $params['banner'] != '' ? esc_url($params['banner']) : "";
         $params['banner_img']   = isset( $params['banner'] ) && $params['banner'] != '' ? "<img style='max-width: 100%;' src='{$banner}' alt='Banner Image' />" : "";
         $template_file          = get_option( "__wpdm_email_template", "default.html" );
         $emltpl = null;

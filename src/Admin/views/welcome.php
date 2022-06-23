@@ -1,18 +1,23 @@
-<script type="text/javascript" src="<?php echo includes_url();?>/js/jquery/jquery.form.min.js"></script>
-<link rel="stylesheet" type="text/css" href="<?php echo WPDM_BASE_URL ?>assets/bootstrap3/css/bootstrap.css" />
-<script  src="<?php echo WPDM_BASE_URL; ?>assets/bootstrap/js/bootstrap.bundle.min.js"></script>
-<link href='https://fonts.googleapis.com/css?family=Overpass:300,400,700' rel='stylesheet' type='text/css'>
-<link href="<?php echo WPDM_BASE_URL . 'assets/fontawesome/css/all.css'; ?>" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="<?php echo plugins_url('/download-manager/assets/bootstrap3/css/bootstrap.css');?>" />
 <link rel="stylesheet" href="<?php echo plugins_url('/download-manager/assets/css/front3.css'); ?>" />
+<link href='//fonts.googleapis.com/css?family=Overpass:300,400,700' rel='stylesheet' type='text/css'>
+<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
 <style>
     .w3eden .lead,
-    .w3eden .btn,
     .w3eden p{
         font-family: 'Overpass', sans-serif;
-        font-weight: 300;
+        font-weight: 100;
     }
-    .w3eden .media-body a, .w3eden *:not(.fa){
+
+    .w3eden h3, .w3eden h2, .w3eden h1{
         font-family: 'Overpass', sans-serif;
+        font-weight: 700;
+        margin-top: 20px;
+        margin-bottom: 5px;
+    }
+    .w3eden a{
+        font-family: 'Overpass', sans-serif;
+        font-weight: 700;
     }
 
     .r{
@@ -20,14 +25,17 @@
         font-weight: 300;
         font-size: 11pt;
     }
-
+    b{
+        font-size: 14pt;
+        margin-bottom: 10px;
+    }
     .r b{
         display: block;
         clear: both;
         margin-bottom: 5px;
     }
 
-    .w3eden input{
+    input{
         padding: 7px;
     }
     #wphead{
@@ -43,18 +51,25 @@
     #wpbody{
         margin-left: -19px;
     }
-    .w3eden select{
+    select{
         min-width: 150px;
     }
-    .w3eden  .media-body b{
-        font-size: 11pt;
-        margin-bottom: 5px;
+    .media-body b {
+        font-size: 13pt;
+        display: block;
+        margin-bottom: 10px;
     }
-
-    .w3eden .media .btn-success{
+    .media-body p{
+        font-size: 11pt;
+    }
+    .media .btn-success{
         margin-top: 3px;
     }
 
+    .w3eden .label.label-info{
+        font-size: 11px;background: rgba(132, 111, 168, 0.38) !important; padding: 5px 10px !important;;border-radius: 2px !important;font-weight: 300;font-family: Overpass;letter-spacing: 1px;
+    }
+    .w3eden .alert.alert-info:before{ line-height: 30px; }
     .wpdm-loading {
         background: url('<?php  echo plugins_url('download-manager/assets/images/wpdm-settings.png'); ?>') center center no-repeat;
         width: 16px;
@@ -65,14 +80,6 @@
         /*border-top: 2px solid #3dd269;*/
         /*border-radius: 100%;*/
 
-    }
-
-    .w3eden .label-info {
-        background-color: #5bc0de;
-        display: inline-block;
-        line-height: 15px;
-        padding: 7px 12px 5px;
-        font-family: 'Overpass', sans-serif;
     }
 
     .w3eden .btn{
@@ -210,151 +217,170 @@
         outline: none !important;
     }
 
-    .w3eden .nav-pills li.active a,
-    .btn-primary,
-    .w3eden .panel-primary > .panel-heading{
-        background-image: linear-gradient(to bottom, #2081D5 0px, #1B6CB2 100%) !important;
-    }
-    .w3eden .panel-default > .panel-heading {
-        background-image: linear-gradient(to bottom, #F5F5F5 0px, #E1E1E1 100%);
-        background-repeat: repeat-x;
-    }
-
     #modalcontents .wrap h2{ display: none; }
 
 </style>
 
 <div class="wrap w3eden">
 
+<div class="wcheader" style="background: #fff;border-bottom: 1px solid #ddd">
+    <div class="container-fluid" style="margin-top: 0;max-width: 1200px">
+    <div class="row">
+        <div class="col-md-12">
+            <img style="max-width: 100%" src="<?php echo WPDM_BASE_URL; ?>assets/images/wpdm-welcome.png"/>
+        </div>
+    </div>
+    </div>
 
+</div>
     <div class="container-fluid" style="margin-top: 10px;max-width: 1200px">
-         <div class="row">
-             <div class="col-md-12">
-                 <div class="well text-center" style="padding: 30px 95px">
-                     <img src="<?php echo WPDM_BASE_URL; ?>assets/images/wpdm-welcome.png" style="max-width: 100%" />
-                 </div>
+        <div class="row">
+            <?php //if(!function_exists('wpdm_tinymce')){ ?>
+            <div class="col-md-12"><h3 class="text-center"><span class="text-success">ATTENTION!!</span> What to do next?</h3></div>
+            <div class="col-md-12 lead text-center">Install the following plugins to make your site more awesome<br/><br/></div>
+            <div class="col-md-6">
+                <div class="panel panel-success">
+                    <div style="overflow: hidden" class="panel-body">
+                        <div class="media">
+                            <div class="pull-left">
+                                <img width="96px" src="<?php echo WPDM_BASE_URL ?>assets/images/liveforms-logo.png" />
+                            </div>
+                            <div class="media-body">
+                                <b><a target="_blank" href="<?php echo admin_url('/plugin-install.php?s=liveforms&tab=search&type=term') ?>">WordPress Contact Form Builder</a></b>
+                                <p>Ultimate Solution For Building Any Form. Try this even if you are already using another plugin. I'm sure, you will thank me for this later!</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="panel panel-success">
+                    <div style="overflow: hidden" class="panel-body">
+                        <div class="media">
+                            <div class="pull-left">
+                                <img width="96px" src="<?php echo WPDM_BASE_URL ?>assets/images/attire-blocks.png" />
+                            </div>
+                            <div class="media-body">
+                                <b><a target="_blank" href="<?php echo admin_url('/plugin-install.php?s=attire-blocks&tab=search&type=term') ?>">Gutenberg Blocks and Page Layouts</a></b>
+                                <p>Create Pages in a fast and easy way. Attire Blocks makes building pages and posts easier than ever with beautifully designed Gutenberg blocks and page layouts.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="panel panel-default">
+                    <div style="overflow: hidden" class="panel-body">
+                        <div class="media">
+                            <div class="pull-left">
+                                <img width="96px" src="<?php echo WPDM_BASE_URL ?>assets/images/wpdm-gb.png" />
+                            </div>
+                            <div class="media-body">
+                                <b><a target="_blank" href="https://www.wpdownloadmanager.com/download/gutenberg-blocks/">Gutenberg Blocks</a></b>
+                                <p class="m-0">WordPress Download Manager shortcode helper for the block editor.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-             </div>
-             <?php //if(!function_exists('wpdm_tinymce')){ ?>
-             <div class="col-md-12 lead text-center" style="padding: 20px 0">
-                 <h3>Recommended Plugins</h3>
-                 Let's install the following add-ons to make your WordPress Download Manager more awesome<br/></div>
-                 <div class="col-md-4">
-                     <div class="panel panel-default">
-                         <div  class="panel-body">
-                             <div class="media">
+            <div class="col-md-4" >
+                <div class="panel panel-default">
+                    <div style="overflow: hidden" class="panel-body">
+                        <div class="media">
+                            <div class="pull-left">
+                                <img width="96px" src="<?php echo WPDM_BASE_URL ?>assets/images/wpdmpp.png" />
+                            </div>
+                            <div class="media-body">
+                                <b><a href="https://www.wpdownloadmanager.com/download/premium-package-complete-digital-store-solution/">Premium Package</a></b>
+                                <p class="m-0">Sell digital product securely and easily, accept onetime or recurring payment.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-                                 <div class="media-body">
-                                     <b style="display: block;font-size: 15pt;margin-bottom: 10px"><a target="_blank" href="https://www.wpdownloadmanager.com/download/gutenberg-blocks/">Gutenberg Blocks</a></b>
-                                     <p style="font-size: 12pt;margin-bottom: 0">Use gutenberg blocks to embed packages and categories</p>
-                                 </div>
-                             </div>
-                         </div>
-                         <div style="line-height: 30px;" class="panel-footer">
-                             <a href="<?php echo admin_url('plugin-install.php?tab=plugin-information&plugin=wpdm-gutenberg-blocks&TB_iframe=true&width=600&height=550')?>" class="btn btn-primary btn-block thickbox open-plugin-details-modal">Install</a>
-                         </div>
-                     </div>
-                 </div>
-
-             <div class="col-md-4">
-                 <div class="panel panel-default">
-                     <div  class="panel-body">
-                         <div class="media">
-
-                             <div class="media-body">
-                                 <b style="display: block;font-size: 15pt;margin-bottom: 10px"><a target="_blank" href="https://www.wpdownloadmanager.com/download/premium-package-wordpress-digital-store-solution/">Premium Packages</a></b>
-                                 <p style="font-size: 12pt;margin-bottom: 0">Easy and secure way to sell your digital products.</p>
-                             </div>
-                         </div>
-                     </div>
-                     <div style="line-height: 30px;" class="panel-footer">
-                         <a href="<?php echo admin_url('plugin-install.php?tab=plugin-information&plugin=wpdm-premium-packages&TB_iframe=true&width=600&height=550')?>" class="btn btn-primary btn-block thickbox open-plugin-details-modal">Install</a>
-                     </div>
-                 </div>
-             </div>
-
-             <div class="col-md-4">
-                 <div class="panel panel-default">
-                     <div  class="panel-body">
-                         <div class="media">
-
-                             <div class="media-body">
-                                 <b style="display: block;font-size: 15pt;margin-bottom: 10px"><a target="_blank" href="https://wpliveforms.com">Live Forms - The best form builder</a></b>
-                                 <p style="font-size: 12pt;margin-bottom: 0">We specially request you to try this, we assure you, you will be more than happy!</p>
-                             </div>
-                         </div>
-                     </div>
-                     <div style="line-height: 30px;" class="panel-footer">
-                         <a href="<?php echo admin_url('plugin-install.php?tab=plugin-information&plugin=liveforms&TB_iframe=true&width=600&height=550')?>" class="btn btn-success btn-block thickbox open-plugin-details-modal">Install</a>
-                     </div>
-                 </div>
-             </div>
-
+            <div class="col-md-4">
+                <div class="panel panel-default">
+                    <div style="overflow: hidden" class="panel-body">
+                        <div class="media">
+                            <div class="pull-left">
+                                <img width="86px" style="padding: 5px" src="<?php echo WPDM_BASE_URL ?>assets/images/wpdm-es.png" />
+                            </div>
+                            <div class="media-body">
+                                <b><a target="_blank" href="https://www.wpdownloadmanager.com/download/wpdm-extended-short-codes/">Extended Short-codes</a></b>
+                                <p class="m-0">WPDM Extended Short-codes add-on will give you better experience in using WordPress</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
 
 
             <div style="clear: both"></div>
 
 
-             <?php //} ?>
+            <?php //}
 
-             <div class="col-md-6">
-                 <div class="well">
-                     <div class="media">
-                         <div class="pull-right">
-                             <a href="https://www.wpdownloadmanager.com/downloads/free-add-ons/" target="_blank" class="btn btn-info">Explore Free Add-ons <i class="fa fa-angle-double-right"></i></a>
-                         </div>
-                         <div class="media-body">
-                             <b>Free Add-ons</b><br/>
-                             There are more free add-ons
-                         </div> </div>
-                 </div>
-             </div>
+            ?>
 
-             <div class="col-md-6">
-                 <div class="well">
-                     <div class="media">
-                         <div class="pull-right">
-                             <a href="https://wpattire.com" target="_blank" class="btn btn-info">Get WP Attire <i class="fa fa-angle-double-right"></i></a>
-                         </div>
-                         <div class="media-body">
-                             <b>All-in-One WordPress Theme</b><br/>
-                             You search for the best theme ends here
-                         </div> </div>
-                 </div>
+            <div class="col-md-6">
+                <div class="well">
+                    <div class="media">
+                        <div class="pull-right">
+                            <a href="https://www.wpdownloadmanager.com/downloads/free-add-ons/" class="btn btn-success btn-lg">Explore Free Add-ons <i class="fa fa-angle-double-right"></i></a>
+                        </div>
+                        <div class="media-body">
+                            <b>Free Add-ons</b>
+                            There are more free add-ons
+                        </div> </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="well">
+                    <div class="media">
+                        <div class="pull-right">
+                            <a href="https://www.wpdownloadmanager.com/download/attire-allinone-wordpress-theme/" class="btn btn-info btn-lg">Download Now! <i class="fa fa-angle-double-right"></i></a>
+                        </div>
+                        <div class="media-body">
+                            <b>Need a better theme?</b>
+                            Free WordPress Theme for Digital Shops.
+                        </div> </div>
+                </div>
+            </div>
 
-             </div>
+            <div class="col-md-12 lead">
+                <hr/>
+                <h3>What's New?</h3>
+                What new with WordPress Download Manager v3.1.x:
+                <hr/>
+            </div>
 
-             <div class="col-md-12 lead">
-                 <hr/>
-                 <h3>What's New?</h3>
-                 What new with WordPress Download Manager v3.2:
-             </div>
+            <div class="col-md-4 r">
+                <b>Media Protection</b>
+                Protection media library files quickly using password, control who can access or not.
 
-             <div class="col-md-4 r">
+            </div>
+            <div class="col-md-4 r">
 
-                     <b>Asset Manager</b>
-                     Rebuilt asset manager with new options and ui.
+                <b>Asset Manager</b>
+                Added awesome asset management option, get control over all files.Upload, edit, delete or update directly from wp admin.
 
-             </div>
-             <div class="col-md-4 r">
-                 <b>Refined Codebase</b>
-                 Recoded from ground with lots of improvements.
+            </div>
+            <div class="col-md-4 r">
 
-             </div>
-             <div class="col-md-4 r">
-
-                 <b>More Features</b>
-                 Improved admin UI and front-end short-code templates, one click updates for wpdm add-ons, improved gutenberg compatibility.
-             </div>
+                <b>More Features</b>
+                Improved admin UI and front-end short-code templates, one click updates for wpdm add-ons, improved gutenberg compatibility.
+            </div>
 
 
-             <div class="col-md-12 lead">
-                 <hr/>
-                 Lets start: Admin Menu <i class="fa fa-angle-double-right"></i> <a href="<?php echo admin_url('edit.php?post_type=wpdmpro'); ?>">Downloads</a> <i class="fa fa-angle-double-right"></i> <a href="<?php echo admin_url('post-new.php?post_type=wpdmpro'); ?>">Add New</a>
-             </div>
+            <div class="col-md-12 lead">
+                <hr/>
+                Lets start: Admin Menu <i class="fa fa-angle-double-right"></i> <a href="<?php echo admin_url('edit.php?post_type=wpdmpro'); ?>">Downloads</a> <i class="fa fa-angle-double-right"></i> <a href="<?php echo admin_url('post-new.php?post_type=wpdmpro'); ?>">Add New</a>
+            </div>
 
-         </div>
+        </div>
 
     </div>
     <div class="modal fade" id="addonmodal" tabindex="-1" role="dialog" aria-labelledby="addonmodalLabel" aria-hidden="true">
@@ -365,7 +391,7 @@
                     <h4 class="modal-title" id="myModalLabel">Add-On Installer</h4>
                 </div>
                 <div class="modal-body" id="modalcontents">
-                    <i class="fa fa-spinner fa-spin"></i> Please Wait...
+                    <i class="fas fa-sun  fa-spin"></i> Please Wait...
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
@@ -382,7 +408,7 @@
 
 
         jQuery(".btn-install, .btn-purchase").click(function(){
-            jQuery('#modalcontents').html('<i class="fa fa-spinner fa-spin"></i> Please Wait...');
+            jQuery('#modalcontents').html('<i class="fas fa-sun  fa-spin"></i> Please Wait...');
         });
         jQuery('#addonmodal').on('shown.bs.modal', function (e) {
             if(jQuery(e.relatedTarget).hasClass('btn-install')){
@@ -398,7 +424,7 @@
             if(jQuery(e.relatedTarget).hasClass('btn-purchase')){
                 jQuery('.modal-dialog').css('width','800px');
                 jQuery('.modal-footer').css('margin',0);
-                jQuery('.modal-footer .btn-danger').html('<i class="fa fa-spinner fa-spin"></i> Please Wait...');
+                jQuery('.modal-footer .btn-danger').html('<i class="fas fa-sun  fa-spin"></i> Please Wait...');
                 jQuery('#modalcontents').css('padding',0).css('background','#f2f2f2').html("<iframe onload=\"jQuery('.modal-footer .btn-danger').html('Continue Shopping...');jQuery('#prcbtn').show();\" style='width: 100%;padding-top: 20px; background: #f2f2f2;height: 300px;border: 0' src='https://www.wpdownloadmanager.com/?addtocart="+e.relatedTarget.rel+"'></iframe>");
             }
         })
