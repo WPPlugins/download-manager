@@ -15,7 +15,9 @@ if(!defined("ABSPATH")) die("Shit happens!");
             var file = jQuery('#rurl').val();
             var filename = file;
             jQuery('#rurl').val('');
-            if(file == ''){
+
+            let regex = new RegExp("^(ftp:\/\/|http:\/\/|https:\/\/)[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$");
+            if(!regex.test(file)){
                 alert("Invalid url");
                 return false;
             }
