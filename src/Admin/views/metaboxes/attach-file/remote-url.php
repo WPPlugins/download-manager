@@ -6,15 +6,16 @@ if(!defined("ABSPATH")) die("Shit happens!");
 </div>
 
 <script>
-    jQuery(function(){
+
+    jQuery(function($){
         //jQuery( "#ftabs" ).tabs();
 
-        jQuery('#rmta').click(function(){
+        $('#rmta').click(function(){
             var d = new Date();
             var ID = d.getTime();
-            var file = jQuery('#rurl').val();
+            var file = $('#rurl').val().replace(/[\<\>]/g, '');
             var filename = file;
-            jQuery('#rurl').val('');
+            $('#rurl').val('');
 
             let regex = new RegExp("^(ftp:\/\/|http:\/\/|https:\/\/)[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$");
             if(!regex.test(file)){
@@ -34,8 +35,8 @@ if(!defined("ABSPATH")) die("Shit happens!");
             title = title[title.length - 1];
 
             var _file = {};
-            _file.filetitle = title;
-            _file.filepath = file;
+            _file.filetitle = (title);
+            _file.filepath = encodeURI(file);
             _file.fileindex = ID;
             _file.preview = icon;
             wpdm_attach_file(_file);

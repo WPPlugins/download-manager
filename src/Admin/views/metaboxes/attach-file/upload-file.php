@@ -37,7 +37,7 @@ $afile = wpdm_valueof($afiles, 0);
                 <a href="#" id="dcf" title="Delete Current File" class="pull-right" style="font-size:24px">
                     <i class="fa fa-trash color-red"></i>
                 </a>
-                <div class="media-body"><strong><?php echo  basename($afile); ?></strong><br><span class="text-success"><?php echo $filesize; ?></span></div>
+                <div class="media-body"><strong><?php echo  esc_html(basename(urldecode($afile))); ?></strong><br><span class="text-success"><?php echo $filesize; ?></span></div>
             </div>
 
 		<?php } else echo "<span style='font-weight:bold;color:#ddd'>". __('No file uploaded yet!', 'download-manager')."</span>"; ?>
