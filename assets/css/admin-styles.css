@@ -2034,7 +2034,7 @@ body.wpdm-iframe-modal-open {
 .wpdm-accordion.w3eden .panel-heading input[type=checkbox]:checked + .checkx {
     color: var(--color-primary);
 }
-
+/*
 .w3eden input[type="checkbox"] {
     border-radius: 2px;
     box-shadow: none;
@@ -2069,6 +2069,77 @@ body.wpdm-iframe-modal-open {
 
 .w3eden input[type="checkbox"]:checked::before {
     color: var(--color-primary);
+}
+
+ */
+
+/* Toggle Button */
+.w3eden input[type="checkbox"] {
+    -webkit-appearance: none;
+    -webkit-tap-highlight-color: transparent;
+    position: relative;
+    border: 0;
+    outline: 0;
+    cursor: pointer;
+    margin-right: 10px !important;
+    box-shadow: none;
+}
+
+
+/* To create surface of toggle button */
+.w3eden input[type="checkbox"]:after {
+    content: '';
+    width: 24px;
+    height: 12px;
+    display: inline-block;
+    background: rgba(196, 195, 195, 0.55);
+    border-radius: 18px;
+    clear: both;
+}
+
+
+/* Contents before checkbox to create toggle handle */
+.w3eden input[type="checkbox"]:before {
+    content: '';
+    width: 14px;
+    height: 14px;
+    display: block;
+    position: absolute;
+    left: 0;
+    top: 0;
+    border-radius: 50%;
+    background: rgb(255, 255, 255);
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
+}
+.w3eden .check-column {
+    text-align: center !important;
+}
+.w3eden .check-column input{
+    margin: 0 !important;
+}
+
+/* Shift the handle to left on check event */
+.w3eden input[type="checkbox"]:checked:before {
+    left: 14px;
+    top: 3px;
+    box-shadow: -1px 1px 3px rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--color-success);
+}
+/* Background color when toggle button will be active */
+.w3eden input[type="checkbox"]:checked:after {
+    background: linear-gradient(0deg, var(--color-success-active), rgba(var(--color-success-rgb), 0.8));
+}
+
+.w3eden input[type="checkbox"],
+.w3eden input[type="checkbox"]:before,
+.w3eden input[type="checkbox"]:after,
+.w3eden input[type="checkbox"]:checked:before,
+.w3eden input[type="checkbox"]:checked:after {
+    transition: ease .3s;
+    -webkit-transition: ease .3s;
+    -moz-transition: ease .3s;
+    -o-transition: ease .3s;
+    outline: none !important;
 }
 
 .w3eden input[type="radio"] {
@@ -2118,10 +2189,6 @@ body.wpdm-iframe-modal-open {
     width: 275px;
 }
 
-#all-package-settings .card {
-    margin-bottom: 15px !important;
-}
-
 body.rtl #wpdm-admin-page-body {
     margin-right: 250px !important;
 }
@@ -2147,3 +2214,14 @@ body.rtl .w3eden .chosen-container-single-nosearch .chosen-search input[type="te
 body.rtl .w3eden .chosen-container.chosen-with-drop .chosen-drop {
     display: block;
 }
+.w3eden .fw-4{
+    font-weight: 400 !important;
+}
+.w3eden .fw-6{
+    font-weight: 600 !important;
+}
+.w3eden .fw-8{
+    font-weight: 800 !important;
+}
+.w3eden .m-0 { margin: 0; }
+.w3eden .mb-0 { margin-bottom: 0; }

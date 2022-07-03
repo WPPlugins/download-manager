@@ -774,7 +774,7 @@ class FileSystem
      */
     function getAllowedFileTypes($ARRAY = true)
     {
-        $allowed_file_types = get_option("__wpdm_allowed_file_types", '');
+        $allowed_file_types = esc_attr(get_option("__wpdm_allowed_file_types", ''));
         if($allowed_file_types === '' || !$allowed_file_types) {
             $wp_allowed_file_types = get_allowed_mime_types();
             $wp_allowed_file_exts = array_keys($wp_allowed_file_types);

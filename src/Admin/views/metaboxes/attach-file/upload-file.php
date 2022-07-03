@@ -7,10 +7,11 @@ $afile = wpdm_valueof($afiles, 0);
 ?>
 <div class="w3eden">
 
-    <input type="hidden" name="file[files][]" value="<?php  echo $afile; ?>" id="wpdmfile" />
+    <input type="hidden" name="file[files][]" value="<?php  echo esc_attr($afile); ?>" id="wpdmfile" />
 
     <div class="cfile" id="cfl" style="padding: 10px;border:2px solid #ddd;background: #ffffff;margin-bottom: 10px">
 		<?php
+
 		$filesize = "<em style='color: darkred'>( ".__("attached file is missing/deleted",'download-manager')." )</em>";
         $afile = rtrim($afile);
 
@@ -20,7 +21,7 @@ $afile = wpdm_valueof($afiles, 0);
 				$fparts = parse_url($afile);
 				$url = true;
 				$hurl = strlen($fparts['host']) > 20 ? substr($fparts['host'], 0, 20)."..." : $fparts['host'];
-				$filesize = "<span class='w3eden'><span class='text-primary ellipsis ttip' title='{$afile}'><i class='fa fa-link'></i> {$hurl}</span></span>";
+				$filesize = "<span class='w3eden'><span class='text-primary ellipsis ttip' title='".esc_attr($afile)."'><i class='fa fa-link'></i>".esc_html($hurl)."</span></span>";
 			}
 			else {
 				$filesize = wpdm_file_size($afile);

@@ -156,7 +156,7 @@
         <hr/>
         <div class="form-group">
             <input type="hidden" value="0" name="__wpdm_sanitize_filename"/>
-            <label><input style="margin-right: 5px" <?php checked(1, get_option('__wpdm_sanitize_filename', 0)); ?>
+            <label><input <?php checked(1, get_option('__wpdm_sanitize_filename', 0)); ?>
                           type="checkbox" value="1"
                           name="__wpdm_sanitize_filename"><?php _e("Sanitize Filename", "download-manager"); ?>
             </label><br/>
@@ -168,7 +168,7 @@
         <hr/>
         <div class="form-group">
             <input type="hidden" value="0" name="__wpdm_chunk_upload"/>
-            <label><input style="margin-right: 5px" <?php checked(1, get_option('__wpdm_chunk_upload', 0)); ?>
+            <label><input <?php checked(1, get_option('__wpdm_chunk_upload', 0)); ?>
                           type="checkbox" value="1"
                           name="__wpdm_chunk_upload"><?php _e('Chunk Upload', 'download-manager'); ?></label><br/>
             <em><?php _e('Check the option if you want to enable chunk upload to override http upload limits', 'download-manager'); ?></em>
@@ -256,7 +256,7 @@
         <div class="form-group">
             <hr/>
             <input type="hidden" value="0" name="__wpdm_open_in_browser"/>
-            <label><input style="margin-right: 5px"
+            <label><input
                           type="checkbox" <?php checked(get_option('__wpdm_open_in_browser'), 1); ?> value="1"
                           name="__wpdm_open_in_browser"><?php _e("Open in Browser", "download-manager"); ?></label><br/>
             <em><?php _e("Try to Open in Browser instead of download when someone clicks on download link", "download-manager"); ?></em>
