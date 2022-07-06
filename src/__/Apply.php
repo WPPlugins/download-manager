@@ -456,7 +456,7 @@ class Apply
      */
     function clearCache()
     {
-        if (!current_user_can('manage_options')) die('You are not authorized!');
+        __::isAuthentic('ccnonce', WPDM_PRI_NONCE, 'manage_options');
         FileSystem::deleteFiles(WPDM_CACHE_DIR, false);
         FileSystem::deleteFiles(WPDM_CACHE_DIR . 'pdfthumbs/', false);
         global $wpdb;
@@ -470,8 +470,8 @@ class Apply
      */
     function clearStats()
     {
-        if (!current_user_can('manage_options')) return;
-        global $wpdb;
+	    __::isAuthentic('csnonce', WPDM_PRI_NONCE, 'manage_options');
+	    global $wpdb;
         $wpdb->query('truncate table ' . $wpdb->prefix . 'ahm_download_stats');
         $wpdb->query('truncate table ' . $wpdb->prefix . 'ahm_user_download_counts');
         $wpdb->query("delete from {$wpdb->prefix}postmeta where meta_key='__wpdmx_user_download_count'");

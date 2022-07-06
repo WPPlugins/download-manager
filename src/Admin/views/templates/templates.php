@@ -169,7 +169,7 @@ require_once __DIR__.'/header.php';
             var v = $(this).data('value');
             var c = '.'+$(this).data('id');
             var $this = this;
-            $.post(ajaxurl, {action: 'update_template_status', template: $(this).data('id'), type: '<?php echo $ttype; ?>', status: v}, function (res) {
+            $.post(ajaxurl, {action: 'update_template_status', template: $(this).data('id'), type: '<?php echo $ttype; ?>', status: v, tsnonce: '<?= wp_create_nonce(WPDM_PRI_NONCE) ?>'}, function (res) {
                 $(c).removeClass('btn-danger').removeClass('btn-success').addClass('btn-secondary');
                 if(v==1)
                     $($this).addClass('btn-success').removeClass('btn-secondary');

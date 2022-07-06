@@ -214,7 +214,7 @@ class Templates
     }
 
     function updateTemplateStatus(){
-        if(!current_user_can(WPDM_ADMIN_CAP)) die('error');
+		__::isAuthentic('tsnonce', WPDM_PRI_NONCE, WPDM_ADMIN_CAP);
         $type = wpdm_query_var('type');
         $tpldata = maybe_unserialize(get_option("_fm_{$type}_template_status"));
         $tpldata[wpdm_query_var('template')] = wpdm_query_var('status');

@@ -54,7 +54,7 @@ do_action("wpdm_privacy_settings_panel");
     jQuery(function($) {
         $('#clearCache').on('click', function () {
             $(this).html('<i class="fa fa-sync fa-spin"></i>');
-            $.get(ajaxurl + '?action=clear_cache', function (res) {
+            $.post(ajaxurl, {action : 'clear_cache', ccnonce: '<?= wp_create_nonce(WPDM_PRI_NONCE) ?>'}, function (res) {
                 $('#clearCache').html('<i class="fa fa-check-circle"></i>')
             });
             return false;
@@ -62,7 +62,7 @@ do_action("wpdm_privacy_settings_panel");
         $('#clearStats').on('click', function () {
             if (!confirm('Are you sure?')) return false;
             $(this).html('<i class="fa fa-sync fa-spin"></i>');
-            $.get(ajaxurl + '?action=clear_stats', function (res) {
+            $.post(ajaxurl, {action : 'clear_stats', csnonce: '<?= wp_create_nonce(WPDM_PRI_NONCE) ?>'}, function (res) {
                 $('#clearStats').html('<i class="fa fa-check-circle"></i>')
             });
             return false;

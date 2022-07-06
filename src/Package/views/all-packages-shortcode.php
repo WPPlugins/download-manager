@@ -285,7 +285,7 @@ if(isset($params['jstable']) && $params['jstable']==1):
                 $data['download_url'] = '';
                 $data['download_link'] = WPDM()->package->downloadLink($data['ID'], 0, array('template_type' => 'link'));
                 $data = apply_filters("wpdm_after_prepare_package_data", $data);
-                $download_link = htmlspecialchars_decode($data['download_link']);
+                $download_link = $data['download_link'];
                 if (function_exists('wpdmpp_effective_price') && wpdmpp_effective_price($data['ID']) > 0)
                     $download_link = wpdmpp_waytocart($data, 'btn-primary');
 

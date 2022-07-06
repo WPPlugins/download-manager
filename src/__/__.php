@@ -226,7 +226,7 @@ class __
      * @param string $sanitize
      * @return array|float|int|mixed|string|string[]|null
      */
-    static function sanitize_var($value, $sanitize = 'kses')
+    static function sanitize_var($value, $sanitize = '')
     {
         if (is_array($value))
             return __::sanitize_array($value, $sanitize);
@@ -235,20 +235,29 @@ class __
                 case 'int':
                 case 'num':
                     return (int)$value;
-                    break;
+
                 case 'double':
                 case 'float':
                     return (double)($value);
-                    break;
+
+	            case 'esc_html':
                 case 'txt':
                 case 'str':
-                    $value = sanitize_text_field($value);
+                    $value = esc_html($value);
                     break;
+
+                case 'esc_attr':
+                    $value = esc_attr($value);
+                    break;
+
                 case 'kses':
                     $allowedtags = wp_kses_allowed_html();
                     $allowedtags['div'] = array('class' => true);
                     $allowedtags['strong'] = array('class' => true);
                     $allowedtags['b'] = array('class' => true);
+                    $allowedtags['ul'] = array('class' => false);
+                    $allowedtags['ol'] = array('class' => false);
+                    $allowedtags['li'] = array('class' => false);
                     $allowedtags['i'] = array('class' => true);
                     $allowedtags['a'] = array('class' => true, 'href' => true);
                     $value = wp_kses($value, $allowedtags);
@@ -260,9 +269,7 @@ class __
                 case 'txts':
                     $value = sanitize_textarea_field($value);
                     break;
-                case 'esc_html':
-                    $value = esc_html($value);
-                    break;
+
                 case 'url':
                     $value = esc_url_raw($value);
                     break;
@@ -283,6 +290,7 @@ class __
                 case 'html':
 
                     break;
+
                 default:
                     $value = esc_sql(esc_attr($value));
                     break;

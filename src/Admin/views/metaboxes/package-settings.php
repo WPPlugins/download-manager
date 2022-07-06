@@ -26,7 +26,7 @@
 
         <tr id="link_label_row">
             <td><?php echo __( "Link Label:" , "download-manager" ); ?></td>
-            <td><input size="10" type="text" class="form-control input-sm" style="width: 200px" value="<?php echo htmlspecialchars(get_post_meta($post->ID,'__wpdm_link_label',true)); ?>" name="file[link_label]" />
+            <td><input size="10" type="text" class="form-control input-sm" style="width: 200px" value="<?php echo esc_attr(get_post_meta($post->ID,'__wpdm_link_label',true)); ?>" name="file[link_label]" />
             </td></tr>
 
         <tr id="stock_row">

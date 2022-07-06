@@ -18,8 +18,10 @@ class Packages
             'version' => 'txt',
             'link_label' => 'txt',
             'package_size' => 'txt',
+            'page_template' => 'txt',
             'view_count' => 'int',
             'download_count' => 'int',
+            'terms_conditions' => 'kses',
     );
 
     function __construct()
@@ -74,8 +76,10 @@ class Packages
                 foreach ($meta_value as &$value){
                     $value = wpdm_escs($value);
                 }
+            } else if($meta_key == 'terms_conditions'){
+                $meta_value = __::sanitize_var($meta_value, 'kses');
             } else
-                $meta_value = is_array($meta_value)?wpdm_sanitize_array($meta_value):wpdm_escs($meta_value);
+                $meta_value = is_array($meta_value)?wpdm_sanitize_array($meta_value, 'txt'):esc_html($meta_value);
             update_post_meta($post, $key_name, $meta_value);
         }
 

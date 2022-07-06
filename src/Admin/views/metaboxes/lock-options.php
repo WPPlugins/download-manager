@@ -14,7 +14,7 @@
                 </div>
                 <div class="form-group">
                 <label for="pps_z"><?php echo __( "Terms Title:" , "download-manager" ); ?></label>
-                <input type="text" class="form-control input-lg" name="file[terms_title]" value="<?php echo esc_html(stripslashes(get_post_meta($post->ID,'__wpdm_terms_title', true))); ?>" />
+                <input type="text" class="form-control input-lg" name="file[terms_title]" value="<?php echo esc_attr(stripslashes(get_post_meta($post->ID,'__wpdm_terms_title', true))); ?>" />
                 </div>
                 <div class="form-group">
                 <label for="pps_z"><?php echo __( "Terms and Conditions:" , "download-manager" ); ?></label>
@@ -23,7 +23,7 @@
                     ?>
                 </div>
                 <label for="pps_z"><?php echo __( "Terms Checkbox Label:" , "download-manager" ); ?></label>
-                <input type="text" class="form-control input-lg" name="file[terms_check_label]" value="<?php echo esc_html(stripslashes(get_post_meta($post->ID,'__wpdm_terms_check_label', true))); ?>" />
+                <input type="text" class="form-control input-lg" name="file[terms_check_label]" value="<?php echo esc_attr(stripslashes(get_post_meta($post->ID,'__wpdm_terms_check_label', true))); ?>" />
 
 
             </div>
