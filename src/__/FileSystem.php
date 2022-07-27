@@ -6,6 +6,8 @@
  */
 namespace WPDM\__;
 
+use WPDM\AssetManager\AssetManager;
+
 class FileSystem
 {
     function __construct()
@@ -795,6 +797,8 @@ class FileSystem
      */
     function isBlocked($filename, $abspath = '')
     {
+        if($filename === '') return true;
+
         $types = $this->getAllowedFileTypes();
 
         if(in_array('*', $types)) return false;
@@ -913,4 +917,11 @@ class FileSystem
     {
         return $this->absPath($file);
     }
+
+	function allowedPath($absPath)
+	{
+		if(!$absPath) return false;
+		if(substr_count($absPath, UPLOAD_DIR) || substr_count($absPath, AssetManager::root())) return true;
+		return false;
+	}
 }

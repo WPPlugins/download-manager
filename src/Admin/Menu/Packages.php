@@ -66,15 +66,21 @@ class Packages
             $key_name = "__wpdm_" . $meta_key;
             if($meta_key == 'package_size' && (double)$meta_value == 0) $meta_value = "";
             if($meta_key == 'files'){
-                $meta_value = array_unique($meta_value);
                 foreach ($meta_value as &$value){
                     $value = wpdm_escs($value);
-                    if(WPDM()->fileSystem->isBlocked($value)) $value = '';
+                    if(!__::is_url($value)) {
+	                    if(WPDM()->fileSystem->isBlocked($value)) $value = '';
+	                    $abspath = WPDM()->fileSystem->locateFile( $value );
+	                    if ( ! WPDM()->fileSystem->allowedPath( $abspath ) ) {
+		                    $value = '';
+	                    }
+                    }
                 }
+	            $meta_value = array_unique($meta_value);
             } else if($meta_key == 'terms_conditions'){
                 $meta_value = __::sanitize_var($meta_value, 'kses');
             } else
-                $meta_value = is_array($meta_value)?wpdm_sanitize_array($meta_value, 'txt'):esc_html($meta_value);
+                $meta_value = is_array($meta_value)?wpdm_sanitize_array($meta_value, 'txt'):htmlspecialchars($meta_value);
             update_post_meta($post, $key_name, $meta_value);
         }
 
@@ -104,7 +110,7 @@ class Packages
         check_ajax_referer(NONCE_KEY);
         if(!current_user_can('upload_files')) die('-2');
 
-        $name = isset($_FILES['package_file']['name']) && !isset($_REQUEST["chunks"])?sanitize_text_field($_FILES['package_file']['name']):wpdm_query_var('name', 'txt');
+        $name = isset($_FILES['package_file']['name']) && !isset($_REQUEST["chunks"])?sanitize_file_name($_FILES['package_file']['name']):wpdm_query_var('name', 'txt');
 
         $ext = FileSystem::fileExt($name);
 
