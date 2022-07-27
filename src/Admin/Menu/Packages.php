@@ -47,7 +47,7 @@ class Packages
 
     function savePackage($post)
     {
-        if(!current_user_can('edit_post', $post)) return;
+        if(!current_user_can('edit_post', $post) || !current_user_can('upload_files', $post)) return;
         if (get_post_type() != 'wpdmpro' || !isset($_POST['file'])) return;
 
         // Deleted old zipped file
@@ -65,11 +65,6 @@ class Packages
 
         foreach ($_POST['file'] as $meta_key => $meta_value) {
             $key_name = "__wpdm_" . $meta_key;
-            if($meta_key == 'package_dir' && $meta_value != '') {
-                $meta_value = file_exists($meta_value) && get_post_meta($post->ID, $key_name, true) === $meta_value ? $meta_value : Crypt::decrypt($meta_value);
-                $meta_value = realpath($meta_value);
-                $meta_value = Crypt::encrypt($meta_value);
-            }
             if($meta_key == 'package_size' && (double)$meta_value == 0) $meta_value = "";
             if($meta_key == 'files'){
                 $meta_value = array_unique($meta_value);

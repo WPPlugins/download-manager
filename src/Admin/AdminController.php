@@ -175,10 +175,22 @@ class AdminController {
         global $ServerDirBrowser;
         if(get_post_type(wpdm_query_var('post')) != 'wpdmpro' && wpdm_query_var('post_type') != 'wpdmpro') return;
 
-        $meta_boxes = array(
-            'wpdm-settings' => array('title' => __( "Package Settings" , "download-manager" ), 'callback' => array($this, 'packageSettings'), 'position' => 'normal', 'priority' => 'low'),
-            'wpdm-upload-file' => array('title' => __( "Attach File" , "download-manager" ), 'callback' => array($this, 'uploadFiles'), 'position' => 'side', 'priority' => 'core'),
-        );
+        if(current_user_can('upload_files')) {
+	        $meta_boxes = array(
+		        'wpdm-settings'    => array(
+			        'title'    => __( "Package Settings", "download-manager" ),
+			        'callback' => array( $this, 'packageSettings' ),
+			        'position' => 'normal',
+			        'priority' => 'low'
+		        ),
+		        'wpdm-upload-file' => array( 'title'    => __( "Attach File", "download-manager" ),
+		                                     'callback' => array( $this, 'uploadFiles' ),
+		                                     'position' => 'side',
+		                                     'priority' => 'core'
+		        ),
+	        );
+        } else
+            $meta_boxes = [];
 
 
         $meta_boxes = apply_filters("wpdm_meta_box", $meta_boxes);

@@ -14,16 +14,17 @@ class __
      */
     static function get_client_ip()
     {
+        $proxy_allowed = defined('WPDM_PROXY_IP_ALLOWED') && WPDM_PROXY_IP_ALLOWED === true;
         $ipaddress = '';
-        if (getenv('HTTP_CLIENT_IP'))
+        if ($proxy_allowed && getenv('HTTP_CLIENT_IP'))
             $ipaddress = getenv('HTTP_CLIENT_IP');
-        else if (getenv('HTTP_X_FORWARDED_FOR'))
+        else if ($proxy_allowed && getenv('HTTP_X_FORWARDED_FOR'))
             $ipaddress = getenv('HTTP_X_FORWARDED_FOR');
-        else if (getenv('HTTP_X_FORWARDED'))
+        else if ($proxy_allowed && getenv('HTTP_X_FORWARDED'))
             $ipaddress = getenv('HTTP_X_FORWARDED');
-        else if (getenv('HTTP_FORWARDED_FOR'))
+        else if ($proxy_allowed && getenv('HTTP_FORWARDED_FOR'))
             $ipaddress = getenv('HTTP_FORWARDED_FOR');
-        else if (getenv('HTTP_FORWARDED'))
+        else if ($proxy_allowed && getenv('HTTP_FORWARDED'))
             $ipaddress = getenv('HTTP_FORWARDED');
         else if (getenv('REMOTE_ADDR'))
             $ipaddress = getenv('REMOTE_ADDR');

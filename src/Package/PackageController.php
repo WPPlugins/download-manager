@@ -610,7 +610,7 @@ class PackageController extends PackageTemplate {
 		if ( is_user_logged_in() ) {
 			$index = $current_user->ID;
 		} else {
-			$index = $_SERVER['REMOTE_ADDR'];
+			$index = __::get_client_ip();
 		}
 
 		$stock          = (int) get_post_meta( $ID, '__wpdm_quota', true );
@@ -902,7 +902,7 @@ class PackageController extends PackageTemplate {
 			case 'png':
 			case 'jpg':
 			case 'jpeg':
-				return "<img src='" . FileSystem::imageThumbnail( $realpath, $width, $height ) . "' alt='" . get_the_title( $ID ) . "'/>";
+				return "<img src='" . FileSystem::imageThumbnail( $realpath, $width, $height ) . "' alt='" . esc_attr(get_the_title( $ID )) . "'/>";
 			case 'pdf':
 				$url = self::expirableDownloadLink( $ID, 1, 300 );
 				//$ind = \WPDM_Crypt::Encrypt($file);

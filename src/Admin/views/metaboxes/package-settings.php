@@ -94,7 +94,11 @@
         <?php if(isset($_GET['post'])&&$_GET['post']!=''){ ?>
             <tr>
                 <td><?php echo __( "Master Key" , "download-manager" ); ?></td>
-                <td><input class="form-control" style="font-family: monospace;letter-spacing: 1px" type="text" readonly="readonly" value="<?php echo get_post_meta($post->ID, '__wpdm_masterkey', true); ?>"> <label><input type="checkbox" value="1" name="reset_key" /> <?php echo __( "Regenerate Master Key for Download" , "download-manager" ); ?></label> <i class="info fa fa-info" data-placement="top" title="<?php echo __( "This key can be used for direct download" , "download-manager" ); ?>"></i></td>
+                <td><input class="form-control" style="font-family: monospace;letter-spacing: 1px" type="text" readonly="readonly" value="<?php echo get_post_meta($post->ID, '__wpdm_masterkey', true); ?>">
+                    <div class="mt-1">
+                        <label class="fw-4"><input type="checkbox" value="1" name="reset_key" /> <?php echo __( "Regenerate Master Key for Download" , "download-manager" ); ?></label> <i class="info fa fa-info" data-placement="top" title="<?php echo __( "This key can be used for direct download" , "download-manager" ); ?>"></i>
+                    </div>
+                </td>
             </tr>
         <?php } ?>
         <?php do_action("wpdm_package_settings_tr", $post->ID); ?>
@@ -239,7 +243,7 @@
             }
         });
 
-        jQuery('.w3eden .info.fa').tooltip({html:true, placement: 'right'});
+        jQuery('.w3eden .info.fa').tooltip({html:true, placement: 'top'});
 
 
 
@@ -289,7 +293,7 @@
     }
 
 
-    .w3eden input[type=checkbox], .w3eden input[type=radio], .w3eden label{ margin: 0 !important;}
+    .w3eden input[type=radio], .w3eden label{ margin: 0 !important;}
 
 #wpdm-files_length{
     display: none;
