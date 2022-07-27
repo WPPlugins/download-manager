@@ -331,7 +331,7 @@ class AssetManager
     function deleteItem()
     {
 
-        __::isAuthentic('__wpdm_unlink', WPDMAM_NONCE_KEY, WPDM_ADMIN_CAP, true);
+        __::isAuthentic('__wpdm_unlink', WPDMAM_NONCE_KEY, 'manage_options', true);
 
         $relpath = Crypt::decrypt(wpdm_query_var('delete'));
         $path = AssetManager::root($relpath);
