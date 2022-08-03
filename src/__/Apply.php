@@ -224,7 +224,7 @@ class Apply
 
         global $wpdb, $current_user, $wp_query;
         if (preg_match("/\/wpdmdl\/([\d]+)-([^\/]+)\/(.+)/", $_SERVER['REQUEST_URI'])) {
-            $uri = trim(__::valueof($_SERVER, 'REQUEST_URI', ['validate' => 'escs']), '/');
+            $uri = trim(__::valueof($_SERVER, 'REQUEST_URI', ['validate' => 'txt']), '/');
             $download_url_base = get_option('__wpdm_download_url_base', 'download');
             $uri = explode("/" . $download_url_base . "/", $uri);
             $parts = explode("/", $uri[1]);

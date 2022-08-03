@@ -660,7 +660,7 @@ function wpdm_fetch_template($template, $vars, $type = 'link')
  */
 function wpdm_loginform()
 {
-    return wpdm_login_form(array('redirect' => __::valueof($_SERVER, 'REQUEST_URI', ['validate' => 'escs'])));
+    return wpdm_login_form(array('redirect' => __::valueof($_SERVER, 'REQUEST_URI', ['validate' => 'txt'])));
 }
 
 

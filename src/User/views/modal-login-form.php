@@ -39,7 +39,7 @@ if(!defined('ABSPATH')) die(); ?>
 
 
 
-                        <input type="hidden" name="redirect_to" id="wpdm_modal_login_redirect_to" value="<?php echo $_SERVER['REQUEST_URI']; ?>" />
+                        <input type="hidden" name="redirect_to" id="wpdm_modal_login_redirect_to" value="<?php the_permalink(); ?>" />
 
                         <div class="row">
                             <div class="col-lg-12">
@@ -82,7 +82,7 @@ if(!defined('ABSPATH')) die(); ?>
 <script>
     jQuery(function ($) {
         var llbl = $('#wpdmloginmodal-submit').html();
-        var __lm_redirect_to = "<?php echo \WPDM\__\__::valueof($_SERVER, 'REQUEST_URI', ['validate' => 'escs']); ?>";
+        var __lm_redirect_to = "<?php echo \WPDM\__\__::valueof($_SERVER, 'REQUEST_URI', ['validate' => 'txt']); ?>";
         var __lm_logo = "<?php echo get_site_icon_url(); ?>";
         var $body = $('body');
         $('#modalloginform').submit(function () {
