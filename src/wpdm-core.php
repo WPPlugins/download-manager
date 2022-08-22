@@ -184,14 +184,6 @@ function wpdm_access_token(){
 }
 
 
-$files = scandir(dirname(__FILE__) . '/Modules/');
-foreach ($files as $file) {
-	$tmpdata = explode(".", $file);
-	if ($file != '.' && $file != '..' && !@is_dir($file) && end($tmpdata) == 'php')
-		include(dirname(__FILE__) . '/Modules/' . $file);
-}
-
-
 function wpdm_plugin_update_email($plugin_name, $version, $update_url)
 {
 

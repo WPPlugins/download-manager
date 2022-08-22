@@ -5,7 +5,7 @@ Plugin URI: https://www.wpdownloadmanager.com/purchases/
 Description: Manage, Protect and Track file downloads, and sell digital products from your WordPress site. A complete digital asset management solution.
 Author: W3 Eden, Inc.
 Author URI: https://www.wpdownloadmanager.com/
-Version: 3.2.53
+Version: 3.2.54
 Text Domain: download-manager
 Domain Path: /languages
 */
@@ -39,7 +39,7 @@ use WPDM\Widgets\WidgetController;
 
 global $WPDM;
 
-define('WPDM_VERSION','3.2.53');
+define('WPDM_VERSION','3.2.54');
 
 define('WPDM_TEXT_DOMAIN','download-manager');
 
@@ -73,6 +73,9 @@ define('WPDM_BASE_DIR',dirname(__FILE__).'/');
 define('WPDM_SRC_DIR',dirname(__FILE__).'/src/');
 
 define('WPDM_BASE_URL',plugins_url('/download-manager/'));
+define('WPDM_ASSET_URL',plugins_url('/download-manager/assets/'));
+define('WPDM_CSS_URL',plugins_url('/download-manager/assets/css/'));
+define('WPDM_JS_URL',plugins_url('/download-manager/assets/js/'));
 
 if(!defined('UPLOAD_DIR'))
     define('UPLOAD_DIR',$upload_dir.'/download-manager-files/');
@@ -97,7 +100,7 @@ if(!defined('WPDM_USE_GLOBAL'))
 
 
 if(!defined('WPDM_FONTAWESOME_URL'))
-    define('WPDM_FONTAWESOME_URL', WPDM_BASE_URL.'assets/fontawesome/css/all.css');
+    define('WPDM_FONTAWESOME_URL', WPDM_BASE_URL.'assets/fontawesome/css/all.min.css');
 
 if(!defined('NONCE_KEY') || !defined('NONCE_SALT')){
     //To avoid warning when not defined
@@ -176,8 +179,9 @@ final class WordPressDownloadManager{
 
         $this->session          = new Session();
 
+        include_once(dirname(__FILE__) . "/src/wpdm-strings.php");
         include_once(dirname(__FILE__) . "/src/wpdm-functions.php");
-        include(dirname(__FILE__)."/src/wpdm-core.php");
+	    include_once(dirname(__FILE__)."/src/wpdm-core.php");
 
         $this->user             = UserController::getInstance();
         $this->apply            = new Apply();

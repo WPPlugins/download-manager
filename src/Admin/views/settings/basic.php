@@ -39,13 +39,16 @@
                     title="<?php echo __("Root dir for server file browser.<br/><b>*Don't add tailing slash (/)</b>", "download-manager"); ?>"
                     class="info infoicon">(?)</span>
             <div class="input-group">
+                <span class="input-group-addon">
+                    <?php echo get_home_path(); ?>
+                </span>
                 <input type="text" class="form-control"
-                       value="<?php echo get_option('_wpdm_file_browser_root', str_replace("\\", "/", dirname(UPLOAD_DIR))); ?>"
+                       value="<?php echo str_replace(get_home_path(), "", get_option('_wpdm_file_browser_root', str_replace("\\", "/", dirname(UPLOAD_DIR)))); ?>"
                        name="_wpdm_file_browser_root" id="_wpdm_file_browser_root"/>
                 <span class="input-group-btn">
                                     <button class="btn btn-secondary ttip" title="<?php _e('Reset Base Dir'); ?>"
                                             type="button"
-                                            onclick="jQuery('#_wpdm_file_browser_root').val('<?php echo rtrim(str_replace("\\", "/", dirname(UPLOAD_DIR)), '/'); ?>');"><i
+                                            onclick="jQuery('#_wpdm_file_browser_root').val('<?php echo str_replace(get_home_path(), "", get_option('_wpdm_file_browser_root', str_replace("\\", "/", dirname(UPLOAD_DIR)))); ?>');"><i
                                                 class="fas fa-redo"></i></button>
                                 </span>
             </div>

@@ -38,7 +38,9 @@ class AssetManager
     public static function root($path = '')
     {
         global $current_user;
-        $root = current_user_can(WPDM_ADMIN_CAP) ? rtrim(get_option('_wpdm_file_browser_root'), '/') . '/' : UPLOAD_DIR . $current_user->user_login . '/';
+		$rpath = get_option('_wpdm_file_browser_root');
+	    $rpath = str_replace(get_home_path(), "", $rpath);
+        $root = current_user_can(WPDM_ADMIN_CAP) ? trailingslashit(get_home_path().$rpath) : trailingslashit(UPLOAD_DIR . $current_user->user_login);
         $_root = str_replace("\\", "/", $root);
         if ($path !== '') $root .= $path;
         $root = str_replace(array("./", "../"), "", $root);
@@ -48,7 +50,6 @@ class AssetManager
         if ($path === '' && !file_exists($root)) {
             @mkdir($root, 0775, true);
             \WPDM\__\FileSystem::blockHTTPAccess($root);
-
         }
         return $root;
     }

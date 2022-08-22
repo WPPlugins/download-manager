@@ -234,7 +234,7 @@ class Apply
             $parts = json_decode(base64_decode($parts[1]));
             if (is_array($parts)) {
                 foreach ($parts as $key => $val) {
-                    $_REQUEST[$key] = $_GET[$key] = esc_attr($val);
+                    $_REQUEST[$key] = $_GET[$key] = sanitize_text_field($val);
                 }
             }
         }

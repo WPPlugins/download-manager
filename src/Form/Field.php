@@ -136,6 +136,7 @@ class Field
         $_attrs = '';
         if (is_array($attrs)) {
             foreach ($attrs as $attr => $value) {
+	            $attr = sanitize_key($attr);
 	            $value = esc_attr($value);
                 $_attrs .= "$attr='$value' ";
             }

@@ -36,7 +36,7 @@ class DownloadStats
 
         $uid = get_current_user_id();
         $ip = (get_option('__wpdm_noip') == 0) ? wpdm_get_client_ip() : "";
-        $agent = $_SERVER['HTTP_USER_AGENT'];
+        $agent = sanitize_text_field($_SERVER['HTTP_USER_AGENT']);
         $hash = "uniq_".md5($pid.$uid.date("Y-m-d-h-i").wpdm_get_client_ip());
         if((int)Session::get($hash) === 1 || wpdm_query_var('nostat', ['validate' => 'int']) === 1) return;
         Session::set($hash, 1);

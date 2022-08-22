@@ -129,7 +129,7 @@ class FileSystem
 
         //check if http_range is sent by browser (or download manager)
         if (isset($_SERVER['HTTP_RANGE']) && $fsize > 0) {
-            list($bytes, $http_range) = explode("=", $_SERVER['HTTP_RANGE']);
+            list($bytes, $http_range) = explode("=", sanitize_text_field($_SERVER['HTTP_RANGE']));
 
             $tmp = explode('-', $http_range);
             $tmp = array_shift($tmp);
@@ -139,7 +139,7 @@ class FileSystem
 
             header("Accept-Ranges: bytes");
             header("Accept-Ranges: 0-".($orig_size - 1));
-            $proto = isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.1';
+            $proto = isset($_SERVER['SERVER_PROTOCOL']) ? sanitize_text_field($_SERVER['SERVER_PROTOCOL']) : 'HTTP/1.1';
             header("{$proto} 206 Partial Content");
 
             header("Content-Length: $new_length");
@@ -696,10 +696,11 @@ class FileSystem
      */
     static function fileTypeIcon($filename_or_ext, $color = '#269def', $return = true)
     {
-        $ext = $filename_or_ext;
+        $ext = sanitize_text_field($filename_or_ext);
         if(substr_count($ext, '.')) {
             $ext = self::fileExt($ext);
         }
+	    $color = sanitize_hex_color($color);
         $upload_dir = wp_upload_dir();
         $_upload_dir = $upload_dir['basedir'];
         $_upload_url = $upload_dir['baseurl'];
@@ -712,6 +713,7 @@ class FileSystem
             ob_start();
             $id = uniqid();
             $ext = strtoupper($ext);
+
             $color_rgba = wpdm_hex2rgb($color);
             $ext = substr($ext, 0, 3);
             ?>
@@ -719,15 +721,15 @@ class FileSystem
                  xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><style
                         type="text/css">
                     .st_<?php echo esc_attr($id) ?>_0 {
-                        fill: rgba(<?php echo $color_rgba; ?>, 0.3);
+                        fill: rgba(<?php echo esc_html($color_rgba); ?>, 0.3);
                     }
 
                     .st_<?php echo esc_attr($id) ?>_1 {
-                        fill: rgba(<?php echo $color_rgba; ?>, 0.9);
+                        fill: rgba(<?php echo esc_html($color_rgba); ?>, 0.9);
                     }
 
                     .st_<?php echo esc_attr($id) ?>_2 {
-                        fill: <?php echo $color; ?>;
+                        fill: <?php echo esc_html($color); ?>;
                     }
 
                     .st_<?php echo esc_attr($id) ?>_3 {

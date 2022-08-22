@@ -3,55 +3,52 @@
 
 namespace WPDM\__;
 
+
 class __
 {
-
-	static public $custom_scripts = [];
-	static public $custom_styles = [];
     /**
      * Get the client's IP address
      *
      */
-    static function get_client_ip()
-    {
-        $proxy_allowed = defined('WPDM_PROXY_IP_ALLOWED') && WPDM_PROXY_IP_ALLOWED === true;
-        $ipaddress = '';
-        if ($proxy_allowed && getenv('HTTP_CLIENT_IP'))
-            $ipaddress = getenv('HTTP_CLIENT_IP');
-        else if ($proxy_allowed && getenv('HTTP_X_FORWARDED_FOR'))
-            $ipaddress = getenv('HTTP_X_FORWARDED_FOR');
-        else if ($proxy_allowed && getenv('HTTP_X_FORWARDED'))
-            $ipaddress = getenv('HTTP_X_FORWARDED');
-        else if ($proxy_allowed && getenv('HTTP_FORWARDED_FOR'))
-            $ipaddress = getenv('HTTP_FORWARDED_FOR');
-        else if ($proxy_allowed && getenv('HTTP_FORWARDED'))
-            $ipaddress = getenv('HTTP_FORWARDED');
-        else if (getenv('REMOTE_ADDR'))
-            $ipaddress = getenv('REMOTE_ADDR');
-        else
-            $ipaddress = 'UNKNOWN';
+	static function get_client_ip()
+	{
+		$proxy_allowed = defined('WPDM_PROXY_IP_ALLOWED') && WPDM_PROXY_IP_ALLOWED === true;
+		$ipaddress = '';
+		if ($proxy_allowed && getenv('HTTP_CLIENT_IP'))
+			$ipaddress = getenv('HTTP_CLIENT_IP');
+		else if ($proxy_allowed && getenv('HTTP_X_FORWARDED_FOR'))
+			$ipaddress = getenv('HTTP_X_FORWARDED_FOR');
+		else if ($proxy_allowed && getenv('HTTP_X_FORWARDED'))
+			$ipaddress = getenv('HTTP_X_FORWARDED');
+		else if ($proxy_allowed && getenv('HTTP_FORWARDED_FOR'))
+			$ipaddress = getenv('HTTP_FORWARDED_FOR');
+		else if ($proxy_allowed && getenv('HTTP_FORWARDED'))
+			$ipaddress = getenv('HTTP_FORWARDED');
+		else if (getenv('REMOTE_ADDR'))
+			$ipaddress = getenv('REMOTE_ADDR');
+		else
+			$ipaddress = 'UNKNOWN';
 
-        $ipaddress = explode(",", $ipaddress);
+		$ipaddress = explode(",", $ipaddress);
 
-        return $ipaddress[0];
-    }
+		return $ipaddress[0];
+	}
 
 
 
     static function media_field($data)
     {
         ob_start();
-        $id = uniqid();
-        $id = isset($data['id']) ? $data['id'] : $id;
-        $value = __::valueof($data, 'value');
         ?>
         <div class="input-group">
-            <input placeholder="<?php echo esc_attr($data['placeholder']); ?>" type="url" name="<?php echo esc_attr($data['name']); ?>"
-                   id="<?php echo esc_attr($id); ?>" class="form-control"
-                   value="<?php echo esc_attr($value); ?>"/>
+            <input placeholder="<?php echo $data['placeholder']; ?>" type="url" name="<?php echo $data['name']; ?>"
+                   id="<?php echo isset($data['id']) ? $data['id'] : ($id = uniqid()); ?>" class="form-control"
+                   value="<?php echo isset($data['value']) ? $data['value'] : ''; ?>"/>
             <span class="input-group-btn">
-                        <button class="btn btn-default btn-media-upload" type="button" rel="#<?php echo esc_attr($id); ?>"><i class="fa fa-picture-o"></i></button>
-            </span>
+                        <button class="btn btn-default btn-media-upload" type="button"
+                                rel="#<?php echo isset($data['id']) ? $data['id'] : $id; ?>"><i
+                                    class="fa fa-picture-o"></i></button>
+                    </span>
         </div>
         <?php
         return ob_get_clean();
@@ -175,24 +172,26 @@ class __
      * @param array $params
      * @return int|null|string
      */
-    static function query_var($var, $params = array(), $default = null)
+    static function query_var($var, $params_or_validate = array(), $default = null)
     {
         global $wp_query;
-	    $validate = is_string($params) ? $params : '';
-	    $validate = is_array($params) && isset($params['validate']) ? $params['validate'] : $validate;
-        $_var = explode("/", $var);
 
+        $params = $params_or_validate;
+
+        $_var = explode("/", $var);
         if (count($_var) > 1) {
-	        $val = self::sanitize_array($_REQUEST, $validate);
+            $val = $_REQUEST;
             foreach ($_var as $key) {
-                $val = isset($val[$key]) ? __::sanitize_array($val[$key]) : false;
+                $val = is_array($val) && isset($val[$key]) ? $val[$key] : false;
             }
         } else {
-            $default = $default ? $default : (isset($params['default']) ? $params['default'] : null);
-            $val = isset($_REQUEST[$var]) ? __::sanitize_array($_REQUEST[$var]) : null;
+            $default = $default ?: (isset($params['default']) ? $params['default'] : null);
+            $val = isset($_REQUEST[$var]) ? $_REQUEST[$var] : null;
             if(!$val)
                 $val = isset($wp_query->query_vars[$var]) ? $wp_query->query_vars[$var] : $default;
         }
+        $validate = is_string($params) ? $params : '';
+        $validate = is_array($params) && isset($params['validate']) ? $params['validate'] : $validate;
 
         if (!is_array($val))
             $val = __::sanitize_var($val, $validate);
@@ -200,6 +199,15 @@ class __
             $val = __::sanitize_array($val, $validate);
 
         return $val;
+    }
+
+    static function timeStamp($date, $format = true)
+    {
+        if($format === false) return strtotime($date);
+        if($format === true)
+            $format = get_option('date_format').' '.get_option('time_format');
+	    $dateobj = \DateTime::createFromFormat($format, $date);
+	    return $dateobj->getTimestamp();
     }
 
     /**
@@ -242,52 +250,61 @@ class __
                     return (double)($value);
 
 	            case 'esc_html':
-                case 'txt':
-                case 'str':
-                    $value = esc_html($value);
-                    break;
+		            $value = esc_sql(esc_html($value));
+		            break;
 
-                case 'esc_attr':
-                    $value = esc_attr($value);
-                    break;
+	            case 'txt':
+	            case 'str':
+		            $value = sanitize_text_field($value);
+		            break;
+
+	            case 'esc_attr':
+		            $value = esc_attr($value);
+		            break;
 
                 case 'kses':
                     $allowedtags = wp_kses_allowed_html();
                     $allowedtags['div'] = array('class' => true);
                     $allowedtags['strong'] = array('class' => true);
                     $allowedtags['b'] = array('class' => true);
-                    $allowedtags['ul'] = array('class' => false);
-                    $allowedtags['ol'] = array('class' => false);
-                    $allowedtags['li'] = array('class' => false);
                     $allowedtags['i'] = array('class' => true);
                     $allowedtags['a'] = array('class' => true, 'href' => true);
+	                $allowedtags['ul'] = array('class' => false);
+	                $allowedtags['ol'] = array('class' => false);
+	                $allowedtags['li'] = array('class' => false);
                     $value = wp_kses($value, $allowedtags);
                     break;
+
                 case 'serverpath':
                     $value = realpath($value);
                     $value = str_replace("\\", "/", $value);
                     break;
+
                 case 'txts':
                     $value = sanitize_textarea_field($value);
                     break;
 
                 case 'url':
-                    $value = esc_url_raw($value);
+                    $value = sanitize_url(urldecode($value));
                     break;
+
                 case 'noscript':
                 case 'escs':
                     $value = wpdm_escs($value);
                     break;
+
                 case 'filename':
-                    $value = preg_replace("/([^\w\s\d\-_~,;\[\]\(\).])/", '_', $value);
-                    $value = preg_replace("/([\.]+)/", '_', $value);
+                    $value = sanitize_file_name($value);
                     break;
+
                 case 'alpha':
                     $value = preg_replace("/([^a-zA-Z])/", '', $value);
                     break;
+
                 case 'alphanum':
                     $value = preg_replace("/([^a-zA-Z0-9])/", '', $value);
                     break;
+
                 case 'html':
 
                     break;
@@ -325,7 +342,7 @@ class __
      * @return mixed|void
      */
     static function is_url( $url ) {
-        $result = ( false !== filter_var( $url, FILTER_VALIDATE_URL ) );
+        $result = (bool) wp_http_validate_url( $url );
         return apply_filters( '__is_url', $result, $url );
     }
 
@@ -372,9 +389,9 @@ class __
         return $content;
     }
 
-    static function hex2rgb($hex){
+    static function hex2rgb($hex, $array = false){
         list($r, $g, $b) = sscanf($hex, "#%02x%02x%02x");
-        return "$r, $g, $b";
+        return $array ? ['r' => $r, 'g' => $g, 'b' => $b] : "$r, $g, $b";
     }
 
     /**
@@ -429,7 +446,63 @@ class __
             + array_slice($input, $offset + $length, NULL, TRUE);
     }
 
-    static function mnemonicNumberFormat($number, $plus = true){
+	/**
+	 * @param $email
+	 * @param $skipDNS
+	 *
+	 * @return bool
+	 */
+	static function isValidEmail($email, $skipDNS = true)
+	{
+		$isValid = true;
+		if (!is_string($email))
+			return false;
+		$atIndex = strrpos($email, "@");
+		if (is_bool($atIndex) && !$atIndex) {
+			$isValid = false;
+		} else {
+			$domain = substr($email, $atIndex + 1);
+			$local = substr($email, 0, $atIndex);
+			$localLen = strlen($local);
+			$domainLen = strlen($domain);
+			if ($localLen < 1 || $localLen > 64) {
+				// local part length exceeded
+				$isValid = false;
+			} else if ($domainLen < 1 || $domainLen > 255) {
+				// domain part length exceeded
+				$isValid = false;
+			} else if ($local[0] == '.' || $local[$localLen - 1] == '.') {
+				// local part starts or ends with '.'
+				$isValid = false;
+			} else if (preg_match('/\\.\\./', $local)) {
+				// local part has two consecutive dots
+				$isValid = false;
+			} else if (!preg_match('/^[A-Za-z0-9\\-\\.]+$/', $domain)) {
+				// character not valid in domain part
+				$isValid = false;
+			} else if (preg_match('/\\.\\./', $domain)) {
+				// domain part has two consecutive dots
+				$isValid = false;
+			} else if (!preg_match('/^(\\\\.|[A-Za-z0-9!#%&`_=\\/$\'*+?^{}|~.-])+$/', str_replace("\\\\", "", $local))) {
+				// character not valid in local part unless
+				// local part is quoted
+				if (!preg_match('/^"(\\\\"|[^"])+"$/', str_replace("\\\\", "", $local))) {
+					$isValid = false;
+				}
+			}
+
+			if (!$skipDNS) {
+				if ($isValid && !(checkdnsrr($domain, "MX") || checkdnsrr($domain, "A"))) {
+					// domain not found in DNS
+					$isValid = false;
+				}
+			}
+		}
+		return $isValid;
+	}
+
+
+	static function mnemonicNumberFormat($number, $plus = true){
         if($number > 1000000){
             $number = number_format(($number/1000000), 1);
             $number = $number > (int)$number && $plus ? (int)$number.'M+':(int)$number.'M';
@@ -443,23 +516,55 @@ class __
         return $number;
     }
 
+    static function timezoneOffset()
+    {
+        $offet = get_option('gmt_offset');
+        if($offet) {
+	        return $offet*3600;
+        }
+        $timezone_string = get_option('timezone_string');
+        if(!$timezone_string)
+            return 0;
+	    $timezone = timezone_open($timezone_string);
+	    $datetime = date_create("now", timezone_open(get_option('timezone_string')));
+	    return timezone_offset_get($timezone, $datetime);
+    }
+
 	/**
-     * WPDM Admin action authentication function
-	 * @param $nonce_var
-	 * @param $nonce_key
-	 * @param $access_level
-	 * @param bool $is_ajax
+	 * @param $bytes
+	 * @param $precision
+	 *
+	 * @return string
 	 */
-    static function isAuthentic($nonce_var, $nonce_key, $access_level, $is_ajax = true){
+	static function formatBytes($bytes, $precision = 2) {
+		$base = log($bytes, 1024);
+		$suffixes = array('B', 'KB', 'MB', 'GB', 'TB');
+		return round(pow(1024, $base - floor($base)), $precision) .' '. $suffixes[floor($base)];
+
+	}
+
+	static function isAuthentic($nonce_var, $nonce_key, $access_level, $is_ajax = true){
         $nonce_var = __::sanitize_var($nonce_var, 'txt');
         if($is_ajax) {
             if(!check_ajax_referer($nonce_key, $nonce_var, false))
                 wp_send_json(['success' => false, 'message' => esc_attr__( 'Referer verification failed', WPDM_TEXT_DOMAIN )]);
         }
-        if(!wp_verify_nonce(__::query_var($nonce_var), $nonce_key)) wp_send_json(['success' => false, 'message' => __('Security token is expired! Refresh the page and try again.', 'download-manager')]);
-        if(!current_user_can($access_level)) wp_send_json(['success' => false, 'message' => __( "You are not allowed to change settings!", "download-manager" )]);
+        if(!wp_verify_nonce(wpdm_query_var($nonce_var), $nonce_key)) wp_send_json(['success' => false, 'message' => __('Security token is expired! Refresh the page and try again.', 'download-manager')]);
+        if(!current_user_can($access_level)) wp_send_json(['success' => false, 'message' => __( "You are not allowed to execute this action!", "download-manager" )]);
     }
 
+    static function p(...$args)
+    {
+        foreach ($args as $arg) {
+            echo "<pre>".print_r($arg, 1)."</pre>";
+        }
+    }
 
-
+    static function d(...$args)
+    {
+        foreach ($args as $arg) {
+            echo "<pre>".print_r($arg, 1)."</pre>";
+        }
+        die();
+    }
 }
