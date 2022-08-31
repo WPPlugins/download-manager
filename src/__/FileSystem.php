@@ -755,7 +755,7 @@ class FileSystem
         }
         $file_type_icon_url = apply_filters("wpdm_file_type_icon", $file_type_icon_url, $filename_or_ext);
         if($return) return $file_type_icon_url;
-        echo $file_type_icon_url;
+        echo esc_attr($file_type_icon_url);
     }
 
     /**

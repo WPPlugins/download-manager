@@ -96,7 +96,7 @@ class EditProfile
                     die();
                 }
             }
-            header("location: " . $_SERVER['HTTP_REFERER']);
+            header("location: " . sanitize_text_field($_SERVER['HTTP_REFERER']));
             die();
         }
     }

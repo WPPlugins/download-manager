@@ -15,23 +15,23 @@ class __
 		$proxy_allowed = defined('WPDM_PROXY_IP_ALLOWED') && WPDM_PROXY_IP_ALLOWED === true;
 		$ipaddress = '';
 		if ($proxy_allowed && getenv('HTTP_CLIENT_IP'))
-			$ipaddress = getenv('HTTP_CLIENT_IP');
+			$ipaddress = sanitize_text_field(getenv('HTTP_CLIENT_IP'));
 		else if ($proxy_allowed && getenv('HTTP_X_FORWARDED_FOR'))
-			$ipaddress = getenv('HTTP_X_FORWARDED_FOR');
+			$ipaddress = sanitize_text_field(getenv('HTTP_X_FORWARDED_FOR'));
 		else if ($proxy_allowed && getenv('HTTP_X_FORWARDED'))
-			$ipaddress = getenv('HTTP_X_FORWARDED');
+			$ipaddress = sanitize_text_field(getenv('HTTP_X_FORWARDED'));
 		else if ($proxy_allowed && getenv('HTTP_FORWARDED_FOR'))
-			$ipaddress = getenv('HTTP_FORWARDED_FOR');
+			$ipaddress = sanitize_text_field(getenv('HTTP_FORWARDED_FOR'));
 		else if ($proxy_allowed && getenv('HTTP_FORWARDED'))
-			$ipaddress = getenv('HTTP_FORWARDED');
+			$ipaddress = sanitize_text_field(getenv('HTTP_FORWARDED'));
 		else if (getenv('REMOTE_ADDR'))
-			$ipaddress = getenv('REMOTE_ADDR');
+			$ipaddress = sanitize_text_field(getenv('REMOTE_ADDR'));
 		else
 			$ipaddress = 'UNKNOWN';
 
 		$ipaddress = explode(",", $ipaddress);
 
-		return $ipaddress[0];
+		return sanitize_text_field($ipaddress[0]);
 	}
 
 
@@ -215,7 +215,7 @@ class __
      * @param $array
      * @return mixed
      */
-    static function sanitize_array($array, $sanitize = 'kses')
+    static function sanitize_array($array, $sanitize = '')
     {
         if (!is_array($array)) return esc_attr($array);
         foreach ($array as $key => &$value) {
@@ -263,15 +263,23 @@ class __
 		            break;
 
                 case 'kses':
-                    $allowedtags = wp_kses_allowed_html();
-                    $allowedtags['div'] = array('class' => true);
+                    $allowedtags = wp_kses_allowed_html('post');
+                    /*$allowedtags['div'] = array('class' => true);
                     $allowedtags['strong'] = array('class' => true);
                     $allowedtags['b'] = array('class' => true);
                     $allowedtags['i'] = array('class' => true);
                     $allowedtags['a'] = array('class' => true, 'href' => true);
-	                $allowedtags['ul'] = array('class' => false);
-	                $allowedtags['ol'] = array('class' => false);
-	                $allowedtags['li'] = array('class' => false);
+	                $allowedtags['ul'] = array('class' => true);
+	                $allowedtags['ol'] = array('class' => true);
+	                $allowedtags['li'] = array('class' => true);
+	                $allowedtags['hr'] = array('class' => true);
+	                $allowedtags['table'] = array('class' => true);
+	                $allowedtags['tr'] = array('class' => true);
+	                $allowedtags['th'] = array('class' => true);
+	                $allowedtags['thead'] = array('class' => true);
+	                $allowedtags['tfoot'] = array('class' => true);
+	                $allowedtags['tbody'] = array('class' => true);
+	                $allowedtags['td'] = array('class' => true);*/
                     $value = wp_kses($value, $allowedtags);
                     break;
 

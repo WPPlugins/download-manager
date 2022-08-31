@@ -79,7 +79,7 @@ else {
 
         if (!isset($package['url_protect']) || $package['url_protect'] == 0) {
             $indfile = wpdm_escs(htmlspecialchars_decode($indfile));
-            header('location: ' . $indfile);
+            header('location: ' . urldecode($indfile));
 
         } else {
             $r_filename = wpdm_basename($indfile);

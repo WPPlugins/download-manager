@@ -37,21 +37,32 @@ class AssetManager
 
     public static function root($path = '')
     {
-        global $current_user;
-		$rpath = get_option('_wpdm_file_browser_root');
-	    $rpath = str_replace(get_home_path(), "", $rpath);
-        $root = current_user_can(WPDM_ADMIN_CAP) ? trailingslashit(get_home_path().$rpath) : trailingslashit(UPLOAD_DIR . $current_user->user_login);
-        $_root = str_replace("\\", "/", $root);
-        if ($path !== '') $root .= $path;
-        $root = str_replace(array("./", "../"), "", $root);
-        $root = str_replace("\\", "/", $root);
-        if ($path !== '' && !strstr($root, $_root)) return "[INVALID_PATH]";
-        if (is_dir($root)) $root = rtrim($root, "/") . "/";
-        if ($path === '' && !file_exists($root)) {
-            @mkdir($root, 0775, true);
-            \WPDM\__\FileSystem::blockHTTPAccess($root);
-        }
-        return $root;
+		if(!function_exists('get_home_path'))
+			include_once ABSPATH.'wp-admin/includes/file.php';
+	    $current_user = wp_get_current_user();
+		$fbRoot = get_option('_wpdm_file_browser_root');
+	    $fbRoot = str_replace(get_home_path(), "", $fbRoot);
+        $userRoot = current_user_can(WPDM_ADMIN_CAP) ? trailingslashit(get_home_path().$fbRoot) : trailingslashit(UPLOAD_DIR . $current_user->user_login);
+
+		//Create user root if dir doesn't already exist
+	    if(!current_user_can(WPDM_ADMIN_CAP) && !file_exists($userRoot))
+	    {
+		    @mkdir($userRoot, 0775, true);
+		    FileSystem::blockHTTPAccess($userRoot);
+	    }
+
+        $userRoot = self::fsPath($userRoot);
+		$userRootExt = $path !== '' ? $userRoot.$path : $userRoot;
+	    $userRootExt = preg_replace(array('/\.\.\//', '/\.\//', '/\/\.\.$/'), "", $userRootExt);
+	    $realUserRootExt = realpath($userRootExt);
+		if($realUserRootExt) $realUserRootExt = self::fsPath($realUserRootExt);
+	    $userRootExt = self::fsPath($userRootExt);
+
+		if(substr_count($userRootExt, $userRoot) == 0 || !$realUserRootExt || substr_count($realUserRootExt, $userRoot) === 0) return "[INVALID_PATH] {$realUserRootExt} {$userRoot}";
+
+        if (is_dir($userRootExt)) $userRootExt = trailingslashit($userRootExt);
+
+        return $userRootExt;
     }
 
     private function actions()
@@ -168,7 +179,7 @@ class AssetManager
             global $current_user;
             $file = AssetManager::root(Crypt::decrypt(wpdm_query_var('wpdmfmdl')));
             if (!$file) \WPDM\__\Messages::error("File Not Found!", 1);
-            \WPDM\__\FileSystem::downloadFile($file, wp_basename($file), 10240, false, ['play' => wpdm_query_var('play')]);
+            FileSystem::downloadFile($file, wp_basename($file), 10240, false, [ 'play' => wpdm_query_var('play')]);
             die();
         }
     }
@@ -261,7 +272,7 @@ class AssetManager
             //$item_label = strlen($item_label) > 30 ? substr($item_label, 0, 15) . "..." . substr($item_label, strlen($item_label) - 15) : $item_label;
             $ext = explode('.', $item);
             $ext = end($ext);
-            $icon = \WPDM\__\FileSystem::fileTypeIcon($ext);
+            $icon = FileSystem::fileTypeIcon($ext);
             $type = is_dir($path . $item) ? 'dir' : 'file';
             $note = is_dir($path . $item) ? (count(scandir($path . $item)) - 2) . ' items' : number_format((filesize($path . $item) / 1024), 2) . ' KB';
             $rpath = str_replace($root, "", $path . $item);
@@ -392,7 +403,7 @@ class AssetManager
 
 
         } else {
-            wp_send_json(array('content' => 'Failed to open file!', 'id' => uniqid()));
+            wp_send_json(array('content' => 'Failed to open file! '. $path, 'id' => uniqid()));
             die();
         }
 
@@ -670,6 +681,13 @@ class AssetManager
             wp_send_json(array('success' => false, 'message' => __("Error! Couldn't open the zip file.", "download-manager")));
         }
     }
+
+	static function fsPath($path)
+	{
+		$path = str_replace("\\", "/", $path);
+		$path = is_dir($path) ? trailingslashit($path) : $path;
+		return $path;
+	}
 
 }
 
