@@ -58,7 +58,7 @@ class AssetManager
 		if($realUserRootExt) $realUserRootExt = self::fsPath($realUserRootExt);
 	    $userRootExt = self::fsPath($userRootExt);
 
-		if(substr_count($userRootExt, $userRoot) == 0 || !$realUserRootExt || substr_count($realUserRootExt, $userRoot) === 0) return "[INVALID_PATH] {$realUserRootExt} {$userRoot}";
+		if(substr_count($userRootExt, $userRoot) == 0 || !$realUserRootExt || substr_count($realUserRootExt, $userRoot) === 0) return "[INVALID_PATH]";
 
         if (is_dir($userRootExt)) $userRootExt = trailingslashit($userRootExt);
 

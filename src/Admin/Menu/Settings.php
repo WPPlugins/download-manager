@@ -123,6 +123,12 @@ class Settings
             foreach ($_POST as $optn => $optv) {
                 if(strpos("__".$optn, '_wpdm_')) {
                     $optv = wpdm_sanitize_array($optv);
+					if($optn === '_wpdm_file_browser_root') {
+						$optv = realpath( get_home_path() . '/' . $optv );
+						if ( $optv ) {
+							$optv = trailingslashit( $optv );
+						}
+					}
                     update_option($optn, $optv, false);
                 }
             }

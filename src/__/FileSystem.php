@@ -817,7 +817,7 @@ class FileSystem
 
         if(!$ext)
             $ext = self::fileExt($filename);
-
+	    $ext = strtolower($ext);
         return !in_array($ext, $types);
     }
 
