@@ -39,5 +39,11 @@ class RestAPI
             'permission_callback' => '__return_true'
         ));
 
+	    register_rest_route('wpdm', '/view-count', array(
+		    'methods' => 'POST',
+		    'callback' => [new PackageController(), 'addViewCount'],
+		    'permission_callback' => '__return_true'
+	    ));
+
     }
 }

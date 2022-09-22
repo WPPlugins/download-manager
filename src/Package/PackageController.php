@@ -32,6 +32,8 @@ class PackageController extends PackageTemplate {
 
 		new RestAPI();
 
+		add_action("wp_ajax_wpdm_view_count", [$this, 'addViewCount']);
+
 		global $post;
 		if ( ! $ID && is_object( $post ) && $post->post_type == 'wpdmpro' ) {
 			$ID = $post->ID;
@@ -2429,13 +2431,13 @@ class PackageController extends PackageTemplate {
 	}
 
 	function addViewCount() {
-		if ( isset( $_REQUEST['__wpdm_view_count'] ) && wp_verify_nonce( $_REQUEST['__wpdm_view_count'], NONCE_KEY ) ) {
 
-			$id    = (int) ( $_REQUEST['id'] );
-			$views = (int) get_post_meta( $id, '__wpdm_view_count', true );
-			update_post_meta( $id, '__wpdm_view_count', $views + 1 );
-			wp_send_json( [ 'views' => $views + 1 ] );
-		}
+		//__::isAuthentic( '__wpdm_view_count', NONCE_KEY, 'read', false );
+
+		$id    = (int) ( $_REQUEST['id'] );
+		$views = (int) get_post_meta( $id, '__wpdm_view_count', true );
+		update_post_meta( $id, '__wpdm_view_count', $views + 1 );
+		wp_send_json( [ 'views' => $views + 1 ] );
 	}
 
 

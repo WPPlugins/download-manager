@@ -93,26 +93,11 @@ else {
     }
 
 
-    /*$tmp = explode("wp-content", $indfile);
-    $tmp = end($tmp);
-    if ($indfile != '' && file_exists(UPLOAD_DIR . $indfile))
-        $filepath = UPLOAD_DIR . $indfile;
-    else if ($indfile != '' && file_exists($user_upload_dir.$indfile))
-        $filepath = $user_upload_dir.$indfile;
-    else if ($indfile != '' && file_exists($indfile))
-        $filepath = $indfile;
-    else if ($indfile != '' && file_exists(WP_CONTENT_DIR . $tmp)) //path fix on site move
-        $filepath = WP_CONTENT_DIR . $tmp;
-    else if ($indfile != '' && file_exists($_old_up_dir . $indfile)) //path fix on site move
-        $filepath = $_old_up_dir . $indfile;
-    else {
-        $filepath = $firstfile;
-    }*/
 
     $filepath = WPDM()->fileSystem->absPath($indfile, $package['ID']);
 
     if(!$filepath)
-        Messages::fullPage('Error!', "<div class='card bg-danger text-white p-4'>" . __("Sorry! File not found!", "download-manager") . "</div>", 'error');
+        Messages::fullPage('Error!', "<div class='card bg-danger text-white p-4' style='max-width: 500px;margin: 0 auto;text-align: center'>" . __("Sorry! File not found!", "download-manager") . "</div>", 'error');
     //$plock = get_wpdm_meta($file['id'],'password_lock',true);
     //$fileinfo = get_wpdm_meta($package['id'],'fileinfo');
 

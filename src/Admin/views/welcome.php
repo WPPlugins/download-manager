@@ -218,7 +218,15 @@
     }
 
     #modalcontents .wrap h2{ display: none; }
-
+    .cpgpanel .panel-heading{
+        font-family: Overpass, sans-serif;
+        font-size: 12pt !important;
+    }
+    .cpgpanel td{
+        font-family: Overpass, sans-serif;
+        font-size: 11pt;
+        line-height: 32px !important;
+    }
 </style>
 
 <div class="wrap w3eden">
@@ -350,10 +358,33 @@
                 </div>
             </div>
 
+            <!-- div class="col-md-12">
+                <br/>
+                <div class="panel panel-default cpgpanel">
+                    <div class="panel-heading">
+                        Create Pages:
+                    </div>
+                    <table class="table table-striped">
+                        <tr>
+                            <td>Login Page [wpdm_login_form]</td>
+                            <td class="text-right"><button class="btn btn-primary btn-sm btn-cpg" data-shortcode="[wpdm_login_form]">Create</button></td>
+                        </tr>
+                        <tr>
+                            <td>Signup Page [wpdm_reg_form]</td>
+                            <td class="text-right"><button class="btn btn-primary btn-sm btn-cpg" data-shortcode="[wpdm_reg_form]">Create</button></td>
+                        </tr>
+                        <tr>
+                            <td>User Dashboard Page [wpdm_user_dashboard]</td>
+                            <td class="text-right"><button class="btn btn-primary btn-sm btn-cpg" data-shortcode="[wpdm_user_dashboard]">Create</button></td>
+                        </tr>
+                    </table>
+                </div>
+            </div -->
+
             <div class="col-md-12 lead">
                 <hr/>
                 <h3>What's New?</h3>
-                What new with WordPress Download Manager v3.1.x:
+                What new with WordPress Download Manager v3.2.x:
                 <hr/>
             </div>
 

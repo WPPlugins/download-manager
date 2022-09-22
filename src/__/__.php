@@ -561,6 +561,13 @@ class __
         if(!current_user_can($access_level)) wp_send_json(['success' => false, 'message' => __( "You are not allowed to execute this action!", "download-manager" )]);
     }
 
+	function requestURI()
+	{
+		$uri = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+		$uri = esc_url_raw($uri);
+		return $uri;
+	}
+
     static function p(...$args)
     {
         foreach ($args as $arg) {
