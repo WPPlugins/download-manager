@@ -230,6 +230,7 @@ class Email {
             $template['to_email'] = str_replace( array_keys( $params ), array_values( $params ), $template['to_email'] );
         $template['message'] = str_replace( array_keys( $params ), array_values( $params ), $template['message'] );
         $template['message'] = self::compile($template['message']);
+	    $template['message'] = self::compile($template['message'], "/\{\{([^\}]+)\}\}/");
         return $template;
     }
 

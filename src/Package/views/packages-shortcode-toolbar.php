@@ -47,8 +47,8 @@ if ($toolbar) {
                                 <option value="date" <?php selected('date', wpdm_query_var('orderby')) ?>><?php echo __( "Publish Date", "download-manager" ) ?></option>
                                 <option value="title" <?php selected('title', wpdm_query_var('orderby')) ?>><?php echo __( "Title", "download-manager" ) ?></option>
                                 <option value="update_date" <?php selected('update_date', wpdm_query_var('orderby')) ?>><?php echo __( "Update Date", "download-manager" ) ?></option>
-                                <option value="download_count" <?php selected('downloads', wpdm_query_var('orderby')) ?>><?php echo __( "Downloads", "download-manager" ) ?></option>
-                                <option value="view_count" <?php selected('views', wpdm_query_var('orderby')) ?>><?php echo __( "Views", "download-manager" ) ?></option>
+                                <option value="downloads" <?php selected('downloads', wpdm_query_var('orderby')) ?>><?php echo __( "Downloads", "download-manager" ) ?></option>
+                                <option value="views" <?php selected('views', wpdm_query_var('orderby')) ?>><?php echo __( "Views", "download-manager" ) ?></option>
                             </select>
                         </div>
                         <div class="col-lg-<?php echo $od; ?> col-md-4">

@@ -92,7 +92,7 @@ class Dashboard
 
             $default_icons = apply_filters("wpdm_user_dashboard_icons", $default_icons);
 
-            include Template::locate("dashboard.php", __DIR__ . '/views/dashboard');
+            include Template::locate("dashboard/dashboard.php", __DIR__ . '/views');
         }
         return ob_get_clean();
     }
@@ -100,7 +100,7 @@ class Dashboard
     function profile($params = array())
     {
         ob_start();
-        include Template::locate("profile.php", __DIR__ . '/views/dashboard');
+        include Template::locate("dashboard/profile.php", __DIR__ . '/views');
         return ob_get_clean();
     }
 
@@ -108,7 +108,7 @@ class Dashboard
     {
         global $wpdb, $current_user;
         ob_start();
-        include Template::locate("download-history.php", __DIR__ . '/views/dashboard');
+        include Template::locate("dashboard/download-history.php", __DIR__ . '/views');
         return ob_get_clean();
     }
 

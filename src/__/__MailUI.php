@@ -29,4 +29,10 @@ class __MailUI
             ->fetch("email-templates/ui-blocks/table.php", __DIR__.'/views');
     }
 
+	static function button( $link, $label, $bg = '#0085d8', $padding = '10px 20px', $radius = 4, $width = 'block', $margin = '10px 0') {
+		$link   = esc_attr( $link );
+		$button = "<a href='{$link}' style='background: {$bg}; color: #ffffff; border-radius: {$radius}px;display: {$width}; padding: {$padding};margin: {$margin}'>{$label}</a>";
+		return $button;
+	}
+
 }

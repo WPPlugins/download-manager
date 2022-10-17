@@ -923,7 +923,11 @@ class FileSystem
 	function allowedPath($absPath)
 	{
 		if(!$absPath) return false;
-		if(substr_count($absPath, UPLOAD_DIR) || substr_count($absPath, AssetManager::root())) return true;
+		$absPath = str_replace("\\", "/", $absPath);
+		$upload_dir = str_replace("\\", "/", UPLOAD_DIR);
+		$asset_root = str_replace("\\", "/", AssetManager::root());
+		$allowedPathCheck = apply_filters("wpdm_allowed_path_check", true);
+		if(substr_count($absPath, $upload_dir) || substr_count($absPath, $asset_root) || !$allowedPathCheck) return true;
 		return false;
 	}
 }

@@ -57,6 +57,8 @@ class Query
      */
     function sort($order_field = 'date', $order = 'DESC')
     {
+	    if($order_field === 'downloads') $order_field = 'download_count';
+	    if($order_field === 'views') $order_field = 'view_count';
 
         $order_fields = ['__wpdm_download_count', '__wpdm_view_count', '__wpdm_package_size_b'];
         if (!in_array("__wpdm_" . $order_field, $order_fields)) {
