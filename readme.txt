@@ -5,7 +5,7 @@ Tags: download manager, document management, file manager, digital store, ecomme
 Requires at least: 5.3
 Tested up to: 6.0
 License: GPLv2 or later
-Stable tag: 3.2.58
+Stable tag: 3.2.59
 
 
 This File Management & Digital Store plugin will help you to control file downloads & sell digital products from your WP site.
@@ -128,6 +128,9 @@ Use [Box.com Explorer](https://www.wpdownloadmanager.com/download/box-com-explor
 = OneDrive =
 Use [OneDrive Explorer](https://www.wpdownloadmanager.com/download/wpdm-onedrive/) add-on ( free ) to store your files in Microsoft OneDrive and link with download manager, get 15 GB free storage space and save your server bandwidth
 
+= pCloud =
+Use [pCloud Connector](https://www.wpdownloadmanager.com/download/pcloud-connector/) add-on ( premium ) to store your files in pCloud and link with download manager, get 10 GB free storage space and save your server bandwidth
+
 = Add-ons =
 Download and Install following free add-on to add additional features as per your need
 
@@ -180,6 +183,10 @@ Check download stats and get a push notification when someone downloads, install
 19. More features
 
 == Changelog ==
+
+= 3.2.59 - 2022.11.02 =
+* Improved admin options
+* Fixed a notice with all files table shortcode
 
 = 3.2.58 - 2022.10.17 =
 * Fixed an issue with sorting by download count for packages shortcode

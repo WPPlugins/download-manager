@@ -568,6 +568,13 @@ class __
 		return $uri;
 	}
 
+	static function a($array, $default = [])
+	{
+		if(!is_array($default)) $default = [];
+		if(!is_array($array)) $array = $default;
+		return $array;
+	}
+
     static function p(...$args)
     {
         foreach ($args as $arg) {

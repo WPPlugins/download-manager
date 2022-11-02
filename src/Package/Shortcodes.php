@@ -109,6 +109,8 @@ class Shortcodes
 
         static $wpdm_packages = 0;
 
+	    $params = __::a($params, ['items_per_page' => 10, 'title' => '', 'desc' => '', 'orderby' => 'date', 'order' => 'DESC', 'paging' => false, 'page_numbers' => true, 'toolbar' => 1, 'template' => '', 'cols' => 3, 'colspad' => 2, 'colsphone' => 1, 'tags' => '', 'categories' => '', 'year' => '', 'month' => '', 's' => '', 'css_class' => 'wpdm_packages', 'scid' => '', 'async' => 1, 'tax' => '', 'terms' => '']);
+
         // When login=1, show login form for guests/visitors
         if (isset($params['login']) && $params['login'] == 1 && !is_user_logged_in())
             return WPDM()->user->login->form($params);
@@ -385,6 +387,9 @@ class Shortcodes
     function allPackages($params = array())
     {
         global $wpdb, $current_user, $wp_query;
+
+	    $params = __::a($params, ['items_per_page' => 20]);
+
         $items = isset($params['items_per_page']) && $params['items_per_page'] > 0 ? $params['items_per_page'] : 20;
         $offset = $cp = 0;
         if (isset($params['jstable']) && $params['jstable'] == 1) {
