@@ -332,8 +332,8 @@ class Shortcodes
         $items_per_page = isset($items_per_page) ? $items_per_page : 0;
         update_post_meta(get_the_ID(), "__wpdm_link_template", $template);
         update_post_meta(get_the_ID(), "__wpdm_items_per_page", $items_per_page);
-        $strm = wpdm_query_var('search', 'txt');
-        if ($strm === '') $strm = wpdm_query_var('s', 'txt');
+        $strm = wpdm_query_var('search', 'esc_attr');
+        if ($strm === '') $strm = wpdm_query_var('s', 'esc_attr');
         $html = '';
         $cols = isset($cols) ? $cols : 1;
         $colspad = isset($colspad) ? $colspad : 1;

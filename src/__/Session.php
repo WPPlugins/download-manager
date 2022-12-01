@@ -27,7 +27,7 @@ class Session
             if(!defined('WPDM_ACCEPT_COOKIE') || WPDM_ACCEPT_COOKIE !== false) {
 				//Implement user consent
 				if(apply_filters('wpdm_user_accept_cookies', true)) {
-					@setcookie( '__wpdm_client', $deviceID, 0, "", COOKIE_DOMAIN, is_ssl(), true );
+					@setcookie( '__wpdm_client', $deviceID, 0, "/", COOKIE_DOMAIN, is_ssl(), true );
 					$_COOKIE['__wpdm_client'] = $deviceID;
 				}
             }

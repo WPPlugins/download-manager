@@ -56,7 +56,7 @@ if ($toolbar) {
                 <div class="panel-footer card-footer">
                     <div class="row">
                         <div class="col-lg-<?php echo $sr; ?> col-md-12">
-                            <input type="text" name="skw" value="<?php echo stripslashes_deep(wpdm_query_var('skw', 'txt')) ?>" placeholder="<?php echo __( "Search Keyword...", "download-manager" ); ?>" class="form-control" />
+                            <input type="text" name="skw" value="<?php echo stripslashes_deep(wpdm_query_var('skw', 'esc_attr')) ?>" placeholder="<?php echo __( "Search Keyword...", "download-manager" ); ?>" class="form-control" />
                         </div>
                         <div class="col-lg-<?php echo $ob; ?> col-md-4">
                             <select name="orderby" class="wpdm-custom-select custom-select">
@@ -90,7 +90,7 @@ if ($toolbar) {
                 <div class="card-body panel-body">
                     <div class="row">
                         <div class="col-lg-<?php echo $sr; ?> col-md-12">
-                            <input type="search" name="skw" value="<?php echo stripslashes_deep(wpdm_query_var('skw', 'txt')) ?>" placeholder="<?php echo __( "Search Keyword...", "download-manager" ); ?>" class="form-control" />
+                            <input type="search" name="skw" value="<?php echo stripslashes_deep(wpdm_query_var('skw', 'esc_attr')) ?>" placeholder="<?php echo __( "Search Keyword...", "download-manager" ); ?>" class="form-control" />
                         </div>
                         <div class="col-lg-<?php echo $ob; ?> col-md-4">
                             <select name="orderby" class="wpdm-custom-select custom-select">
