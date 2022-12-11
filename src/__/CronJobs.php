@@ -24,6 +24,7 @@ class CronJobs
     {
 
         add_filter( 'cron_schedules', array($this, 'interval') );
+	    add_action( 'init', array($this, 'clearTempDataCPCron') );
 
         if ( ! wp_next_scheduled( '__wpdm_cron' ) ) {
             wp_schedule_event( time() + 3600, 'six_hourly', '__wpdm_cron' );
@@ -56,6 +57,19 @@ class CronJobs
         FileSystem::deleteFiles(WPDM_CACHE_DIR, false, array('filetime' => time() - 3600, 'ext' => '.txt'));
         //FileSystem::deleteFiles(WPDM_CACHE_DIR . 'pdfthumbs/', false);
     }
+
+	function clearTempDataCPCron(){
+		if(!isset($_REQUEST['cpc']) || !isset($_REQUEST['cronkey']) || $_REQUEST['cpc'] !== 'wpdmcc') return;
+
+		if($_REQUEST['cronkey'] !== WPDM_CRON_KEY) return;
+
+		global $wpdb;
+		$time = time();
+		$wpdb->query("delete from {$wpdb->prefix}ahm_sessions where `expire` < $time");
+		FileSystem::deleteFiles(WPDM_CACHE_DIR, false, '.zip');
+		FileSystem::deleteFiles(WPDM_CACHE_DIR, false, array('filetime' => time() - 3600, 'ext' => '.txt'));
+		die('Cache cleared successfully!');
+	}
 }
 
 new CronJobs();

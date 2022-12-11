@@ -49,6 +49,16 @@ do_action("wpdm_privacy_settings_panel");
     <div class="panel-footer bg-white">
         <label><input type="checkbox" name="__wpdm_auto_clean_cache" <?php checked(1, get_option('__wpdm_auto_clean_cache', 0)); ?> value="1" /> <?php echo __( "Auto clean cache dir & temporary storage everyday", "download-manager" ) ?></label>
     </div>
+    <div class="panel-footer bg-white">
+        <label><?= __('Cron URL', WPDM_TEXT_DOMAIN) ?></label>
+        <div class="input-group">
+            <input type="text" class="form-control" id="cccronurl" readonly value="<?= home_url('/?cpc=wpdmcc&cronkey='.WPDM_CRON_KEY); ?>" />
+            <div class="input-group-btn">
+                <button class="btn btn-secondary ttip" type="button" title="<?= __('Copy', WPDM_TEXT_DOMAIN) ?>" onclick="WPDM.copy('cccronurl')"><i class="fa fa-copy"></i></button>
+            </div>
+        </div>
+        <em class="note"><?= __('Your can configure a cron job from your hosting control panel using the url above for reliable cron execution.', WPDM_TEXT_DOMAIN) ?></em>
+    </div>
 </div>
 <script>
     jQuery(function($) {
