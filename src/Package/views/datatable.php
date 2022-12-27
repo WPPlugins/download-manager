@@ -195,7 +195,7 @@ $_scparams =  \WPDM\__\Crypt::encrypt($scparams);
         <thead>
         <tr>
             <?php  foreach ($colheads as $index => $colhead){ ?>
-                <th class="<?php echo $cols[$index] ?>"><?php __($colhead, WPDM_TEXT_DOMAIN); ?></th>
+                <th class="<?php echo $cols[$index] ?>"><?php __($colhead, "download-manager"); ?></th>
             <?php  } ?>
         </tr>
         </thead>

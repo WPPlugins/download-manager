@@ -56,14 +56,14 @@ if(!defined('ABSPATH')) die();
             <?php do_action("login_form"); ?>
 
             <div class="row login-form-meta-text text-muted mb-3" style="font-size: 10px">
-                <div class="col-md-5"><label><input class="wpdm-checkbox" name="rememberme" type="checkbox" id="rememberme" value="forever" /><?php _e( "Remember Me" , WPDM_TEXT_DOMAIN ); ?></label></div>
-                <div class="col-md-7 text-right"><a class="color-blue" href="<?php echo wpdm_lostpassword_url(); ?>"><?php _e( "Forgot Password?" , WPDM_TEXT_DOMAIN ); ?></a></div>
+                <div class="col-md-5"><label><input class="wpdm-checkbox" name="rememberme" type="checkbox" id="rememberme" value="forever" /><?php _e( "Remember Me" , "download-manager" ); ?></label></div>
+                <div class="col-md-7 text-right"><a class="color-blue" href="<?php echo wpdm_lostpassword_url(); ?>"><?php _e( "Forgot Password?" , "download-manager" ); ?></a></div>
             </div>
 
             <div class="row">
-                <div class="col-md-12"><button type="submit" name="wp-submit" id="loginform-submit" class="btn btn-block btn-primary btn-lg"><i class="fas fa-user-shield"></i> &nbsp;<?php _e( "Login" , WPDM_TEXT_DOMAIN ); ?></button></div>
+                <div class="col-md-12"><button type="submit" name="wp-submit" id="loginform-submit" class="btn btn-block btn-primary btn-lg"><i class="fas fa-user-shield"></i> &nbsp;<?php _e( "Login" , "download-manager" ); ?></button></div>
                 <?php if(isset($regurl) && $regurl != ''){ ?>
-                    <div class="col-md-12"><br/><a href="<?php echo $regurl; ?>" class="btn btn-block btn-link btn-xs wpdm-reg-link  color-primary"><?php _e( "Don't have an account yet?" , WPDM_TEXT_DOMAIN ); ?> <i class="fas fa-user-plus"></i> <?php _e( "Register Now" , WPDM_TEXT_DOMAIN ); ?></a></div>
+                    <div class="col-md-12"><br/><a href="<?php echo $regurl; ?>" class="btn btn-block btn-link btn-xs wpdm-reg-link  color-primary"><?php _e( "Don't have an account yet?" , "download-manager" ); ?> <i class="fas fa-user-plus"></i> <?php _e( "Register Now" , "download-manager" ); ?></a></div>
                 <?php } ?>
             </div>
 
@@ -87,12 +87,12 @@ if(!defined('ABSPATH')) die();
         <?php if(!isset($params['form_submit_handler']) || $params['form_submit_handler'] !== false){ ?>
         var llbl = $('#loginform-submit').html();
         $('#loginform').submit(function () {
-            $('#loginform-submit').html("<i class='fa fa-spin fa-sync'></i> <?php _e( "Logging In..." , WPDM_TEXT_DOMAIN ); ?>").attr('disabled', 'disabled');
+            $('#loginform-submit').html("<i class='fa fa-spin fa-sync'></i> <?php _e( "Logging In..." , "download-manager" ); ?>").attr('disabled', 'disabled');
             WPDM.blockUI('#loginform');
             $(this).ajaxSubmit({
                 error: function(error) {
                     WPDM.unblockUI('#loginform');
-                    $('#loginform').prepend("<div class='alert alert-danger' data-title='<?php _e( "LOGIN FAILED!" , WPDM_TEXT_DOMAIN ); ?>'>"+error.responseJSON.message+"</div>");
+                    $('#loginform').prepend("<div class='alert alert-danger' data-title='<?php _e( "LOGIN FAILED!" , "download-manager" ); ?>'>"+error.responseJSON.message+"</div>");
                     $('#loginform-submit').html(llbl).removeAttr('disabled');
                     <?php if((int)get_option('__wpdm_recaptcha_loginform', 0) === 1 && get_option('_wpdm_recaptcha_site_key') != ''){ ?>
                     try {
@@ -106,7 +106,7 @@ if(!defined('ABSPATH')) die();
                     WPDM.unblockUI('#loginform');
                     if (!res.success) {
                         $('form .alert-danger').hide();
-                        $('#loginform').prepend("<div class='alert alert-danger' data-title='<?php _e( "LOGIN FAILED!" , WPDM_TEXT_DOMAIN ); ?>'>"+res.message+"</div>");
+                        $('#loginform').prepend("<div class='alert alert-danger' data-title='<?php _e( "LOGIN FAILED!" , "download-manager" ); ?>'>"+res.message+"</div>");
                         $('#loginform-submit').html(llbl).removeAttr('disabled');
                         <?php if((int)get_option('__wpdm_recaptcha_loginform', 0) === 1 && get_option('_wpdm_recaptcha_site_key') != ''){ ?>
                         try {

@@ -402,7 +402,7 @@ class Packages {
                                 <div class="panel panel-default">
                                     <div class="panel-heading">
                                         <div class="pull-right"><a id="mdlx" href="#" class="btn btn-xs btn-primary"><i
-                                                        class="fas fa-arrow-alt-circle-down"></i> <?php _e( 'Download', WPDM_TEXT_DOMAIN ); ?>
+                                                        class="fas fa-arrow-alt-circle-down"></i> <?php _e( 'Download', "download-manager" ); ?>
                                             </a></div>
 										<?php _e( "Master Download Link:", "download-manager" ); ?>
                                     </div>

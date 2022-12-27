@@ -5,7 +5,7 @@
         ['link' => "#", "name" => __("Import/Export Packages", "download-manager"), "active" => true],
     ];
 
-    WPDM()->admin->pageHeader(esc_attr__( 'Import & Export', WPDM_TEXT_DOMAIN ), 'file-import color-purple', $menus);
+    WPDM()->admin->pageHeader(esc_attr__( 'Import & Export', "download-manager" ), 'file-import color-purple', $menus);
     ?>
     <div class="wpdm-admin-page-content" >
 
@@ -184,7 +184,7 @@
 
     </div>
         <div class="panel-footer" id="importstatus">
-             <?php echo  esc_attr__( 'Download sample csv file', WPDM_TEXT_DOMAIN ); ?>: <a href="<?php echo plugins_url('/download-manager/assets/sample.csv'); ?>">sample.csv</a>
+             <?php echo  esc_attr__( 'Download sample csv file', "download-manager" ); ?>: <a href="<?php echo plugins_url('/download-manager/assets/sample.csv'); ?>">sample.csv</a>
         </div>
     </div>
 
@@ -200,7 +200,7 @@
 
             <div class="progress" id="wxprogressbar" style="height: 43px !important;border-radius: 3px !important;margin: 0;position: relative;background: #0d406799;display: none;box-shadow: none">
                 <div id="wxprogress" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;line-height: 43px;background-color: #007bff"></div>
-                <div class="fetfont" style="font-size:12px;position: absolute;line-height: 43px;height: 43px;width: 100%;z-index: 999;text-align: center;color: #ffffff;font-weight: 600;letter-spacing: 1px"><?php echo  esc_attr__( 'Processing', WPDM_TEXT_DOMAIN ); ?>... <span id="wxloaded">0</span>%</div>
+                <div class="fetfont" style="font-size:12px;position: absolute;line-height: 43px;height: 43px;width: 100%;z-index: 999;text-align: center;color: #ffffff;font-weight: 600;letter-spacing: 1px"><?php echo  esc_attr__( 'Processing', "download-manager" ); ?>... <span id="wxloaded">0</span>%</div>
             </div>
 
         </div>
@@ -358,19 +358,19 @@
     </tr>
       <tr>
         <th width="20" class="check-column"><input type="checkbox" class="multicheck"></th>
-        <th ><?php echo  esc_attr__( 'File name', WPDM_TEXT_DOMAIN ); ?></th>
-        <th ><?php echo  esc_attr__( 'Title', WPDM_TEXT_DOMAIN ); ?></th>
-        <th ><?php echo  esc_attr__( 'Description', WPDM_TEXT_DOMAIN ); ?></th>
-        <th width=100><?php echo  esc_attr__( 'Password', WPDM_TEXT_DOMAIN ); ?></th>
+        <th ><?php echo  esc_attr__( 'File name', "download-manager" ); ?></th>
+        <th ><?php echo  esc_attr__( 'Title', "download-manager" ); ?></th>
+        <th ><?php echo  esc_attr__( 'Description', "download-manager" ); ?></th>
+        <th width=100><?php echo  esc_attr__( 'Password', "download-manager" ); ?></th>
       </tr>
     </thead>
     <tfoot>
     <tr>
         <th width="20" class="check-column"><input type="checkbox" class="multicheck"></th>
-        <th ><?php echo  esc_attr__( 'File name', WPDM_TEXT_DOMAIN ); ?></th>
-        <th ><?php echo  esc_attr__( 'Title', WPDM_TEXT_DOMAIN ); ?></th>
-        <th ><?php echo  esc_attr__( 'Description', WPDM_TEXT_DOMAIN ); ?></th>
-        <th width=100><?php echo  esc_attr__( 'Password', WPDM_TEXT_DOMAIN ); ?></th>
+        <th ><?php echo  esc_attr__( 'File name', "download-manager" ); ?></th>
+        <th ><?php echo  esc_attr__( 'Title', "download-manager" ); ?></th>
+        <th ><?php echo  esc_attr__( 'Description', "download-manager" ); ?></th>
+        <th width=100><?php echo  esc_attr__( 'Password', "download-manager" ); ?></th>
     </tr>
     </tfoot>
     <tbody id="__the_list">

@@ -309,20 +309,20 @@ function wpdm_image_selector($data)
             $attrs .= "$attr='$value' ";
         }
     }
-    $id = uniqid();
+    $id = isset($data['id']) ? sanitize_text_field($data['id']) : uniqid();
     ?>
     <div class="panel panel-default text-center image-selector-panel" style="width: 250px">
         <div class="panel-body">
-            <img id="<?php echo isset($data['id']) ? $data['id'] : $id; ?>"
-                 src="<?php echo isset($data['value']) && $data['value'] != '' ? $data['value'] : WPDM_BASE_URL . 'assets/images/image.png'; ?>"/>
+            <img id="<?php echo esc_attr($id); ?>"
+                 src="<?php echo isset($data['value']) && $data['value'] != '' ? esc_attr(esc_url($data['value'])) : esc_attr(WPDM_BASE_URL . 'assets/images/image.png'); ?>"/>
         </div>
         <div class="panel-footer">
-            <input id="<?php echo isset($data['id']) ? $data['id'] : $id; ?>_hidden" type="hidden"
-                   name="<?php echo $data['name']; ?>"
-                   value="<?php echo isset($data['value']) ? $data['value'] : ''; ?>"/>
+            <input id="<?php echo esc_attr($id); ?>_hidden" type="hidden"
+                   name="<?php echo esc_attr($data['name']); ?>"
+                   value="<?php echo isset($data['value']) ? esc_attr($data['value']) : ''; ?>"/>
             <button class="btn btn-info btn-block btn-image-selector" type="button"
-                    rel="#<?php echo isset($data['id']) ? $data['id'] : $id; ?>"><i
-                        class="far fa-image"></i> <?php isset($data['btnlabel']) ? $data['btnlabel'] : _e('Select Image', 'download-manager'); ?>
+                    rel="#<?php echo esc_attr($id); ?>"><i
+                        class="far fa-image"></i> <?php isset($data['btnlabel']) ? esc_html($data['btnlabel']) : esc_html__('Select Image', 'download-manager'); ?>
             </button>
         </div>
     </div>
@@ -340,7 +340,7 @@ function wpdm_image_uploader($data)
         }
     }
     $default = isset($data['default']) ? $data['default'] : WPDM_BASE_URL . 'assets/images/image.png';
-    $id = uniqid();
+	$id = isset($data['id']) ? sanitize_text_field($data['id']) : uniqid();
     ?>
     <div id="wpdm-upload-ui" class="panel panel-default text-center image-selector-panel" style="width: 250px">
         <div class="panel-header text-muted" id="del-img">
@@ -348,16 +348,16 @@ function wpdm_image_uploader($data)
         </div>
         <div id="wpdm-drag-drop-area">
             <div class="panel-body">
-                <img id="<?php echo isset($data['id']) ? $data['id'] : $id; ?>"
-                     src="<?php echo isset($data['value']) && $data['value'] != '' ? $data['value'] : $default; ?>"/>
+                <img id="<?php echo esc_attr($id); ?>"
+                     src="<?php echo isset($data['value']) && $data['value'] != '' ? esc_attr($data['value']) : esc_attr($default); ?>"/>
             </div>
             <div class="panel-footer">
-                <input id="<?php echo isset($data['id']) ? $data['id'] : $id; ?>_hidden" type="hidden"
-                       name="<?php echo $data['name']; ?>"
-                       value="<?php echo isset($data['value']) ? $data['value'] : ''; ?>"/>
+                <input id="<?php echo esc_attr($id); ?>_hidden" type="hidden"
+                       name="<?php echo esc_attr($data['name']); ?>"
+                       value="<?php echo isset($data['value']) ? esc_attr($data['value']) : ''; ?>"/>
 
                 <button id="wpdm-browse-button" style="font-size: 9px;text-transform: unset" type="button"
-                        class="btn btn-info btn-block"><?php echo isset($data['btnlabel']) ? $data['btnlabel'] : __('SELECT IMAGE', 'download-manager'); ?></button>
+                        class="btn btn-info btn-block"><?php echo isset($data['btnlabel']) ? esc_html($data['btnlabel']) : esc_html__('SELECT IMAGE', 'download-manager'); ?></button>
                 <div class="progress" id="wmprogressbar"
                      style="height: 30px !important;border-radius: 3px !important;margin: 0;position: relative;background: #0d406799;display: none;box-shadow: none">
                     <div id="wmprogress" class="progress-bar progress-bar-striped progress-bar-animated"
@@ -388,7 +388,7 @@ function wpdm_image_uploader($data)
                     // additional post data to send to our ajax hook
                     'multipart_params' => array(
                         '_ajax_nonce' => wp_create_nonce(NONCE_KEY),
-                        'action' => $data['action'],            // the ajax action name
+                        'action' => esc_attr($data['action']),            // the ajax action name
                     ),
                 );
 

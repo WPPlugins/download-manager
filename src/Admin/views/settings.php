@@ -37,7 +37,7 @@ if (!defined("ABSPATH")) die("Shit happens!");
             ['type' => "submit", "class" => "primary btn-full-height", "name" => '<i class="sinc far fa-hdd"></i> ' . __("Save Settings", "download-manager")]
         ];
 
-        WPDM()->admin->pageHeader(esc_attr__('Settings', WPDM_TEXT_DOMAIN), 'cog sinc color-purple', [], $actions, ['class' => 'pr-0']);
+        WPDM()->admin->pageHeader(esc_attr__('Settings', "download-manager"), 'cog sinc color-purple', [], $actions, ['class' => 'pr-0']);
 
         ?>
 

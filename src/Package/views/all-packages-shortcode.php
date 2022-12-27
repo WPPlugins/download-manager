@@ -62,7 +62,7 @@ if(isset($params['jstable']) && $params['jstable']==1):
             });
 
             <?php if(count($_GET) > 0){ ?>
-            $("div.wpdmdt-toolbar .dataTables_filter").append('<a href="<?php the_permalink(); ?>" class="btn btn-secondary ml-3" style="margin-top: -5px;border: 0;"><?php echo  esc_attr__( 'Reset Filter', WPDM_TEXT_DOMAIN ); ?></a>');
+            $("div.wpdmdt-toolbar .dataTables_filter").append('<a href="<?php the_permalink(); ?>" class="btn btn-secondary ml-3" style="margin-top: -5px;border: 0;"><?php echo  esc_attr__( 'Reset Filter', "download-manager" ); ?></a>');
             <?php } ?>
         });
     </script>

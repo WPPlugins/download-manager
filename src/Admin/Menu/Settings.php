@@ -105,9 +105,9 @@ class Settings
 
         foreach ($stabs as $tab) {
             if ($sel == $tab['id'])
-                echo "<li class='active'><a id='".sanitize_text_field($tab['id'])."' href='".esc_url_raw($tab['link'])."'><i class='".sanitize_text_field($tab['icon'])."' style='margin-right: 6px'></i>".sanitize_text_field($tab['title'])."</a></li>";
+                echo "<li class='active'><a id='".esc_attr($tab['id'])."' href='".esc_url_raw($tab['link'])."'><i class='".esc_attr($tab['icon'])."' style='margin-right: 6px'></i>".wp_kses($tab['title'])."</a></li>";
             else
-                echo "<li class=''><a id='".sanitize_text_field($tab['id'])."' href='".esc_url_raw($tab['link'])."'><i class='".sanitize_text_field($tab['icon'])."' style='margin-right: 6px'></i>".sanitize_text_field($tab['title'])."</a></li>";
+                echo "<li class=''><a id='".esc_attr($tab['id'])."' href='".esc_url_raw($tab['link'])."'><i class='".esc_attr($tab['icon'])."' style='margin-right: 6px'></i>".wp_kses($tab['title'])."</a></li>";
 
         }
     }

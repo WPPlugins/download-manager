@@ -288,14 +288,14 @@ class Login
         if ((int)get_option('__wpdm_modal_login', 0) !== 1) return "";
         $defaults = array('class' => '', 'redirect' => '', 'logo' => '', 'label' => __('Login', 'download-manager'), 'id' => 'wpdmmodalloginbtn');
         $params = shortcode_atts($defaults, $params, 'wpdm_modal_login_form');
-        $redirect = isset($params['redirect']) && $params['redirect'] !== '' ? "data-redirect='{$params['redirect']}'" : '';
-        $logo = isset($params['logo']) && $params['logo'] !== '' ? "data-logo='{$params['logo']}'" : '';
+        $redirect = isset($params['redirect']) && $params['redirect'] !== '' ? "data-redirect='".esc_attr($params['redirect'])."'" : '';
+        $logo = isset($params['logo']) && $params['logo'] !== '' ? "data-logo='{".esc_attr($params['logo'])."}'" : '';
         ob_start();
         ?>
         <div class="w3eden d-inline-block"><a href="#" <?php echo $redirect; ?> <?php echo $logo; ?> type="button"
-                                              id="<?php echo $params['id']; ?>" class="<?php echo $params['class']; ?>"
+                                              id="<?php echo esc_attr($params['id']); ?>" class="<?php echo esc_attr($params['class']); ?>"
                                               data-toggle="modal"
-                                              data-target="#wpdmloginmodal"><?php echo $params['label']; ?></a></div>
+                                              data-target="#wpdmloginmodal"><?php echo __::sanitize_var($params['label'], 'kses'); ?></a></div>
         <?php
         $btncode = ob_get_clean();
         return $btncode;

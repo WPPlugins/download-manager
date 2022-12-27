@@ -39,14 +39,15 @@ class __
     static function media_field($data)
     {
         ob_start();
+        $id = isset($data['id']) ? sanitize_text_field($data['id']) : uniqid();
         ?>
         <div class="input-group">
-            <input placeholder="<?php echo $data['placeholder']; ?>" type="url" name="<?php echo $data['name']; ?>"
-                   id="<?php echo isset($data['id']) ? $data['id'] : ($id = uniqid()); ?>" class="form-control"
-                   value="<?php echo isset($data['value']) ? $data['value'] : ''; ?>"/>
+            <input placeholder="<?php echo esc_attr($data['placeholder']); ?>" type="url" name="<?php echo esc_attr($data['name']); ?>"
+                   id="<?php echo esc_attr($id); ?>" class="form-control"
+                   value="<?php echo isset($data['value']) ? esc_attr($data['value']) : ''; ?>"/>
             <span class="input-group-btn">
                         <button class="btn btn-default btn-media-upload" type="button"
-                                rel="#<?php echo isset($data['id']) ? $data['id'] : $id; ?>"><i
+                                rel="#<?php echo esc_attr($id); ?>"><i
                                     class="fa fa-picture-o"></i></button>
                     </span>
         </div>
@@ -555,7 +556,7 @@ class __
         $nonce_var = __::sanitize_var($nonce_var, 'txt');
         if($is_ajax) {
             if(!check_ajax_referer($nonce_key, $nonce_var, false))
-                wp_send_json(['success' => false, 'message' => esc_attr__( 'Referer verification failed', WPDM_TEXT_DOMAIN )]);
+                wp_send_json(['success' => false, 'message' => esc_attr__( 'Referer verification failed', "download-manager" )]);
         }
         if(!wp_verify_nonce(wpdm_query_var($nonce_var), $nonce_key)) wp_send_json(['success' => false, 'message' => __('Security token is expired! Refresh the page and try again.', 'download-manager')]);
         if(!current_user_can($access_level)) wp_send_json(['success' => false, 'message' => __( "You are not allowed to execute this action!", "download-manager" )]);

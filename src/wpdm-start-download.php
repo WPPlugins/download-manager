@@ -62,7 +62,7 @@ if($parallel_download === 0 && (int)TempStorage::get("download.".wpdm_get_client
     Messages::error(get_option('__wpdm_parallel_download_msg', "Another download is in progress from your IP, please wait until finished."), 1);
 
 if ($fileCount > 1 && !$idvdl) {
-	Messages::error(esc_attr__( 'Multi-file download is only available with the pro version!', WPDM_TEXT_DOMAIN ), 1);
+	Messages::error(esc_attr__( 'Multi-file download is only available with the pro version!', "download-manager" ), 1);
 }
 else {
 

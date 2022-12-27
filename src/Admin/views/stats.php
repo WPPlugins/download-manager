@@ -15,7 +15,7 @@ $base_page_uri = "edit.php?post_type=wpdmpro&page=wpdm-stats";
             ['link' => "edit.php?post_type=wpdmpro&page=wpdm-stats&type=history", "name" => __("Download History", "download-manager"), "active" => ($type === 'history')],
     ];
 
-    WPDM()->admin->pageHeader(esc_attr__( 'History and Stats', WPDM_TEXT_DOMAIN ), 'chart-pie color-purple', $menus, $actions);
+    WPDM()->admin->pageHeader(esc_attr__( 'History and Stats', "download-manager" ), 'chart-pie color-purple', $menus, $actions);
 
     ?>
 

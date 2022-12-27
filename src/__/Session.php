@@ -21,7 +21,7 @@ class Session
         if(isset($_COOKIE['__wpdm_client']))
             $deviceID = __::sanitize_var($_COOKIE['__wpdm_client'], 'alphanum');
         else {
-            $agent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
+            $agent = isset($_SERVER['HTTP_USER_AGENT']) ? sanitize_text_field($_SERVER['HTTP_USER_AGENT']) : '';
             $deviceID = md5(__::get_client_ip() . $agent);
             $deviceID = __::sanitize_var($deviceID, 'alphanum');
             if(!defined('WPDM_ACCEPT_COOKIE') || WPDM_ACCEPT_COOKIE !== false) {
@@ -55,7 +55,7 @@ class Session
     static function deviceID($deviceID = null)
     {
         if(!$deviceID) {
-            $agent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
+            $agent = isset($_SERVER['HTTP_USER_AGENT']) ? sanitize_text_field($_SERVER['HTTP_USER_AGENT']) : '';
             $deviceID = md5(__::get_client_ip() . $agent);
         }
         $deviceID = __::sanitize_var($deviceID, 'alphanum');

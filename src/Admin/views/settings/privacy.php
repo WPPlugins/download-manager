@@ -50,21 +50,21 @@ do_action("wpdm_privacy_settings_panel");
         <label><input type="checkbox" name="__wpdm_auto_clean_cache" <?php checked(1, get_option('__wpdm_auto_clean_cache', 0)); ?> value="1" /> <?php echo __( "Auto clean cache dir & temporary storage everyday", "download-manager" ) ?></label>
     </div>
     <div class="panel-footer bg-white">
-        <label><?= __('Cron URL', WPDM_TEXT_DOMAIN) ?></label>
+        <label><?php echo esc_attr__('Cron URL', "download-manager") ?></label>
         <div class="input-group">
-            <input type="text" class="form-control" id="cccronurl" readonly value="<?= home_url('/?cpc=wpdmcc&cronkey='.WPDM_CRON_KEY); ?>" />
+            <input type="text" class="form-control" id="cccronurl" readonly value="<?php echo home_url('/?cpc=wpdmcc&cronkey='.WPDM_CRON_KEY); ?>" />
             <div class="input-group-btn">
-                <button class="btn btn-secondary ttip" type="button" title="<?= __('Copy', WPDM_TEXT_DOMAIN) ?>" onclick="WPDM.copy('cccronurl')"><i class="fa fa-copy"></i></button>
+                <button class="btn btn-secondary ttip" type="button" title="<?php echo esc_attr__('Copy', "download-manager") ?>" onclick="WPDM.copy('cccronurl')"><i class="fa fa-copy"></i></button>
             </div>
         </div>
-        <em class="note"><?= __('Your can configure a cron job from your hosting control panel using the url above for reliable cron execution.', WPDM_TEXT_DOMAIN) ?></em>
+        <em class="note"><?php echo esc_attr__('Your can configure a cron job from your hosting control panel using the url above for reliable cron execution.', "download-manager") ?></em>
     </div>
 </div>
 <script>
     jQuery(function($) {
         $('#clearCache').on('click', function () {
             $(this).html('<i class="fa fa-sync fa-spin"></i>');
-            $.post(ajaxurl, {action : 'clear_cache', ccnonce: '<?= wp_create_nonce(WPDM_PRI_NONCE) ?>'}, function (res) {
+            $.post(ajaxurl, {action : 'clear_cache', ccnonce: '<?php echo wp_create_nonce(WPDM_PRI_NONCE) ?>'}, function (res) {
                 $('#clearCache').html('<i class="fa fa-check-circle"></i>')
             });
             return false;
@@ -72,7 +72,7 @@ do_action("wpdm_privacy_settings_panel");
         $('#clearStats').on('click', function () {
             if (!confirm('Are you sure?')) return false;
             $(this).html('<i class="fa fa-sync fa-spin"></i>');
-            $.post(ajaxurl, {action : 'clear_stats', csnonce: '<?= wp_create_nonce(WPDM_PRI_NONCE) ?>'}, function (res) {
+            $.post(ajaxurl, {action : 'clear_stats', csnonce: '<?php echo wp_create_nonce(WPDM_PRI_NONCE) ?>'}, function (res) {
                 $('#clearStats').html('<i class="fa fa-check-circle"></i>')
             });
             return false;

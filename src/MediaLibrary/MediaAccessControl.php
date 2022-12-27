@@ -86,7 +86,7 @@ class MediaAccessControl
             $current_user = wp_get_current_user();
             $ID = wpdm_query_var('wpdmmediaid', 'int');
             $media = get_post($ID);
-            if(!$media) Messages::fullPage('404', esc_attr__( 'Media not found!', WPDM_TEXT_DOMAIN ));
+            if(!$media) Messages::fullPage('404', esc_attr__( 'Media not found!', "download-manager" ));
             $media_meta = wp_get_attachment_metadata($ID);
             //wpdmdd($media_meta);
             //wpdmdd($media);
