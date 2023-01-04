@@ -3,7 +3,7 @@
 	<!--[if !mso]><!--><meta http-equiv="X-UA-Compatible" content="IE=edge" /><!--<![endif]-->
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<meta charset="UTF-8">
-	<title>[#subject#]</title>
+	<title>{{subject}}</title>
 	<style type="text/css">
 		body{
 			letter-spacing: 0.3px;
@@ -111,14 +111,14 @@
 			</tr>
 			<tr>
 				<td id="content" style="padding:10px 20px;" valign="top">
-					<div style="border-radius: 6px;box-shadow: 0 0 10px rgba(0,0,0,0.15);margin: 0 20px;padding: 50px;background: #ffffff url([#banner#]);background-size: 100% 100%;font-family: Proxima Nova, Avenir, Helvetica Neue, Helvetica, Verdana, Arial, sans-serif;">
-						<h1 style="font-size: 14pt;text-align: center"><a href="[#homeurl#]" style="color: #04BEFD;text-decoration: none">[#img_logo#]</a></h1>
+					<div style="border-radius: 6px;box-shadow: 0 0 10px rgba(0,0,0,0.15);margin: 0 20px;padding: 50px;background: #ffffff url({{banner}});background-size: 100% 100%;font-family: Proxima Nova, Avenir, Helvetica Neue, Helvetica, Verdana, Arial, sans-serif;">
+						<h1 style="font-size: 14pt;text-align: center"><a href="{{homeurl}}" style="color: #04BEFD;text-decoration: none">{{img_logo}}</a></h1>
 						<div id="inner" style="padding: 20px;border-radius: 6px;margin: 20px 0;background: #ffffff;background: rgba(255,255,255,0.9);">
-							<div style="font-size: 8pt; color: #999999">[#date#]</div>
-						[#message#]
+							<div style="font-size: 8pt; color: #999999">{{date}}</div>
+						{{message}}
 						</div>
 						<div style="text-align: center;font-size: 11px;color: rgba(0,0,0,0.4);padding: 0 0 15px 0">
-							[#footer_text#]
+							{{footer_text}}
 						</div>
 					</div>
 				</td>

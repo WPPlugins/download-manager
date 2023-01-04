@@ -133,17 +133,18 @@ class Field
     static function meidapicker($attrs, $value = '')
     {
         ob_start();
-        $_attrs = '';
-        if (is_array($attrs)) {
-            foreach ($attrs as $attr => $value) {
-	            $attr = sanitize_key($attr);
-	            $value = esc_attr($value);
-                $_attrs .= "$attr='$value' ";
-            }
-        }
+
         ?>
         <div class="input-group">
-            <input <?php echo $_attrs; ?> type="url" value="<?php echo esc_attr($value); ?>"/>
+            <input
+                    <?php
+                    if (is_array($attrs)) {
+	                    foreach ($attrs as $attr => $value) {
+		                    echo sanitize_key($attr)."='".esc_attr($value)."' ";
+	                    }
+                    }
+                    ?>
+                    type="url" value="<?php echo esc_attr($value); ?>"/>
             <span class="input-group-append">
                 <button class="btn btn-secondary btn-media-upload" type="button" rel="#<?php echo esc_attr($attrs['id']); ?>"><i
                             class="far fa-image"></i></button>

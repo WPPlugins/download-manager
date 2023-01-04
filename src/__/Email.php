@@ -195,6 +195,8 @@ class Email {
 	    $params['img_logo']     = isset( $params['logo'] ) && $params['logo'] != '' ? "<img style='max-width: 70%;{$logo_wh}' src='{$logo}' alt='".esc_attr(get_option('blogname'))."' />" : get_bloginfo('name');
 	    $params['banner']       = isset( $params['banner'] ) && $params['banner'] != '' ? esc_url($params['banner']) : "";
         $params['banner_img']   = isset( $params['banner'] ) && $params['banner'] != '' ? "<img style='max-width: 100%;' src='{$banner}' alt='Banner Image' />" : "";
+		$params['date'] = date(get_option('date_format'));
+		$params['site_tagline'] = get_bloginfo('description');
         $template_file          = get_option( "__wpdm_email_template", "default.html" );
         $emltpl = null;
         if ( isset( $params['template_file'] ) ) {
@@ -212,10 +214,12 @@ class Email {
         if(file_exists($emltpl))
             $template_data = file_get_contents( $emltpl );
 
-        $template['message'] = str_replace( "[#message#]", stripslashes( wpautop( $template['message'] ) ), $template_data );
+        //$template['message'] = str_replace( "[#message#]", stripslashes( wpautop( $template['message'] ) ), $template_data );
+        $template['message'] = str_replace( "{{message}}", stripslashes( wpautop( $template['message'] ) ), $template_data );
         $tags                = self::tags();
         $new_pasrams         = array();
         foreach ( $params as $key => $val ) {
+	        $new_pasrams["{{{$key}}}"] = stripslashes($val);
             $new_pasrams["[#{$key}#]"] = stripslashes($val);
         }
         $params = $new_pasrams;
@@ -224,6 +228,7 @@ class Email {
                 $params[$key] = $info['value'];
             }
         }
+
 
         $template['subject'] = str_replace( array_keys( $params ), array_values( $params ), $template['subject'] );
         if(isset($template['to_email']))

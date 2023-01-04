@@ -12,14 +12,18 @@ class Messages {
 
     public static function message($msg, $die = 0, $style = 'embed'){
         if(is_array($msg)) {
+	        $title = sanitize_title($msg['title']);
+	        $type = sanitize_html_class($msg['type']);
+	        $_message = sanitize_title($msg['message']);
             if($style === 'modal')
-                $message = "<script>WPDM.bootAlert('{$msg['title']}', '<div class=\'text-{$msg['type']}\'>{$msg['message']}</div>')</script>";
+                $message = "<script>WPDM.bootAlert('{$title}', '<div class=\'text-{$type}\'>{$_message}</div>')</script>";
             else if($style === 'notify')
-                $message = "<script>WPDM.notify('<strong>{$msg['title']}</strong><br/>{$msg['message']}', '{$msg['type']}', 'top-right')</script>";
+                $message = "<script>WPDM.notify('<strong>{$msg['title']}</strong><br/>{$_message}', '{$msg['type']}', 'top-right')</script>";
             else
-                $message = "<div class='w3eden'><div class='alert alert-{$msg['type']}' data-title='{$msg['title']}'>{$msg['message']}</div></div>";
+                $message = "<div class='w3eden'><div class='alert alert-{$msg['type']}' data-title='{$msg['title']}'>{$_message}</div></div>";
         }
         else {
+	        $msg = sanitize_title($msg);
             if($style === 'mpdal')
                 $message = "<script>WPDM.bootAlert('Attention Please!', '{$msg}')</script>";
             else if($style === 'notify')
@@ -29,7 +33,7 @@ class Messages {
         }
         if($die==-1) return $message;
         if($die==0)
-            echo $message;
+            echo wp_kses_post($message);
         if($die==1) {
             wp_die($message);
         }

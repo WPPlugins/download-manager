@@ -59,12 +59,14 @@ if(!defined("ABSPATH")) die("Shit happens!");
                     $attrs = '';
                     if(isset($menu['attrs'])) {
                         foreach ($menu['attrs'] as $key => $value) {
+	                        $key = sanitize_key($key);
+                            $value = esc_attr($value);
                             $attrs .= "{$key}='{$value}' ";
                         }
                     }
                     $link = admin_url(wpdm_valueof($menu, 'link'));
                     $active = wpdm_valueof($menu, 'active') ? 'class="active"' : '';
-                    echo "<li {$active}><a href='{$link}' {$attrs}>{$menu['name']}</a></li>";
+                    echo "<li {$active}><a href='".esc_url($link)."' {$attrs}>".esc_html($menu['name'])."</a></li>";
                 }
                 ?>
             </ul>

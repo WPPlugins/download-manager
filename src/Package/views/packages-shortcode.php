@@ -23,11 +23,11 @@ if(isset($scparams['tbgrid'])){
 
 ?>
 <div class='w3eden'>
-    <div class='<?php echo $css_class; ?>'>
+    <div class='<?php echo esc_attr($css_class); ?>'>
 
         <?php include \WPDM\__\Template::locate($toolbar_file, __DIR__); ?>
 
-        <div id="content_<?php echo $scid; ?>">
+        <div id="content_<?php echo esc_attr($scid); ?>">
             <?php echo $html ?>
             <?php echo $pagination ?>
         </div>
