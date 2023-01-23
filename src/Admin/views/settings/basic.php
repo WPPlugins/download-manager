@@ -119,21 +119,21 @@
     <div class="panel-heading"><?php _e("Verification Settings", "download-manager"); ?></div>
     <div class="panel-body">
 
-        <fieldset>
-            <legend><?php echo __("Blocked IPs", "download-manager"); ?></legend>
             <div class="form-group">
+                <label><?php echo __("Blocked IPs", "download-manager"); ?></label>
                 <textarea placeholder="<?php _e("One IP per line", "download-manager"); ?>" rows="5"
                           class="form-control"
                           name="__wpdm_blocked_ips"><?php echo esc_attr(get_option('__wpdm_blocked_ips')); ?></textarea>
                 <em><?php _e("List IP Addresses to blacklist. One IP per line ( Ex: IPv4 - 192.168.23.12 or 192.168.23.1/24 or 192.168.23.* , IPv6 - 2a01:8760:2:3001::1 or 2620:112:3000::/44 )", "download-manager"); ?></em>
             </div>
             <div class="form-group">
+                <label><?php echo __("Message for Blocked IPs", "download-manager"); ?></label>
                 <textarea placeholder="<?php _e("Message to show when an IP is blocked", "download-manager"); ?>"
                           class="form-control"
                           name="__wpdm_blocked_ips_msg"><?php echo get_option('__wpdm_blocked_ips_msg'); ?></textarea>
                 <em><?php _e("Message to show when an IP is blocked", "download-manager"); ?></em>
             </div>
-        </fieldset>
+
 
     </div>
 </div>
@@ -197,7 +197,11 @@
 <div class="panel panel-default">
     <div class="panel-heading"><?php echo __("Messages", "download-manager"); ?></div>
     <div class="panel-body">
-
+        <div class="form-group">
+            <label for="__wpdm_download_limit_exceeded"><?php echo __("Download Limit Exceeded Message for Packages:", "download-manager"); ?></label>
+            <textarea id="__wpdm_download_limit_exceeded" name="__wpdm_download_limit_exceeded"
+                      class="form-control"><?php echo stripslashes(get_option('__wpdm_download_limit_exceeded')); ?></textarea>
+        </div>
         <div class="form-group">
             <label for="__wpdm_permission_denied_msg"><?php echo __("Permission Denied Message for Packages:", "download-manager"); ?></label>
             <textarea id="__wpdm_permission_denied_msg" name="__wpdm_permission_denied_msg"

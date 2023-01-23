@@ -321,28 +321,29 @@ class Shortcodes
      * @return array|null|\WP_Post
      * @usage Shortcode callback function for [wpdm_search_result]
      */
-    function searchResult($params = array())
-    {
-        global $wpdb;
+	function searchResult($params = array())
+	{
+		global $wpdb;
 
-        if (is_array($params))
-            @extract($params);
-        $template = isset($template) && $template != '' ? $template : 'link-template-calltoaction3';
-        $async = isset($async) ? $async : 0;
-        $items_per_page = isset($items_per_page) ? $items_per_page : 0;
-        update_post_meta(get_the_ID(), "__wpdm_link_template", $template);
-        update_post_meta(get_the_ID(), "__wpdm_items_per_page", $items_per_page);
-        $strm = wpdm_query_var('search', 'esc_attr');
-        if ($strm === '') $strm = wpdm_query_var('s', 'esc_attr');
-        $html = '';
-        $cols = isset($cols) ? $cols : 1;
-        $colspad = isset($colspad) ? $colspad : 1;
-        $colsphone = isset($colsphone) ? $colsphone : 1;
-        if (($strm == '' && isset($init) && $init == 1) || $strm != '')
-            $html = $this->packages(array('items_per_page' => $items_per_page, 'template' => $template, 's' => $strm, 'paging' => true, 'toolbar' => 0, 'cols' => $cols, 'colsphone' => $colsphone, 'colspad' => $colspad, 'async' => $async));
-        $html = "<div class='w3eden'><form id='wpdm-search-form' style='margin-bottom: 20px'><div class='input-group input-group-lg'><div class='input-group-addon input-group-prepend'><span class=\"input-group-text\"><i class='fas fa-search'></i></span></div><input type='text' name='search' value='" . $strm . "' class='form-control input-lg' /></div></form>{$html}</div>";
-        return str_replace(array("\r", "\n"), "", $html);
-    }
+		if (is_array($params))
+			@extract($params);
+		$template = isset($template) && $template != '' ? $template : 'link-template-calltoaction3';
+		$async = isset($async) ? $async : 0;
+		update_post_meta(get_the_ID(), "__wpdm_link_template", $template);
+		$strm = wpdm_query_var('search', 'esc_attr');
+		if ($strm === '') $strm = wpdm_query_var('s', 'esc_attr');
+		//$strm = esc_attr($strm);
+		$html = '';
+		$cols = isset($cols) ? $cols : 1;
+		$items_per_page = isset($items_per_page) ? $items_per_page : $cols * 6;
+		update_post_meta(get_the_ID(), "__wpdm_items_per_page", $items_per_page);
+		$colspad = isset($colspad) ? $colspad : 1;
+		$colsphone = isset($colsphone) ? $colsphone : 1;
+		if (($strm == '' && isset($init) && $init == 1) || $strm != '')
+			$html = $this->packages(array('items_per_page' => $items_per_page, 'template' => $template, 's' => $strm, 'paging' => true, 'toolbar' => 0, 'cols' => $cols, 'colsphone' => $colsphone, 'colspad' => $colspad, 'async' => $async));
+		$html = "<div class='w3eden'><form id='wpdm-search-form' style='margin-bottom: 20px'><div class='input-group input-group-lg'><div class='input-group-addon input-group-prepend'><span class=\"input-group-text\"><i class='fas fa-search'></i></span></div><input type='text' name='search' value='" . $strm . "' class='form-control input-lg' /></div></form>{$html}</div>";
+		return str_replace(array("\r", "\n"), "", $html);
+	}
 
     /**
      * @usage Short-code function for total download count

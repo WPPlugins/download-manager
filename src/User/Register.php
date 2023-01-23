@@ -30,9 +30,6 @@ class Register
     {
         add_action('init', [$this, 'process']);
         add_shortcode('wpdm_reg_form', [$this, 'form']);
-
-        add_action('registration_errors', [$this, 'verifyEmail'], 10, 3);
-
     }
 
     static function formFields($params = [])
@@ -397,18 +394,5 @@ class Register
         }
 
     }
-
-
-    function verifyEmail($errors, $sanitized_user_login, $user_email)
-    {
-        if (!$errors) $errors = new \WP_Error();
-        if (!wpdm_verify_email($user_email)) {
-            $emsg = get_option('__wpdm_blocked_domain_msg');
-            if (trim($emsg) === '') $emsg = __('Your email address is blocked!', 'download-manager');
-            $errors->add('blocked_email', $emsg);
-        }
-        return $errors;
-    }
-
 }
 

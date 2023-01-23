@@ -224,6 +224,17 @@ if(is_admin()){
             border-radius: 5px;
         }
 
+        .c-pointer{
+            color: #1272d2;
+            transition: all ease-in-out 300ms;
+        }
+        .c-pointer:hover{
+            color: #2c92fa;
+        }
+        .d-inline-block{
+            display: inline-block !important;
+        }
+
         img.fm-folder{
             box-shadow: none;
             width: 16px;
@@ -514,6 +525,7 @@ if(is_admin()){
         <div class="panel-body">
             <div class="media well-sm well-file" style="margin: 0;padding: 0">
                 <div class="pull-right">
+                    <span id="__file_search"><input  v-on:keyup.enter="searchAsset.execute()" type="search" v-model="keyword" placeholder="Search File..." class="form-control input-sm" style="font-family: 'Overpass Mono', monospace;width: 140px;display: inline-block;padding: 0 10px;min-height: 20px;height: 27px;"></span>
                     <button class="btn btn-primary btn-simple btn-sm ttip" title="Reload" id="reload"><i class="fa fa-sync"></i></button>
                     <div class="btn-group">
                         <button class="btn btn-simple btn-sm" data-toggle="modal" data-target="#newfol"><i class="fa fa-folder-open"></i> <?php echo __( "New Folder", "download-manager" ) ?></button>
@@ -539,6 +551,17 @@ if(is_admin()){
         </div>
         <div class="panel-heading" style="border-radius: 0;border-top: 1px solid #dddddd">
             <div id="ldn" style="float:right;font-size: 9pt;margin-top: 10px;display: none" class="text-danger"><i class="fa fa-sun fa-spin"></i> <?php echo  esc_attr__( 'Loading', "download-manager" ); ?>...</div>
+            <div v-if="total_pages > 1" id="__asset_pages" style="margin: 0;float: right;font-weight: 400;font-family: 'Overpass Mono', sans-serif !important;white-space: nowrap">
+                <div style="float:left;">
+                    <div class="c-pointer d-inline-block" v-on:click="assetPages.prevPage()"><i v-if="current_page > 1" class="fa fa-arrow-alt-circle-left"></i></div> <span class="text-muted">On Page</span> <strong>{{current_page}}</strong> <span class="text-muted">of total</span> <strong>{{total_pages}}</strong> <div class="c-pointer d-inline-block" v-if="current_page < total_pages" v-on:click="assetPages.nextPage()"><i class="fa fa-arrow-alt-circle-right"></i></div>
+                </div>
+                <div style="display: inline-block;margin-left: 10px">
+                    <div class="input-group input-group-xs" style="width: 90px;">
+                        <input type="number" @input="event => goto_page = event.target.value" :value="current_page" :max="total_pages" min="1" placeholder="Page" class="form-control" style="min-height: 16px; line-height: 20px; height: 20px; padding: 0px; font-size: 10px;text-align: center;font-family: 'Overpass Mono', monospace;">
+                        <div class="input-group-btn"><button type="button" v-on:click="assetPages.gotoPage()" class="btn btn-secondary btn-xs">GO</button></div>
+                    </div>
+                </div>
+            </div>
             <div id="breadcrumb" style="margin: 0"></div>
         </div>
         <div class="panel-body-c" id="wpdmfm_explorer">
@@ -883,8 +906,46 @@ if(is_admin()){
     <script src="<?php echo WPDM_BASE_URL ?>assets/js/vue.min.js"></script>
     <script src="<?php echo WPDM_BASE_URL ?>assets/js/simple-scrollbar.min.js"></script>
 <script>
-    var current_path = '', editor = '', opened = '', wpdmfm_active_asset = '', wpdmfm_active_asset_settings;
+    var current_path = '', editor = '', opened = '', wpdmfm_active_asset = '', wpdmfm_active_asset_settings, $ = jQuery;
     var _path = localStorage.getItem('__wpdm_am_cp');
+    var searchAsset = new Vue({
+        el: '#__file_search',
+        data: {
+            keyword: '',
+        },
+        methods: {
+            execute: function () {
+                WPDMAM.searchDir(current_path, this.keyword);
+            }
+
+        }
+    });
+
+    var assetPages = new Vue({
+        el: '#__asset_pages',
+        data: {
+            total_pages: 1,
+            current_page: 1,
+            items_per_page: 15,
+            goto_page: 1
+        },
+        methods: {
+            nextPage: function () {
+                let topage = this.current_page + 1;
+                topage = topage > this.total_pages ? 1 : topage;
+                WPDMAM.scanDir(current_path, topage)
+            },
+            prevPage: function () {
+                let topage = this.current_page - 1;
+                topage = topage < 1 ? 1 : topage;
+                WPDMAM.scanDir(current_path, topage)
+            },
+            gotoPage: function() {
+                WPDMAM.scanDir(current_path, this.goto_page);
+            }
+
+        }
+    });
     if(_path) current_path = _path;
     var assetSettings = new Vue({
         el: '#__asset_settings',
@@ -929,6 +990,152 @@ if(is_admin()){
         }
     }
 
+    var WPDMAM = {
+        assetSettings: function (asset, row) {
+            $('.item-row').removeClass('active');
+            row.addClass('active');
+            wpdmfm_active_asset = asset;
+            $('#filewin').removeClass('col-md-9').addClass('col-md-6');
+            $('#cogwin').fadeIn();
+            $('#cogwin > .panel').addClass('blockui');
+            $.get(ajaxurl, {__wpdm_filesettings:'<?php echo wp_create_nonce(WPDMAM_NONCE_KEY); ?>', action: 'wpdm_filesettings', file: asset }, function (data) {
+                data.sharecode = "[wpdm_asset id='"+data.ID+"']";
+                assetSettings.asset = data;
+                $('#cogwin > .panel').removeClass('blockui');
+            });
+        },
+        copy: function (item) {
+            localStorage.setItem("__wpdm_fm_copy", current_path+"|||"+item);
+            localStorage.setItem("__wpdm_fm_move", 0);
+            $('.btn-copy').html('<i class="fa fa-copy"></i>');
+            $('.btn-cut').html('<i class="fa fa-cut"></i>');
+            $('#btn-paste').removeAttr('disabled').attr("data-item", localStorage.getItem("__wpdm_fm_copy"));
+        },
+        cut: function (item) {
+            localStorage.setItem("__wpdm_fm_copy", current_path+"|||"+item);
+            localStorage.setItem("__wpdm_fm_move", 1);
+            $('.btn-copy').html('<i class="fa fa-copy"></i>');
+            $('.btn-cut').html('<i class="fa fa-cut"></i>');
+            $('#btn-paste').removeAttr('disabled').attr("data-item", localStorage.getItem("__wpdm_fm_copy"));
+        },
+        delete: function (filepath) {
+            if(!confirm('Are you sure?')) return false;
+            $.get(ajaxurl, {__wpdm_unlink:'<?php echo wp_create_nonce(WPDMAM_NONCE_KEY); ?>', action: 'wpdm_unlink', path: current_path, delete: filepath}, function (data) {
+                WPDMAM.scanDir(current_path);
+            });
+        },
+        scanDir: function(path, page) {
+            this.hideEditor();
+            this.hideSettings();
+            $('#reload').attr('disabled', 'disabled').find('.fa').addClass('fa-spin');
+            WPDM.blockUI('#filewin');
+            if(typeof page === 'undefined') page = 1;
+            localStorage.setItem('__wpdm_am_cp', path);
+            $.get(ajaxurl, {__wpdm_scandir:'<?php echo wp_create_nonce(NONCE_KEY); ?>', action: 'wpdm_scandir', path: path, sdpage: page}, function (data) {
+                if(data.success === true) {
+                    assetPages.total_pages = data.total_pages;
+                    assetPages.current_page = data.current_page;
+                    $('#scandir').html('');
+                    var items = data.items;
+                    $.each(items, function (index, entry) {
+                        if (entry.type == 'file') {
+                            ext = entry.contenttype.replace("/", "_");
+                            var tpl = $('#fileTPL').html();
+                            tpl = tpl.replace("{{icon}}", entry.icon);
+                            tpl = tpl.replace("{{ext}}", ext);
+                            tpl = tpl.replace("{{contenttype}}", entry.contenttype);
+                            tpl = tpl.replace("{{item_label}}", entry.item_label);
+                            tpl = tpl.replace("{{note}}", entry.note);
+                            tpl = tpl.replace("{{file_size}}", entry.file_size);
+                            tpl = tpl.replace(/\{\{path\}\}/ig, entry.path);
+                            tpl = tpl.replace(/\{\{item\}\}/ig, entry.item);
+                            tpl = tpl.replace(/\{\{id\}\}/ig, index);
+                            var _star = entry.featured ? 'fas' : 'far';
+                            tpl = tpl.replace(/\{\{star\}\}/ig, _star);
+                        } else {
+                            var tpl = $('#dirTPL').html();
+                            tpl = tpl.replace("{{icon}}", entry.icon);
+                            tpl = tpl.replace("{{item_label}}", entry.item_label);
+                            tpl = tpl.replace("{{note}}", entry.note);
+                            tpl = tpl.replace("{{file_size}}", entry.file_size);
+                            tpl = tpl.replace(/\{\{path\}\}/ig, entry.path);
+                            tpl = tpl.replace(/\{\{item\}\}/ig, entry.item);
+                            tpl = tpl.replace(/\{\{id\}\}/ig, index);
+                            tpl = tpl.replace(/\{\{dirid\}\}/ig, entry.id);
+                        }
+                        $('#scandir').append(tpl);
+                    });
+                    WPDM.unblockUI('#filewin');
+                    $('#reload').removeAttr('disabled', 'disabled').html("<i class='fa fa-sync'></i>");
+                    $('#breadcrumb').html(data.breadcrumb);
+                } else {
+                    WPDM.pushNotify("<?=esc_attr__( 'Error', 'download-manager' ); ?>!", data.message, 'https://cdn0.iconfinder.com/data/icons/small-n-flat/24/678080-shield-error-256.png', 'https://cdn0.iconfinder.com/data/icons/small-n-flat/24/678080-shield-error-256.png');
+                }
+            });
+        },
+        searchDir: function(path, keyword) {
+            this.hideEditor();
+            this.hideSettings();
+            $('#reload').attr('disabled', 'disabled').find('.fa').addClass('fa-spin');
+            WPDM.blockUI('#filewin');
+            if(typeof page === 'undefined') page = 1;
+            localStorage.setItem('__wpdm_am_cp', path);
+            $.get(ajaxurl, {__wpdm_scandir:'<?php echo wp_create_nonce(NONCE_KEY); ?>', action: 'wpdm_scandir', path: path, keyword: keyword}, function (data) {
+                if(data.success === true) {
+                    assetPages.total_pages = data.total_pages;
+                    assetPages.current_page = data.current_page;
+                    $('#scandir').html('');
+                    var items = data.items;
+                    $.each(items, function (index, entry) {
+                        if (entry.type == 'file') {
+                            ext = entry.contenttype.replace("/", "_");
+                            var tpl = $('#fileTPL').html();
+                            tpl = tpl.replace("{{icon}}", entry.icon);
+                            tpl = tpl.replace("{{ext}}", ext);
+                            tpl = tpl.replace("{{contenttype}}", entry.contenttype);
+                            tpl = tpl.replace("{{item_label}}", entry.item_label);
+                            tpl = tpl.replace("{{note}}", entry.note);
+                            tpl = tpl.replace("{{file_size}}", entry.file_size);
+                            tpl = tpl.replace(/\{\{path\}\}/ig, entry.path);
+                            tpl = tpl.replace(/\{\{item\}\}/ig, entry.item);
+                            tpl = tpl.replace(/\{\{id\}\}/ig, index);
+                            var _star = entry.featured ? 'fas' : 'far';
+                            tpl = tpl.replace(/\{\{star\}\}/ig, _star);
+                        } else {
+                            var tpl = $('#dirTPL').html();
+                            tpl = tpl.replace("{{icon}}", entry.icon);
+                            tpl = tpl.replace("{{item_label}}", entry.item_label);
+                            tpl = tpl.replace("{{note}}", entry.note);
+                            tpl = tpl.replace("{{file_size}}", entry.file_size);
+                            tpl = tpl.replace(/\{\{path\}\}/ig, entry.path);
+                            tpl = tpl.replace(/\{\{item\}\}/ig, entry.item);
+                            tpl = tpl.replace(/\{\{id\}\}/ig, index);
+                            tpl = tpl.replace(/\{\{dirid\}\}/ig, entry.id);
+                        }
+                        $('#scandir').append(tpl);
+                    });
+                    WPDM.unblockUI('#filewin');
+                    $('#reload').removeAttr('disabled', 'disabled').html("<i class='fa fa-sync'></i>");
+                    $('#breadcrumb').html(data.breadcrumb);
+                } else {
+                    WPDM.pushNotify("<?=esc_attr__( 'Error', 'download-manager' ); ?>!", data.message, 'https://cdn0.iconfinder.com/data/icons/small-n-flat/24/678080-shield-error-256.png', 'https://cdn0.iconfinder.com/data/icons/small-n-flat/24/678080-shield-error-256.png');
+                }
+            });
+        },
+        hideEditor: function() {
+            $('#wpdmeditor').fadeOut();
+            if(editor == '') return;
+            editor.codemirror.toTextArea();
+            $('#filecontent').val('');
+            $('#wpdmeditor').addClass('blockui');
+        },
+        hideSettings: function() {
+            $('#cogwin').hide();
+            $('#filewin').removeClass('col-md-6').addClass('col-md-9');
+            $('#cogwin > .panel').addClass('blockui');
+        }
+    }
+
 
     jQuery(function ($) {
 
@@ -947,6 +1154,8 @@ if(is_admin()){
             localStorage.setItem('__wpdm_am_cp', path);
             $.get(ajaxurl, {__wpdm_scandir:'<?php echo wp_create_nonce(NONCE_KEY); ?>', action: 'wpdm_scandir', path: path}, function (data) {
                 if(data.success === true) {
+                    assetPages.total_pages = data.total_pages;
+                    assetPages.current_page = data.current_page;
                     $('#scandir').html('');
                     var items = data.items;
                     $.each(items, function (index, entry) {

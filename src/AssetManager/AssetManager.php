@@ -259,9 +259,28 @@ class AssetManager
         $relpath = Crypt::decrypt(wpdm_query_var('path'));
         $path = AssetManager::root($relpath);
         if (!$path) wp_send_json(array('success' => false, 'message' => __("Error! Unauthorized Path.", "download-manager")));
-        $items = scandir($path, SCANDIR_SORT_ASCENDING);
+        //$items = scandir($path, SCANDIR_SORT_ASCENDING);
+	    if(!wpdm_query_var('keyword', 'txt'))
+		    $items = scandir($path, SCANDIR_SORT_ASCENDING);
+	    else {
+		    $keyword = wpdm_query_var('keyword', 'txt');
+		    $items = glob( "{$path}*{$keyword}*");
+		    foreach ($items as &$item) {
+			    $item = str_replace($path, "", $item);
+		    }
+	    }
         if(!is_array($items)) $items = [];
         $items = array_diff($items, ['.', '..']);
+
+	    if ((int)wpdm_query_var('dirs') !== 1) {
+		    $page           = wpdm_query_var( 'sdpage', 'int' );
+		    $page           = $page < 1 ? 1 : $page;
+		    $items_per_page = $keyword ? 90 : 50;
+		    $total_pages    = $keyword ? 1 : (int) ceil( count( $items ) / $items_per_page );
+		    $start          = $keyword ? 0 : ( $page - 1 ) * $items_per_page;
+		    $items          = array_slice( $items, $start, $items_per_page );
+	    }
+
         $_items = [];
         $_dirs = [];
         update_user_meta(get_current_user_id(), 'working_dir', $path);
@@ -304,7 +323,7 @@ class AssetManager
         if ((int)wpdm_query_var('dirs') === 1)
             wp_send_json($_dirs);
         else
-            wp_send_json(array('success' => true, 'items' => $allitems, 'breadcrumb' => $breadcrumb, 'root' => $root, WPDM_ADMIN_CAP => current_user_can(WPDM_ADMIN_CAP), 'roles' => $current_user->roles));
+            wp_send_json(array('success' => true, 'total_pages' => $total_pages, 'current_page' => $page, 'items_per_page' => $items_per_page, 'items' => $allitems, 'breadcrumb' => $breadcrumb, 'root' => $root, WPDM_ADMIN_CAP => current_user_can(WPDM_ADMIN_CAP), 'roles' => $current_user->roles));
         die();
     }
 
