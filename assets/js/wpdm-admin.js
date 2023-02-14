@@ -91,10 +91,11 @@ var WPDM = {
         snd.play();
     },
 
-    uniqueID: function () {
+    uniqueID: function (prefix) {
         var uniq = Date.now() + "abcdefghijklmnopqrstuvwxyz_";
         uniq = uniq.wpdm_shuffle();
         uniq = uniq.substring(1, 10);
+        uniq = typeof prefix !== 'undefined' ? prefix+uniq : uniq;
         return uniq;
     },
 
@@ -279,11 +280,11 @@ var WPDM = {
         var modal_id = '__boot_popup_' + WPDM.uniqueID();
         $("#w3eden__boot_popup").remove();
         var _buttons = '';
+        var id =  WPDM.uniqueID('btx_');
         if (buttons) {
             _buttons = '<div class="modal-footer" style="padding: 8px 15px;">\n';
             $.each(buttons, function (i, button) {
-                var id = 'btx_' + i;
-                _buttons += "<button id='" + id + "' class='" + button.class + " btn-xs' style='font-size: 10px;padding: 3px 20px;'>" + button.label + "</button> ";
+                _buttons += "<button id='" + id + '_' + i + "' class='" + button.class + " btn-xs' style='font-size: 10px;padding: 3px 20px;'>" + button.label + "</button> ";
             });
             _buttons += '</div>\n';
         }
@@ -303,9 +304,9 @@ var WPDM = {
         $('body').append(html);
         $("#" + modal_id).modal('show');
         $.each(buttons, function (i, button) {
-            var id = 'btx_' + i;
-            $('#' + id).unbind('click');
-            $('body').on('click', '#' + id, function () {
+            var _id = id + '_' + i;
+            //$('#' + _id).unbind('click');
+            $('body').on('click', '#' + _id, function () {
                 button.callback.call($("#" + modal_id));
                 return false;
             });
@@ -808,4 +809,7 @@ function wpdm_iframe_modal(url, closebutton) {
     $('#wpdm_iframe_modal').fadeIn();
 
 }
+
+
+
 
