@@ -58,14 +58,9 @@ class AdminController {
     }
 
     function registerScripts(){
-        wp_register_script('wpdm-admin-bootstrap', WPDM_BASE_URL.'assets/bootstrap3/js/bootstrap.min.js', array('jquery'));
-        //wp_register_script('wpdm-bootstrap', WPDM_BASE_URL.'assets/bootstrap/js/bootstrap.min.js', array('jquery'));
-        wp_register_style('wpdm-admin-bootstrap', WPDM_BASE_URL.'assets/bootstrap3/css/bootstrap.css');
-        //wp_register_style('wpdm-bootstrap', WPDM_BASE_URL.'assets/bootstrap/css/bootstrap.min.css');
-        //wp_register_style('wpdm-font-awesome', WPDM_BASE_URL . 'assets/fontawesome/css/all.css');
+        wp_register_script('wpdm-admin-bootstrap', WPDM_BASE_URL.'assets/adminui/js/bootstrap.min.js', array('jquery'));
+        wp_register_style('wpdm-admin-base', WPDM_BASE_URL.'assets/adminui/css/base.css');
         wp_register_style('wpdm-font-awesome', WPDM_FONTAWESOME_URL);
-        //wp_register_style('wpdm-front3', WPDM_BASE_URL . 'assets/css/front3.css');
-        //wp_register_style('wpdm-front', WPDM_BASE_URL . 'assets/css/front.css');
     }
 
     /**
@@ -103,7 +98,7 @@ class AdminController {
 
 
             wp_enqueue_style( 'wpdm-font-awesome' );
-            wp_enqueue_style( 'wpdm-admin-bootstrap' );
+            wp_enqueue_style( 'wpdm-admin-base' );
 
             //wp_enqueue_style('wpdm-bootstrap-theme', plugins_url('/download-manager/assets/css/front.css'));
             wp_enqueue_style('wpdm-admin-styles', WPDM_BASE_URL.'assets/css/admin-styles.css', 9999);

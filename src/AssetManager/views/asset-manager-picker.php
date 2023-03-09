@@ -10,12 +10,12 @@ global $wp_scripts;
         <meta name="viewport" content="width=device-width,initial-scale=1.0">
         <title><?php _e('Asset Manager Picker', 'download-manager') ?></title>
 
-            <link rel="stylesheet" href="<?php echo WPDM_BASE_URL; ?>assets/bootstrap3/css/bootstrap.css" />
+            <link rel="stylesheet" href="<?php echo WPDM_BASE_URL; ?>assets/adminui/css/base.min.css" />
             <link rel="stylesheet" href="<?php echo WPDM_BASE_URL; ?>assets/css/admin-styles.css" />
             <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.9.0/css/all.css" />
             <script src="<?php echo includes_url(); ?>/js/jquery/jquery.js"></script>
             <script src="<?php echo includes_url(); ?>/js/jquery/jquery.form.min.js"></script>
-            <script src="<?php echo WPDM_BASE_URL; ?>assets/bootstrap3/js/bootstrap.min.js"></script>
+            <script src="<?php echo WPDM_BASE_URL; ?>assets/adminui/js/bootstrap.min.js"></script>
             <script src="<?php echo WPDM_BASE_URL; ?>assets/js/front.js"></script>
 
 

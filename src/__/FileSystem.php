@@ -26,162 +26,177 @@ class FileSystem
 
     }
 
-    /**
-     * @usage Download Given File
-     * @param $filepath
-     * @param $filename
-     * @param int $speed
-     * @param int $resume_support
-     * @param array $extras
-     */
-    public static function downloadFile($filepath, $filename, $speed = 1024, $resume_support = 1, $extras = array())
-    {
-
-        if (isset($extras['package']))
-            $package = $extras['package'];
-
-        if (headers_sent($_filename, $_linenum)) {
-            Messages::error("Headers already sent in $_filename on line $_linenum", 1);
-        }
-
-        if (substr_count($filepath, "../") > 0) {
-            Messages::error("Please, no funny business, however, good try though!", 1);
-        }
-
-        if (__::is_url($filepath)) {
-            header("location: " . $filepath);
-            die();
-        }
-
-        if (WPDM()->fileSystem->isBlocked($filepath)) Messages::error("Invalid File Type ({$filepath})!", 1);
-
-        $content_type = function_exists('mime_content_type') ? mime_content_type($filepath) : self::mime_type($filepath);
-
-        $buffer = $speed ? $speed : 1024; // bytes
-
-        $buffer *= 1024; // to bits
-
-        $bandwidth = 0;
+	/**
+	 * @usage Download Given File
+	 * @param $filepath
+	 * @param $filename
+	 * @param int $speed
+	 * @param int $resume_support
+	 * @param array $extras
+	 */
+	public static function downloadFile($filepath, $filename, $speed = 1024, $resume_support = 1, $extras = array())
+	{
 
 
-        @session_write_close();
+		if (headers_sent($_filename, $_linenum)) {
+			Messages::error("Headers already sent in $_filename on line $_linenum", 1);
+		}
 
-        if (function_exists('apache_setenv'))
-            @apache_setenv('no-gzip', 1);
+		if (substr_count($filepath, "../") > 0) {
+			Messages::error("Please, no funny business, however, good try though!", 1);
+		}
 
-        if (function_exists('ini_set'))
-            @ini_set('zlib.output_compression', 'Off');
+		if (__::is_url($filepath)) {
+			do_action("wpdm_download_url_redirect", $extras);
+			header("location: " . $filepath);
+			die();
+		}
+		$type = self::fileExt($filepath);
+		if (WPDM()->fileSystem->isBlocked($filepath)) Messages::error("Invalid File Type (*.{$type})!", 1);
 
+		$content_type = function_exists('mime_content_type') ? mime_content_type($filepath) : self::mime_type($filepath);
 
-        @set_time_limit(0);
-        @session_cache_limiter('none');
+		$speed = $speed * 1024; // to bits
 
-        if (get_option('__wpdm_support_output_buffer', 1) == 1) {
-            $pcl = ob_get_level();
-            do {
-                @ob_end_clean();
-                if (ob_get_level() == $pcl) break;
-                $pcl = ob_get_level();
-            } while (ob_get_level() > 0);
-        }
+		$buffer = 1024 * 8; // to bits
 
-        if (strpos($filepath, '://')) {
-            header("location: {$filepath}");
-            die();
-        }
-        if (file_exists($filepath))
-            $fsize = filesize($filepath);
-        else
-            $fsize = 0;
-        $orig_size = $fsize;
+		$bandwidth = 0;
 
-        nocache_headers();
-        header("X-Robots-Tag: noindex, nofollow", true);
-        header("Robots: none");
-        header('Content-Description: File Transfer');
+		if (function_exists('ini_set'))
+			@ini_set('display_errors', 0);
 
-        if (strpos($_SERVER['HTTP_USER_AGENT'], "Safari") && !isset($extras['play']) && !get_option('__wpdm_open_in_browser', 0))
-            $content_type = "application/octet-stream";
+		@session_write_close();
 
-        header("Content-type: $content_type");
+		if (function_exists('apache_setenv'))
+			@apache_setenv('no-gzip', 1);
 
-        $filename = apply_filters("wpdm_download_filename", $filename, $filepath, $extras);
-
-        $filename = rawurlencode($filename);
-        if (!isset($extras['play'])) {
-            if (get_option('__wpdm_open_in_browser', 0) || wpdm_query_var('open') == 1)
-                header("Content-disposition: inline;filename=\"{$filename}\"");
-            else
-                header("Content-disposition: attachment;filename=\"{$filename}\"");
-
-            header("Content-Transfer-Encoding: binary");
-        }
-
-        if ((isset($extras['play']) && strpos($_SERVER['HTTP_USER_AGENT'], "Safari")) || get_option('__wpdm_download_resume', 1) == 2) {
-            header("Content-Length: " . $orig_size);
-            header("Content-disposition: attachment;filename=\"{$filename}\"");
-            TempStorage::set("download." . wpdm_get_client_ip(), 1, 60);
-            readfile($filepath);
-            return;
-        }
-
-        $file = @fopen($filepath, "rb");
-
-        //check if http_range is sent by browser (or download manager)
-        if (isset($_SERVER['HTTP_RANGE']) && $fsize > 0) {
-            list($bytes, $http_range) = explode("=", sanitize_text_field($_SERVER['HTTP_RANGE']));
-
-            $tmp = explode('-', $http_range);
-            $tmp = array_shift($tmp);
-            $set_pointer = intval($tmp);
-
-            $new_length = $fsize - $set_pointer;
-
-            header("Accept-Ranges: bytes");
-            header("Accept-Ranges: 0-".($orig_size - 1));
-            $proto = isset($_SERVER['SERVER_PROTOCOL']) ? sanitize_text_field($_SERVER['SERVER_PROTOCOL']) : 'HTTP/1.1';
-            header("{$proto} 206 Partial Content");
-
-            header("Content-Length: $new_length");
-            header("Content-Range: bytes $set_pointer-".($fsize-1)."/$orig_size");
-
-            fseek($file, $set_pointer);
-
-        } else {
-            header("Content-Length: " . $orig_size);
-        }
-        $packet = 1;
-
-        if ($file) {
-            while (!(connection_aborted() || connection_status() == 1) && $fsize > 0) {
-
-                $parallel_download = (int)get_option('__wpdm_parallel_download', 1);
-                if ($parallel_download === 0)
-                    TempStorage::set("download." . wpdm_get_client_ip(), 1, 15);
-
-                if ($fsize > $buffer)
-                    echo fread($file, $buffer);
-                else
-                    echo fread($file, $fsize);
-                if (function_exists('ob_get_level') && ob_get_level() > 0) @ob_flush();
-                @flush();
-                $fsize -= $buffer;
-                $bandwidth += $buffer;
-                if ($speed > 0 && ($bandwidth > $speed * $packet * 1024)) {
-                    sleep(1);
-                    $packet++;
-                }
+		if (function_exists('ini_set'))
+			@ini_set('zlib.output_compression', 'Off');
 
 
-            }
-            $package['downloaded_file_size'] = $fsize;
-            //add_action('wpdm_download_completed', $package);
-            @fclose($file);
-        }
+		@set_time_limit(0);
+		@session_cache_limiter('none');
 
-        return;
+		if (get_option('__wpdm_support_output_buffer', 1) == 1) {
+			$pcl = ob_get_level();
+			do {
+				@ob_end_clean();
+				if (ob_get_level() == $pcl) break;
+				$pcl = ob_get_level();
+			} while (ob_get_level() > 0);
+		}
 
-    }
+		if (!file_exists($filepath)) Messages::fullPage('404', esc_attr__( 'File not found!', WPDM_TEXT_DOMAIN ));
+
+		$file_size = filesize($filepath);
+
+		$org_size = $file_size;
+		$end_byte = $file_size - 1;
+
+		$start_range = 0;
+		$end_range = $end_byte;
+
+		nocache_headers();
+		header("X-Robots-Tag: noindex, nofollow", true);
+		header("Robots: none");
+		header('Content-Description: File Transfer');
+
+		header("Content-type: $content_type");
+
+		$filename = apply_filters("wpdm_download_filename", $filename, $filepath, $extras);
+
+		$filename = rawurlencode($filename);
+
+		$parallel_download = (int)get_option('__wpdm_parallel_download', 1);
+		if ($parallel_download === 0)
+			TempStorage::set("download." . __::get_client_ip(), 1, 15);
+
+		if (!isset($extras['play'])) {
+			if (get_option('__wpdm_open_in_browser', 0) || wpdm_query_var('open') == 1)
+				header("Content-disposition: inline;filename=\"{$filename}\"");
+			else
+				header("Content-disposition: attachment;filename=\"{$filename}\"");
+
+			header("Content-Transfer-Encoding: binary");
+		}
+
+		if ((int)get_option('__wpdm_download_resume', 1) === 2) {
+			header("Content-Length: " . $file_size);
+			header("Content-disposition: attachment;filename=\"{$filename}\"");
+			readfile($filepath);
+			return;
+		}
+
+		$file = @fopen($filepath, "rb");
+
+		//check if http_range is sent by browser (or download manager)
+		if (isset($_SERVER['HTTP_RANGE']) && $file_size > 0) {
+
+			list($bytes, $http_range) = explode("=", $_SERVER['HTTP_RANGE'], 2);
+
+			if (strpos($http_range, ',') !== false) {
+				header('HTTP/1.1 416 Requested Range Not Satisfiable');
+				header("Content-Range: bytes $start_range-$end_byte/$org_size");
+				exit;
+			}
+
+			if ($http_range == '-') {
+				$start_range = $file_size - substr($http_range, 1);
+			}else{
+				$http_range = explode('-', $http_range);
+				$start_range = $http_range[0];
+				$end_range = wpdm_valueof($http_range, 1, ['validate' => 'int']) > 0 ? wpdm_valueof($http_range, 1, ['validate' => 'int']) : $end_byte;
+				//file_put_contents(ABSPATH.'/server.txt', print_r($http_range, 1));
+			}
+			$end_range = $end_range > $end_byte ? $end_byte : $end_range;
+
+			header("Accept-Ranges: bytes");
+			header("Accept-Ranges: 0-$end_byte");
+			$proto = isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.1';
+			header("{$proto} 206 Partial Content");
+
+			$content_length = $end_range - $start_range + 1;
+			header("Content-Length: $content_length");
+			header("Content-Range: bytes $start_range-$end_range/$org_size");
+
+			fseek($file, $start_range);
+
+		} else {
+			header("Content-Length: " . $file_size);
+		}
+		$packet = 1;
+
+		if ($file) {
+			$speed_chunk = 0;
+			while (!(connection_aborted() || connection_status() == 1) && $file_size > 0) {
+
+				if ($file_size > $buffer)
+					echo fread($file, $buffer);
+				else
+					echo fread($file, $file_size);
+				if (function_exists('ob_get_level') && ob_get_level() > 0) @ob_flush();
+				@flush();
+				//Remaining file size to transfer
+				$file_size -= $buffer;
+				//
+				$bandwidth += $buffer;
+
+				//Calculating download speed
+				$speed_chunk += $buffer;
+				//Condition for download speed control
+				if ($speed > 0 && ($speed_chunk >= $speed)) {
+					sleep(1);
+					$speed_chunk = 0;
+					$packet++;
+				}
+
+
+			}
+			$package['downloaded_file_size'] = $file_size;
+			//add_action('wpdm_download_completed', $package);
+			@fclose($file);
+		}
+	}
 
 
     /**

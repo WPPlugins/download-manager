@@ -288,20 +288,9 @@ class Apply
         //$package = get_post($id, ARRAY_A);
         $package = WPDM()->package->init($id);
         $package = (array)$package;
-
-        //$package['files'] = WPDM()->package->getFiles($id);
-        //if(!is_array($package)) \WPDM\__\Messages::error(__("&mdash; Package Not Found &mdash;", "download-manager"), 1);
-        //$package = array_merge($package, WPDM()->package->metaData($id));
-
-
-        //if (isset($package['files']))
-        //    $package['files'] = maybe_unserialize($package['files']);
-        //else
-        //    $package['files'] = array();
-        //$package = wpdm_setup_package_data($package);
-
         $package['access'] = WPDM()->package->allowedRoles($id);
 
+	    $package = apply_filters("wpdm_before_download", $package);
 
         if ($isMaster || $keyValid) {
             $package['access'] = array('guest');

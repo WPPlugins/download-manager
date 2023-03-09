@@ -94,7 +94,7 @@ class MediaAccessControl
             $media->filesize = wpdm_file_size($media->path);
 
             $access = get_post_meta($media->ID, '__wpdm_media_access', true);
-            if(!is_array($access)) $access = [];
+            if(!is_array($access)) $access = ['public'];
             $password = get_post_meta($media->ID, '__wpdm_media_pass', true);
             $private = get_post_meta($media->ID, '__wpdm_private', true);
             if(current_user_can('manage_options')) $private = false;
@@ -103,6 +103,13 @@ class MediaAccessControl
             $user_allowed = array_intersect($user_roles, $access);
             $user_allowed = count($user_allowed);
             if( $private && ( $password || !$user_allowed ) ) {
+
+	            if(!$user_allowed && substr_count($media->post_mime_type, 'image')) {
+		            $access_denied_placeholder = apply_filters("access_denied_placeholder", WPDM_BASE_DIR.'assets/images/denied.png', $media);
+		            FileSystem::downloadFile($access_denied_placeholder, basename($media->guid),  10240, 0, ['play' => 1]);
+		            die();
+	            }
+
                 $picon = wp_get_attachment_image($media->ID, 'thumbnail', true);
                 $keyvalid = true;
                 $__hash = Crypt::encrypt($media->ID);
