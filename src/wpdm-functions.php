@@ -131,6 +131,7 @@ function wpdm_package_size($id)
 function wpdm_file_size($file)
 {
     $file = WPDM()->fileSystem->absPath($file);
+    if(!$file) return '0.00 KB';
 	$size = filesize($file);
     $size = $size / 1024;
     if ($size > 1024) $size = number_format($size / 1024, 2) . ' MB';
@@ -168,12 +169,9 @@ function wpdm_get_excerpt($post, $length = 100, $word_break = false, $continue =
  */
 function wpdm_basename($file)
 {
-    if (strpos("~" . $file, "\\"))
-        $basename = explode("\\", $file);
-    else
-        $basename = explode("/", $file);
-    $basename = end($basename);
-    return $basename;
+    // Split on both separators, so a path mixing "\\" and "/" cannot keep its directory part
+    $basename = preg_split('#[\\\\/]#', (string) $file);
+    return (string) end($basename);
 }
 
 /**
@@ -212,7 +210,7 @@ function wpdm_post_thumb($size = '', $echo = true, $extra = null)
             $thumb = wpdm_dynamic_thumb($path, $size, $crop);
             $thumb = str_replace(ABSPATH, site_url('/'), $thumb);
             $alt = get_post_meta(get_post_thumbnail_id($post->ID), '_wp_attachment_image_alt', true);
-            $img = "<img src='" . $thumb . "' alt='{$alt}' class='{$class}' />";
+            $img = "<img src='" . $thumb . "' alt='".esc_attr($alt)."' class='".esc_attr($class)."' />";
             if ($echo) {
                 echo $img;
                 return true;
@@ -257,7 +255,7 @@ function wpdm_thumb($post, $size = '', $echo = true, $extra = null)
             $alt = get_post_meta(get_post_thumbnail_id($post->ID), '_wp_attachment_image_alt', true);
             if ($echo === 'url') return $thumb;
             if ($alt === '') $alt = esc_attr(strip_tags(get_the_title($post->ID)));
-            $img = "<img src='" . $thumb . "' alt='{$alt}' class='{$class}' />";
+            $img = "<img src='" . $thumb . "' alt='".esc_attr($alt)."' class='".esc_attr($class)."' />";
             if ($echo) {
                 echo $img;
                 return;
@@ -750,7 +748,14 @@ function wpdm_logout_url($redirect = '')
 
 function wpdm_rest_url($request)
 {
-    return get_rest_url(null, "wpdm/{$request}");
+    $url = get_rest_url(null, "wpdm/{$request}");
+    // REST cookie authentication needs the wp_rest nonce; without it the request runs as a guest,
+    // so a package whose access roles don't include "All Visitors" refuses the lock forms of a logged-in user
+    if (is_user_logged_in()) {
+        $url = add_query_arg('_wpnonce', wp_create_nonce('wp_rest'), $url);
+    }
+
+    return $url;
 }
 
 /**
@@ -772,6 +777,7 @@ function wpdm_tpl_path($file, $tpldir = '', $fallback = '')
  */
 function wpdm_admin_tpl_path($file, $tpldir = '', $fallback = '')
 {
+    if (!Template::isSafeName($file)) return '';
     if (file_exists(get_stylesheet_directory() . '/download-manager/admin/' . $file))
         $path = get_stylesheet_directory() . '/download-manager/admin/' . $file;
     else if (file_exists(get_template_directory() . '/download-manager/admin/' . $file))
@@ -926,10 +932,20 @@ function is_wpdmkey_valid($ID, $_key, $update = false)
     $_key = wpdm_sanitize_var($_key);
     $key = "__wpdmkey_{$_key}";
 
-    $xlimit = TempStorage::get($key);
-
-    if (!$xlimit)
+    // Resolve from a SINGLE store; remember which so we only touch that one.
+    //   session => device-bound token (unlock, same browser)        -> Session
+    //   global  => durable shareable/emailed link                   -> ahm_sessions 'wpdmkey' scope
+    //   meta    => legacy global tokens issued before the migration  -> post_meta (fallback)
+    $store  = null;
+    $xlimit = Session::get("{$key}_{$ID}");
+    if ($xlimit) {
+        $store = 'session';
+    } elseif ($xlimit = TempStorage::get("{$key}_{$ID}", TempStorage::DURABLE_SCOPE)) {
+        $store = 'global';
+    } else {
         $xlimit = get_post_meta($ID, $key, true);
+        if ($xlimit) $store = 'meta';
+    }
 
     if (!$xlimit) return 0; // Invalid
 
@@ -946,8 +962,9 @@ function is_wpdmkey_valid($ID, $_key, $update = false)
     $expired = false;
 
     if ($limit <= 0) {
-        delete_post_meta($ID, $key);
-        TempStorage::kill($key);
+        if ($store === 'session') Session::clear("{$key}_{$ID}");
+        elseif ($store === 'global') TempStorage::kill("{$key}_{$ID}", TempStorage::DURABLE_SCOPE);
+        else delete_post_meta($ID, $key);
         return -1; // Limit exceeded
     } else {
 
@@ -957,12 +974,18 @@ function is_wpdmkey_valid($ID, $_key, $update = false)
         if ((int)$xlimit['expire'] < time()) {
             $xlimit['use'] = $limit = 0;
             $expired = true;
-            delete_post_meta($ID, $key);
-            TempStorage::kill($key);
+            if ($store === 'session') Session::clear("{$key}_{$ID}");
+            elseif ($store === 'global') TempStorage::kill("{$key}_{$ID}", TempStorage::DURABLE_SCOPE);
+            else delete_post_meta($ID, $key);
         }
-        if ($update) {
-            update_post_meta($ID, $key, $xlimit);
-            TempStorage::set($key, $xlimit);
+        if ($update && !$expired) {
+            if ($store === 'session') {
+                Session::set("{$key}_{$ID}", $xlimit, max(1, (int)$xlimit['expire'] - time()));
+            } elseif ($store === 'global') {
+                TempStorage::set("{$key}_{$ID}", $xlimit, max(1, (int)$xlimit['expire'] - time()), TempStorage::DURABLE_SCOPE);
+            } else {
+                update_post_meta($ID, $key, $xlimit);
+            }
         }
         if ($expired) return -2; // Time expired
     }
@@ -977,29 +1000,8 @@ function is_wpdmkey_valid($ID, $_key, $update = false)
  * @return array|bool|float|int|mixed|string|string[]|null
  */
 
-function wpdm_valueof($var, $index, $params = [])
-{
-    $index = explode("/", $index);
-    $default = is_string($params) ? $params : '';
-    if (is_object($var)) $var = (array)$var;
-    $default = is_array($params) && isset($params['default']) ? $params['default'] : $default;
-    if (count($index) > 1) {
-        $val = $var;
-        foreach ($index as $key) {
-            $val = is_array($val) && isset($val[$key]) ? $val[$key] : '__not__set__';
-            if ($val === '__not__set__') return $default;
-        }
-    } else
-        $val = isset($var[$index[0]]) ? $var[$index[0]] : $default;
-
-    if (is_array($params) && isset($params['validate'])) {
-        if (!is_array($val))
-            $val = wpdm_sanitize_var($val, $params['validate']);
-        else
-            $val = wpdm_sanitize_array($val, $params['validate']);
-    }
-
-    return $val;
+function wpdm_valueof( $var, $index, $default_or_params = [], $validate = '' ) {
+    return __::valueof( $var, $index, $default_or_params, $validate );
 }
 
 /**
@@ -1032,6 +1034,10 @@ function wpdm_sanitize_array($array, $sanitize = 'kses')
 function wpdm_sanitize_var($value, $sanitize = 'kses')
 {
     return __::sanitize_var($value, $sanitize);
+}
+
+function wpdm_tzoffset() {
+	return __::timezoneOffset();
 }
 
 /**
@@ -1118,15 +1124,17 @@ function wpdm_hex2rgb($hex)
 }
 
 /*** developer fns **/
-function wpdmdd($data)
+function wpdmdd(...$data)
 {
-    echo "<pre>" . print_r($data, 1) . "</pre>";
+    foreach ($data as $d) {
+	    echo "<pre style='margin-bottom: 5px;padding: 10px;background: #eef1f5;border-radius: 8px'>" . print_r( $d, 1 ) . "</pre>";
+    }
     die();
 }
 
 function wpdmprecho($data, $ret = 0)
 {
-    $echo = "<pre>" . print_r($data, 1) . "</pre>";
+    $echo = "<pre style='margin-bottom: 5px;padding: 10px;background: #eef1f5;border-radius: 8px'>" . print_r($data, 1) . "</pre>";
     if ($ret == 1) return $echo;
     echo $echo;
 }

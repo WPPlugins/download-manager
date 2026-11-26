@@ -5,7 +5,7 @@ Plugin URI: https://www.wpdownloadmanager.com/purchases/
 Description: Manage, Protect and Track file downloads, and sell digital products from your WordPress site. A complete digital asset management solution.
 Author: W3 Eden, Inc.
 Author URI: https://www.wpdownloadmanager.com/
-Version: 3.2.68
+Version: 3.3.80
 Text Domain: download-manager
 Domain Path: /languages
 */
@@ -13,6 +13,7 @@ Domain Path: /languages
 namespace WPDM;
 
 use WPDM\__\Apply;
+use WPDM\__\CronJob;
 use WPDM\__\Crypt;
 use WPDM\__\DownloadStats;
 use WPDM\__\Email;
@@ -39,7 +40,7 @@ use WPDM\Widgets\WidgetController;
 
 global $WPDM;
 
-define('WPDM_VERSION','3.2.67');
+define('WPDM_VERSION','3.3.80');
 
 define('WPDM_TEXT_DOMAIN','download-manager');
 
@@ -92,26 +93,30 @@ if(!defined('UPLOAD_BASE'))
 if(!defined('WPDM_USE_GLOBAL'))
     define('WPDM_USE_GLOBAL', 'WPDM_USE_GLOBAL');
 
+if(!defined('WPDM_TAG'))
+	define('WPDM_TAG', 'wpdmtag');
 
 if(!defined('WPDM_FONTAWESOME_URL'))
     define('WPDM_FONTAWESOME_URL', WPDM_BASE_URL.'assets/fontawesome/css/all.min.css');
 
-if(!defined('NONCE_KEY') || !defined('NONCE_SALT')){
+if(!defined('NONCE_KEY')){
     //To avoid warning when not defined
     define('NONCE_KEY',       'Bm|_Ek@F|HdkA7)=alSJg5_<z-j-JmhK<l&*.d<J+/71?&7pL~XBXnF4jKz>{Apx');
-    define('NONCE_SALT',       'XffybIqfklKjegGdRp7EU4kprZX00NESOE8olZ2BZ8+BQTw3bXXSbzeGssgZ');
     /**
      * Generate WordPress Security Keys and Salts from https://api.wordpress.org/secret-key/1.1/salt/ and place them in your wp-config.php
      */
 }
 
+if(!defined('NONCE_SALT')){
+    //To avoid warning when not defined
+    define('NONCE_SALT',       'XffybIqfklKjegGdRp7EU4kprZX00NESOE8olZ2BZ8+BQTw3bXXSbzeGssgZ');
+}
+
+
 if(!defined('WPDM_PUB_NONCE'))
     define('WPDM_PUB_NONCE',        'o($Vb ^[@EH83o2gb=,lt1JtBY]%i91|xu+]jnW9{*nMK@_z-AWwsyKEVx)/|p,P');
 if(!defined('WPDM_PRI_NONCE'))
     define('WPDM_PRI_NONCE',        '.r&`|]S1GEAdm^hTA^XmE8vU3F^=K+)419alVN=EbDQ Z-pfl/nd-12^I&oRfDC]');
-
-if(!defined('WPDM_CRON_KEY'))
-	define('WPDM_CRON_KEY',        'mKNVRCdbJr1DiedHE18N');
 
 @ini_set('upload_tmp_dir',WPDM_CACHE_DIR);
 
@@ -123,6 +128,7 @@ final class WordPressDownloadManager{
     public $apply;
     public $fileSystem;
     public $admin;
+    public $package;
     public $category;
     public $categories;
     public $assetManager;
@@ -131,6 +137,7 @@ final class WordPressDownloadManager{
     public $template;
     public $packageTemplate;
     public $setting;
+    public $email;
     public $crypt;
     public $downloadHistory;
     public $bsversion = '';
@@ -138,6 +145,8 @@ final class WordPressDownloadManager{
     public $message;
 	public $updater;
     public $ui;
+    public $cronJob;
+    public $cronJobs;
     public $wpdm_urls;
 
     private static $wpdm_instance = null;
@@ -161,7 +170,7 @@ final class WordPressDownloadManager{
         add_action( 'init', array($this, 'registerPostTypeTaxonomy'), 1 );
         add_action( 'init', array($this, 'registerScripts'), 1 );
 
-        add_action( 'plugins_loaded', array($this, 'loadTextdomain') );
+        add_action( 'init', array($this, 'loadTextdomain') );
         add_action( 'wp_enqueue_scripts', array($this, 'enqueueScripts') );
 
         add_action( 'wp_footer', array($this, 'wpFooter') );
@@ -176,7 +185,6 @@ final class WordPressDownloadManager{
 
         $this->session          = new Session();
 
-        include_once(dirname(__FILE__) . "/src/wpdm-strings.php");
         include_once(dirname(__FILE__) . "/src/wpdm-functions.php");
 	    include_once(dirname(__FILE__)."/src/wpdm-core.php");
 
@@ -199,9 +207,10 @@ final class WordPressDownloadManager{
         $this->updater          = new Updater();
         $this->ui               = new UI();
         $this->email            = new Email();
-
-        CronJobs::getInstance();
+        $this->cronJob          = CronJob::getInstance();
+        $this->cronJobs          = CronJobs::getInstance();
         WidgetController::instance();
+        \WPDM\Abilities\Abilities::boot();
 
         if (!defined('WPDM_ASSET_MANAGER') || WPDM_ASSET_MANAGER === true) {
             AssetManager::getInstance();
@@ -220,6 +229,10 @@ final class WordPressDownloadManager{
 
         flush_rewrite_rules();
         self::createDir();
+
+        // Set flag to redirect to welcome page after activation
+        set_transient('wpdm_activation_redirect', 'yes', 300);
+        update_option('__wpdm_activation_redirect', 'yes', false);
 
     }
 
@@ -251,7 +264,7 @@ final class WordPressDownloadManager{
      * @usage Load Plugin Text Domain
      */
     function loadTextdomain(){
-        load_plugin_textdomain('download-manager', WP_PLUGIN_URL . "/download-manager/languages/", 'download-manager/languages/');
+        load_plugin_textdomain('download-manager', false, 'download-manager/languages/');
     }
 
     /**
@@ -326,13 +339,14 @@ final class WordPressDownloadManager{
             'labels'                => $labels,
             'show_ui'               => true,
             'show_admin_column'     => true,
+            'show_in_rest'          => (bool)((int)get_option('__wpdm_gutenberg_editor', 0)),
             'query_var'             => true,
             'rewrite'               => array('slug' => 'download-category'),
         );
 
         register_taxonomy('wpdmcategory', array('wpdmpro'), $args);
 
-        if($wpdm_tags) {
+	    if($wpdm_tags && WPDM_TAG !== 'post_tag') {
             $labels = array(
                 'name' => __("Tags", "download-manager"),
                 'singular_name' => __("Tag", "download-manager"),
@@ -357,6 +371,8 @@ final class WordPressDownloadManager{
             register_taxonomy('wpdmtag', array('wpdmpro'), $args);
 
             //unregister_taxonomy_for_object_type('post_tag', 'wpdmpro');
+        } else {
+            register_taxonomy_for_object_type('post_tag', 'wpdmpro');
         }
 
     }
@@ -409,18 +425,15 @@ final class WordPressDownloadManager{
 
     function registerScripts(){
 
+        wp_register_style('wpdm-modal', plugins_url() . '/download-manager/assets/modal/wpdm-modal.min.css', [], WPDM_VERSION);
+        wp_register_script('wpdm-modal', plugins_url() . '/download-manager/assets/modal/wpdm-modal.min.js', [], WPDM_VERSION);
+
         if(is_admin()) return;
 
-        wp_register_style('wpdm-front-bootstrap3', plugins_url('/assets/bootstrap3/css/bootstrap.min.css', __FILE__));
-        wp_register_style('wpdm-front-bootstrap', plugins_url('/download-manager/assets/bootstrap/css/bootstrap.min.css'));
-        wp_register_style('wpdm-font-awesome', WPDM_FONTAWESOME_URL);
-        wp_register_style('wpdm-front3', plugins_url('/assets/css/front3.css', __FILE__));
-        wp_register_style('wpdm-front', plugins_url('/assets/css/front.css', __FILE__) , 99999999);
-
-        wp_register_script('wpdm-front-bootstrap3', plugins_url('/assets/bootstrap3/js/bootstrap.min.js', __FILE__), array('jquery'));
-        wp_register_script('wpdm-poper', plugins_url('/assets/bootstrap/js/popper.min.js', __FILE__), array('jquery'));
-        wp_register_script('wpdm-front-bootstrap', plugins_url('/assets/bootstrap/js/bootstrap.min.js', __FILE__), array('jquery'));
+        wp_register_style('wpdm-front', plugins_url('/assets/css/front.min.css', __FILE__), [], WPDM_VERSION);
+        wp_register_style('wpdm-front-dark', plugins_url('/assets/css/front-dark.min.css', __FILE__), ['wpdm-front'], WPDM_VERSION);
         wp_register_script('jquery-validate', plugins_url('/assets/js/jquery.validate.min.js', __FILE__), array('jquery'));
+	    wp_register_script('wpdm-frontend-js', plugins_url('/assets/js/wpdm.min.js', __FILE__), array('jquery'));
 
     }
 
@@ -437,34 +450,36 @@ final class WordPressDownloadManager{
         wp_enqueue_script('jquery');
         wp_enqueue_script('jquery-form');
 
-        //wp_register_style('font-awesome', WPDM_BASE_URL . 'assets/font-awesome/css/font-awesome.min.css');
+	    wp_enqueue_style('wpdm-fonticon', WPDM_BASE_URL . 'assets/wpdm-iconfont/css/wpdm-icons.css');
 
-        $wpdmss = maybe_unserialize(get_option('__wpdm_disable_scripts', array()));
+	    wp_enqueue_style('wpdm-front' );
 
-        if (is_array($wpdmss) && !in_array('wpdm-font-awesome', $wpdmss)) {
-            wp_enqueue_style('wpdm-font-awesome');
+        // Color scheme support
+        $color_scheme = get_option('__wpdm_color_scheme', 'system');
+
+        // Only load dark mode CSS when needed (dark or system mode)
+        // For light mode, skip loading front-dark.css entirely (performance + prevents flash)
+        if ($color_scheme !== 'light') {
+            wp_enqueue_style('wpdm-front-dark');
         }
 
-
-        if (is_array($wpdmss) && !in_array('wpdm-bootstrap-css', $wpdmss)) {
-            wp_enqueue_style('wpdm-front-bootstrap' );
+        if ($color_scheme === 'dark' || $color_scheme === 'light') {
+            $scheme_class = $color_scheme === 'dark' ? 'dark-mode' : 'light-mode';
+            wp_add_inline_style('wpdm-front', ".w3eden { /* color-scheme: {$color_scheme} */ }");
+            wp_add_inline_script('jquery', "document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.w3eden').forEach(function(el){el.classList.add('{$scheme_class}')})});", 'after');
         }
 
-        if (is_array($wpdmss) && !in_array('wpdm-front', $wpdmss)) {
-            wp_enqueue_style('wpdm-front' );
-        }
+        wp_register_script('wpdm-frontjs', plugins_url('/assets/js/front.min.js', __FILE__), array('jquery'), WPDM_VERSION);
 
+        wp_enqueue_script('wpdm-modal');
+        wp_enqueue_style('wpdm-modal');
 
-        if (is_array($wpdmss) && !in_array('wpdm-bootstrap-js', $wpdmss)) {
-            wp_enqueue_script('wpdm-poper');
-            wp_enqueue_script('wpdm-front-bootstrap' );
-        }
-
-        //wp_enqueue_script('audio-player', plugins_url('/download-manager/assets/js/audio-player.js'), array('jquery'));
-        wp_register_script('wpdm-frontjs', plugins_url('/assets/js/front.js', __FILE__), array('jquery'), WPDM_VERSION);
+        if((int)get_option('__wpdm_adblocked_off', 0) === 1)
+            wp_enqueue_script('wpdm-ad', plugins_url('/download-manager/assets/js/blocker.js'));
 
         $wpdm_js = array(
-            'spinner' => '<i class="fas fa-sun fa-spin"></i>'
+            'spinner' => '<i class="wpdm-icon wpdm-sun wpdm-spin"></i>',
+            'client_id' => Session::deviceID()
         );
         $wpdm_js = apply_filters("wpdm_js_vars", $wpdm_js);
 
@@ -473,11 +488,17 @@ final class WordPressDownloadManager{
 
         wp_localize_script('wpdm-frontjs', 'wpdm_js', $wpdm_js);
 
+	    wp_localize_script('wpdm-frontjs', 'wpdm_strings', [
+		    'pass_var' => __("Password Verified!", "download-manager"),
+		    'pass_var_q' => __("Please click following button to start download.", "download-manager"),
+		    'start_dl' => __("Start Download", "download-manager")
+	    ]);
+
+        wp_enqueue_script('wpdm-frontend-js');
         wp_enqueue_script('wpdm-frontjs');
 
         if(is_object($post) && substr_count($post->post_content, "wpdm_all_packages")){
             wp_enqueue_script("datatable", plugins_url('/assets/js/jquery.dataTables.min.js', __FILE__));
-            wp_enqueue_script("datatable-bs4", plugins_url('/assets/js/dataTables.bootstrap4.min.js', __FILE__));
             wp_enqueue_style("datatable-css", plugins_url('/assets/css/jquery.dataTables.min.css', __FILE__));
         }
 
@@ -504,6 +525,9 @@ final class WordPressDownloadManager{
                 echo $this->user->login->modalForm();
             ?>
             <script>
+                const abmsg = "<?php echo esc_attr(get_option('__wpdm_adblocked_msg', 'We noticed an ad blocker. Consider whitelisting us to support the site ❤️')) ?>";
+                const abmsgd = "<?php echo esc_attr(get_option('__wpdm_adblocked_msgd', 'download')); ?>";
+                const iswpdmpropage = <?php echo is_singular('wpdmpro') ? 1 : 0 ?>;
                 jQuery(function($){
 
                     <?php if(is_singular('wpdmpro') && $view_count){ ?>

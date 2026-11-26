@@ -5,9 +5,9 @@ namespace WPDM\Admin\Menu;
 
 
 use WPDM\__\__;
-use WPDM\__\Crypt;
 use WPDM\__\FileSystem;
 use WPDM\Package\Package;
+use WPDM\Package\PackageService;
 use WPDM\WordPressDownloadManager;
 
 class Packages {
@@ -34,6 +34,15 @@ class Packages {
 		add_filter( 'request', array( $this, 'orderbyDownloads' ) );
 		add_filter( 'manage_edit-wpdmpro_sortable_columns', array( $this, 'sortableDownloads' ) );
 
+		add_action( 'restrict_manage_posts', array( $this, 'categoryFilter' ) );
+		add_filter( 'parse_query', array( $this, 'filterByCategory' ) );
+
+		add_filter( 'display_post_states', array( $this, 'postStates' ), 10, 2 );
+
+		add_filter( 'bulk_actions-edit-wpdmpro', array( $this, 'bulkActions' ) );
+		add_filter( 'handle_bulk_actions-edit-wpdmpro', array( $this, 'handleBulkActions' ), 10, 3 );
+		add_action( 'admin_notices', array( $this, 'bulkActionNotices' ) );
+
 		add_filter( 'post_row_actions', array( $this, 'rowActions' ), 10, 2 );
 
 		add_action( 'admin_footer', array( $this, 'footerScripts' ) );
@@ -50,57 +59,10 @@ class Packages {
 			return;
 		}
 
-		// Deleted old zipped file
-		$zipped = get_post_meta( $post, "__wpdm_zipped_file", true );
-		if ( $zipped != '' && file_exists( $zipped ) ) {
-			@unlink( $zipped );
-		}
+		PackageService::saveMeta( $post, $_POST['file'], true );
+		unset( $_POST['file']['zipped_file'], $_POST['file']['masterkey'] );
 
-		$cdata             = get_post_custom( $post );
-		$donot_delete_meta = array( '__wpdm_favs', '__wpdm_masterkey' );
-		foreach ( $cdata as $k => $v ) {
-			$tk = str_replace( "__wpdm_", "", $k );
-			if ( ! isset( $_POST['file'][ $tk ] ) && $tk !== $k && ! in_array( $k, $donot_delete_meta ) ) {
-				delete_post_meta( $post, $k );
-			}
-
-		}
-
-		foreach ( $_POST['file'] as $meta_key => $meta_value ) {
-			$key_name = "__wpdm_" . $meta_key;
-			if ( $meta_key == 'package_size' && (double) $meta_value == 0 ) {
-				$meta_value = "";
-			}
-			if ( $meta_key == 'files' ) {
-				foreach ( $meta_value as &$value ) {
-					$value = wpdm_escs( $value );
-					if ( ! __::is_url( $value ) ) {
-						if ( WPDM()->fileSystem->isBlocked( $value ) ) {
-							$value = '';
-						}
-						$abspath = WPDM()->fileSystem->locateFile( $value );
-						if ( ! WPDM()->fileSystem->allowedPath( $abspath ) ) {
-							$value = '';
-						}
-					}
-				}
-				$meta_value = array_unique( $meta_value );
-			} else if ( $meta_key == 'terms_conditions' ) {
-				$meta_value = __::sanitize_var( $meta_value, 'kses' );
-			} else {
-				$meta_value = is_array( $meta_value ) ? wpdm_sanitize_array( $meta_value, 'txt' ) : htmlspecialchars( $meta_value );
-			}
-			update_post_meta( $post, $key_name, $meta_value );
-		}
-
-		$masterKey = Crypt::encrypt( [ 'id' => $post, 'time' => time() ] );
-		if ( get_post_meta( $post, '__wpdm_masterkey', true ) == '' ) {
-			update_post_meta( $post, '__wpdm_masterkey', $masterKey );
-		}
-
-		if ( isset( $_POST['reset_key'] ) && $_POST['reset_key'] == 1 ) {
-			update_post_meta( $post, '__wpdm_masterkey', $masterKey );
-		}
+		PackageService::ensureMasterKey( $post, isset( $_POST['reset_key'] ) && $_POST['reset_key'] == 1 );
 
 		if ( isset( $_REQUEST['reset_udl'] ) ) {
 			WPDM()->downloadHistory->resetUserDownloadCount( $post, 'all' );
@@ -109,21 +71,38 @@ class Packages {
 	}
 
 	function duplicate() {
-		if ( wpdm_query_var( 'wpdm_duplicate', 'int' ) > 0 && get_post_type( wpdm_query_var( 'wpdm_duplicate' ) ) === 'wpdmpro' ) {
-			if ( ! current_user_can( 'edit_posts' ) || ! wp_verify_nonce( wpdm_query_var( '__copynonce' ), NONCE_KEY ) ) {
-				wp_die( esc_attr__( 'You are not authorized!', 'download-manager' ) );
-			}
-			Package::copy( wpdm_query_var( 'wpdm_duplicate', 'int' ) );
-			wp_redirect( "edit.php?post_type=wpdmpro" );
-			die();
+		$package_id = wpdm_query_var( 'wpdm_duplicate', 'int' );
+
+		if ( $package_id <= 0 || get_post_type( $package_id ) !== 'wpdmpro' ) {
+			return;
 		}
+
+		// Match the gate already applied to the row action and the bulk handler.
+		// 'edit_posts' is generic - every contributor holds it - and says nothing
+		// about this particular package, so on its own it allowed cloning another
+		// user's package, along with its file references, role restrictions and
+		// password lock, into a copy the attacker owns and can strip bare.
+		if ( ! current_user_can( WPDM_ADMIN_CAP ) || ! current_user_can( 'edit_post', $package_id ) ) {
+			wp_die( esc_attr__( 'You are not authorized!', 'download-manager' ) );
+		}
+
+		// Package-scoped nonce. NONCE_KEY is a single static action shared by every
+		// WPDM feature, including front-end forms any logged-in user can reach, so a
+		// nonce minted anywhere in the plugin authorised duplicating any package.
+		if ( ! wp_verify_nonce( wpdm_query_var( '__copynonce' ), 'wpdm_duplicate_package_' . $package_id ) ) {
+			wp_die( esc_attr__( 'You are not authorized!', 'download-manager' ) );
+		}
+
+		Package::copy( $package_id );
+		wp_redirect( "edit.php?post_type=wpdmpro" );
+		die();
 	}
 
 
 	function uploadFile() {
 		check_ajax_referer( NONCE_KEY );
 		if ( ! current_user_can( 'upload_files' ) ) {
-			die( '-2' );
+			wp_die( '-2' );
 		}
 
 		$name = isset( $_FILES['package_file']['name'] ) && ! isset( $_REQUEST["chunks"] ) ? sanitize_file_name( $_FILES['package_file']['name'] ) : wpdm_query_var( 'name', 'txt' );
@@ -131,7 +110,7 @@ class Packages {
 		$ext = FileSystem::fileExt( $name );
 
 		if ( WPDM()->fileSystem->isBlocked( $name, $_FILES['package_file']['tmp_name'] ) ) {
-			die( '-3' );
+			wp_die( '-3' );
 		}
 
 		do_action( "wpdm_before_upload_file", $_FILES['package_file'] );
@@ -156,27 +135,44 @@ class Packages {
 
 
 		if ( isset( $_REQUEST["chunks"] ) ) {
-			$this->chunkUploadFile( UPLOAD_DIR . $filename );
+			$filename = $this->chunkUploadFile( UPLOAD_DIR . $filename );
 		} else {
-			move_uploaded_file( $_FILES['package_file']['tmp_name'], UPLOAD_DIR . $filename );
+
+			$isValidMimeType = FileSystem::validateUploadMimeType($_FILES['package_file']['tmp_name'], $name);
+
+			if(!$isValidMimeType) {
+				wp_die("|||<div class='alert alert-danger'>".sprintf(__('Upload blocked. The file type is invalid—the file extension does not match the actual content type.', 'download-manager'), '<strong>".UPLOAD_DIR."</strong>')."</div>|||");
+			}
+
+			$moved = move_uploaded_file( $_FILES['package_file']['tmp_name'], UPLOAD_DIR . $filename );
+			if(!$moved) wp_die("|||<div class='alert alert-danger'>".sprintf(__('Failed to move file in upload dir %s. Please check dir permission or contact server support.', 'download-manager'), '<strong>'.UPLOAD_DIR.'</strong>')."</div>|||");
 			do_action( "wpdm_after_upload_file", UPLOAD_DIR . $filename );
 		}
 
 		//$filename = apply_filters("wpdm_after_upload_file", $filename, UPLOAD_DIR);
 
 		echo "|||" . $filename . "|||";
-		exit;
+		wp_die();
 	}
 
 
+	/**
+	 * Store one chunk; on the last chunk move the assembled file into place.
+	 *
+	 * @param string $destFilePath Where the finished file should go
+	 *
+	 * @return string The file name it was stored under (renamed when that name was taken)
+	 */
 	function chunkUploadFile( $destFilePath ) {
 
 		if ( $destFilePath === '' ) {
-			return;
+			return '';
 		}
 		$chunk  = isset( $_REQUEST["chunk"] ) ? intval( $_REQUEST["chunk"] ) : 0;
 		$chunks = isset( $_REQUEST["chunks"] ) ? intval( $_REQUEST["chunks"] ) : 0;
-		$out    = @fopen( "{$destFilePath}.part", $chunk == 0 ? "wb" : "ab" );
+		// Assembled in a file of this user's own, so nobody else's chunks can land in it
+		$partFilePath = FileSystem::chunkPartPath( $destFilePath );
+		$out          = @fopen( $partFilePath, $chunk == 0 ? "wb" : "ab" );
 
 		if ( $out ) {
 			// Read binary input stream and append it to temp file
@@ -187,7 +183,7 @@ class Packages {
 					fwrite( $out, $buff );
 				}
 			} else {
-				die( '-3' );
+				wp_die( '-3' );
 			}
 
 			@fclose( $in );
@@ -195,14 +191,28 @@ class Packages {
 
 			@unlink( $_FILES['package_file']['tmp_name'] );
 		} else {
-			die( '-3' . $destFilePath );
+			wp_die( '-3' );
 		}
 
 		if ( ! $chunks || $chunk == $chunks - 1 ) {
-			// Strip the temp .part suffix off
-			rename( "{$destFilePath}.part", $destFilePath );
+
+			$isValidMimeType = FileSystem::validateUploadMimeType( $partFilePath, basename( $destFilePath ) );
+			if(!$isValidMimeType) {
+				@unlink( $partFilePath );
+				wp_die("|||<div class='alert alert-danger'>".sprintf(__('Upload blocked. The file type is invalid—the file extension does not match the actual content type.', 'download-manager'), '<strong>".UPLOAD_DIR."</strong>')."</div>|||");
+			}
+
+			// A name already in use gets the same time() prefix a plain upload gets; the
+			// chunked path used to rename straight over whatever file was there
+			if ( file_exists( $destFilePath ) ) {
+				$destFilePath = dirname( $destFilePath ) . '/' . time() . 'wpdm_' . basename( $destFilePath );
+			}
+
+			rename( $partFilePath, $destFilePath );
 			do_action( "wpdm_after_upload_file", $destFilePath );
 		}
+
+		return basename( $destFilePath );
 	}
 
 
@@ -212,7 +222,8 @@ class Packages {
 		}
 		$img['image'] = "<span class='wpdm-th-icon ttip' style='font-size: 0.8em'><i  style='font-size: 80%' class='far fa-image'></i></span>";
 		__::array_splice_assoc( $defaults, 1, 0, $img );
-		$otf['download_count'] = "<span class='wpdm-th-icon ttip' style='font-size: 0.8em'><i  style='font-size: 80%' class='fas fa-arrow-down'></i></span>";
+		$otf['download_count'] = "<span class='wpdm-th-icon ttip' title='" . esc_attr__( 'Downloads', 'download-manager' ) . "' style='font-size: 0.8em'><i  style='font-size: 80%' class='fas fa-arrow-down'></i></span>";
+		$otf['view_count']     = "<span class='wpdm-th-icon ttip' title='" . esc_attr__( 'Views', 'download-manager' ) . "' style='font-size: 0.8em'><i  style='font-size: 80%' class='far fa-eye'></i></span>";
 		$otf['wpdmembed']      = esc_attr__( 'Shortcode', 'download-manager' );
 		__::array_splice_assoc( $defaults, 3, 0, $otf );
 
@@ -229,6 +240,11 @@ class Packages {
 			echo current_user_can( WPDM_ADMIN_CAP ) || get_the_author_meta( 'ID' ) === get_current_user_id() ? (int) get_post_meta( $post_ID, '__wpdm_download_count', true ) : '&mdash;';
 
 		}
+		if ( $column_name == 'view_count' ) {
+
+			echo current_user_can( WPDM_ADMIN_CAP ) || get_the_author_meta( 'ID' ) === get_current_user_id() ? (int) get_post_meta( $post_ID, '__wpdm_view_count', true ) : '&mdash;';
+
+		}
 		if ( $column_name == 'wpdmembed' ) {
 
 			echo "<div class='w3eden'><div class='input-group short-code-wpdm'><input readonly=readonly class='form-control bg-white' onclick='this.select();' value=\"[wpdm_package id='$post_ID']\" id='sci{$post_ID}' /><div class='input-group-btn'><button type='button' onclick=\"WPDM.copy('sci{$post_ID}')\" class='btn btn-secondary'><i class='fa fa-copy'></i></button></div></div></div>";
@@ -241,7 +257,7 @@ class Packages {
 			} else {
 				$icon = get_post_meta( $post_ID, '__wpdm_icon', true );
 				if ( $icon != '' ) {
-					$icon = $icon;
+					$icon = esc_url($icon);
 					echo "<img src='$icon' class='img60px' alt='Icon' />";
 				}
 			}
@@ -258,6 +274,13 @@ class Packages {
 			) );
 		}
 
+		if ( isset( $vars['orderby'] ) && 'view_count' == $vars['orderby'] ) {
+			$vars = array_merge( $vars, array(
+				'meta_key' => '__wpdm_view_count',
+				'orderby'  => 'meta_value_num'
+			) );
+		}
+
 		return $vars;
 	}
 
@@ -268,17 +291,169 @@ class Packages {
 		}
 
 		$columns['download_count'] = 'download_count';
+		$columns['view_count']     = 'view_count';
 
 		return $columns;
 	}
 
 
+	/**
+	 * Render a category filter dropdown above the package list table.
+	 *
+	 * @return void
+	 */
+	function categoryFilter() {
+		global $typenow;
+		if ( $typenow !== 'wpdmpro' ) {
+			return;
+		}
+		$taxonomy = 'wpdmcategory';
+		wp_dropdown_categories( array(
+			'show_option_all' => esc_attr__( 'All Categories', 'download-manager' ),
+			'taxonomy'        => $taxonomy,
+			'name'            => $taxonomy,
+			'value_field'     => 'slug',
+			'selected'        => wpdm_query_var( $taxonomy, 'txt' ),
+			'hierarchical'    => true,
+			'depth'           => 5,
+			'orderby'         => 'name',
+			'show_count'      => false,
+			'hide_empty'      => false,
+			'class'           => 'postform',
+		) );
+	}
+
+	/**
+	 * Drop the "All Categories" placeholder (value 0) so it doesn't filter to an empty list.
+	 *
+	 * @param \WP_Query $query
+	 *
+	 * @return void
+	 */
+	function filterByCategory( $query ) {
+		global $pagenow;
+		if ( ! is_admin() || $pagenow !== 'edit.php' ) {
+			return;
+		}
+		$qv = &$query->query_vars;
+		if ( isset( $qv['post_type'] ) && $qv['post_type'] === 'wpdmpro'
+		     && isset( $qv['wpdmcategory'] ) && ( $qv['wpdmcategory'] === '0' || $qv['wpdmcategory'] === 0 ) ) {
+			unset( $qv['wpdmcategory'] );
+		}
+	}
+
+	/**
+	 * Inline "needs attention" / state badges next to a package title in the list.
+	 *
+	 * @param array    $states
+	 * @param \WP_Post $post
+	 *
+	 * @return array
+	 */
+	function postStates( $states, $post ) {
+		if ( ! is_object( $post ) || $post->post_type !== 'wpdmpro' || ! current_user_can( WPDM_ADMIN_CAP ) ) {
+			return $states;
+		}
+		if ( ! WPDM()->package->hasAttachment( $post->ID ) ) {
+			$states['wpdm_nofile'] = esc_html__( 'No file attached', 'download-manager' );
+		}
+		$password_protected = (bool) WPDM()->package->isPasswordProtected( $post->ID );
+		if ( $password_protected ) {
+			$states['wpdm_password'] = esc_html__( 'Password', 'download-manager' );
+		}
+		if ( ! $password_protected && WPDM()->package->isLocked( $post->ID ) ) {
+			$states['wpdm_locked'] = esc_html__( 'Locked', 'download-manager' );
+		}
+
+		return $states;
+	}
+
+	/**
+	 * Add bulk actions: Duplicate & Reset download count.
+	 *
+	 * @param array $actions
+	 *
+	 * @return array
+	 */
+	function bulkActions( $actions ) {
+		if ( current_user_can( WPDM_ADMIN_CAP ) ) {
+			$actions['wpdm_duplicate'] = esc_attr__( 'Duplicate', 'download-manager' );
+			$actions['wpdm_reset_dlc'] = esc_attr__( 'Reset Download Count', 'download-manager' );
+		}
+
+		return $actions;
+	}
+
+	/**
+	 * Process the custom bulk actions. Nonce is verified by WP core before this fires.
+	 *
+	 * @param string $redirect_url
+	 * @param string $action
+	 * @param int[]  $post_ids
+	 *
+	 * @return string
+	 */
+	function handleBulkActions( $redirect_url, $action, $post_ids ) {
+		if ( ! current_user_can( WPDM_ADMIN_CAP ) ) {
+			return $redirect_url;
+		}
+
+		if ( $action === 'wpdm_duplicate' ) {
+			$count = 0;
+			foreach ( (array) $post_ids as $id ) {
+				if ( get_post_type( $id ) === 'wpdmpro' ) {
+					Package::copy( (int) $id );
+					$count ++;
+				}
+			}
+			$redirect_url = add_query_arg( 'wpdm_bulk_duplicated', $count, $redirect_url );
+		} elseif ( $action === 'wpdm_reset_dlc' ) {
+			$count = 0;
+			foreach ( (array) $post_ids as $id ) {
+				if ( get_post_type( $id ) === 'wpdmpro' ) {
+					update_post_meta( (int) $id, '__wpdm_download_count', 0 );
+					$count ++;
+				}
+			}
+			$redirect_url = add_query_arg( 'wpdm_bulk_dlc_reset', $count, $redirect_url );
+		}
+
+		return $redirect_url;
+	}
+
+	/**
+	 * Confirmation notices after a custom bulk action runs.
+	 *
+	 * @return void
+	 */
+	function bulkActionNotices() {
+		global $pagenow, $typenow;
+		if ( $pagenow !== 'edit.php' || $typenow !== 'wpdmpro' ) {
+			return;
+		}
+		if ( isset( $_REQUEST['wpdm_bulk_duplicated'] ) ) {
+			$n = (int) $_REQUEST['wpdm_bulk_duplicated'];
+			printf(
+				'<div class="notice notice-success is-dismissible"><p>' . esc_html( _n( '%d package duplicated.', '%d packages duplicated.', $n, 'download-manager' ) ) . '</p></div>',
+				$n
+			);
+		}
+		if ( isset( $_REQUEST['wpdm_bulk_dlc_reset'] ) ) {
+			$n = (int) $_REQUEST['wpdm_bulk_dlc_reset'];
+			printf(
+				'<div class="notice notice-success is-dismissible"><p>' . esc_html( _n( 'Download count reset for %d package.', 'Download count reset for %d packages.', $n, 'download-manager' ) ) . '</p></div>',
+				$n
+			);
+		}
+	}
+
+
 	function rowActions( $actions, $post ) {
 		if ( $post->post_type == 'wpdmpro' && current_user_can( WPDM_ADMIN_CAP ) ) {
-			$actions['duplicate']  = '<a title="' . __( "Duplicate", "download-manager" ) . '" href="' . admin_url( "/?wpdm_duplicate={$post->ID}&__copynonce=" . wp_create_nonce( NONCE_KEY ) ) . '" class="wpdm_duplicate w3eden">' . esc_attr__( 'Duplicate', 'download-manager' ) . '</a>';
+			$actions['duplicate']  = '<a title="' . __( "Duplicate", "download-manager" ) . '" href="' . admin_url( "/?wpdm_duplicate={$post->ID}&__copynonce=" . wp_create_nonce( 'wpdm_duplicate_package_' . $post->ID ) ) . '" class="wpdm_duplicate w3eden">' . esc_attr__( 'Duplicate', 'download-manager' ) . '</a>';
 			$actions['view_stats'] = '<a title="' . __( "Stats", "download-manager" ) . '" href="edit.php?post_type=wpdmpro&page=wpdm-stats&pid=' . $post->ID . '" class="view_stats w3eden"><i class="fas fa-chart-pie color-blue"></i></a>';
 			if ( $post->post_status == 'publish' ) {
-				$actions['download_link'] = '<a title="' . __( "Master Download URL", "download-manager" ) . '" href="#" class="gdl_action w3eden" data-mdlu="' . WPDM()->package->getMasterDownloadURL( $post->ID ) . '" data-toggle="modal" data-target="#gdluModal" data-pid="' . $post->ID . '"><i class="far fa-arrow-alt-circle-down color-purple"></i></a>';
+				$actions['download_link'] = '<a title="' . __( "Master Download URL", "download-manager" ) . '" href="#" class="gdl_action w3eden" data-mdlu="' . WPDM()->package->getMasterDownloadURL( $post->ID ) . '" data-pid="' . $post->ID . '"><i class="far fa-arrow-alt-circle-down color-purple"></i></a>';
 			}
 		}
 
@@ -292,11 +467,6 @@ class Packages {
 			?>
 
             <style>
-                .w3eden #edlModal .modal-content,
-                .w3eden #gdluModal .modal-content {
-                    padding: 20px;
-                    border-radius: 15px;
-                }
 
                 .w3eden #edlModal .modal-content .modal-header i,
                 .w3eden #gdluModal .modal-content .modal-header i {
@@ -312,15 +482,7 @@ class Packages {
             </style>
 
             <div class="w3eden">
-                <div class="modal fade" tabindex="-1" role="dialog" id="embModal" style="display: none">
-                    <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-
-                            <div class="modal-header">
-                                <h4 class="modal-title"><i
-                                            class="fa fa-paste color-green"></i> <?php _e( "Embed Package", "download-manager" ); ?>
-                                </h4>
-                            </div>
+                <script type="text/template" id="embModal-tpl">
                             <div class="modal-body">
 
                                 <div class="input-group input-group-lg">
@@ -351,7 +513,7 @@ class Packages {
                                             <div class="col-md-3">
                                                 <button onclick="location.href='post.php?action=edit&post='+jQuery('#gotopg').val()"
                                                         type="button"
-                                                        class="btn btn-secondary btn-block"><?php echo esc_attr__( 'Go', 'download-manager' ); ?></button>
+                                                        class="btn btn-info btn-block"><?php echo esc_attr__( 'Go', 'download-manager' ); ?></button>
                                             </div>
                                         </div>
 
@@ -379,23 +541,9 @@ class Packages {
 
 
                             </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary"
-                                        data-dismiss="modal"><?php _e( "Close", "download-manager" ); ?></button>
-                            </div>
-                        </div><!-- /.modal-content -->
-                    </div><!-- /.modal-dialog -->
-                </div><!-- /.modal -->
+                </script>
 
-                <div class="modal fade" tabindex="-1" role="dialog" id="gdluModal" style="display: none">
-                    <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-
-                            <div class="modal-header">
-                                <h4 class="modal-title"><i
-                                            class="far fa-arrow-alt-circle-down color-purple"></i> <?php _e( "Generate Download Link", "download-manager" ); ?>
-                                </h4>
-                            </div>
+                <script type="text/template" id="gdluModal-tpl">
                             <div class="modal-body">
 
 
@@ -406,10 +554,17 @@ class Packages {
                                             </a></div>
 										<?php _e( "Master Download Link:", "download-manager" ); ?>
                                     </div>
-                                    <div class="panel-body"><input readonly="readonly" onclick="this.select()"
-                                                                   type="text" class="form-control color-purple"
-                                                                   style="background: #fdfdfd;font-size: 10px;text-align: center;font-family: monospace;font-weight: bold;"
-                                                                   id="mdl"/></div>
+                                    <div class="panel-body">
+                                        <div class="input-group">
+                                            <input readonly="readonly" onclick="this.select()"
+                                                   type="text" class="form-control color-purple"
+                                                   style="background: #fdfdfd;min-height: 34px;text-align: center;font-family: monospace;font-weight: bold;font-size: 10px;"
+                                                   id="mdl"/>
+                                            <div class="input-group-btn">
+                                                <button type="button" onclick="WPDM.copy('mdl')" class="btn btn-secondary"><i class="fa fa-copy"></i> <?php echo esc_attr__( 'Copy', 'download-manager' ); ?></button>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div class="panel panel-default ttip" style="opacity: 0.3"
@@ -444,7 +599,7 @@ class Packages {
 
                                             <div class="col-md-4">
                                                 <label>&nbsp;</label><br/>
-                                                <button disabled="disabled" class="btn btn-secondary btn-block"
+                                                <button disabled="disabled" class="btn btn-info btn-block"
                                                         style="height: 34px" type="button">Generate
                                                 </button>
                                             </div>
@@ -473,10 +628,7 @@ class Packages {
 
 
                             </div>
-
-                        </div><!-- /.modal-content -->
-                    </div><!-- /.modal-dialog -->
-                </div><!-- /.modal -->
+                </script>
 
             </div>
             <script>
@@ -484,19 +636,28 @@ class Packages {
 
 
                     var tdlpid;
-                    $('.gdl_action').on('click', function () {
+                    $('body').on('click', '.gdl_action', function () {
                         tdlpid = $(this).attr('data-pid');
-                        $('#mdl').val($(this).attr('data-mdlu'));
-                        $('#mdlx').attr('href', $(this).attr('data-mdlu'));
+                        var mdlu = $(this).attr('data-mdlu');
+                        WPDM.dialog.show({
+                            title: '<?php echo esc_js(__( "Generate Download Link", "download-manager" )); ?>',
+                            content: document.getElementById('gdluModal-tpl').innerHTML,
+                            size: 'md', icon: false
+                        });
+                        $('#mdl').val(mdlu);
+                        $('#mdlx').attr('href', mdlu);
                         $('#tmpgdl').val('');
                         $('#tmpgdlp').val('');
                     });
 
                     $('body').on('click', '.btn-embed', function () {
-                        var sc = "[wpdm_package id='{{ID}}']";
-                        sc = sc.replace("{{ID}}", $(this).data('pid'));
-                        console.log(sc);
-                        $('#cpsc').val(sc);
+                        var pid = $(this).data('pid');
+                        WPDM.dialog.show({
+                            title: '<?php echo esc_js(__( "Embed Package", "download-manager" )); ?>',
+                            content: document.getElementById('embModal-tpl').innerHTML,
+                            size: 'md', icon: false
+                        });
+                        $('#cpsc').val("[wpdm_package id='" + pid + "']");
                     });
 
 

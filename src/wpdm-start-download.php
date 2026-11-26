@@ -9,6 +9,7 @@ if(!defined("ABSPATH")) die('!');
 
 
 global $current_user, $dfiles;
+$current_user = wp_get_current_user();
 
 //Check for blocked IPs
 if(wpdm_ip_blocked()) {
@@ -19,7 +20,7 @@ if(wpdm_ip_blocked()) {
 }
 
 //Check for blocked users by email
-if(is_user_logged_in() && !wpdm_verify_email($current_user->user_email)) {
+if(is_user_logged_in() && $current_user->user_email && !wpdm_verify_email($current_user->user_email)) {
     $emsg =  get_option('__wpdm_blocked_domain_msg');
     if(trim($emsg) === '') $emsg = __('Your email address is blocked!', 'download-manager');
     Messages::fullPage('Error!', $emsg, 'error');
@@ -50,7 +51,7 @@ $files = array_values($files);
 $fileCount = count($files) && $files[0] !== '' ? 1 : 0;
 
 if($fileCount === 0){
-    Messages::fullPage(__( "No Files", "download-manager" ),  __( "No file is attached with this package!", "download-manager" ));
+    Messages::fullPage(__( "No Files", "download-manager" ),  \WPDM\__\UI::div(__( "No file is attached with this package!", "download-manager" ), "alert alert-danger d-inline-block"));
 }
 
 //$idvdl = Individual file download status
@@ -91,7 +92,6 @@ else {
 
         die();
     }
-
 
 
     $filepath = WPDM()->fileSystem->absPath($indfile, $package['ID']);

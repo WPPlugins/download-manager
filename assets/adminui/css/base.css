@@ -1,3 +1,171 @@
+/* ==========================================================================
+   Design tokens: neutral colours, radius, type, spacing, shadow, motion and
+   layers. Kept identical in front.css and adminui/css/base.css; dark mode
+   (front-dark.css) swaps these values.
+   ========================================================================== */
+:root {
+    /* ----------------------------------------------------------------------
+       Neutral palette (slate)
+       ---------------------------------------------------------------------- */
+    --wpdm-slate-50: #f8fafc;
+    --wpdm-slate-100: #f1f5f9;
+    --wpdm-slate-200: #e2e8f0;
+    --wpdm-slate-300: #cbd5e1;
+    --wpdm-slate-400: #94a3b8;
+    --wpdm-slate-500: #64748b;
+    --wpdm-slate-600: #475569;
+    --wpdm-slate-700: #334155;
+    --wpdm-slate-800: #1e293b;
+    --wpdm-slate-900: #0f172a;
+
+    /* ----------------------------------------------------------------------
+       Semantic colours (light)
+       ---------------------------------------------------------------------- */
+    --wpdm-surface: #ffffff;                       /* cards, inputs, panels */
+    --wpdm-surface-muted: var(--wpdm-slate-50);    /* headers, alternate rows */
+    --wpdm-surface-sunken: var(--wpdm-slate-100);  /* wells, hover fills */
+    --wpdm-page-bg: #f8fbfd;                       /* admin page background */
+
+    --wpdm-border: var(--wpdm-slate-200);
+    --wpdm-border-light: var(--wpdm-slate-100);
+    --wpdm-border-strong: var(--wpdm-slate-300);
+
+    --wpdm-text: var(--wpdm-slate-800);            /* body and headings */
+    --wpdm-text-secondary: var(--wpdm-slate-600);  /* supporting text */
+    --wpdm-text-muted: var(--wpdm-slate-500);      /* labels, meta */
+    --wpdm-text-subtle: var(--wpdm-slate-400);     /* placeholders, icons */
+    --wpdm-text-faint: var(--wpdm-slate-300);      /* disabled, dividers in text */
+
+    /* ----------------------------------------------------------------------
+       Radius
+       ---------------------------------------------------------------------- */
+    --wpdm-radius-sm: 4px;       /* badges, small chips */
+    --wpdm-radius-control: 6px;  /* admin inputs and buttons */
+    --wpdm-radius: 8px;          /* default: buttons, inputs, list rows */
+    --wpdm-radius-lg: 12px;      /* cards, panels */
+    --wpdm-radius-xl: 16px;      /* large containers, modals */
+    --wpdm-radius-pill: 9999px;
+
+    /* ----------------------------------------------------------------------
+       Control sizes (inputs, selects, buttons and pagination share them)
+       ---------------------------------------------------------------------- */
+    --wpdm-control-h-sm: 32px;
+    --wpdm-control-h: 40px;
+    --wpdm-control-h-lg: 48px;
+
+    /* ----------------------------------------------------------------------
+       Typography
+       ---------------------------------------------------------------------- */
+    --wpdm-font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --wpdm-font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace;
+    --wpdm-font: var(--wpdm-font-sans);
+
+    --wpdm-fs-2xs: 0.6875rem;  /* 11px */
+    --wpdm-fs-xs: 0.75rem;     /* 12px */
+    --wpdm-fs-sm: 0.8125rem;   /* 13px */
+    --wpdm-fs-base: 0.875rem;  /* 14px */
+    --wpdm-fs-md: 1rem;        /* 16px */
+    --wpdm-fs-lg: 1.125rem;    /* 18px */
+    --wpdm-fs-xl: 1.25rem;     /* 20px */
+    --wpdm-fs-2xl: 1.5rem;     /* 24px */
+    --wpdm-fs-3xl: 1.875rem;   /* 30px */
+
+    --wpdm-fw-normal: 400;
+    --wpdm-fw-medium: 500;
+    --wpdm-fw-semibold: 600;
+    --wpdm-fw-bold: 700;
+
+    --wpdm-lh-tight: 1.25;
+    --wpdm-lh-snug: 1.4;
+    --wpdm-lh: 1.5;
+
+    /* ----------------------------------------------------------------------
+       Spacing (4px steps)
+       ---------------------------------------------------------------------- */
+    --wpdm-space-1: 4px;
+    --wpdm-space-2: 8px;
+    --wpdm-space-3: 12px;
+    --wpdm-space-4: 16px;
+    --wpdm-space-5: 20px;
+    --wpdm-space-6: 24px;
+    --wpdm-space-8: 32px;
+    --wpdm-space-10: 40px;
+    --wpdm-space-12: 48px;
+
+    /* ----------------------------------------------------------------------
+       Shadows
+       ---------------------------------------------------------------------- */
+    --wpdm-shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --wpdm-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+    --wpdm-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
+    --wpdm-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.06);
+
+    /* ----------------------------------------------------------------------
+       Motion
+       ---------------------------------------------------------------------- */
+    --wpdm-duration-fast: 150ms;
+    --wpdm-duration: 200ms;
+    --wpdm-duration-slow: 300ms;
+    --wpdm-ease: cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Full transition shorthands, kept for the admin styles that use them */
+    --wpdm-transition-fast: all 0.15s ease;
+    --wpdm-transition: all 0.2s ease;
+    --wpdm-transition-slow: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* ----------------------------------------------------------------------
+       Layers (z-index). The WordPress admin bar sits at 99999.
+       ---------------------------------------------------------------------- */
+    --wpdm-z-raised: 1;
+    --wpdm-z-dropdown: 1000;
+    --wpdm-z-sticky: 1020;
+    --wpdm-z-overlay: 1040;
+    --wpdm-z-modal: 1050;
+    --wpdm-z-popover: 1070;
+    --wpdm-z-toast: 1090;
+    --wpdm-z-top: 100000;
+}
+
+:root {
+    /* Brand — follows the active WordPress admin color scheme */
+    --admin-color: #3b74d5;
+    --admin-color-hover: #4280ea;
+    --admin-color-active: #2e5cab;
+    --admin-color-rgb: 59, 116, 213;
+
+    /* Primary alias (kept in sync with the admin brand color) */
+    --color-primary: var(--admin-color);
+    --color-primary-hover: var(--admin-color-hover);
+    --color-primary-active: var(--admin-color-active);
+    --color-primary-rgb: var(--admin-color-rgb);
+
+    /* Secondary (neutral / slate) */
+    --clr-sec: #94a3b8;
+    --clr-sec-hover: #64748b;
+    --color-secondary: var(--clr-sec);
+    --color-secondary-hover: var(--clr-sec-hover);
+
+    /* Semantic palette */
+    --color-info: #3b82f6;
+    --color-info-hover: #2563eb;
+    --color-info-rgb: 59, 130, 246;
+    --color-success: #10b981;
+    --color-success-hover: #059669;
+    --color-success-rgb: 16, 185, 129;
+    --color-warning: #f59e0b;
+    --color-warning-hover: #d97706;
+    --color-warning-rgb: 245, 158, 11;
+    --color-danger: #ef4444;
+    --color-danger-hover: #dc2626;
+    --color-danger-rgb: 239, 68, 68;
+
+    /* Surfaces (legacy aliases) */
+    --border-color: var(--wpdm-border);
+    --bg-light: var(--wpdm-surface-muted);
+    --bg-lighter: var(--wpdm-surface-muted);
+
+    /* Structural tokens (--wpdm-surface, --wpdm-border, --wpdm-radius, ...) are defined at the top of this file */
+}
 .w3eden html {
     font-family: sans-serif;
     -webkit-text-size-adjust: 100%;
@@ -1288,11 +1456,11 @@
     line-height: 1.42857143;
     vertical-align: top;
     border: 0;
-    border-top: 1px solid #dddddd;
+    border-top: 1px solid var(--border-color);
 }
 .w3eden .table > thead > tr > th {
     vertical-align: bottom;
-    border-bottom: 2px solid #dddddd;
+    border-bottom: 2px solid var(--border-color);
 }
 .w3eden .table > caption + thead > tr:first-child > td,
 .w3eden .table > caption + thead > tr:first-child > th,
@@ -1303,7 +1471,7 @@
     border-top: 0;
 }
 .w3eden .table > tbody + tbody {
-    border-top: 2px solid #dddddd;
+    border-top: 2px solid var(--border-color);
 }
 .w3eden .table .table {
     background-color: #ffffff;
@@ -1332,7 +1500,7 @@
     border-bottom-width: 2px;
 }
 .w3eden .table-striped > tbody > tr:nth-of-type(odd) {
-    background-color: #f9f9f9;
+    background-color: #fbfdff;
 }
 .w3eden .table-hover > tbody > tr:hover {
     background-color: #f5f5f5;
@@ -1481,28 +1649,21 @@
 .w3eden .form-control {
     display: block;
     width: 100%;
-    height: 34px;
-    padding: 6px 12px;
+    height: 40px;
     font-size: 14px;
     line-height: 1.42857143;
     color: #555;
     background-color: #fff;
     background-image: none;
-    border: 1px solid #d5d5d5;
-    border-radius: 3px;
-    /*
-    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.055);
-    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.055);
-    -webkit-transition: border-color ease-in-out 0.15s, -webkit-box-shadow ease-in-out 0.15s;
-    -o-transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
-    */
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
     box-shadow: none;
     transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
 }
 .w3eden .form-control:focus {
-    border-color: rgba(var(--color-primary-rgb), 0.8);
+    border-color: var(--admin-color);
     outline: 0;
-    box-shadow: none;
+    box-shadow: 0 0 0 2px rgba(var(--admin-color-rgb), 0.2);
 }
 .w3eden .form-control::-moz-placeholder {
     color: #999;
@@ -1530,34 +1691,7 @@
 .w3eden input[type=search] {
     -webkit-appearance: none;
 }
-@media screen and (-webkit-min-device-pixel-ratio: 0) {
-    .w3eden input[type=date],
-    .w3eden input[type=time],
-    .w3eden input[type=datetime-local],
-    .w3eden input[type=month] {
-        line-height: 34px;
-    }
-    .w3eden .input-group-sm input[type=date],
-    .w3eden .input-group-sm input[type=time],
-    .w3eden .input-group-sm input[type=datetime-local],
-    .w3eden .input-group-sm input[type=month],
-    .w3eden input[type=date].input-sm,
-    .w3eden input[type=time].input-sm,
-    .w3eden input[type=datetime-local].input-sm,
-    .w3eden input[type=month].input-sm {
-        line-height: 30px;
-    }
-    .w3eden .input-group-lg input[type=date],
-    .w3eden .input-group-lg input[type=time],
-    .w3eden .input-group-lg input[type=datetime-local],
-    .w3eden .input-group-lg input[type=month],
-    .w3eden input[type=date].input-lg,
-    .w3eden input[type=time].input-lg,
-    .w3eden input[type=datetime-local].input-lg,
-    .w3eden input[type=month].input-lg {
-        line-height: 46px;
-    }
-}
+
 .w3eden .form-group {
     margin-bottom: 15px;
 }
@@ -1639,7 +1773,7 @@
     padding: 5px 10px;
     font-size: 12px;
     line-height: 1.5;
-    border-radius: 3px;
+    border-radius: 4px;
 }
 .w3eden select.input-sm {
     height: 30px;
@@ -1926,7 +2060,7 @@
 }
 .w3eden .btn {
     display: inline-block;
-    padding: 6px 12px;
+    height: 40px;
     margin-bottom: 0;
     font-size: 14px;
     font-weight: 400;
@@ -1943,7 +2077,7 @@
     user-select: none;
     background-image: none;
     border: 1px solid transparent;
-    border-radius: 3px;
+    border-radius: 6px;
 }
 .w3eden .btn.active.focus,
 .w3eden .btn.active:focus,
@@ -1978,6 +2112,9 @@
     box-shadow: none;
     opacity: 0.65;
 }
+
+/*
+
 .w3eden .btn-secondary {
     color: #333;
     background-color: #fff;
@@ -2248,6 +2385,8 @@
     color: var(--color-danger);
     background-color: #ffffff;
 }
+ */
+
 .w3eden .btn-link {
     font-weight: 400;
     color: var(--color-primary);
@@ -2283,23 +2422,26 @@
 }
 .w3eden .btn-group-lg > .btn,
 .w3eden .btn-lg {
-    padding: 10px 16px;
+    padding: 0 16px;
     font-size: 18px;
     line-height: 1.3333333;
-    border-radius: 6px;
+    border-radius: 8px;
+    height: 48px;
 }
 .w3eden .btn-group-sm > .btn,
 .w3eden .btn-sm {
-    padding: 5px 10px;
+    padding: 0 10px;
+    height: 30px;
+    line-height: 28px;
     font-size: 12px;
-    line-height: 1.5;
-    border-radius: 3px;
+    border-radius: 4px;
 }
 .w3eden .btn-group-xs > .btn,
 .w3eden .btn-xs {
-    padding: 1px 5px;
+    padding: 0 10px;
+    height: 24px;
+    line-height: 22px;
     font-size: 12px;
-    line-height: 1.5;
     border-radius: 3px;
 }
 .w3eden .btn-block {
@@ -2493,7 +2635,7 @@
 .w3eden .btn-group,
 .w3eden .btn-group-vertical {
     position: relative;
-    display: inline-block;
+    display: inline-flex;
     vertical-align: middle;
 }
 .w3eden .btn-group-vertical > .btn,
@@ -2744,14 +2886,14 @@
     line-height: 1;
     color: #555;
     text-align: center;
-    background-color: #eee;
-    border: 1px solid #ccc;
+    background-color: var(--bg-light);
+    border: 1px solid var(--border-color);
     border-radius: 3px;
 }
 .w3eden .input-group-addon.input-sm {
     padding: 5px 10px;
     font-size: 12px;
-    border-radius: 3px;
+    border-radius: 4px;
 }
 .w3eden .input-group-addon.input-lg {
     padding: 10px 16px;
@@ -2828,7 +2970,7 @@
 .w3eden .nav > li > a:focus,
 .w3eden .nav > li > a:hover {
     text-decoration: none;
-    background-color: #eeeeee;
+    background-color: #e1edff;
 }
 .w3eden .nav > li.disabled > a {
     color: #777777;
@@ -2929,13 +3071,14 @@
 }
 .w3eden .nav-pills > li > a {
     border-radius: 4px;
+    background: #eaf2ff;
 }
 .w3eden .nav-pills > li + li {
     margin-left: 2px;
 }
-.w3eden .nav-pills > li.active > a,
-.w3eden .nav-pills > li.active > a:focus,
-.w3eden .nav-pills > li.active > a:hover {
+.w3eden .nav-pills > li > a.active,
+.w3eden .nav-pills > li > a.active:focus,
+.w3eden .nav-pills > li > a:hover {
     color: #fff;
     background-color: var(--color-primary);
 }
@@ -2955,6 +3098,9 @@
 .w3eden .nav-justified > li > a {
     margin-bottom: 5px;
     text-align: center;
+}
+.w3eden .nav-pills.nav-justified li:not(:last-child) a {
+    margin-right: 5px;
 }
 .w3eden .nav-justified > .dropdown .dropdown-menu {
     top: auto;
@@ -3292,10 +3438,7 @@
 }
 .w3eden .navbar-fixed-bottom .navbar-nav > li > .dropdown-menu {
     margin-bottom: 0;
-    border-top-left-radius: 4px;
-    border-top-right-radius: 4px;
-    border-bottom-right-radius: 0;
-    border-bottom-left-radius: 0;
+    border-radius: 4px 4px 0 0;
 }
 .w3eden .navbar-btn {
     margin-top: 8px;
@@ -4245,9 +4388,10 @@
     margin-bottom: 20px;
     background-color: #fff;
     border: 1px solid transparent;
-    border-radius: 4px;
-    -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
-    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+    border-radius: 8px;
+    -webkit-box-shadow: 0 0 6px rgba(94, 141, 255, 0.1);
+    box-shadow: 0 0 6px rgba(94, 141, 255, 0.1);
+    overflow: hidden;
 }
 .w3eden .panel-body {
     padding: 15px;
@@ -4255,8 +4399,7 @@
 .w3eden .panel-heading {
     padding: 12px 15px;
     border-bottom: 1px solid transparent;
-    border-top-left-radius: 3px;
-    border-top-right-radius: 3px;
+    border-radius: 8px 8px 0 0;
 }
 .w3eden .panel-heading > .dropdown .dropdown-toggle {
     color: inherit;
@@ -4276,8 +4419,8 @@
 }
 .w3eden .panel-footer {
     padding: 10px 15px;
-    background-color: #f5f5f5;
-    border-top: 1px solid #ddd;
+    background-color: rgba(248, 250, 253, 0.76);
+    border-top: 1px solid var(--border-color);
     border-bottom-right-radius: 3px;
     border-bottom-left-radius: 3px;
 }
@@ -4473,12 +4616,12 @@
     border-bottom: 1px solid #dddddd;
 }
 .w3eden .panel-default {
-    border-color: #dddddd;
+    border-color: #dde6ee;
 }
 .w3eden .panel-default > .panel-heading {
     color: #333;
-    background-color: #f5f5f5;
-    border-color: #dddddd;
+    background-color: #ffffff;
+    border-color: #dde6ee;
 }
 .w3eden .panel-default > .panel-heading + .panel-collapse > .panel-body {
     border-top-color: #dddddd;
@@ -4610,11 +4753,9 @@
     min-height: 20px;
     padding: 19px;
     margin-bottom: 20px;
-    background-color: #f5f5f5;
-    border: 1px solid #e3e3e3;
+    background-color: rgba(0, 0, 0, 0.01);
+    border: 1px solid var(--border-color);
     border-radius: 4px;
-    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
-    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
 }
 .w3eden .well blockquote {
     border-color: #ddd;
@@ -4653,6 +4794,13 @@
     background: 0 0;
     border: 0;
 }
+.w3eden .modal-backdrop.wpdm-mbd.show {
+    position: fixed;
+    opacity: 0.7 !important;
+    z-index: 99999 !important;
+    left: 0;
+    top: 0;
+}
 .w3eden .modal-open {
     overflow: hidden;
 }
@@ -4662,26 +4810,21 @@
     right: 0;
     bottom: 0;
     left: 0;
-    z-index: 1050;
+    z-index: 999999 !important;
     display: none;
     overflow: hidden;
     -webkit-overflow-scrolling: touch;
     outline: 0;
 }
+/* Modern Modal Dialog Styles */
 .w3eden .modal.fade .modal-dialog {
-    -webkit-transition: -webkit-transform 0.3s ease-out;
-    -o-transition: -o-transform 0.3s ease-out;
-    transition: transform 0.3s ease-out;
-    -webkit-transform: translate(0, -25%);
-    -ms-transform: translate(0, -25%);
-    -o-transform: translate(0, -25%);
-    transform: translate(0, -25%);
+    opacity: 0;
+    transform: scale(0.95) translateY(-20px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
 }
 .w3eden .modal.in .modal-dialog {
-    -webkit-transform: translate(0, 0);
-    -ms-transform: translate(0, 0);
-    -o-transform: translate(0, 0);
-    transform: translate(0, 0);
+    opacity: 1;
+    transform: scale(1) translateY(0);
 }
 .w3eden .modal-open .modal {
     overflow-x: hidden;
@@ -4690,20 +4833,23 @@
 .w3eden .modal-dialog {
     position: relative;
     width: auto;
-    margin: 10px;
+    margin: 20px;
+    pointer-events: none;
 }
 .w3eden .modal-content {
     position: relative;
-    background-color: #fff;
-    -webkit-background-clip: padding-box;
+    display: flex;
+    flex-direction: column;
+    pointer-events: auto;
+    background-color: #ffffff;
     background-clip: padding-box;
-    border: 1px solid #999;
-    border: 1px solid rgba(0, 0, 0, 0.2);
-    border-radius: 6px;
+    border: none;
+    border-radius: 12px;
     outline: 0;
-    -webkit-box-shadow: 0 3px 9px rgba(0, 0, 0, 0.5);
-    box-shadow: 0 3px 9px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05);
 }
+
+/* Modal Backdrop - Modern blur effect */
 .modal-backdrop {
     position: fixed;
     top: 0;
@@ -4711,41 +4857,85 @@
     bottom: 0;
     left: 0;
     z-index: 1040;
-    background-color: #000000;
+    background-color: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
 }
 .modal-backdrop.fade {
-    filter: alpha(opacity=0);
     opacity: 0;
+    transition: opacity 0.2s ease;
 }
 .modal-backdrop.in {
-    filter: alpha(opacity=50);
-    opacity: 0.5;
+    opacity: 1;
 }
+
+/* Modal Header - Modern design */
 .w3eden .modal-header {
-    min-height: 16.43px;
-    padding: 15px;
-    border-bottom: 1px solid #e5e5e5;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 24px;
+    background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+    border-bottom: 1px solid #e2e8f0;
+    border-radius: 12px 12px 0 0;
 }
 .w3eden .modal-header .close {
-    margin-top: -2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    margin: 0;
+    font-size: 24px;
+    font-weight: 300;
+    color: #64748b;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    opacity: 1;
+}
+.w3eden .modal-header .close:hover {
+    color: #1e293b;
+    background: rgba(0, 0, 0, 0.06);
+}
+.w3eden .modal-header .close:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
 }
 .w3eden .modal-title {
     margin: 0;
-    line-height: 1.42857143;
+    font-size: 16px;
+    font-weight: 600;
+    color: #1e293b;
+    line-height: 1.5;
 }
+
+/* Modal Body */
 .w3eden .modal-body {
     position: relative;
-    padding: 15px;
+    flex: 1 1 auto;
+    padding: 24px;
+    color: #475569;
+    line-height: 1.6;
 }
-.w3eden .modal-footer {
-    padding: 15px;
-    text-align: right;
-    border-top: 1px solid #e5e5e5;
 
+/* Modal Footer - Modern design */
+.w3eden .modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 16px 24px;
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+    border-radius: 0 0 12px 12px;
 }
 .w3eden .modal-footer .btn + .btn {
     margin-bottom: 0;
-    margin-left: 5px;
+    margin-left: 0;
 }
 .w3eden .modal-footer .btn-group .btn + .btn {
     margin-left: -1px;
@@ -4753,6 +4943,24 @@
 .w3eden .modal-footer .btn-block + .btn-block {
     margin-left: 0;
 }
+
+/* Modal with icon in header */
+.w3eden .modal-header-icon {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.w3eden .modal-header-icon .icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--color-info, #6366f1) 0%, var(--color-info-hover, #4f46e5) 100%);
+    border-radius: 10px;
+    color: #ffffff;
+}
+
 .w3eden .modal-scrollbar-measure {
     position: absolute;
     top: -9999px;
@@ -4760,23 +4968,68 @@
     height: 50px;
     overflow: scroll;
 }
+
+/* Responsive Modal Sizes */
 @media (min-width: 768px) {
     .w3eden .modal-dialog {
-        width: 600px;
-        margin: 100px auto;
+        width: 540px;
+        margin: 60px auto;
     }
     .w3eden .modal-content {
-        -webkit-box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05);
     }
     .w3eden .modal-sm {
-        width: 300px;
+        width: 340px;
     }
 }
 @media (min-width: 992px) {
     .w3eden .modal-lg {
-        width: 900px;
+        width: 800px;
     }
+    .w3eden .modal-xl {
+        width: 1000px;
+    }
+}
+
+/* Modal variants */
+.w3eden .modal-content.modal-danger .modal-header {
+    background: linear-gradient(180deg, #fef2f2 0%, #fee2e2 100%);
+    border-bottom-color: #fecaca;
+}
+.w3eden .modal-content.modal-danger .modal-title {
+    color: var(--color-danger, #dc2626);
+}
+
+.w3eden .modal-content.modal-success .modal-header {
+    background: linear-gradient(180deg, #f0fdf4 0%, #dcfce7 100%);
+    border-bottom-color: #bbf7d0;
+}
+.w3eden .modal-content.modal-success .modal-title {
+    color: var(--color-success, #16a34a);
+}
+
+.w3eden .modal-content.modal-warning .modal-header {
+    background: linear-gradient(180deg, #fffbeb 0%, #fef3c7 100%);
+    border-bottom-color: #fde68a;
+}
+.w3eden .modal-content.modal-warning .modal-title {
+    color: #b45309;
+}
+
+/* Centered modal */
+.w3eden .modal-dialog-centered {
+    display: flex;
+    align-items: center;
+    min-height: calc(100% - 60px);
+}
+
+/* Scrollable modal body */
+.w3eden .modal-dialog-scrollable .modal-content {
+    max-height: calc(100vh - 120px);
+    overflow: hidden;
+}
+.w3eden .modal-dialog-scrollable .modal-body {
+    overflow-y: auto;
 }
 .w3eden .tooltip {
     position: absolute;
@@ -5291,6 +5544,7 @@
 }
 .w3eden .show {
     display: block !important;
+    opacity: 1 !important;
 }
 .w3eden .invisible {
     visibility: hidden;
@@ -5521,11 +5775,11 @@
 
 .w3eden .btn{
     background-image:-webkit-gradient(linear,left top,left bottom,from(rgba(0,0,0,0)),to(rgba(0,0,0,.05)));background-image:-webkit-linear-gradient(rgba(0,0,0,0),rgba(0,0,0,.05));background-image:linear-gradient(rgba(0,0,0,0),rgba(0,0,0,.05));
-
+    text-decoration:none !important;
     /* border: 0;padding: 7px 13px; */
 }
 .w3eden .panel th{
-    background-color: #eeeeee !important;
+    background-color: #f7fafd !important;
     border-bottom-width: 1px !important;
 
 }
@@ -5542,7 +5796,6 @@
     font-size: 14px;
     font-weight: 300;
     font-style: italic;
-    border-radius: 2px !important;
 }
 .w3eden .btn-group .btn:first-child:not(:last-child),
 .w3eden .input-group .form-control:first-child:not(:last-child){ border-top-right-radius: 0; border-bottom-right-radius: 0; border-bottom-left-radius: 0.2em; border-top-left-radius: 0.2em; }
@@ -5558,4 +5811,19 @@
     padding: 8.5px 12px;
     position: relative;
     width: 40px;
+}
+.mr-2{
+    margin-right: 0.4rem !important;
+}.mr-3{
+    margin-right: 0.7rem !important;
+}
+.mb-3,
+.my-3 {
+    margin-bottom: 1rem !important;
+}
+.br-0{
+    border-radius: 0 !important;
+}
+.bb{
+    border-bottom: 1px dashed #ddd !important;
 }

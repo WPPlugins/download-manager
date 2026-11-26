@@ -11,20 +11,23 @@ global $wp_scripts;
         <title><?php _e('Asset Manager Picker', 'download-manager') ?></title>
 
             <link rel="stylesheet" href="<?php echo WPDM_BASE_URL; ?>assets/adminui/css/base.min.css" />
-            <link rel="stylesheet" href="<?php echo WPDM_BASE_URL; ?>assets/css/admin-styles.css" />
-            <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.9.0/css/all.css" />
+            <link rel="stylesheet" href="<?php echo WPDM_BASE_URL; ?>assets/css/admin-styles.min.css" />
+            <link rel="stylesheet" href="<?php echo WPDM_BASE_URL; ?>assets/css/simple-scrollbar.min.css" />
+            <link rel="stylesheet" href="<?php echo WPDM_BASE_URL; ?>assets/fontawesome/css/all.css" />
             <script src="<?php echo includes_url(); ?>/js/jquery/jquery.js"></script>
             <script src="<?php echo includes_url(); ?>/js/jquery/jquery.form.min.js"></script>
-            <script src="<?php echo WPDM_BASE_URL; ?>assets/adminui/js/bootstrap.min.js"></script>
+            <script src="<?php echo WPDM_BASE_URL; ?>assets/js/wpdm.min.js"></script>
             <script src="<?php echo WPDM_BASE_URL; ?>assets/js/front.js"></script>
-
+            <script src="<?php echo WPDM_BASE_URL; ?>assets/js/vue.min.js"></script>
 
         <?php
         //wp_head();
         \WPDM\__\Apply::googleFont();
         ?>
         <style>
-            @import url("https://fonts.googleapis.com/css?family=Overpass+Mono&subset=latin");
+            <?php if (\WPDM\__\Apply::googleFontsEnabled()) { ?>
+            @import url("https://fonts.googleapis.com/css2?family=Overpass+Mono&subset=latin");
+            <?php } ?>
             html, body{
                 overflow: visible;
                 height: 100%;
@@ -64,17 +67,30 @@ global $wp_scripts;
             }
 
             .modal-backdrop{
+                background: rgba(0,0,0,0);
+                transition: background 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            .modal-backdrop.show{
                 background: rgba(0,0,0,0.5);
             }
 
-
             .modal.fade{
-                opacity:1;
+                opacity: 0;
+                visibility: hidden;
+                transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            .modal.fade.show{
+                opacity: 1;
+                visibility: visible;
             }
             .modal.fade .modal-dialog {
-                -webkit-transform: translate(0);
-                -moz-transform: translate(0);
-                transform: translate(0);
+                transform: scale(0.95) translateY(-20px);
+                opacity: 0;
+                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            .modal.fade.show .modal-dialog {
+                transform: scale(1) translateY(0);
+                opacity: 1;
             }
 
             .modal {
@@ -665,6 +681,8 @@ global $wp_scripts;
 
             }
 
+            /* Modal animation handled by .modal.fade.show .modal-dialog */
+
         </style>
 
 
@@ -704,7 +722,7 @@ global $wp_scripts;
                                             <button class="btn btn-danger btn-simple btn-sm" data-target="#wpdm-asset-picker" data-dismiss="modal" aria-label="Close"><i class="fa fa-times"></i></button>
                                         </div>
                                         <h3 style="display: inline-block;font-size: 12pt;letter-spacing: 0.5px;font-weight: 400;font-family: var(--wpdm-font)">
-                                            <i class="fas fa-photo-video text-primary"></i> <?php echo __( "Server File Picker", "download-manager" ) ?> <sup style="color: var(--color-info) !important;font-size: 10px;font-family: 'Overpass Mono', sans-serif !important;">BETA</sup>
+                                            <i class="fas fa-photo-video text-primary"></i> <?php echo __( "Server File Picker", "download-manager" ) ?>
                                         </h3>
                                         <?php /* if(!current_user_can('manage_options')){ ?>
                 <div class="media-body">
@@ -721,12 +739,12 @@ global $wp_scripts;
                                     <div id="ldn" style="float:right;font-size: 9pt;margin-top: 10px;display: none" class="text-danger"><i class="fa fa-sun fa-spin"></i> Loading...</div>
                                     <div v-if="total_pages > 1" id="__asset_pages" style="margin: 0;float: right;font-weight: 400;font-family: 'Overpass Mono', sans-serif !important;white-space: nowrap">
                                         <div style="float:left;">
-                                            <div class="c-pointer d-inline-block" v-on:click="assetPages.prevPage()"><i v-if="current_page > 1" class="fa fa-arrow-alt-circle-left"></i></div> <span class="text-muted">On Page</span> <strong>{{current_page}}</strong> <span class="text-muted">of total</span> <strong>{{total_pages}}</strong> <div class="c-pointer d-inline-block" v-if="current_page < total_pages" v-on:click="assetPages.nextPage()"><i class="fa fa-arrow-alt-circle-right"></i></div>
+                                            <div class="c-pointer d-inline-block" v-on:click="prevPage()"><i v-if="current_page > 1" class="fa fa-arrow-alt-circle-left"></i></div> <span class="text-muted">On Page</span> <strong>{{current_page}}</strong> <span class="text-muted">of total</span> <strong>{{total_pages}}</strong> <div class="c-pointer d-inline-block" v-if="current_page < total_pages" v-on:click="nextPage()"><i class="fa fa-arrow-alt-circle-right"></i></div>
                                         </div>
                                         <div style="display: inline-block;margin-left: 10px">
                                             <div class="input-group input-group-xs" style="width: 90px;">
                                                 <input type="number" @input="event => goto_page = event.target.value" :value="current_page" :max="total_pages" min="1" placeholder="Page" class="form-control" style="min-height: 16px; line-height: 20px; height: 20px; padding: 0px; font-size: 10px;text-align: center;font-family: 'Overpass Mono', monospace;">
-                                                <div class="input-group-btn"><button type="button" v-on:click="assetPages.gotoPage()" class="btn btn-secondary btn-xs">GO</button></div>
+                                                <div class="input-group-btn"><button type="button" v-on:click="gotoPage()" class="btn btn-secondary btn-xs">GO</button></div>
                                             </div>
                                         </div>
                                     </div>
@@ -821,13 +839,72 @@ global $wp_scripts;
 
                         </div>
 
-                        <script src="<?php echo WPDM_BASE_URL ?>assets/js/vue.min.js"></script>
                         <script src="<?php echo WPDM_BASE_URL ?>assets/js/simple-scrollbar.min.js"></script>
                         <script>
                             var current_path = '', editor = '', opened = '', wpdmfm_selected_files = [], wpdmfm_active_asset_settings, $ = jQuery;
                             var ajaxurl = "<?php echo admin_url('/admin-ajax.php'); ?>";
 
-                            var assetPages = new Vue({
+                            /* === assetPages === */
+                            var assetPages = Vue.createApp({
+                                data() {
+                                    return {
+                                        total_pages: 1,
+                                        current_page: 1,
+                                        items_per_page: 15,
+                                        goto_page: 1
+                                    };
+                                },
+                                methods: {
+                                    nextPage() {
+                                        let topage = this.current_page + 1;
+                                        topage = topage > this.total_pages ? 1 : topage;
+                                        WPDMAM.scanDir(current_path, topage);
+                                    },
+                                    prevPage() {
+                                        let topage = this.current_page - 1;
+                                        topage = topage < 1 ? 1 : topage;
+                                        WPDMAM.scanDir(current_path, topage);
+                                    },
+                                    gotoPage() {
+                                        WPDMAM.scanDir(current_path, this.goto_page);
+                                    }
+                                }
+                            }).mount('#__asset_pages');
+
+                            /* === fileList === */
+                            var fileList = Vue.createApp({
+                                data() {
+                                    return {
+                                        files: []
+                                    };
+                                }
+                            }).mount('#__file_list');
+
+                            /* === linkSettings === */
+                            var linkSettings = Vue.createApp({
+                                data() {
+                                    return {
+                                        link: {
+                                            access: {
+                                                roles: ['guest'],
+                                                users: ['admin']
+                                            }
+                                        }
+                                    };
+                                },
+                                methods: {
+                                    roleSelected(role) {
+                                        for (var i = 0; i < this.link.access.roles.length; i++) {
+                                            if (this.link.access.roles[i] === role) {
+                                                return true;
+                                            }
+                                        }
+                                        return false;
+                                    }
+                                }
+                            }).mount('#__link_settings');
+
+                            /*var assetPages = new Vue({
                                 el: '#__asset_pages',
                                 data: {
                                     total_pages: 1,
@@ -880,7 +957,7 @@ global $wp_scripts;
                                         return false
                                     }
                                 }
-                            });
+                            });*/
 
                             /* View in fullscreen */
                             function openFullscreen(elementid) {
@@ -1239,7 +1316,7 @@ global $wp_scripts;
             });
 
             $(window).on('resize', function () {
-                $('#wpdm-asset-picker .modal-content').css('height', (window.innerHeight - 200) + 'px');
+                $('#wpdm-asset-picker .modal-content').css('height', (window.innerHeight - 210) + 'px');
                 jQuery('#wpdm-asset-picker [data-simplebar]').css('height', (window.innerHeight - 345) + 'px');
             });
 
@@ -1248,7 +1325,7 @@ global $wp_scripts;
 
         function showModal() {
             jQuery('#wpdm-asset-picker').modal('show');
-            jQuery('#wpdm-asset-picker .modal-content').css('height', (window.innerHeight - 200) + 'px');
+            jQuery('#wpdm-asset-picker .modal-content').css('height', (window.innerHeight - 210) + 'px');
             jQuery('#wpdm-asset-picker [data-simplebar]').css('height', (window.innerHeight - 345) + 'px');
 
         }

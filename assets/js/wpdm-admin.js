@@ -41,9 +41,9 @@ var WPDM = {
         WPDM.actions[action].push(func);
     },
 
-    doAction: function (action, params) {
+    doAction: function (action, ...params) {
         if(typeof WPDM.actions[action] !== 'undefined')
-            WPDM.actions[action].forEach(fn => fn(params));
+            WPDM.actions[action].forEach(fn => fn(...params));
     },
 
     copy: function ($id) {
@@ -121,34 +121,31 @@ var WPDM = {
     },
 
     bootAlert: function (heading, content, width) {
-        let html, url = '';
-        let modal_id = '__bootModal_' + WPDM.uniqueID();
-        if(typeof content === 'object') {
-            url = content.url;
-            content = `<div id='${modal_id}_cont'><i class='fa fa-sun fa-spin'></i> Loading...</div>`;
-        }
-        if (!width) width = 400;
-        html = '<div class="w3eden" id="w3eden' + modal_id + '"><div id="' + modal_id + '" class="modal fade" tabindex="-1" role="dialog">\n' +
-            '  <div class="modal-dialog" style="width: ' + width + 'px" role="document">\n' +
-            '    <div class="modal-content" style="border-radius: 4px;overflow: hidden">\n' +
-            '      <div class="modal-header" style="padding: 12px 15px;background: rgba(0,0,0,0.02);line-height: 18px">\n' +
-            '        <h4 class="modal-title" style="font-size: 10pt;font-weight: 600;padding: 0;margin: 0;letter-spacing: 0.5px;line-height: 18px">' + heading + '</h4><button style="line-height: 18px;font-size: 10pt;background: transparent;outline: none;position: absolute;right: 14px;top: 14px;" type="button" class="close" data-target="#' + modal_id + '" data-dismiss="modal"><i class="fa fa-times-circle"></i></button>\n' +
-            '      </div>\n' +
-            '      <div class="modal-body fetfont" style="line-height: 1.5;text-transform: unset;font-weight:400;letter-spacing:0.5px;font-size: 12px">\n' +
-            '        ' + content + '\n' +
-            '      </div>\n' +
-            '    </div>\n' +
-            '  </div>\n' +
-            '</div></div>';
-        jQuery('body').append(html);
-        jQuery("#" + modal_id).modal({show: true, backdrop: 'static'});
 
-        if(url !== '') {
-            url = url.indexOf('?') > 0 ? url+'&__mdid=' + modal_id : url+'?__mdid=' + modal_id;
-            jQuery("#" + modal_id + "_cont").load(url);
+        // Map the legacy pixel width to a WPDM dialog size token
+        var size = !width ? 'sm' : (width >= 700 ? 'lg' : (width >= 480 ? 'md' : 'sm'));
+
+        // Graceful fallback if the WPDM dialog system is not available
+        if (typeof WPDMDialog === 'undefined') {
+            window.alert(jQuery('<div>').html(heading).text());
+            return jQuery();
         }
 
-        return jQuery("#" + modal_id);
+        // Remote content: load it through the WPDM dialog AJAX loader
+        if (content && typeof content === 'object' && content.url) {
+            return WPDMDialog.ajax(heading, content.url, { size: size, icon: false });
+        }
+
+        // Inline HTML / message content
+        return WPDMDialog.show({
+            title: heading,
+            content: '<div class="modal-body">' + (content || '') + '</div>',
+            html: true,
+            icon: false,
+            size: size,
+            compactFooter: true,
+            buttons: [{ text: 'Close', type: 'secondary', action: 'close' }]
+        });
     },
 
 
@@ -275,51 +272,62 @@ var WPDM = {
     },
 
 
+    // Map a legacy bootstrap button class (e.g. "btn btn-danger") to a WPDM dialog button type
+    _dialogBtnType: function (cls) {
+        cls = (cls || '').toLowerCase();
+        if (cls.indexOf('danger') > -1) return 'danger';
+        if (cls.indexOf('success') > -1) return 'success';
+        if (cls.indexOf('primary') > -1 || cls.indexOf('info') > -1 || cls.indexOf('warning') > -1) return 'primary';
+        return 'secondary';
+    },
+
     confirm: function (heading, content, buttons) {
-        var html, $ = jQuery;
-        var modal_id = '__boot_popup_' + WPDM.uniqueID();
-        $("#w3eden__boot_popup").remove();
-        var _buttons = '';
-        var id =  WPDM.uniqueID('btx_');
-        if (buttons) {
-            _buttons = '<div class="modal-footer" style="padding: 8px 15px;">\n';
-            $.each(buttons, function (i, button) {
-                _buttons += "<button id='" + id + '_' + i + "' class='" + button.class + " btn-xs' style='font-size: 10px;padding: 3px 20px;'>" + button.label + "</button> ";
-            });
-            _buttons += '</div>\n';
+        var $ = jQuery;
+        var oldButtons = buttons || [];
+
+        // Graceful fallback if the WPDM dialog system is not available
+        if (typeof WPDMDialog === 'undefined') {
+            if (window.confirm($('<div>').html(content).text()) && oldButtons.length && typeof oldButtons[0].callback === 'function') {
+                oldButtons[0].callback.call($());
+            }
+            return $();
         }
 
-        html = '<div class="w3eden" id="w3eden' + modal_id + '"><div id="' + modal_id + '" style="z-index: 9999999 !important;" class="modal fade" tabindex="-1" role="dialog">\n' +
-            '  <div class="modal-dialog" role="document" style="max-width: 100%;width: 350px">\n' +
-            '    <div class="modal-content" style="border-radius: 3px;overflow: hidden">\n' +
-            '      <div class="modal-header" style="padding: 12px 15px;background: #f5f5f5;">\n' +
-            '        <h4 class="modal-title" style="font-size: 9pt;font-weight: 500;padding: 0;margin: 0;font-family:var(--wpdm-font), san-serif;letter-spacing: 0.5px">' + heading + '</h4>\n' +
-            '      </div>\n' +
-            '      <div class="modal-body text-center" style="font-family:var(--wpdm-font), san-serif;letter-spacing: 0.5px;font-size: 10pt;font-weight: 300;padding: 25px;line-height: 1.5">\n' +
-            '        ' + content + '\n' +
-            '      </div>\n' + _buttons +
-            '    </div>\n' +
-            '  </div>\n' +
-            '</div></div>';
-        $('body').append(html);
-        $("#" + modal_id).modal('show');
-        $.each(buttons, function (i, button) {
-            var _id = id + '_' + i;
-            //$('#' + _id).unbind('click');
-            $('body').on('click', '#' + _id, function () {
-                button.callback.call($("#" + modal_id));
-                return false;
-            });
+        // Map the legacy buttons ({label, class, callback}) to WPDM dialog buttons
+        var dlgButtons = oldButtons.length ? oldButtons.map(function (button, i) {
+            return {
+                text: $('<div>').html(button.label).text(), // strip icons/markup from the label
+                type: WPDM._dialogBtnType(button.class),
+                action: 'btn_' + i
+            };
+        }) : [{ text: 'OK', type: 'primary', action: 'btn_0' }];
+
+        WPDMDialog.show({
+            title: heading,
+            message: content,
+            html: true,
+            type: 'question',
+            size: 'sm',
+            buttons: dlgButtons,
+            backdrop: 'static'
+        }).then(function (result) {
+            var m = /^btn_(\d+)$/.exec(result.action || '');
+            if (m && oldButtons[m[1]] && typeof oldButtons[m[1]].callback === 'function') {
+                // The dialog is already closing; legacy callbacks expect `this` to be the
+                // modal, so pass an empty jQuery set where .modal()/.find() are safe no-ops.
+                oldButtons[m[1]].callback.call($());
+            }
         });
-        return $("#" + modal_id);
+
+        return $();
     },
     audioUI: function (audio) {
         var $ = jQuery, song_length, song_length_m, song_length_s;
 
         if (parseInt(wpdm_asset.bsversion) !== 3)
-            var player_html = '<div class="w3eden"><div style="display: none" class="wpdm-audio-player-ui" id="wpdm-audio-player-ui"><div class="card m-2"><div class="card-body text-center"><div class="media"><div class="mr-3 wpdm-audio-control-buttons"><button class="btn btn-primary btn-play" id="wpdm-btn-play"><i class="fa fa-play"></i></button> <button class="btn btn-primary btn-backward" id="wpdm-btn-backward"><i class="fa fa-backward"></i></button> <button class="btn btn-primary btn-forward" id="wpdm-btn-forward"><i class="fa fa-forward"></i></button></div><div class="media-body"><div class="position-relative"><div id="played">00:00</div><div id="mins">00:00</div></div><div class="progress"><div  id="wpdm-audio-progress" class="progress-bar bg-success" role="progressbar" style="width: 0%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div></div></div><div class="ml-3 wpdm-audio-control-buttons"> <button class="btn btn-info btn-volumctrl" id="wpdm-btn-volumctrl"><i class="fa fa-volume-up"></i></button> <div class="volumctrl"><input type="range" min="0" max="1" step="0.01" value="3" class="p-0" id="wpdm-audio-volume"></div></div></div></div></div></div></div>';
+            var player_html = '<div class="w3eden"><div style="display: none" class="wdmapui" id="wdmapui"><div class="card m-2"><div class="card-body text-center"><div class="media"><div class="mr-3 wpdm-audio-control-buttons"><button class="btn btn-primary btn-play" id="wpdm-btn-play"><i class="fa fa-play"></i></button> <button class="btn btn-primary btn-backward" id="wpdm-btn-backward"><i class="fa fa-backward"></i></button> <button class="btn btn-primary btn-forward" id="wpdm-btn-forward"><i class="fa fa-forward"></i></button></div><div class="media-body"><div class="position-relative"><div id="played">00:00</div><div id="mins">00:00</div></div><div class="progress"><div  id="wpdm-audio-progress" class="progress-bar bg-success" role="progressbar" style="width: 0%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div></div></div><div class="ml-3 wpdm-audio-control-buttons"> <button class="btn btn-info btn-volumctrl" id="wpdm-btn-volumctrl"><i class="fa fa-volume-up"></i></button> <div class="volumctrl"><input type="range" min="0" max="1" step="0.01" value="3" class="p-0" id="wpdm-audio-volume"></div></div></div></div></div></div></div>';
         else
-            var player_html = '<div class="w3eden"><div style="display: none" class="wpdm-audio-player-ui" id="wpdm-audio-player-ui"><div class="panel panel-default" style="margin: 0;border: 0;border-radius: 0;border-top: 1px solid #dddddd;background: #fcfcfc"><div class="panel-body text-center"><div class="media"><div class="pull-right wpdm-audio-control-buttons"><button class="btn btn-info btn-volumctrl" id="wpdm-btn-volumctrl"><i class="fa fa-volume-up"></i></button> <div class="volumctrl"> <input type="range" min="0" max="1" step="0.01" value="3" class="p-0" id="wpdm-audio-volume"> </div></div><div class="wpdm-audio-control-buttons pull-left"><nobr><button class="btn btn-primary btn-play" id="wpdm-btn-play"><i class="fa fa-play"></i></button> <button class="btn btn-primary btn-backward" id="wpdm-btn-backward"><i class="fa fa-backward"></i></button> <button class="btn btn-primary btn-forward" id="wpdm-btn-forward"><i class="fa fa-forward"></i></button></nobr></div><div class="media-body"><div class="position-relative"><div id="played">00:00</div><div id="mins">00:00</div></div><div class="progress"><div  id="wpdm-audio-progress" class="progress-bar bg-success" role="progressbar" style="width: 0%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div></div></div></div></div></div></div></div>';
+            var player_html = '<div class="w3eden"><div style="display: none" class="wdmapui" id="wdmapui"><div class="panel panel-default" style="margin: 0;border: 0;border-radius: 0;border-top: 1px solid #dddddd;background: #fcfcfc"><div class="panel-body text-center"><div class="media"><div class="pull-right wpdm-audio-control-buttons"><button class="btn btn-info btn-volumctrl" id="wpdm-btn-volumctrl"><i class="fa fa-volume-up"></i></button> <div class="volumctrl"> <input type="range" min="0" max="1" step="0.01" value="3" class="p-0" id="wpdm-audio-volume"> </div></div><div class="wpdm-audio-control-buttons pull-left"><nobr><button class="btn btn-primary btn-play" id="wpdm-btn-play"><i class="fa fa-play"></i></button> <button class="btn btn-primary btn-backward" id="wpdm-btn-backward"><i class="fa fa-backward"></i></button> <button class="btn btn-primary btn-forward" id="wpdm-btn-forward"><i class="fa fa-forward"></i></button></nobr></div><div class="media-body"><div class="position-relative"><div id="played">00:00</div><div id="mins">00:00</div></div><div class="progress"><div  id="wpdm-audio-progress" class="progress-bar bg-success" role="progressbar" style="width: 0%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div></div></div></div></div></div></div></div>';
 
         if (audio.duration !== Infinity) {
             song_length = parseInt(audio.duration);
@@ -344,11 +352,11 @@ var WPDM = {
             }, false);
         }
 
-        if ($('#wpdm-audio-player-ui').length === 0) {
+        if ($('#wdmapui').length === 0) {
             $('body').append(player_html);
-            $("#wpdm-audio-player-ui").slideDown();
+            $("#wdmapui").slideDown();
             $('#mins').html(song_length_m + ":" + song_length_s);
-            $('body').on('click', '#wpdm-audio-player-ui .progress', function (e) {
+            $('body').on('click', '#wdmapui .progress', function (e) {
                 let value = e.offsetX * 100 / this.clientWidth;
                 var played = parseInt(song_length * value / 100);
                 var played_m = parseInt(played / 60);
@@ -361,7 +369,7 @@ var WPDM = {
                 //video.currentTime = duration * (value / 100);
             });
             $('body').on('click', '#wpdm-btn-backward', function () {
-                let value = (parseInt($('#wpdm-audio-player-ui .progress-bar').css('width')) / parseInt($('#wpdm-audio-player-ui .progress').css('width'))) * 100 - 10;
+                let value = (parseInt($('#wdmapui .progress-bar').css('width')) / parseInt($('#wdmapui .progress').css('width'))) * 100 - 10;
                 if (value < 0) value = 0;
                 var played = parseInt(song_length * value / 100);
                 var played_m = parseInt(played / 60);
@@ -370,10 +378,10 @@ var WPDM = {
                 played_s = played_s > 9 ? played_s : "0" + played_s;
                 $('#played').html(played_m + ":" + played_s);
                 audio.currentTime = (song_length * value) / 100;
-                $('#wpdm-audio-player-ui .progress-bar').css('width', value + "%");
+                $('#wdmapui .progress-bar').css('width', value + "%");
             });
             $('body').on('click', '#wpdm-btn-forward', function () {
-                let value = (parseInt($('#wpdm-audio-player-ui .progress-bar').css('width')) / parseInt($('#wpdm-audio-player-ui .progress').css('width'))) * 100 + 10;
+                let value = (parseInt($('#wdmapui .progress-bar').css('width')) / parseInt($('#wdmapui .progress').css('width'))) * 100 + 10;
                 if (value > 100) value = 100;
                 var played = parseInt(song_length * value / 100);
                 var played_m = parseInt(played / 60);
@@ -382,7 +390,7 @@ var WPDM = {
                 played_s = played_s > 9 ? played_s : "0" + played_s;
                 $('#played').html(played_m + ":" + played_s);
                 audio.currentTime = (song_length * value) / 100;
-                $('#wpdm-audio-player-ui .progress-bar').css('width', value + "%");
+                $('#wdmapui .progress-bar').css('width', value + "%");
             });
             $('#wpdm-btn-volumctrl').on('click', function () {
                 $(this).next('.volumctrl').toggle();
@@ -507,10 +515,8 @@ jQuery(function ($) {
         if ($(this).data('width') !== undefined) width = $(this).data('width');
         if ($(this).attr('title') !== undefined) title = $(this).attr('title');
         if ($(this).data('url') !== undefined) url = $(this).data('url');
-        var $modal = WPDM.bootAlert(title, "<div id='wpdm-modal-content' class='blockui' style='min-height: 300px;'></div>", width);
-        $($modal).find('#wpdm-modal-content').load(url, function (res) {
-            WPDM.unblockUI('#wpdm-modal-content');
-        });
+        var size = width >= 700 ? 'lg' : (width >= 480 ? 'md' : 'sm');
+        WPDM.dialog.ajax(title, url, { size: size, icon: false });
         return false;
     });
 
@@ -668,7 +674,9 @@ jQuery(function ($) {
         aps = aps.replace(/\n/g, "][");
         allps = "[" + aps + "]";
         $(wpdm_pass_target).val(allps);
-        $('#generatepass').modal('hide');
+        var $dlg = $(this).closest('.wpdm-dialog-wrapper');
+        if ($dlg.length) { $dlg.find('.wpdm-dialog__close').trigger('click'); }
+        else { $('#generatepass').modal('hide'); }
     });
 
     $body.on('click', '*:data[toggle="iframe-modal"]', function (e) {
@@ -714,62 +722,59 @@ function __showDownloadLink(pid, fid) {
 }
 
 function __bootModal(heading, content, width) {
-    var html;
-    if (!width) width = 400;
-    jQuery("#w3eden__bootModal").remove();
-    html = '<div class="w3eden" id="w3eden__bootModal"><div id="__bootModal" class="modal fade" tabindex="-1" role="dialog">\n' +
-        '  <div class="modal-dialog" style="width: ' + width + 'px" role="document">\n' +
-        '    <div class="modal-content">\n' +
-        '      <div class="modal-header">\n' +
-        '        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>\n' +
-        '        <h4 class="modal-title">' + heading + '</h4>\n' +
-        '      </div>\n' +
-        '      <div class="modal-body">\n' +
-        '        <p>' + content + '</p>\n' +
-        '      </div>\n' +
-        '      <div class="modal-footer">\n' +
-        '        <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>\n' +
-        '      </div>\n' +
-        '    </div>\n' +
-        '  </div>\n' +
-        '</div></div>';
-    jQuery('body').append(html);
-    jQuery("#__bootModal").modal('show');
+    var size = !width ? 'sm' : (width >= 700 ? 'lg' : (width >= 480 ? 'md' : 'sm'));
+
+    if (typeof WPDMDialog === 'undefined') {
+        window.alert(jQuery('<div>').html(content).text());
+        return;
+    }
+
+    WPDMDialog.show({
+        title: heading,
+        content: '<div class="modal-body"><p>' + (content || '') + '</p></div>',
+        html: true,
+        icon: false,
+        size: size,
+        compactFooter: true,
+        buttons: [{ text: 'Close', type: 'secondary', action: 'close' }]
+    });
 }
 
 function wpdm_boot_popup(heading, content, buttons) {
-    var html, $ = jQuery;
-    $("#w3eden__boot_popup").remove();
-    var _buttons = '<div class="modal-footer" style="padding: 8px 15px;">\n';
-    $.each(buttons, function (i, button) {
-        var id = 'btx_' + i;
-        _buttons += "<button id='" + id + "' class='" + button.class + " btn-xs' style='font-size: 10px;padding: 3px 20px;'>" + button.label + "</button> ";
-    });
-    _buttons += '</div>\n';
+    var $ = jQuery;
+    var oldButtons = buttons || [];
 
-    html = '<div class="w3eden" id="w3eden__boot_popup"><div id="__boot_popup" style="z-index: 9999999 !important;" class="modal fade" tabindex="-1" role="dialog">\n' +
-        '  <div class="modal-dialog" role="document" style="max-width: 100%;width: 350px">\n' +
-        '    <div class="modal-content">\n' +
-        '      <div class="modal-header">\n' +
-        '        <h4 class="modal-title" style="font-size: 11pt;font-weight: 500;padding: 0;margin: 0;letter-spacing: 0.5px">' + heading + '</h4>\n' +
-        '      </div>\n' +
-        '      <div class="modal-body text-center" style="letter-spacing: 0.5px;font-size: 9pt;font-weight: 300;padding: 25px;">\n' +
-        '        ' + content + '\n' +
-        '      </div>\n' + _buttons +
-        '    </div>\n' +
-        '  </div>\n' +
-        '</div></div>';
-    $('body').append(html);
-    $("#__boot_popup").modal('show');
-    $.each(buttons, function (i, button) {
-        var id = 'btx_' + i;
-        $('#' + id).unbind('click');
-        $('#' + id).bind('click', function () {
-            button.callback.call($("#__boot_popup"));
-            return false;
-        });
+    if (typeof WPDMDialog === 'undefined') {
+        if (window.confirm($('<div>').html(content).text()) && oldButtons.length && typeof oldButtons[0].callback === 'function') {
+            oldButtons[0].callback.call($());
+        }
+        return $();
+    }
+
+    var dlgButtons = oldButtons.length ? oldButtons.map(function (button, i) {
+        return {
+            text: $('<div>').html(button.label).text(),
+            type: WPDM._dialogBtnType(button.class),
+            action: 'btn_' + i
+        };
+    }) : [{ text: 'OK', type: 'primary', action: 'btn_0' }];
+
+    WPDMDialog.show({
+        title: heading,
+        message: content,
+        html: true,
+        type: 'question',
+        size: 'sm',
+        buttons: dlgButtons,
+        backdrop: 'static'
+    }).then(function (result) {
+        var m = /^btn_(\d+)$/.exec(result.action || '');
+        if (m && oldButtons[m[1]] && typeof oldButtons[m[1]].callback === 'function') {
+            oldButtons[m[1]].callback.call($());
+        }
     });
-    return $("#__boot_popup");
+
+    return $();
 }
 
 /**
@@ -809,6 +814,45 @@ function wpdm_iframe_modal(url, closebutton) {
     $('#wpdm_iframe_modal').fadeIn();
 
 }
+
+
+/* ----------------------------------------------------------------------- *
+ * Backward-compat bridge for the WPDM dialog system.
+ *
+ * WPDM.bootAlert()/WPDM.confirm() now render WPDM dialogs instead of the old
+ * bootstrap-style modal markup. Legacy code (and AJAX-loaded partials) still
+ * call `.modal('hide')` — often on a stale `#__mdid` element — to dismiss the
+ * popup. This wraps the existing `$.fn.modal` plugin so that a `'hide'` call
+ * which targets (or sits inside) a WPDM dialog, or matches nothing at all,
+ * closes the active WPDM dialog instead.
+ * ----------------------------------------------------------------------- */
+(function ($) {
+    if (!$ || !$.fn || !$.fn.modal || $.fn.__wpdmDialogBridge) return;
+
+    var _origModal = $.fn.modal;
+
+    function closeWpdmDialog($wrap) {
+        var $btn = $wrap.find('.wpdm-dialog__close').first();
+        if ($btn.length) { $btn.trigger('click'); }
+        else { $wrap.find('.wpdm-dialog-backdrop').first().trigger('click'); }
+    }
+
+    $.fn.modal = function (option) {
+        if (option === 'hide') {
+            // Target is, or lives inside, a WPDM dialog
+            var $wrap = this.closest('.wpdm-dialog-wrapper');
+            if ($wrap.length) { closeWpdmDialog($wrap); return this; }
+            // Legacy selector matched nothing (e.g. a stale #__mdid): close the top dialog
+            if (this.length === 0) {
+                var $top = $('.wpdm-dialog-wrapper.wpdm-dialog-visible').last();
+                if ($top.length) { closeWpdmDialog($top); return this; }
+            }
+        }
+        return _origModal.apply(this, arguments);
+    };
+
+    $.fn.__wpdmDialogBridge = true;
+})(jQuery);
 
 
 
