@@ -19,16 +19,17 @@ class Form
 
     function __construct($formFields, $attrs = array())
     {
-        if (!isset($attrs['id'])) {
+        /*if (!isset($attrs['id'])) {
             $this->error = '<div class="alert alert-danger">Form ID is require, field id is missing in $attrs<br/><pre style="border-radius: 0;margin-top: 10px;margin-bottom: 5px">' . print_r($attrs, 1) . '</pre></div>';
             return;
-        }
+        }*/
         if (isset($attrs['groups']))
             $this->fieldGroups = $attrs['groups'];
-        $this->formFields = apply_filters("{$attrs['id']}_fields", $formFields, $attrs);
         foreach ($attrs as $name => $value) {
             $this->$name = $value;
         }
+	    $this->formFields = apply_filters("{$this->id}_fields", $formFields, $attrs);
+
     }
 
     function div($class = '', $id = '')
@@ -48,7 +49,7 @@ class Form
 
     function row($id, $fields)
     {
-        $row = $this->div("form-row", $id);
+        $row = $this->div("row", $id);
         if (isset($fields['label']))
             $this->label($fields['label'], $id);
 
@@ -131,14 +132,14 @@ class Form
                         async defer></script>
                 <div id="<?php echo $attrs['id'] ?>_field"></div>
                 <style>
-                    #<?php echo $attrs['id'] ?>_field iframe {
+                    #wpdmlogin #<?php echo $attrs['id'] ?>_field iframe {
                         transform: scale(1.16);
                         margin-left: 24px;
                         margin-top: 5px;
                         margin-bottom: 5px;
                     }
 
-                    #<?php echo $attrs['id'] ?>_field {
+                    #wpdmlogin #<?php echo $attrs['id'] ?>_field {
                         padding-bottom: 10px !important;
                     }
                 </style>
@@ -168,7 +169,7 @@ class Form
         if ($this->error) return $this->error;
         $form_html = $this->noForm ? "" : "<form method='{$this->method}' action='{$this->action}' name='{$this->name}' id='{$this->id}' class='{$this->class}'>";
         $before_form_fields = "";
-        $form_html .= apply_filters("wppmsg_form_{$this->id}_before_fields", $before_form_fields, $this);
+        $form_html .= apply_filters("wpdm_form_{$this->id}_before_fields", $before_form_fields, $this);
 
         //Initial field groups
         $_field_group_html = [];
@@ -197,7 +198,7 @@ class Form
             $form_html .= "<button class='{$this->submit_button['class']}'>{$this->submit_button['label']}</button>";
         }
         $after_form_fields = "";
-        $form_html .= apply_filters("wppmsg_form_{$this->id}_before_fields", $after_form_fields, $this);
+        $form_html .= apply_filters("wpdm_form_{$this->id}_before_fields", $after_form_fields, $this);
         $form_html .= $this->noForm ? "" : "</form>";
         return $form_html;
     }

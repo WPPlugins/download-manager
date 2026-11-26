@@ -6,28 +6,29 @@ namespace WPDM\Widgets;
 
 class WidgetController
 {
-    private static $wpdm_instance = null;
+    private static $widget_controller_instance = null;
 
     public static function instance(){
-        if ( is_null( self::$wpdm_instance ) ) {
-            self::$wpdm_instance = new self();
+        if ( is_null( self::$widget_controller_instance ) ) {
+            self::$widget_controller_instance = new self();
         }
-        return self::$wpdm_instance;
+        return self::$widget_controller_instance;
     }
 
     private function __construct()
     {
         add_action('widgets_init', function(){
-            register_widget("\WPDM\Widgets\Affiliate");
-            register_widget("\WPDM\Widgets\Categories");
-            register_widget("\WPDM\Widgets\CatPackages");
-            register_widget("\WPDM\Widgets\ListPackages");
-            register_widget("\WPDM\Widgets\NewDownloads");
-            register_widget("\WPDM\Widgets\PackageInfo");
-            register_widget("\WPDM\Widgets\Search");
-            register_widget("\WPDM\Widgets\Tags");
-            register_widget("\WPDM\Widgets\TopDownloads");
+            include_once __DIR__.'/Categories.php';
+            include_once __DIR__.'/CatPackages.php';
+            include_once __DIR__.'/ListPackages.php';
+            include_once __DIR__.'/NewDownloads.php';
+            include_once __DIR__.'/PackageInfo.php';
+            include_once __DIR__.'/Tags.php';
+            include_once __DIR__.'/Search.php';
+            include_once __DIR__.'/TopDownloads.php';
         });
 
     }
 }
+
+

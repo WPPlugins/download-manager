@@ -12,11 +12,38 @@ use WPDM\__\Template;
 
 class UI
 {
+	static $elements = [];
 
-    static function div($content, $class = '')
+	static function el($element) {
+		self::$elements['name'] = $element;
+	}
+    static function div($content, $class = '', $attrs = [])
     {
         $class = $class ? " class='{$class}'" : '';
-        return "<div{$class}>{$content}</div>";
+        $_attrs = "";
+        foreach ($attrs as $name => $val){
+            $_attrs .= " {$name}='$val'";
+        }
+        return "<div{$class} $_attrs>{$content}</div>";
+    }
+
+    static function html($tag, $attrs = [], $content = '')
+    {
+        $_attrs = "";
+        foreach ($attrs as $name => $val){
+            $_attrs .= " {$name}='$val'";
+        }
+        return "<$tag $_attrs>{$content}</$tag>";
+    }
+
+    static function a($link, $label = '', $attrs = [])
+    {
+        $label = $label ? $label : $link;
+        $_attrs = "";
+        foreach ($attrs as $name => $val){
+            $_attrs .= esc_attr($name) . '="'.esc_attr($val).'"';
+        }
+        return '<a href="'.esc_attr($link).'"'.$_attrs.'>'.$label.'</a>';
     }
 
     static function button($label, $attrs = []){
@@ -34,7 +61,7 @@ class UI
             ->assign('attrs', $attrs)
             ->assign('content', $content)
             ->assign('footer', $footer)
-            ->fetch("tpls/ui-blocks/card.php", WPDM_BASE_DIR);
+            ->fetch("views/ui-blocks/card.php", __DIR__);
     }
 
     static function table($thead, $data, $css){
@@ -42,7 +69,26 @@ class UI
         return $template->assign('thead', $thead)
             ->assign('data', $data)
             ->assign('css', $css)
-            ->fetch("tpls/ui-blocks/table.php", WPDM_BASE_DIR);
+            ->fetch("views/ui-blocks/table.php", __DIR__);
+    }
+
+    static function img($src, $alt = '', $attrs = [])
+    {
+        // Escape every interpolated value: $src as a URL, and $alt plus all
+        // attribute names/values as HTML attributes, so a caller-supplied value
+        // (e.g. a shortcode attribute) cannot break out of the quoted attribute
+        // and inject markup such as an onerror handler.
+        $_attrs = "";
+        foreach ($attrs as $name => $val){
+            $_attrs .= " " . esc_attr($name) . "='" . esc_attr($val) . "'";
+        }
+        return "<img src='" . esc_url($src) . "' alt='" . esc_attr($alt) . "' {$_attrs} />";
+    }
+
+    static function minifyHTML($html)
+    {
+        $html = str_replace(["\r", "\n"], "", $html);
+        return $html;
     }
 
 }

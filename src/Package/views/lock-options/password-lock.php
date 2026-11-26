@@ -13,11 +13,9 @@ if (!defined('ABSPATH')) die();
     </div>
     <div class="card-body" id="wpdmdlp_<?php echo  $field_id; ?>">
         <div id="msg_<?php echo $package['ID']; ?>" style="display:none;"><?php _e( "Processing..." , "download-manager" ); ?></div>
-        <form id="wpdmdlf_<?php echo $field_id; ?>" method=post action="<?php echo home_url('/'); ?>" style="margin-bottom:0px;">
+        <form id="wpdmdlf_<?php echo $field_id; ?>" method=post  style="margin-bottom:0px;">
             <input type=hidden name="__wpdm_ID" value="<?php echo $package['ID']; ?>" />
             <input type=hidden name="dataType" value="json" />
-            <input type=hidden name="execute" value="wpdm_getlink" />
-            <input type=hidden name="action" value="wpdm_ajax_call" />
             <div class="input-group input-group-lg">
                 <input type="password"  class="form-control" placeholder="<?php _e( "Enter Password" , "download-manager" ); ?>" size="10" id="password_<?php echo $field_id; ?>" name="password" />
                 <span class="input-group-btn input-group-append"><input id="wpdm_submit_<?php echo $field_id; ?>" class="wpdm_submit btn btn-secondary" type="submit" value="<?php _e( "Submit" , "download-manager" ); ?>" /></span>

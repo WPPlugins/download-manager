@@ -25,17 +25,11 @@ class DashboardWidgets
         include wpdm_admin_tpl_path('dashboard-widgets/social.php');
     }
 
-    function specialOffer()
-    {
-        include wpdm_admin_tpl_path('dashboard-widgets/offer.php');
-    }
 
 
     function addDashboardWidget()
     {
         wp_add_dashboard_widget('wpdm_overview', __( "Download Manager Overview" , "download-manager" ), array($this, 'overview'));
-        wp_add_dashboard_widget('wpdm_social_overview', __( "Social Overview" , "download-manager" ), array($this, 'socialOverview'));
-        wp_add_dashboard_widget('wpdm_offer', __( "Special Offer" , "download-manager" ), array($this, 'specialOffer'));
 
     }
 

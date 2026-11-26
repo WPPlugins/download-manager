@@ -26,7 +26,12 @@ class DownloadStats
      * @param $oid
      */
     function add($pid, $filename, $oid = null){
-        global $wpdb, $current_user;
+
+	    if(defined("WPDM_DISABLE_STATS") && WPDM_DISABLE_STATS === true) return;
+
+        global $wpdb;
+
+	    $current_user = wp_get_current_user();
 
         //Handle downloads from email lock
         if(wpdm_query_var('subscriber' )){
@@ -36,7 +41,7 @@ class DownloadStats
 
         $uid = get_current_user_id();
         $ip = (get_option('__wpdm_noip') == 0) ? wpdm_get_client_ip() : "";
-        $agent = $_SERVER['HTTP_USER_AGENT'];
+        $agent = sanitize_text_field($_SERVER['HTTP_USER_AGENT']);
         $hash = "uniq_".md5($pid.$uid.date("Y-m-d-h-i").wpdm_get_client_ip());
         if((int)Session::get($hash) === 1 || wpdm_query_var('nostat', ['validate' => 'int']) === 1) return;
         Session::set($hash, 1);
@@ -44,7 +49,7 @@ class DownloadStats
         $wpdb->insert("{$this->dbTable}", array('pid' => (int)$pid, 'uid' => (int)$uid, 'oid' => $oid, 'year' => date("Y"), 'month' => date("m"), 'day' => date("d"), 'timestamp' => time(), 'ip' => "$ip", 'filename' => $filename, 'agent' => $agent, 'version' => $version));
         update_post_meta($pid, '__wpdm_download_count', (int)get_post_meta($pid, '__wpdm_download_count', true) + 1);
 
-        $this->updateUserDownloadCount($pid);
+        $this->updateUserDownloadCount($pid, $uid, $filename);
 
         if (is_user_logged_in()) {
             $index = $current_user->ID;
@@ -116,7 +121,7 @@ class DownloadStats
      * @param $packageID
      * @param null $userID
      */
-    function updateUserDownloadCount($packageID, $userID = null)
+    function updateUserDownloadCount($packageID, $userID = null, $file = '')
     {
         global $wpdb;
         $packageID = (int)$packageID;
@@ -136,6 +141,8 @@ class DownloadStats
             $wpdb->insert("{$wpdb->prefix}ahm_user_download_counts", ['download_count' => $download_count, 'user' => $userID, 'package_id' => $packageID]);
         else
             $wpdb->update("{$wpdb->prefix}ahm_user_download_counts", ['download_count' => $download_count], ['user' => $userID, 'package_id' => $packageID]);
+
+	    do_action("wpdm_after_update_download_count", $packageID, $userID, $file);
     }
 
 

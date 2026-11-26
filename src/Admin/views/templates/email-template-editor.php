@@ -1,5 +1,5 @@
 <?php
-$tpl = \WPDM\__\Email::template(wpdm_query_var('id'));
+$tpl = \WPDM\__\Email::getTemplate(wpdm_query_var('id'));
 $info = \WPDM\__\Email::info(wpdm_query_var('id'));
 ?>
 <div class="wrap w3eden">
@@ -28,9 +28,9 @@ $info = \WPDM\__\Email::info(wpdm_query_var('id'));
 
 <form action="" method="post" id="email-editor-form">
 
-
-                <input type="hidden" name="id" value="<?php echo wpdm_query_var('id'); ?>" />
-                <input type="text" name="email_template[subject]" required="required" title="<?php echo __( "Email Subject" , "download-manager" ); ?>" placeholder="<?php echo __( "Email Subject" , "download-manager" ); ?>" x-moz-errormessage="<?php echo __( "Email Subject" , "download-manager" ); ?>" value="<?php echo $tpl['subject']; ?>" class="form-control input-lg">
+<?php wp_nonce_field(WPDM_PRI_NONCE, '__setnonce'); ?>
+                <input type="hidden" name="id" value="<?php echo wpdm_query_var('id', 'esc_attr'); ?>" />
+                <input type="text" name="email_template[subject]" required="required" title="<?php echo __( "Email Subject" , "download-manager" ); ?>" placeholder="<?php echo __( "Email Subject" , "download-manager" ); ?>" x-moz-errormessage="<?php echo __( "Email Subject" , "download-manager" ); ?>" value="<?php echo esc_attr( $tpl['subject'] ?? '' ); ?>" class="form-control input-lg">
                 <ul class="nav nav-tabs" style="margin-top: 10px; ">
                     <li class="active"><a href="#code" data-toggle="tab"><?php echo __( "Message" , "download-manager" ); ?></a></li>
                     <li><a href="#preview" data-toggle="tab"><?php echo __( "Preview" , "download-manager" ); ?></a></li>
@@ -52,7 +52,7 @@ $info = \WPDM\__\Email::info(wpdm_query_var('id'));
                         <div class="form-group">
                             <div class="input-group input-group-lg">
                                 <div class="input-group-addon ttip" title="<?php echo __( "Recipient's Email" , "download-manager" ); ?>"><i class="fas fa-paper-plane"></i></div>
-                                <input placeholder="<?php echo __( "Recipient's Email" , "download-manager" ); ?>" type="text" class="form-control input-lg" name="email_template[to_email]" value="<?php echo $tpl['to_email']; ?>">
+                                <input placeholder="<?php echo __( "Recipient's Email" , "download-manager" ); ?>" type="text" class="form-control input-lg" name="email_template[to_email]" value="<?php echo esc_attr( $tpl['to_email'] ?? '' ); ?>">
                             </div>
 
                         </div>
@@ -64,14 +64,14 @@ $info = \WPDM\__\Email::info(wpdm_query_var('id'));
                     <div class="col-md-6">
                         <div class="form-group">
                             <?php echo __( "From Name" , "download-manager" ); ?>
-                                <input type="text" class="form-control" name="email_template[from_name]" value="<?php echo $tpl['from_name']; ?>">
+                                <input type="text" class="form-control" name="email_template[from_name]" value="<?php echo esc_attr( $tpl['from_name'] ?? '' ); ?>">
 
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
                             <?php echo __( "From Email" , "download-manager" ); ?>
-                                <input type="text" class="form-control" name="email_template[from_email]" value="<?php echo $tpl['from_email']; ?>">
+                                <input type="text" class="form-control" name="email_template[from_email]" value="<?php echo esc_attr( $tpl['from_email'] ?? '' ); ?>">
 
                         </div>
                     </div>
@@ -155,7 +155,7 @@ $info = \WPDM\__\Email::info(wpdm_query_var('id'));
             tinyMCE.triggerSave();
             jQuery('#email-editor-form').ajaxSubmit({
                 success: function (res) {
-                    jQuery('#preview').html("<iframe style='width:100%;height:700px;border:0;' src='edit.php?action=email_template_preview&id=<?php echo $_GET['id']; ?>'></iframe>");
+                    jQuery('#preview').html("<iframe style='width:100%;height:700px;border:0;' src='edit.php?action=email_template_preview&id=<?php echo wpdm_query_var('id', 'txt'); ?>&__empnonce=<?php echo wp_create_nonce(WPDM_PRI_NONCE); ?>'></iframe>");
                 }
             });
             //jQuery.post(ajaxurl,{action:'',template:'<?php echo wpdm_query_var('id'); ?>'},function(res){

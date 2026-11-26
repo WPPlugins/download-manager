@@ -10,22 +10,14 @@ if(!defined("ABSPATH")) die();
 
 require_once __DIR__.'/header.php';
 
-if(wpdm_query_var('_type') === 'custom-tags'){
 
-    require_once __DIR__.'/custom-tags.php';
-
-} else if(wpdm_query_var('_type') === 'import'){
-
-    require_once __DIR__.'/import-template.php';
-
-} else {
 
     //List link, page and emaol templates
     require_once __DIR__.'/list-templates.php';
 
     require_once __DIR__.'/email-template-settings.php';
 
- } ?>
+ ?>
 
 
 </div>
@@ -141,6 +133,9 @@ if(wpdm_query_var('_type') === 'custom-tags'){
         padding: 0;
         margin-bottom: -4px;
     }
+    .btn-group .btn-status input{
+        display: none;
+    }
 
 </style>
 <script>
@@ -150,11 +145,12 @@ if(wpdm_query_var('_type') === 'custom-tags'){
             $('#banner-url').val(this.src);
         });
         <?php if(isset($ttype)) { ?>
-        $('.template_preview').click(function(){
-            $('#preview-area').html("<i class='fa fa-spin fa-spinner'></i> Loading Preview...").load($(this).attr('data-href'));
+        $('body').on('click', '.template_preview', function(e){
+            e.preventDefault();
+            WPDM.dialog.ajax('<?php echo esc_js(__( "Template Preview" , "download-manager" )); ?>', $(this).attr('data-href'), { size: 'lg', icon: false });
         });
         $('#etmpl').on('change', function () {
-            $('#preview').attr('src', 'edit.php?action=email_template_preview&id=user-signup&etmpl='+$(this).val());
+            $('#preview').attr('src', 'edit.php?action=email_template_preview&id=user-signup&etmpl='+$(this).val()+"&__empnonce=<?php echo wp_create_nonce(WPDM_PRI_NONCE); ?>");
             $('#etplname').html($(this).val());
         });
         $('#etplname').html($('#etmpl').val());
@@ -174,7 +170,7 @@ if(wpdm_query_var('_type') === 'custom-tags'){
             var v = $(this).data('value');
             var c = '.'+$(this).data('id');
             var $this = this;
-            $.post(ajaxurl, {action: 'update_template_status', template: $(this).data('id'), type: '<?php echo $ttype; ?>', status: v}, function (res) {
+            $.post(ajaxurl, {action: 'update_template_status', template: $(this).data('id'), type: '<?php echo $ttype; ?>', status: v, tsnonce: '<?php echo wp_create_nonce(WPDM_PRI_NONCE) ?>'}, function (res) {
                 $(c).removeClass('btn-danger').removeClass('btn-success').addClass('btn-secondary');
                 if(v==1)
                     $($this).addClass('btn-success').removeClass('btn-secondary');
@@ -186,21 +182,30 @@ if(wpdm_query_var('_type') === 'custom-tags'){
         });
 
 
-        $('.delete-template').on('click', function (e) {
-            if(!confirm('<?php _e( "Are you sure?" , "download-manager" ); ?>')) return false;
-            e.preventDefault();
-            var rowid = '#template-'+$(this).data('ttype')+"-"+$(this).data('tplid');
-            $(this).html('<i class="fa fa-times fa-spin"></i> Delete');
-            $.get(ajaxurl, {action: 'wpdm_delete_template', ttype: $(this).data('ttype'), tplid: $(this).data('tplid')}, function (res) {
-                $(rowid).remove();
-            });
-        });
         <?php } ?>
-        $('#newtagform').submit(function (e) {
+        // Open the New/Edit Tag form inside a WPDM dialog
+        function wpdmOpenTagDialog(){
+            var tpl = document.getElementById('newtagmodal-tpl');
+            WPDM.dialog.show({
+                title: '<?php echo esc_js(__( "New Tag" , "download-manager" )); ?>',
+                content: tpl.innerHTML,
+                size: 'md',
+                icon: false,
+                backdrop: 'static'
+            });
+        }
+
+        $('body').on('click', '.add-new-tag', function (e) {
             e.preventDefault();
+            wpdmOpenTagDialog();
+        });
+
+        $('body').on('submit', '#newtagform', function (e) {
+            e.preventDefault();
+            var $form = $(this);
             var obtnlbl = $('#newtagformsubmit').html();
             $('#newtagformsubmit').html("<i class='fa fa-sun fa-spin'></i>").attr('disabled', 'disabled');
-            $(this).ajaxSubmit({
+            $form.ajaxSubmit({
                 url: ajaxurl,
                 resetForm: true,
                 success: function (response) {
@@ -216,14 +221,15 @@ if(wpdm_query_var('_type') === 'custom-tags'){
                         '                    </td>\n' +
                         '                </tr>'
                     );
-                    $('#newtagmodal').modal('hide');
+                    $form.closest('.wpdm-dialog-wrapper').find('.wpdm-dialog__close').trigger('click');
                 }
             });
         });
         $('body').on('click', '.tag-edit', function () {
-            $('#newtagmodal').modal('show');
+            var tag = $(this).data('tag');
+            wpdmOpenTagDialog();
             WPDM.blockUI('#newtagform');
-            $.get(ajaxurl, {tag: $(this).data('tag'), action: 'wpdm_edit_custom_tag'}, function (response) {
+            $.get(ajaxurl, {tag: tag, action: 'wpdm_edit_custom_tag'}, function (response) {
                 $('#tag_name').val(response.name);
                 $('#tag_value').val(response.value);
                 WPDM.unblockUI('#newtagform');

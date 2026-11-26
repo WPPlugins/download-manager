@@ -6,27 +6,31 @@ if (!defined('ABSPATH')) die();
  * Time: 12:33 AM
  */
 
-
+$picon = "<img width='48px' src='".WPDM_ASSET_URL."images/locked.png' />";
 ?>
 <!DOCTYPE html>
 <html style="background: transparent">
 <head>
     <title><?php echo $user_allowed ? $media->post_title : '404 - Not found!'; ?></title>
     <script>
-        var wpdm_home_url = "<?php echo home_url('/'); ?>";
+        var wpdm_url = <?= json_encode(WPDM()->wpdm_urls); ?>;
     </script>
-    <link rel="stylesheet" href="<?php echo WPDM_BASE_URL; ?>assets/bootstrap/css/bootstrap.css" />
-    <link rel="stylesheet" href="<?php echo WPDM_BASE_URL; ?>assets/css/front.css" />
+    <link rel="stylesheet" href="<?php echo WPDM_BASE_URL; ?>assets/css/front.min.css" />
+    <?php $color_scheme = get_option('__wpdm_color_scheme', 'system'); if ($color_scheme !== 'light') { ?>
+    <link rel="stylesheet" href="<?php echo WPDM_BASE_URL; ?>assets/css/front-dark.min.css" />
+    <?php } ?>
     <script src="<?php echo includes_url(); ?>/js/jquery/jquery.js"></script>
     <script src="<?php echo includes_url(); ?>/js/jquery/jquery.form.js"></script>
-    <script src="<?php echo WPDM_BASE_URL; ?>assets/bootstrap/js/bootstrap.min.js"></script>
-    <link href="https://fonts.googleapis.com/css?family=Merriweather+Sans:300,400,700" rel="stylesheet">
+    <script src="<?php echo WPDM_BASE_URL; ?>assets/js/wpdm.js"></script>
+    <?php if (\WPDM\__\Apply::googleFontsEnabled()) { ?>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather+Sans:300,400,700" rel="stylesheet">
+    <?php } ?>
     <?php
     WPDM()->apply::uiColors();
     ?>
     <style>
         body{
-            font-family: "Merriweather Sans", sans-serif;
+            font-family: "Merriweather Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             font-weight: 400;
             font-size: 10px;
             color: #425676;

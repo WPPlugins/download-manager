@@ -2,8 +2,6 @@
 
 namespace WPDM\__;
 
-use WPDM\AuthorDashboard\AuthorDashboard;
-
 
 class Apply
 {
@@ -26,19 +24,11 @@ class Apply
         add_filter('wpdm_custom_data', array($this, 'skipLocks'), 10, 2);
         add_action("wp_ajax_nopriv_showLockOptions", array($this, 'showLockOptions'));
         add_action("wp_ajax_showLockOptions", array($this, 'showLockOptions'));
-        add_action("wp_ajax_wpdm_addtofav", array($this, 'addToFav'));
-
-        add_action('wp_ajax_wpdm_verify_file_pass', array($this, 'checkFilePassword'));
-        add_action('wp_ajax_nopriv_wpdm_verify_file_pass', array($this, 'checkFilePassword'));
-
-        add_action("wp_ajax_wpdm_email_lock", [$this, 'verifyEmailLock']);
-        add_action("wp_ajax_nopriv_wpdm_email_lock", [$this, 'verifyEmailLock']);
-
-        add_action("wp_ajax_wpdm_create_term", [$this, 'createTerm']);
 
         add_action("wp_ajax_wpdm_generate_password", [$this, 'generatePassword']);
         add_action("wp_ajax_wpdm-activate-shop", [$this, 'activatePremiumPackage']);
-        add_action("wp_ajax_wpdm-install-addon", [$this, 'installAddon']);
+
+        add_filter( 'wp_kses_allowed_html', [$this, 'allowStyleTagInKses'], 10, 2 );
 
         if (is_admin()) return;
 
@@ -60,8 +50,6 @@ class Apply
 
         add_filter('the_excerpt_embed', array($this, 'oEmbed'));
 
-        add_filter('get_avatar_data', array($this, 'shopLogo'), 10, 3);
-
         add_action('wp_head', array($this, 'wpHead'), 999999);
 
 
@@ -74,7 +62,6 @@ class Apply
         add_action('save_post', array($this, 'dashboardPages'));
         add_action('wp_ajax_clear_cache', array($this, 'clearCache'));
         add_action('wp_ajax_clear_stats', array($this, 'clearStats'));
-        add_action('wp_ajax_generate_tdl', array($this, 'generateTDL'));
         add_action('admin_head', array($this, 'uiColors'));
 
     }
@@ -205,17 +192,6 @@ class Apply
             $flush = 1;
         }
 
-        if (has_shortcode($post->post_content, "wpdm_package_form")) {
-            update_option('__wpdm_package_form', $post_id);
-        }
-
-        $page_id = get_option('__wpdm_author_dashboard', 0);
-
-        if ((int)$page_id === 0 && has_shortcode($post->post_content, "wpdm_frontend")) {
-            update_option('__wpdm_author_dashboard', $post_id);
-            $flush = 1;
-        }
-
         $page_id = get_option('__wpdm_author_profile', 0);
 
         if ((int)$page_id === 0 && has_shortcode($post->post_content, "wpdm_user_profile")) {
@@ -237,39 +213,6 @@ class Apply
         return $vars;
     }
 
-    function playMedia()
-    {
-
-        if (strstr("!{$_SERVER['REQUEST_URI']}", "/wpdm-media/")) {
-            $media = explode("wpdm-media/", $_SERVER['REQUEST_URI']);
-            $media = explode("/", $media[1]);
-            list($ID, $file, $name) = $media;
-            $key = wpdm_query_var('_wpdmkey');
-
-            if (isset($_SERVER['HTTP_RANGE'])) {
-                $partialContent = true;
-                preg_match('/bytes=(\d+)-(\d+)?/', $_SERVER['HTTP_RANGE'], $matches);
-                $offset = intval($matches[1]);
-                $length = intval($matches[2]) - $offset;
-            } else {
-                $partialContent = false;
-            }
-
-            $keyValid = is_wpdmkey_valid($ID, $key, true);
-            wpdmdd($keyValid);
-            if (!$partialContent) {
-                if ($key == '' || !$keyValid)
-                    Messages::Error(stripslashes(get_option('__wpdm_permission_denied_msg')), 1);
-            }
-            $files = WPDM()->package->getFiles($ID);
-            $file = $files[$file];
-            $file = FileSystem::fullPath($file, $ID);
-            $stream = new StreamMedia($file);
-            $stream->start();
-            die();
-        }
-    }
-
 
     /**
      * @usage Process Download Request from lock options
@@ -279,7 +222,7 @@ class Apply
 
         global $wpdb, $current_user, $wp_query;
         if (preg_match("/\/wpdmdl\/([\d]+)-([^\/]+)\/(.+)/", $_SERVER['REQUEST_URI'])) {
-            $uri = trim($_SERVER['REQUEST_URI'], '/');
+            $uri = trim(__::valueof($_SERVER, 'REQUEST_URI', ['validate' => 'txt']), '/');
             $download_url_base = get_option('__wpdm_download_url_base', 'download');
             $uri = explode("/" . $download_url_base . "/", $uri);
             $parts = explode("/", $uri[1]);
@@ -289,7 +232,7 @@ class Apply
             $parts = json_decode(base64_decode($parts[1]));
             if (is_array($parts)) {
                 foreach ($parts as $key => $val) {
-                    $_REQUEST[$key] = $_GET[$key] = $val;
+                    $_REQUEST[$key] = $_GET[$key] = sanitize_text_field($val);
                 }
             }
         }
@@ -343,31 +286,37 @@ class Apply
         //$package = get_post($id, ARRAY_A);
         $package = WPDM()->package->init($id);
         $package = (array)$package;
-
-        //$package['files'] = WPDM()->package->getFiles($id);
-        //if(!is_array($package)) \WPDM\__\Messages::error(__("&mdash; Package Not Found &mdash;", "download-manager"), 1);
-        //$package = array_merge($package, WPDM()->package->metaData($id));
-
-
-        //if (isset($package['files']))
-        //    $package['files'] = maybe_unserialize($package['files']);
-        //else
-        //    $package['files'] = array();
-        //$package = wpdm_setup_package_data($package);
-
         $package['access'] = WPDM()->package->allowedRoles($id);
 
+	    $package = apply_filters("wpdm_before_download", $package);
 
         if ($isMaster || $keyValid) {
             $package['access'] = array('guest');
         }
 
+        //Only published packages are downloadable by everyone; other statuses need read_post on the package
+        if(!WPDM()->package->userCanReadPackage($id)) {
+	        Messages::error( __( '403 - Access Forbidden!', 'download-manager' ), 1 );
+        }
 
         $matched = (is_array(@maybe_unserialize($package['access'])) && is_user_logged_in()) ? array_intersect($current_user->roles, @maybe_unserialize($package['access'])) : array();
 
 
         if ((($id != '' && is_user_logged_in() && count($matched) < 1 && !@in_array('guest', $package['access'])) || (!is_user_logged_in() && !@in_array('guest', $package['access']) && $id != ''))) {
             do_action("wpdm_download_permission_denied", $id);
+            // Send the visitor somewhere useful instead of a "permission-denied.txt" download:
+            // the login page when logged out (returning to the package after login), otherwise the package page
+            $package_url  = get_permalink( $id );
+            $redirect_url = '';
+            if ( $package_url ) {
+                $redirect_url = is_user_logged_in() ? $package_url : wpdm_login_url( $package_url );
+            }
+            $redirect_url = apply_filters( 'wpdm_download_permission_denied_redirect', $redirect_url, $id );
+            if ( $redirect_url ) {
+                nocache_headers();
+                wp_safe_redirect( $redirect_url );
+                die();
+            }
             wpdm_download_data("permission-denied.txt", __("You don't have permission to download this file", "download-manager"));
             die();
         } else {
@@ -434,44 +383,6 @@ class Apply
     }
 
     /**
-     * @usage Validate individual file password
-     */
-    function checkFilePassword()
-    {
-        if (isset($_POST['actioninddlpvr'], $_POST['wpdmfileid']) && $_POST['actioninddlpvr'] != '') {
-            $limit = get_option('__wpdm_private_link_usage_limit', 3);
-            $fileid = intval($_POST['wpdmfileid']);
-            $data = get_post_meta($_POST['wpdmfileid'], '__wpdm_fileinfo', true);
-            $data = $data ? $data : array();
-            $package = get_post($fileid);
-            $packagemeta = wpdm_custom_data($fileid);
-            $password = isset($data[$_POST['wpdmfile']]['password']) && $data[$_POST['wpdmfile']]['password'] != "" ? $data[$_POST['wpdmfile']]['password'] : $packagemeta['password'];
-            $pu = isset($packagemeta['password_usage']) && is_array($packagemeta['password_usage']) ? $packagemeta['password_usage'] : array();
-            if ($password == $_POST['filepass'] || strpos($password, "[" . $_POST['filepass'] . "]") !== FALSE) {
-                $pul = $packagemeta['password_usage_limit'];
-                if (is_array($pu) && isset($pu[$password]) && $pu[$password] >= $pul && $pul > 0) {
-                    $data['error'] = __("Password usages limit exceeded", "download-manager");
-                    die('|error|');
-                } else {
-                    if (!is_array($pu)) $pu = array();
-                    $pu[$password] = isset($pu[$password]) ? $pu[$password] + 1 : 1;
-                    update_post_meta($fileid, '__wpdm_password_usage', $pu);
-                }
-
-                //$id = uniqid();
-                //Session::set( '__wpdm_unlocked_'.$_POST['wpdmfileid'] , 1 );
-                //update_post_meta($fileid, "__wpdmkey_".$id, 8);
-                $_data['error'] = '';
-                $_data['downloadurl'] = WPDM()->package->expirableDownloadLink($fileid, $limit);
-                $_data['downloadurl'] .= "&ind=" . wpdm_query_var('wpdmfile');
-                wp_send_json($_data);
-
-            } else
-                wp_send_json(array('error' => __("Invalid password", "download-manager"), 'downloadurl' => ''));
-        }
-    }
-
-    /**
      * @usage Allow front-end users to access their own files only
      * @param $query_params
      * @return string
@@ -512,9 +423,12 @@ class Apply
      */
     function clearCache()
     {
-        if (!current_user_can('manage_options')) die('You are not authorized!');
+        __::isAuthentic('ccnonce', WPDM_PRI_NONCE, 'manage_options');
         FileSystem::deleteFiles(WPDM_CACHE_DIR, false);
         FileSystem::deleteFiles(WPDM_CACHE_DIR . 'pdfthumbs/', false);
+        global $wpdb;
+        Session::reset();
+        TempStorage::clear();
         die('ok');
     }
 
@@ -523,8 +437,8 @@ class Apply
      */
     function clearStats()
     {
-        if (!current_user_can('manage_options')) return;
-        global $wpdb;
+	    __::isAuthentic('csnonce', WPDM_PRI_NONCE, 'manage_options');
+	    global $wpdb;
         $wpdb->query('truncate table ' . $wpdb->prefix . 'ahm_download_stats');
         $wpdb->query('truncate table ' . $wpdb->prefix . 'ahm_user_download_counts');
         $wpdb->query("delete from {$wpdb->prefix}postmeta where meta_key='__wpdmx_user_download_count'");
@@ -553,29 +467,12 @@ class Apply
     function showLockOptions()
     {
         if (!isset($_REQUEST['id'])) die('ID Missing!');
-        echo WPDM()->package->downloadLink((int)$_REQUEST['id'], 1);
-        die();
-    }
-
-    function addToFav()
-    {
-        if (!is_user_logged_in()) die('error');
-        $pid = (int)$_REQUEST['pid'];
-        $ufavs = maybe_unserialize(get_post_meta($pid, '__wpdm_favs', true));
-        $myfavs = maybe_unserialize(get_user_meta(get_current_user_id(), '__wpdm_favs', true));
-        if (!is_array($myfavs)) $myfavs = array();
-        if (!is_array($ufavs)) $ufavs = array();
-
-        if (is_array($myfavs) && ($key = array_search($_REQUEST['pid'], $myfavs)) !== false) {
-            unset($myfavs[$key]);
-            if (isset($ufavs[get_current_user_id()])) unset($ufavs[get_current_user_id()]);
-        } else {
-            $myfavs[] = $_REQUEST['pid'];
-            $ufavs[get_current_user_id()] = time();
+        $id = wpdm_query_var('id', 'int');
+        if (!WPDM()->package->userCanReadPackage($id) || !WPDM()->package->userCanAccess($id)) {
+            wp_die(esc_html__('403 - Access Forbidden!', 'download-manager'), '', ['response' => 403]);
         }
-        update_user_meta(get_current_user_id(), '__wpdm_favs', $myfavs);
-        update_post_meta($pid, '__wpdm_favs', $ufavs);
-        die('ok');
+        echo WPDM()->package->downloadLink($id, 1);
+        die();
     }
 
 
@@ -612,28 +509,6 @@ class Apply
         return $user;
     }
 
-    function generateTDL()
-    {
-        if (is_user_logged_in() && AuthorDashboard::hasAccess(get_current_user_id()) && wp_verify_nonce($_REQUEST['__tdlnonce'], NONCE_KEY)) {
-            $pid = (int)$_REQUEST['pid'];
-            $pack = get_post($pid);
-            if (current_user_can(WPDM_ADMIN_CAP) || $pack->post_author == get_current_user_id()) {
-                Session::set('__wpdm_unlocked_' . $pid, 1);
-                $key = uniqid();
-                $expire = time() + ((int)$_REQUEST['exmisd'] * (int)$_REQUEST['expire_multiply']);
-                update_post_meta($pid, "__wpdmkey_" . $key, array('use' => (int)$_REQUEST['ulimit'], 'expire' => $expire));
-                $download_page_key = Crypt::encrypt(array('pid' => $pid, 'key' => $key));
-                $download_page = home_url("wpdm-download/{$download_page_key}");
-                $download_url = wpdm_download_url($pid, array("_wpdmkey" => $key));
-                wp_send_json(array('download_url' => $download_url, 'download_page' => $download_page));
-                die();
-            }
-        }
-        wp_send_json(array('download_url' => 'Error! Unauthorized Access', 'download_page' => 'Error! Unauthorized Access'));
-
-    }
-
-
 
     function validateLoginPage($content)
     {
@@ -641,7 +516,7 @@ class Apply
             $id = get_option('__wpdm_login_url', 0);
             if ($id > 0 && $id == get_the_ID()) {
                 if (!has_shortcode($content, 'wpdm_login_form') && !has_shortcode($content, 'wpdm_user_dashboard') && !has_shortcode($content, 'wpdm_author_dashboard')) {
-                    $content = WPDM()->shortCode->loginForm();
+                    $content = WPDM()->user->login->form();
                 }
             }
         }
@@ -656,148 +531,21 @@ class Apply
         return $feed;
     }
 
-    function verifyEmailLock(){
-        global $wpdb;
-
-        if (!isset($_POST['__wpdm_ID'])) return;
-        $id = (int)$_POST['__wpdm_ID'];
-        $key = uniqid();
-        $file = get_post($id, ARRAY_A);
-        $file = wpdm_setup_package_data($file);
-        $file1 = $file;
-        $data = array('error' => '', 'downloadurl' => '');
-
-        if (wpdm_verify_email(wpdm_query_var('email'))) {
-
-            $subject = "Your Download Link";
-            $site = get_option('blogname');
-
-            $limit = get_option('__wpdm_private_link_usage_limit',3);
-            $xpire_period = ((int)get_option('__wpdm_private_link_expiration_period', 3)) * ((int)get_option('__wpdm_private_link_expiration_period_unit', 60));
-            $xpire_period = $xpire_period > 0 ? $xpire_period :  3600;
-
-            //When there are custom form data with the email lock form, ex: Name, Company Name, Position, etc.
-            $custom_form_data = isset($_POST['custom_form_field']) ? $_POST['custom_form_field'] : array();
-            if(wpdm_query_var('name') !== '') $custom_form_data = ['name' => wpdm_query_var('name')] + $custom_form_data;
-
-            //do something before sending download link
-            do_action("wpdm_before_email_download_link", $_POST, $file);
-
-            $show_download_link_instantly = isset($file['email_lock_idl']) ? (int)$file['email_lock_idl'] : 3;
-            $show_download_link_instantly_also_mail = isset($file['email_lock_idl_email']) ? (int)$file['email_lock_idl_email'] : 0;
-
-            $request_status =  $show_download_link_instantly === 0 ? 3 : $show_download_link_instantly;
-            $wpdb->insert("{$wpdb->prefix}ahm_emails", array('email' => $_POST['email'], 'pid' => $file['ID'], 'date' => time(), 'custom_data' => serialize($custom_form_data), 'request_status' => $request_status));
-            $subscriberID = $wpdb->insert_id;
-
-            $download_url = add_query_arg(['subscriber' => \WPDM\__\Crypt::encrypt($subscriberID)], WPDM()->package->expirableDownloadLink($id, $limit, $xpire_period));
-            $download_page_url  = add_query_arg(['subscriber' =>\WPDM\__\Crypt::encrypt($subscriberID)], WPDM()->package->expirableDownloadPage($id, $limit, $xpire_period));
-
-            if($show_download_link_instantly === 0 || ($show_download_link_instantly == 1 && $show_download_link_instantly_also_mail == 0)) {
-                $name = isset($cff['name'])?$cff['name']:'';
-                $email_params = array('to_email' => $_POST['email'], 'name' => $name, 'download_count' => $limit,  'package_name' => $file['post_title'], 'package_url' => get_permalink($id), 'download_url' => $download_url, 'download_page_url' => $download_page_url);
-                $email_params = apply_filters("wpdm_email_lock_mail_params", $email_params, $file);
-                \WPDM\__\Email::send("email-lock", $email_params);
-
-            }
-            $elmsg = sanitize_textarea_field(get_post_meta($id, '__wpdm_email_lock_msg', true));
-            if ($show_download_link_instantly === 0) {
-                $data['downloadurl'] = "";
-                $data['msg'] = ($elmsg !='' ? $elmsg : __( "Download link sent to your email!" , "download-manager" ));
-                $data['type'] = 'success';
-            } else if ($show_download_link_instantly === 2) {
-                $data['downloadurl'] = "";
-                $data['msg'] = ($elmsg !='' ? $elmsg : __( "Admin will review your request soon!" , "download-manager" ));
-                $data['type'] = 'success';
-            } else {
-                $data['downloadurl'] = $download_url;
-                if($show_download_link_instantly_also_mail == 0)
-                    $data['msg'] = ($elmsg !='' ? $elmsg : __( "Download link also sent to your email!" , "download-manager" ));
-                else
-                    $data['msg'] = ($elmsg !='' ? $elmsg : __( "Download will be started shortly!" , "download-manager" ));
-            }
-
-            if(!wpdm_is_ajax()){
-
-                @setcookie("wpdm_getlink_data_".$key, json_encode($data));
-
-                if(isset($data['downloadurl']) && $data['downloadurl']!=''){
-                    header("location: ".$data['downloadurl']);
-                    die();
-                }
-
-                header("location: ".$_SERVER['HTTP_REFERER']."#nojs_popup|ckid:".$key);
-                die();
-            }
-
-            $_pdata = $_POST;
-            $_pdata['pid'] = $file['ID'];
-            $_pdata['time'] = time();
-            Session::set("__wpdm_email_lock_verified", $_pdata, 604800);
-            wp_send_json($data);
-            die();
-        } else {
-            $data['downloadurl'] = "";
-            $data['msg'] =  get_option('__wpdm_blocked_domain_msg');
-            if(trim($data['msg']) === '') $data['msg'] = __( "Invalid Email Address!" , "download-manager" );
-            $data['type'] =  'error';
-
-            if(!wpdm_is_ajax()){
-
-                @setcookie("wpdm_getlink_data_".$key, json_encode($data));
-
-                if(isset($data['downloadurl']) && $data['downloadurl']!=''){
-                    header("location: ".$data['downloadurl']);
-                    die();
-                }
-
-                header("location: ".$_SERVER['HTTP_REFERER']."#nojs_popup|ckid:".$key);
-                die();
-            }
-
-            wp_send_json($data);
-            die();
-        }
-
-    }
-
-
-    function createTerm()
-    {
-        if(wp_verify_nonce(wpdm_query_var('__nonce'), NONCE_KEY)) {
-            $_term = wp_create_term(wpdm_query_var('term'), wpdm_query_var('taxonomy'));
-            $_term_id = wpdm_valueof($_term, 'term_id');
-            if($_term_id) {
-                $term = get_term($_term_id);
-                wp_send_json(['success' => true, 'term' => $term, 'html' => '<li class="wpdm-tag"><label><input type="checkbox" name="taxonomy['.wpdm_query_var('taxonomy').'][]" class="wpdmtag" value="'.$term->term_id.'"> <span class="tagname">'.$term->name.'</span></label></li>']);
-            } else {
-                wp_send_json(['success' => false, 'term' => $_term]);
-            }
-        } else {
-          wp_send_json(['success' => false]);
-        }
-    }
-
-
-    function shopLogo($args, $id)
-    {
-        if (is_object($id)) $id = $id->user_id;
-        if (is_email($id)) {
-            $user = get_user_by('email', $id);
-            $id = $user->ID;
-        }
-
-        $store = get_user_meta($id, '__wpdm_public_profile', true);
-        if (isset($store['logo']) && $store['logo'] != '')
-            $args['url'] = $store['logo'];
-        return $args;
-    }
-
-
     function wpHead(){
 
         self::googleFont();
 
+    }
+
+    /**
+     * Whether pages may load fonts from Google's servers.
+     * Follows Settings > User Interface > Google Fonts (off by default).
+     *
+     * @return bool
+     */
+    static function googleFontsEnabled()
+    {
+        return (bool) apply_filters('wpdm_google_fonts_enabled', (int) get_option('__wpdm_enable_gf', 0) === 1);
     }
 
     static function googleFont()
@@ -806,14 +554,17 @@ class Apply
         $uicolors = maybe_unserialize(get_option('__wpdm_ui_colors', array()));
         //$ltemplates = maybe_unserialize(get_option("_fm_link_templates", true));
         //$ptemplates = maybe_unserialize(get_option("_fm_page_templates", true));
-        $font = get_option('__wpdm_google_font', 'Rubik');
-        $font = $font ? $font . ',' : '';
+	    $font      = get_option( '__wpdm_google_font', 'Sen' );
+	    $font      = explode( ":", $font );
+        $font      = str_replace("+", " ", $font[0]);
+	    $font      = $font ? "{$font}" : '';
+	    $font = $font ? "{$font}" : '-apple-system';
 
         $css = WPDM()->packageTemplate->getStyles('link');
 
         ?>
-        <?php if (get_option('__wpdm_google_font') !== '') { ?>
-        <link href="https://fonts.googleapis.com/css?family=<?php echo get_option('__wpdm_google_font', 'Rubik'); ?>"
+        <?php if (self::googleFontsEnabled() && get_option('__wpdm_google_font') !== '') { ?>
+        <link href="https://fonts.googleapis.com/css2?family=<?php echo get_option('__wpdm_google_font', 'Sen'); ?>"
               rel="stylesheet">
         <style>
             .w3eden .fetfont,
@@ -832,7 +583,7 @@ class Apply
             .w3eden .wpdm_cart thead th,
             .w3eden #csp .list-group-item,
             .w3eden .modal-title {
-                font-family: <?php echo $font; ?> -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+                font-family: "<?php echo __::sanitize_var($font); ?>", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
                 text-transform: uppercase;
                 font-weight: 700;
             }
@@ -846,7 +597,7 @@ class Apply
         <style>
         <?php
         echo '/* WPDM Link Template Styles */';
-        echo $css;
+        echo wpdm_escs($css);
         ?>
         </style>
         <?php
@@ -867,8 +618,11 @@ class Apply
         $info = isset($uicolors['info']) ? $uicolors['info'] : '#2CA8FF';
         $warning = isset($uicolors['warning']) ? $uicolors['warning'] : '#f29e0f';
         $danger = isset($uicolors['danger']) ? $uicolors['danger'] : '#ff5062';
-        $font = get_option('__wpdm_google_font', 'Rubik');
-        $font = $font ? "\"{$font}\"," : '';
+        $font      = get_option( '__wpdm_google_font', 'Sen' );
+	    $font      = explode( ":", $font );
+	    $font      = $font[0];
+	    $font      = $font ? "{$font}" : '';
+        $font = $font ? "{$font}" : '-apple-system';
         if (is_singular('wpdmpro'))
             $ui_button = get_option('__wpdm_ui_download_button');
         else
@@ -879,40 +633,44 @@ class Apply
         <style>
 
             :root {
-                --color-primary: <?php echo $primary; ?>;
-                --color-primary-rgb: <?php echo wpdm_hex2rgb($primary); ?>;
-                --color-primary-hover: <?php echo isset($uicolors['primary'])?$uicolors['primary_hover']:'#4a8eff'; ?>;
-                --color-primary-active: <?php echo isset($uicolors['primary'])?$uicolors['primary_active']:'#4a8eff'; ?>;
-                --color-secondary: <?php echo $secondary; ?>;
-                --color-secondary-rgb: <?php echo wpdm_hex2rgb($secondary); ?>;
-                --color-secondary-hover: <?php echo isset($uicolors['secondary'])?$uicolors['secondary_hover']:'#4a8eff'; ?>;
-                --color-secondary-active: <?php echo isset($uicolors['secondary'])?$uicolors['secondary_active']:'#4a8eff'; ?>;
-                --color-success: <?php echo $success; ?>;
-                --color-success-rgb: <?php echo wpdm_hex2rgb($success); ?>;
-                --color-success-hover: <?php echo isset($uicolors['success_hover'])?$uicolors['success_hover']:'#4a8eff'; ?>;
-                --color-success-active: <?php echo isset($uicolors['success_active'])?$uicolors['success_active']:'#4a8eff'; ?>;
-                --color-info: <?php echo $info; ?>;
-                --color-info-rgb: <?php echo wpdm_hex2rgb($info); ?>;
-                --color-info-hover: <?php echo isset($uicolors['info_hover'])?$uicolors['info_hover']:'#2CA8FF'; ?>;
-                --color-info-active: <?php echo isset($uicolors['info_active'])?$uicolors['info_active']:'#2CA8FF'; ?>;
-                --color-warning: <?php echo $warning; ?>;
-                --color-warning-rgb: <?php echo wpdm_hex2rgb($warning); ?>;
-                --color-warning-hover: <?php echo isset($uicolors['warning_hover'])?$uicolors['warning_hover']:'orange'; ?>;
-                --color-warning-active: <?php echo isset($uicolors['warning_active'])?$uicolors['warning_active']:'orange'; ?>;
-                --color-danger: <?php echo $danger; ?>;
-                --color-danger-rgb: <?php echo wpdm_hex2rgb($danger); ?>;
-                --color-danger-hover: <?php echo isset($uicolors['danger_hover'])?$uicolors['danger_hover']:'#ff5062'; ?>;
-                --color-danger-active: <?php echo isset($uicolors['danger_active'])?$uicolors['danger_active']:'#ff5062'; ?>;
-                --color-green: <?php echo isset($uicolors['green'])?$uicolors['green']:'#30b570'; ?>;
-                --color-blue: <?php echo isset($uicolors['blue'])?$uicolors['blue']:'#0073ff'; ?>;
-                --color-purple: <?php echo isset($uicolors['purple'])?$uicolors['purple']:'#8557D3'; ?>;
-                --color-red: <?php echo isset($uicolors['red'])?$uicolors['red']:'#ff5062'; ?>;
+                --color-primary: <?php echo esc_attr($primary); ?>;
+                --color-primary-rgb: <?php echo esc_attr(wpdm_hex2rgb($primary)); ?>;
+                --color-primary-hover: <?php echo esc_attr( isset($uicolors['primary'])?$uicolors['primary_hover']:'#4a8eff' ); ?>;
+                --color-primary-active: <?php echo esc_attr( isset($uicolors['primary'])?$uicolors['primary_active']:'#4a8eff' ); ?>;
+                --clr-sec: <?php echo $secondary; ?>;
+                --clr-sec-rgb: <?php echo wpdm_hex2rgb($secondary); ?>;
+                --clr-sec-hover: <?php echo isset($uicolors['secondary'])?$uicolors['secondary_hover']:'#4a8eff'; ?>;
+                --clr-sec-active: <?php echo isset($uicolors['secondary'])?$uicolors['secondary_active']:'#4a8eff'; ?>;
+                --color-secondary: <?php echo esc_attr( $secondary ); ?>;
+                --color-secondary-rgb: <?php echo esc_attr(wpdm_hex2rgb($secondary)); ?>;
+                --color-secondary-hover: <?php echo esc_attr( isset($uicolors['secondary'])?$uicolors['secondary_hover']:'#4a8eff' ); ?>;
+                --color-secondary-active: <?php echo esc_attr( isset($uicolors['secondary'])?$uicolors['secondary_active']:'#4a8eff' ); ?>;
+                --color-success: <?php echo esc_attr( $success ); ?>;
+                --color-success-rgb: <?php echo esc_attr(wpdm_hex2rgb($success)); ?>;
+                --color-success-hover: <?php echo esc_attr( isset($uicolors['success_hover'])?$uicolors['success_hover']:'#4a8eff' ); ?>;
+                --color-success-active: <?php echo esc_attr( isset($uicolors['success_active'])?$uicolors['success_active']:'#4a8eff' ); ?>;
+                --color-info: <?php echo esc_attr( $info ); ?>;
+                --color-info-rgb: <?php echo esc_attr(wpdm_hex2rgb($info)); ?>;
+                --color-info-hover: <?php echo esc_attr( isset($uicolors['info_hover'])?$uicolors['info_hover']:'#2CA8FF' ); ?>;
+                --color-info-active: <?php echo esc_attr( isset($uicolors['info_active'])?$uicolors['info_active']:'#2CA8FF' ); ?>;
+                --color-warning: <?php echo esc_attr( $warning ); ?>;
+                --color-warning-rgb: <?php echo esc_attr(wpdm_hex2rgb($warning)); ?>;
+                --color-warning-hover: <?php echo esc_attr( isset($uicolors['warning_hover'])?$uicolors['warning_hover']:'orange' ); ?>;
+                --color-warning-active: <?php echo esc_attr( isset($uicolors['warning_active'])?$uicolors['warning_active']:'orange' ); ?>;
+                --color-danger: <?php echo esc_attr( $danger ); ?>;
+                --color-danger-rgb: <?php echo esc_attr(wpdm_hex2rgb($danger)); ?>;
+                --color-danger-hover: <?php echo esc_attr( isset($uicolors['danger_hover'])?$uicolors['danger_hover']:'#ff5062' ); ?>;
+                --color-danger-active: <?php echo esc_attr( isset($uicolors['danger_active'])?$uicolors['danger_active']:'#ff5062' ); ?>;
+                --color-green: <?php echo esc_attr( isset($uicolors['green'])?$uicolors['green']:'#30b570' ); ?>;
+                --color-blue: <?php echo esc_attr( isset($uicolors['blue'])?$uicolors['blue']:'#0073ff' ); ?>;
+                --color-purple: <?php echo esc_attr( isset($uicolors['purple'])?$uicolors['purple']:'#8557D3' ); ?>;
+                --color-red: <?php echo esc_attr( isset($uicolors['red'])?$uicolors['red']:'#ff5062' ); ?>;
                 --color-muted: rgba(69, 89, 122, 0.6);
-                --wpdm-font: <?php echo $font; ?> -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+                --wpdm-font: "<?php echo esc_attr( $font ); ?>", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
             }
 
-            .wpdm-download-link<?php echo $class; ?> {
-                border-radius: <?php echo (isset($ui_button['borderradius'])?$ui_button['borderradius']:4); ?>px;
+            .wpdm-download-link<?php echo sanitize_text_field($class); ?> {
+                border-radius: <?php echo (int)( isset($ui_button['borderradius']) ? $ui_button['borderradius'] : 4 ); ?>px;
             }
 
 
@@ -935,15 +693,40 @@ class Apply
     }
 
     /**
+     * Allow <style> tag in wp_kses_post filter.
+     *
+     * @param array  $allowed_tags Allowed HTML tags and attributes.
+     * @param string $context      The context for which to retrieve tags.
+     * @return array Modified allowed tags.
+     */
+    function allowStyleTagInKses( $allowed_tags, $context ) {
+        if ( 'post' !== $context ) {
+            return $allowed_tags;
+        }
+
+        $allowed_tags['style'] = array(
+                'type'  => true,
+                'media' => true,
+                'nonce' => true,
+                'id'    => true,
+                'class' => true,
+        );
+
+        return $allowed_tags;
+    }
+
+    /**
      * @usage Active premium package add-on / shopping cart
      */
     function activatePremiumPackage()
     {
+        __::isAuthentic('wpdmappnonce', WPDM_PRI_NONCE, WPDM_ADMIN_CAP);
+
         if (current_user_can(WPDM_ADMIN_CAP)) {
             include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
             include_once ABSPATH . 'wp-admin/includes/plugin-install.php';
             $upgrader = new \Plugin_Upgrader(new \Plugin_Installer_Skin(compact('title', 'url', 'nonce', 'plugin', 'api')));
-            $downloadlink = 'https://www.wpdownloadmanager.com/?wpdmdl=15671';
+            $downloadlink = 'https://downloads.wordpress.org/plugin/wpdm-premium-packages.zip';
             ob_start();
             echo "<div id='acto'>";
             if (file_exists(dirname(dirname(__FILE__)) . '/wpdm-premium-packages/'))
@@ -956,46 +739,13 @@ class Apply
                 activate_plugin('wpdm-premium-packages/wpdm-premium-packages.php');
                 echo "Congratulation! Your Digital Store is Activated. <a href='' class='btn btn-warning'>Refresh The Page!</a>";
             } else
-                echo "Automatic Installation Failed! Please <a href='https://www.wpdownloadmanager.com/?wpdmdl=15671' target='_blank' class='btn btn-warning'>Download</a> and install manually";
+                echo "Automatic Installation Failed! Please <a href='".admin_url('plugin-install.php?tab=plugin-information&plugin=wpdm-premium-packages')."' target='_blank' class='btn btn-warning'>Download</a> and install manually";
             die();
         } else {
             die("Only site admin is authorized to install add-on");
         }
     }
-
-    /**
-     * Added from v4.1.1
-     * WPDM add-on installer
-     */
-    function installAddon()
-    {
-        if (isset($_REQUEST['addon']) && current_user_can('manage_options') && wp_verify_nonce($_REQUEST['__wpdmpinn'], $_REQUEST['addon'] . NONCE_KEY)) {
-            include_once(ABSPATH . 'wp-admin/includes/plugin.php');
-            include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
-            include_once ABSPATH . 'wp-admin/includes/plugin-install.php';
-            $upgrader = new \Plugin_Upgrader(new \Plugin_Installer_Skin(compact('title', 'url', 'nonce', 'plugin', 'api')));
-            $plugin_dir = wpdm_query_var('dirname', 'txt', false);
-            if ($plugin_dir) {
-                $plugin_data = wpdm_plugin_data($plugin_dir);
-                $plugin_file = $plugin_data ? $plugin_data['plugin_index_file'] : false;
-                if ($plugin_file) {
-                    if (is_plugin_active($plugin_file)) {
-                        deactivate_plugins($plugin_file);
-                    }
-                    delete_plugins(array($plugin_file));
-                }
-            }
-            if (strpos(wpdm_query_var('addon', 'txt'), '.zip'))
-                $downloadlink = wpdm_query_var('addon', 'txt');
-            else
-                $downloadlink = 'https://www.wpdownloadmanager.com/?wpdmdl=' . wpdm_query_var('addon', 'int');
-            $upgrader->install($downloadlink);
-            die();
-        } else {
-            die("Only site admin is authorized to install add-on");
-        }
-    }
-
 
 
 }
+

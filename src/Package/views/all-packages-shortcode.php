@@ -1,17 +1,21 @@
 <?php
+
+use WPDM\__\__;
+
 if (!defined('ABSPATH')) die();
 global $btnclass;
+
 if(!is_array($params)) $params = array();
 $p = serialize($params);
 $tid = md5($p);
 if(!isset($params['items_per_page'])) $params['items_per_page'] = 20;
-$cols = isset($params['cols'])?$params['cols']:'page_link,file_count,download_count|categories|update_date|download_link';
-$colheads = isset($params['colheads'])?$params['colheads']:'Title|Categories|Update Date|Download';
+$cols = isset($params['cols'])?esc_attr($params['cols']):'page_link,file_count,download_count|categories|update_date|download_link';
+$colheads = isset($params['colheads'])?esc_attr($params['colheads']):'Title|Categories|Update Date|Download';
 $cols = explode("|", $cols);
 $colheads = explode("|", $colheads);
 foreach ($cols as $index => &$col){
    $col = explode(",", $col);
-   $colheads[$index] = !isset($colheads[$index])?$col[0]:$colheads[$index];
+   $colheads[$index] = !isset($colheads[$index])?esc_attr($col[0]):esc_attr($colheads[$index]);
 }
 
 $column_positions = array();
@@ -26,17 +30,14 @@ if(isset($params['jstable']) && $params['jstable']==1):
     $datatable_order = ( isset($params['order']) && $params['order'] == 'DESC' ) ? 'desc' : 'asc';
 
     ?>
-    <script src="<?php echo WPDM_BASE_URL.'assets/js/jquery.dataTables.min.js' ?>"></script>
-    <script src="<?php echo WPDM_BASE_URL.'assets/js/dataTables.bootstrap4.min.js' ?>"></script>
-    <link href="<?php echo WPDM_BASE_URL.'assets/css/jquery.dataTables.min.css' ?>" rel="stylesheet" />
 
     <script>
         jQuery(function($){
 
-            var __dt = $('#wpdmmydls-<?php echo $tid; ?>').dataTable({
+            var __dt = $('#wpdmmydls-<?php echo esc_attr($tid); ?>').dataTable({
                 "dom": '<"wpdmdt-toolbar"lfrB>t<"wpdmdt-toolbarb"ip>',
                 responsive: true,
-                "order": [[ <?php echo $datatable_col; ?>, "<?php echo $datatable_order; ?>" ]],
+                "order": [[ <?php echo esc_attr($datatable_col); ?>, "<?php echo esc_attr($datatable_order); ?>" ]],
                 "language": {
                     "lengthMenu": "<?php _e("Display _MENU_ downloads per page",'download-manager')?>",
                     "zeroRecords": "<?php _e("Nothing _START_ to - sorry",'download-manager')?>",
@@ -60,19 +61,19 @@ if(isset($params['jstable']) && $params['jstable']==1):
                         "sortDescending": ": <?php _e("activate to sort column descending",'download-manager'); ?>"
                     }
                 },
-                "iDisplayLength": <?php echo $params['items_per_page'] ?>,
-                "aLengthMenu": [[<?php echo $params['items_per_page']; ?>, 10, 25, 50, -1], [<?php echo $params['items_per_page']; ?>, 10, 25, 50, "<?php _e("All",'download-manager'); ?>"]]
+                "iDisplayLength": <?php echo (int)$params['items_per_page'] ?>,
+                "aLengthMenu": [[<?php echo (int)$params['items_per_page']; ?>, 10, 25, 50, -1], [<?php echo (int)$params['items_per_page']; ?>, 10, 25, 50, "<?php _e("All",'download-manager'); ?>"]]
             });
 
             <?php if(count($_GET) > 0){ ?>
-            $("div.wpdmdt-toolbar .dataTables_filter").append('<a href="<?php the_permalink(); ?>" class="btn btn-secondary ml-3" style="margin-top: -5px;border: 0;">Reset Filter</a>');
+            $("div.wpdmdt-toolbar .dataTables_filter").append('<a href="<?php the_permalink(); ?>" class="btn btn-secondary ml-3" style="margin-top: -5px;border: 0;"><?php echo  esc_attr__( 'Reset Filter', "download-manager" ); ?></a>');
             <?php } ?>
         });
     </script>
 <?php endif; ?>
 <style>
     .wpdmdt-toolbar {
-        padding: 10px 10px 0 10px;
+        padding: 10px;
     }
     .wpdmdt-toolbarb {
         padding: 5px 10px 10px;
@@ -106,7 +107,7 @@ if(isset($params['jstable']) && $params['jstable']==1):
         vertical-align: middle !important;
     }
     #wpdmmydls-<?php echo $tid; ?> td.__dt_col_download_link .btn{
-        display: block;
+        display: flex;
         width: 100%;
     }
     #wpdmmydls-<?php echo $tid; ?> td.__dt_col_download_link,
@@ -202,7 +203,7 @@ if(isset($params['jstable']) && $params['jstable']==1):
                     $_colhead = explode("::", $colhead);
                     $width = (isset($_colhead[1]))?"width: {$_colhead[1]} !important;max-width: {$_colhead[1]} !important;":"";
                     ?>
-                <th style="<?php echo $width; ?>"  id="<?php echo $cols[$ix][0]; ?>" class="<?php if($ix > 0) echo 'hidden-sm hidden-xs'; ?>"><?php _e($_colhead[0],'download-manager'); ?></th>
+                <th style="<?php echo esc_attr($width); ?>"  id="<?php echo esc_attr(wpdm_valueof($cols, "{$ix}/0", [], 'alphanum')); ?>" class="<?php if($ix > 0) echo 'hidden-sm hidden-xs'; ?>"><?php esc_attr_e($_colhead[0],'download-manager'); ?></th>
                 <?php } ?>
 
             </tr>
@@ -212,7 +213,6 @@ if(isset($params['jstable']) && $params['jstable']==1):
 
 
             $cfurl = get_permalink();
-
             $query_params = array("post_type"=>"wpdmpro","posts_per_page"=>$items,"offset"=>$offset);
             if(isset($tax_query)) $query_params['tax_query'] = $tax_query;
             $query_params['orderby'] = (isset($params['order_by']))?$params['order_by']:'date';
@@ -233,9 +233,9 @@ if(isset($params['jstable']) && $params['jstable']==1):
             if(is_array(wpdm_query_var('tax'))){
                 foreach (wpdm_query_var('tax') as $tax => $term) {
                     $query_params['tax_query'][] = [
-                            'taxonomy' => $tax,
+                            'taxonomy' => __::sanitize_var($tax, 'safetxt'),
                         'field' => 'slug',
-                        'terms' => [$term]
+                        'terms' => [__::sanitize_var($term, 'safetxt')]
                     ];
                     $query_params['tax_query']['relation'] = 'AND';
                 }
@@ -243,15 +243,42 @@ if(isset($params['jstable']) && $params['jstable']==1):
 
             $taxonomies = get_object_taxonomies( 'wpdmpro' );
 
+            $query_params = apply_filters('wpdm_all_packages_query_params', $query_params);
+
             $q = new WP_Query($query_params);
             $total_files = $q->found_posts;
             while ($q->have_posts()): $q->the_post();
 
                 $ext = "unknown";
-                $data = WPDM()->package->metaData(get_the_ID());
+                $data = WPDM()->package->prepare(get_the_ID())->packageData;
+                //wpdmdd($data);
                 global $post;
                 $data += (array)$post;
+                // The raw post row brings the post password along, and the default column
+                // branch below prints any key it is asked for: cols="post_password" showed
+                // other users' package passwords to any Contributor
+                unset($data['post_password']);
+                // A package behind a post password keeps its body and excerpt to itself until
+                // the visitor has entered that password, the same as on its own page
+                if(post_password_required($post)) {
+                    foreach (array('post_content', 'post_excerpt', 'post_content_filtered', 'description', 'excerpt') as $__hidden)
+                        $data[$__hidden] = '';
+                }
+                $__own_keys = array_keys($data);
                 $data['id'] = $data['ID'];
+                $data['files'] = WPDM()->package->getFiles(get_the_ID());
+                //$author = get_user_by('id', $post->post_author);
+                $data['author'] = $data['author_name'];
+
+	            $data = apply_filters('wpdm_all_packages_tags', $data);
+                // Columns the listing may print: a fixed set of display fields, the taxonomies,
+                // and whatever an add-on put in through the filter above. Not any stored field.
+                $__allowed_cols = array_merge(
+                    array('id', 'ID', 'title', 'page_link', 'page_url', 'description', 'post_content', 'post_excerpt', 'version', 'link_label', 'package_size', 'file_size', 'file_count', 'view_count', 'download_count', 'icon', 'thumb', 'preview', 'author', 'author_name', 'avatar', 'create_date', 'update_date', 'tags', 'download_link_extended', 'download_link_popup', 'effective_price', 'currency', 'price_range', 'base_price', 'sales_price', 'addtocart_link', 'addtocart_form', 'customer_download_link', 'free_download_btn', 'store_name'),
+                    $taxonomies,
+                    array_diff(array_keys($data), $__own_keys)
+                );
+                $__allowed_cols = apply_filters('wpdm_all_packages_allowed_cols', $__allowed_cols, $data);
 
                 if(isset($data['files'])&&count($data['files'])){
                     if(count($data['files']) == 1) {
@@ -274,8 +301,6 @@ if(isset($params['jstable']) && $params['jstable']==1):
                     $data[$taxonomy] = $_terms;
                 }
 
-
-
                 if($ext=='') $ext = 'unknown';
 
                 $ext = \WPDM\__\FileSystem::fileTypeIcon($ext);
@@ -287,8 +312,8 @@ if(isset($params['jstable']) && $params['jstable']==1):
                 $data['download_url'] = '';
                 $data['download_link'] = WPDM()->package->downloadLink($data['ID'], 0, array('template_type' => 'link'));
                 $data = apply_filters("wpdm_after_prepare_package_data", $data);
-                $download_link = htmlspecialchars_decode($data['download_link']);
-                if(((isset($data['base_price']) && $data['base_price'] > 0) || (isset($data['pay_as_you_want']) && (int)$data['pay_as_you_want'] === 1)) && function_exists('wpdmpp_currency_sign'))
+                $download_link = $data['download_link'];
+                if (function_exists('wpdmpp_effective_price') && wpdmpp_effective_price($data['ID']) > 0)
                     $download_link = wpdmpp_waytocart($data, 'btn-primary');
 
                 if(WPDM()->package->userCanAccess($data['ID']) || !get_option("_wpdm_hide_all", 0)){
@@ -299,9 +324,9 @@ if(isset($params['jstable']) && $params['jstable']==1):
                         $tcols = $cols;
                         array_shift($tcols);
                         foreach ($cols as $colx => $cold){
-                            $dor = array('publish_date' => strtotime(get_the_date('Y-m-d')), 'create_date' => strtotime(get_the_date('Y-m-d')), 'update_date' => strtotime(get_the_modified_date('Y-m-d', get_the_ID())));
+                            $dor = array('publish_date' => strtotime(get_the_date('Y-m-d')), 'create_date' => strtotime(get_the_date('Y-m-d')), 'update_date' => strtotime(get_the_modified_date('Y-m-d', get_the_ID())), 'package_size' => __::convertToBytes($data['package_size'] ?? ''));
                             ?>
-                        <td <?php if(in_array($cold[0], array('publish_date', 'update_date','create_date'))) { ?> data-order="<?php echo $dor[$cold[0]]; ?>" <?php } ?> class="__dt_col_<?php echo $colx; ?> __dt_col __dt_col_<?php echo $cold[0]; ?>" <?php if($colx == 0) { ?>style="background-image: url('<?php echo $ext ; ?>');background-size: 36px;background-position: 5px 8px;background-repeat:  no-repeat;padding-left: 52px;line-height: normal;"<?php } ?>>
+                        <td <?php if(in_array($cold[0], array('publish_date', 'update_date','create_date', 'package_size'))) { ?> data-order="<?php echo esc_attr($dor[$cold[0]]); ?>" <?php } ?> class="__dt_col_<?php echo esc_attr($colx); ?> __dt_col __dt_col_<?php echo esc_attr($cold[0]); ?>" <?php if($colx == 0) { ?>style="background-image: url('<?php echo esc_attr($ext) ; ?>');background-size: 36px;background-position: 5px 8px;background-repeat:  no-repeat;padding-left: 52px;line-height: normal;"<?php } ?>>
                             <?php
 
                             foreach ($cold as $cx => $c){
@@ -357,8 +382,14 @@ if(isset($params['jstable']) && $params['jstable']==1):
                                         $data['files'] = WPDM()->package->getFiles($data['ID']);
                                         echo WPDM()->package->audioPlayer($data, true, 'success');
                                         break;
+	                                case (preg_match('/^acf_(.+)/', $c) && function_exists('\WPDM\AddOn\wpdm_acf') ? true : false) :
+		                                $value = \WPDM\AddOn\wpdm_acf($data['ID'], str_replace("acf_", "", $c), true);
+		                                $value = maybe_unserialize($value);
+		                                if (is_array($value)) $value = implode(", ", $value);
+		                                echo "<span class='__dt_acf {$c}'>" . $value . "</span>";
+		                                break;
                                     default:
-                                        if(isset($data[$c])) {
+                                        if(isset($data[$c]) && is_scalar($data[$c]) && in_array($c, $__allowed_cols, true)) {
                                             if ($cx > 0)
                                                 echo "<span class='__dt_{$c} {$cxc}'>" . $data[$c] . "</span>";
                                             else
@@ -381,7 +412,7 @@ if(isset($params['jstable']) && $params['jstable']==1):
                 <tr>
                     <td colspan="4" class="text-center">
 
-                        <?php echo isset($params['no_data_msg']) && $params['no_data_msg']!=''?$params['no_data_msg']:__('No Packages Found','download-manager'); ?>
+                        <?php echo isset($params['no_data_msg']) && $params['no_data_msg']!='' ? esc_html($params['no_data_msg']) : __('No Packages Found','download-manager'); ?>
 
                     </td>
                 </tr>
@@ -394,26 +425,7 @@ if(isset($params['jstable']) && $params['jstable']==1):
 
         isset($wp_query->query_vars['paged']) && $wp_query->query_vars['paged'] > 1 ? $current = $wp_query->query_vars['paged'] : $current = 1;
 
-        $pagination = array(
-            'base' => @add_query_arg('paged','%#%'),
-            'format' => '',
-            'total' => ceil($total_files/$items),
-            'current' => $cp,
-            'show_all' => false,
-            'type' => 'list',
-            'prev_next'    => True,
-            'prev_text' => '<i class="fa fa-long-arrow-left"></i> '.__('Previous', 'download-manager'),
-            'next_text' => __('Next', 'download-manager').' <i class="fa fa-long-arrow-right"></i>',
-        );
-
-        if( $wp_rewrite->using_permalinks() )
-            $pagination['base'] = user_trailingslashit( trailingslashit( remove_query_arg('s',get_pagenum_link(1) ) ) . 'page/%#%/', 'paged');
-
-        if( !empty($wp_query->query_vars['s']) )
-            $pagination['add_args'] = array('s'=>get_query_var('s'));
-
-        echo  "<div class='text-center'>".str_replace("<ul class='page-numbers'>","<ul class='page-numbers pagination pagination-centered'>",paginate_links($pagination))."</div>";
-
+        echo  wpdm_paginate_links($total_files, $items, $cp);
         wp_reset_query();
         ?>
 

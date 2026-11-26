@@ -9,6 +9,7 @@
 namespace WPDM\Admin\Menu;
 
 
+use WPDM\__\__;
 use WPDM\__\Crypt;
 use WPDM\__\FileSystem;
 
@@ -34,18 +35,27 @@ class Stats
 
     public function ajax_callback_get_packages()
     {
+		__::isAuthentic('__spnonce', WPDM_PUB_NONCE, WPDM_MENU_ACCESS_CAP);
         global $wpdb;
         $posts_table = "{$wpdb->prefix}posts";
         $packages = [];
-        $term = isset($_GET['term']) ? $_GET['term'] : null;
+        // 'txt' rather than the default sanitiser: prepare() below does the
+        // escaping, and the default would HTML-encode quotes, so a title like
+        // "O'Brien" could never be matched.
+        $term = wpdm_query_var('term', 'txt');
 
         if ($term) {
-            $result_rows = $wpdb->get_results("SELECT ID, post_title FROM $posts_table where `post_type` = 'wpdmpro' AND `post_title` LIKE  '%" . $term . "%' ");
+            $like = '%' . $wpdb->esc_like($term) . '%';
+            $result_rows = $wpdb->get_results($wpdb->prepare(
+                "SELECT ID, post_title FROM {$posts_table} WHERE `post_type` = 'wpdmpro' AND `post_title` LIKE %s",
+                $like
+            ));
             foreach ($result_rows as $row) {
-                array_push($packages, [
-                    'id' => $row->ID,
-                    'text' => $row->post_title
-                ]);
+                $packages[] = [
+                    'id'   => $row->ID,
+                    // Select2 escapes result text itself; decode stored entities so titles display correctly
+                    'text' => wp_specialchars_decode($row->post_title, ENT_QUOTES)
+                ];
             }
         }
         //results key is necessary for jquery select2
@@ -54,19 +64,30 @@ class Stats
 
     public function ajax_callback_get_users()
     {
+	    __::isAuthentic('__spnonce', WPDM_PUB_NONCE, WPDM_MENU_ACCESS_CAP);
         global $wpdb;
-        $users_table = "{$wpdb->prefix}users";
-        $term = isset($_GET['term']) ? $_GET['term'] : null;
+        $users_table = "{$wpdb->base_prefix}users";
+        // See ajax_callback_get_packages() for why this is 'txt' and not the default.
+        $term = wpdm_query_var('term', 'txt');
         $users = [];
 
         if ($term) {
-            $result_rows = $wpdb->get_results("SELECT ID, user_login, display_name, user_email FROM $users_table where `display_name` LIKE  '%" . $term . "%' OR `user_login` LIKE  '%" . $term . "%' OR `user_email` LIKE  '%" . $term . "%'  ");
+            $like = '%' . $wpdb->esc_like($term) . '%';
+            $result_rows = $wpdb->get_results($wpdb->prepare(
+                "SELECT ID, user_login, display_name, user_email FROM {$users_table}
+                 WHERE `display_name` LIKE %s OR `user_nicename` LIKE %s OR `user_login` LIKE %s OR `user_email` LIKE %s",
+                $like,
+                $like,
+                $like,
+                $like
+            ));
             foreach ($result_rows as $row) {
-                $text = $row->display_name . " ( $row->user_login ) ";
-                array_push($users, [
-                    'id' => $row->ID,
+                // Select2 escapes result text itself; decode stored entities so names display correctly
+                $text    = wp_specialchars_decode($row->display_name, ENT_QUOTES) . " ( $row->user_login ) ";
+                $users[] = [
+                    'id'   => $row->ID,
                     'text' => $text
-                ]);
+                ];
             }
         }
         //results key is necessary for jquery select2
@@ -84,7 +105,7 @@ class Stats
             if(!$sql) $sql = "SELECT [##fields##] FROM {$wpdb->prefix}ahm_download_stats";
             //$data = $wpdb->get_results("select s.*, p.post_title as file from {$wpdb->prefix}ahm_download_stats s, {$wpdb->prefix}posts p where p.ID = s.pid order by id DESC");
             $total = $wpdb->get_var(str_replace("[##fields##]", "count(*) as total", $sql));
-            FileSystem::downloadHeaders("download-stats.csv");
+            WPDM()->fileSystem->downloadHeaders("download-stats.csv");
             ob_start();
             echo "Package ID,Package Name,User ID,User Name,User Email,Order ID,Date,Timestamp\r\n";
             ob_flush();

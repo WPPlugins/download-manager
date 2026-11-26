@@ -2,8 +2,11 @@
 
 namespace WPDM\Admin\Menu;
 
+use WPDM\__\__;
+use WPDM\__\CronJob;
 use WPDM\__\Installer;
 use WPDM\__\Session;
+use WPDM\__\Jobs\ActivityReportJob;
 
 define('WPDMSET_NONCE_KEY', 'xV)Op=Oa<y{Z>~jJ{Y#;(kRz<61x&[Rf$R76?[`6kyGvVa}*/.S#%1{[*>tJw2rp');
 
@@ -12,20 +15,25 @@ class Settings
 
     function __construct()
     {
-        //add_action('admin_init', array($this, 'checkSaveSettingsAuth'), 1);
+        add_action('admin_init', array($this, 'checkSaveSettingsAuth'), 1);
         add_action('admin_init', array($this, 'initiateSettings'));
         add_action('wp_ajax_wpdm_settings', array($this, 'loadSettingsPage'));
         add_action('admin_menu', array($this, 'Menu'), 999999);
+
+	    add_action('wp_ajax_wpdm_delete_cron', array($this, 'deleteCron'));
+	    add_action('wp_ajax_wpdm_test_recaptcha', array($this, 'testRecaptcha'));
+        add_action('wp_ajax_wpdm_send_test_activity_report', array($this, 'sendTestActivityReport'));
+        add_action('wp_ajax_wpdm_reschedule_activity_report', array($this, 'rescheduleActivityReport'));
     }
 
     function Menu(){
-        add_submenu_page('edit.php?post_type=wpdmpro', __( "Settings &lsaquo; Download Manager" , "download-manager" ), __( "Settings" , "download-manager" ), WPDM_ADMIN_CAP, 'settings', array($this, 'UI'));
+        add_submenu_page('edit.php?post_type=wpdmpro', __( "Settings &lsaquo; Download Manager" , "download-manager" ), __( "Settings" , "download-manager" ), WPDM_ADMIN_CAP, 'wpdm-settings', array($this, 'UI'));
     }
 
     function checkSaveSettingsAuth(){
         if(wpdm_query_var('task') === 'wdm_save_settings') {
             check_ajax_referer(WPDMSET_NONCE_KEY, '__wpdms_nonce');
-            if(!wp_verify_nonce($_POST['__wpdms_nonce'], WPDMSET_NONCE_KEY)) die(__('Security token is expired! Refresh the page and try again.', 'download-manager'));
+            if(!isset($_POST['__wpdms_nonce']) || !wp_verify_nonce($_POST['__wpdms_nonce'], WPDMSET_NONCE_KEY)) die(__('Security token is expired! Refresh the page and try again.', 'download-manager'));
             if(!current_user_can('manage_options')) die(__( "You are not allowed to change settings!", "download-manager" ));
         }
     }
@@ -69,17 +77,17 @@ class Settings
     {
         global $stabs;
         $tabs = array();
-        $tabs['basic'] = array('id' => 'basic','icon'=>'fa fa-cog', 'link' => 'edit.php?post_type=wpdmpro&page=settings', 'title' => 'Basic', 'callback' => array($this, 'basic'));
-        $tabs['wpdmui'] = array('id' => 'wpdmui','icon'=>'fas fa-fill-drip', 'link' => 'edit.php?post_type=wpdmpro&page=settings', 'title' => 'User Interface', 'callback' => array($this, 'userInterface'));
-        $tabs['frontend'] = array('id' => 'frontend','icon'=>'fa fa-desktop', 'link' => 'edit.php?post_type=wpdmpro&page=settings&tab=frontend', 'title' => 'Frontend Access', 'callback' => array($this, 'Frontend'));
+        $tabs['basic'] = array('id' => 'basic','icon'=>'fa fa-cog', 'link' => 'edit.php?post_type=wpdmpro&page=wpdm-settings', 'title' => 'Basic', 'callback' => array($this, 'basic'));
+        $tabs['wpdmui'] = array('id' => 'wpdmui','icon'=>'fas fa-fill-drip', 'link' => 'edit.php?post_type=wpdmpro&page=wpdm-settings', 'title' => 'User Interface', 'callback' => array($this, 'userInterface'));
+        $tabs['frontend'] = array('id' => 'frontend','icon'=>'fa fa-desktop', 'link' => 'edit.php?post_type=wpdmpro&page=wpdm-settings&tab=frontend', 'title' => 'Frontend Access', 'callback' => array($this, 'Frontend'));
 
         // Add buddypress settings menu when buddypress plugin is active
         if (function_exists('bp_is_active')) {
-            $tabs['buddypress'] = array('id' => 'buddypress','icon'=>'fa fa-users', 'link' => 'edit.php?post_type=wpdmpro&page=settings&tab=buddypress', 'title' => 'BuddyPress', 'callback' => array($this, 'Buddypress'));
+            $tabs['buddypress'] = array('id' => 'buddypress','icon'=>'fa fa-users', 'link' => 'edit.php?post_type=wpdmpro&page=wpdm-settings&tab=buddypress', 'title' => 'BuddyPress', 'callback' => array($this, 'Buddypress'));
         }
 
         if(defined('WPDM_CLOUD_STORAGE')){
-            $tabs['cloud-storage'] = array('id' => 'cloud-storage','icon'=>'fa fa-cloud',  'link' => 'edit.php?post_type=wpdmpro&page=settings&tab=cloud-storage', 'title' => 'Cloud Storage', 'callback' => array($this, 'cloudStorage'));
+            $tabs['cloud-storage'] = array('id' => 'cloud-storage','icon'=>'fa fa-cloud-arrow-up',  'link' => 'edit.php?post_type=wpdmpro&page=wpdm-settings&tab=cloud-storage', 'title' => 'Cloud Storage', 'callback' => array($this, 'cloudStorage'));
         }
 
         if(!$stabs) $stabs = array();
@@ -89,8 +97,9 @@ class Settings
 
         $stabs = apply_filters("add_wpdm_settings_tab", $stabs);
 
-        $stabs['plugin-update'] = array('id' => 'plugin-update','icon'=>'fa fa-sync',  'link' => 'edit.php?post_type=wpdmpro&page=settings&tab=plugin-update', 'title' => 'Updates', 'callback' => array($this, 'pluginUpdate'));
-        $stabs['privacy'] = array('id' => 'privacy','icon'=>'fas fa-user-shield',  'link' => 'edit.php?post_type=wpdmpro&page=settings&tab=privacy', 'title' => 'Privacy', 'callback' => array($this, 'privacy'));
+	    $stabs['activity-reports'] = array('id' => 'activity-reports','icon'=>'fa fa-chart-line', 'link' => 'edit.php?post_type=wpdmpro&page=settings&tab=activity-reports', 'title' => __('Activity Reports', 'download-manager'), 'callback' => array($this, 'activityReports'));
+	    $stabs['wpdm-crons'] = array('id' => 'wpdm-crons','icon'=>'fa fa-clock-rotate-left',  'link' => 'edit.php?post_type=wpdmpro&page=settings&tab=wpdm-crons', 'title' => __('Cron Jobs', 'download-manager'), 'callback' => array($this, 'cronJobs'));
+	    $stabs['privacy'] = array('id' => 'privacy','icon'=>'fas fa-user-shield',  'link' => 'edit.php?post_type=wpdmpro&page=wpdm-settings&tab=privacy', 'title' => 'Privacy', 'callback' => array($this, 'privacy'));
 
     }
 
@@ -103,15 +112,10 @@ class Settings
     {
         global $stabs;
 
-        foreach ($stabs as $tab) {
-            if ($sel == $tab['id'])
-                echo "<li class='active'><a id='{$tab['id']}' href='{$tab['link']}'><i class='{$tab['icon']}' style='margin-right: 6px'></i>{$tab['title']}</a></li>";
-            else
-                echo "<li class=''><a id='{$tab['id']}' href='{$tab['link']}'><i class='{$tab['icon']}' style='margin-right: 6px'></i>{$tab['title']}</a></li>";
-            //if (isset($tab['func']) && function_exists($tab['func'])) {
-            //    add_action('wp_ajax_' . $tab['func'], $tab['func']);
-            //}
-        }
+	    foreach ($stabs as $tab) {
+		    $isactive = ($sel == $tab['id']) ? 'class="active"' : '';
+		    echo "<li {$isactive}><a id='{$tab['id']}' data-icon='{$tab['icon']}' href='{$tab['link']}'><i class='{$tab['icon']}'></i>{$tab['title']}</a></li>";
+	    }
     }
 
     function basic(){
@@ -120,14 +124,18 @@ class Settings
 
             if(!current_user_can('manage_options')) die(__( "You are not allowed to change settings!", "download-manager" ));
 
-            if(!wp_verify_nonce($_POST['__wpdms_nonce'], WPDMSET_NONCE_KEY)) die(__('Security token is expired! Refresh the page and try again.', 'download-manager'));
+            if(!isset($_POST['__wpdms_nonce']) || !wp_verify_nonce($_POST['__wpdms_nonce'], WPDMSET_NONCE_KEY)) die(__('Security token is expired! Refresh the page and try again.', 'download-manager'));
 
-            if ($_POST['__wpdm_curl_base'] == '') $_POST['__wpdm_curl_base'] = 'wpdm-category';
-            if ($_POST['__wpdm_purl_base'] == '') $_POST['__wpdm_purl_base'] = 'wpdm-package';
-            if ($_POST['__wpdm_curl_base'] == $_POST['__wpdm_purl_base']) $_POST['__wpdm_curl_base'] .= 's';
             foreach ($_POST as $optn => $optv) {
                 if(strpos("__".$optn, '_wpdm_')) {
                     $optv = wpdm_sanitize_array($optv);
+					if($optn === '_wpdm_file_browser_root') {
+						$optv = realpath( get_home_path() . '/' . $optv );
+						$optv = str_replace("\\", "/", $optv);
+						if ( $optv ) {
+							$optv = trailingslashit( $optv );
+						}
+					}
                     update_option($optn, $optv, false);
                 }
             }
@@ -145,10 +153,11 @@ class Settings
             $wp_rewrite->flush_rules();
             die('Settings Saved Successfully');
         }
-
-        if(Installer::dbUpdateRequired()){
-            Installer::updateDB();
-        }
+	    $show_db_update_notice = 0;
+	    if(Installer::dbUpdateRequired()){
+		    $show_db_update_notice = 1;
+		    Installer::updateDB();
+	    }
 
         include wpdm_admin_tpl_path("settings/basic.php");
 
@@ -158,11 +167,12 @@ class Settings
 
         if (isset($_POST['task']) && $_POST['task'] == 'wdm_save_settings' && current_user_can(WPDM_ADMIN_CAP)) {
 
-            if(!wp_verify_nonce($_POST['__wpdms_nonce'], WPDMSET_NONCE_KEY)) die(__('Security token is expired! Refresh the page and try again.', 'download-manager'));
+            if(!isset($_POST['__wpdms_nonce']) || !wp_verify_nonce($_POST['__wpdms_nonce'], WPDMSET_NONCE_KEY)) die(__('Security token is expired! Refresh the page and try again.', 'download-manager'));
 
             foreach ($_POST as $optn => $optv) {
                 if(strpos("__".$optn, '_wpdm_')) {
-                    $optv = wpdm_sanitize_array($optv);
+                    //$optv = wpdm_sanitize_array($optv);
+	                $optv = wpdm_sanitize_array($optv, "/([^\#a-zA-Z0-9_\+\-\s:\.\;\@])/");
                     //echo $optn."=".$optv."<br/>";
                     update_option($optn, $optv, false);
                 }
@@ -177,7 +187,7 @@ class Settings
 
     function frontEnd(){
         if(isset($_POST['section']) && $_POST['section']=='frontend' && isset($_POST['task']) && $_POST['task']=='wdm_save_settings' && current_user_can(WPDM_ADMIN_CAP)){
-            if(!wp_verify_nonce($_POST['__wpdms_nonce'], WPDMSET_NONCE_KEY)) die(__('Security token is expired! Refresh the page and try again.', 'download-manager'));
+            if(!isset($_POST['__wpdms_nonce']) || !wp_verify_nonce($_POST['__wpdms_nonce'], WPDMSET_NONCE_KEY)) die(__('Security token is expired! Refresh the page and try again.', 'download-manager'));
 
             foreach($_POST as $k => $v){
                 if(strpos("__".$k, '_wpdm_')){
@@ -208,21 +218,15 @@ class Settings
 
             $refresh = 0;
 
-            $page_id = $_POST['__wpdm_user_dashboard'];
+            $page_id = wpdm_query_var('__wpdm_user_dashboard', 'int');
             if($page_id != '') {
                 $page_name = get_post_field("post_name", $page_id);
                 add_rewrite_rule('^' . $page_name . '/(.+)/?', 'index.php?page_id=' . $page_id . '&udb_page=$matches[1]', 'top');
                 $refresh = 1;
             }
 
-            $page_id = $_POST['__wpdm_author_dashboard'];
-            if($page_id != '') {
-                $page_name = get_post_field("post_name", $page_id);
-                add_rewrite_rule('^' . $page_name . '/(.+)/?', 'index.php?page_id=' . $page_id . '&adb_page=$matches[1]', 'top');
-                $refresh = 1;
-            }
 
-            $page_id = $_POST['__wpdm_author_profile'];
+	        $page_id = wpdm_query_var('__wpdm_author_profile', 'int');
             if((int)$page_id > 0) {
                 $page_name = get_post_field("post_name", $page_id);
                 add_rewrite_rule('^' . $page_name . '/(.+)/?$', 'index.php?pagename=' . $page_name . '&profile=$matches[1]', 'top');
@@ -242,7 +246,7 @@ class Settings
     function socialConnects(){
         if(isset($_POST['section']) && $_POST['section']=='social-connects' && isset($_POST['task']) && $_POST['task']=='wdm_save_settings' && current_user_can(WPDM_ADMIN_CAP)){
 
-            if(!wp_verify_nonce($_POST['__wpdms_nonce'], WPDMSET_NONCE_KEY)) die(__('Security token is expired! Refresh the page and try again.', 'download-manager'));
+            if(!isset($_POST['__wpdms_nonce']) || !wp_verify_nonce($_POST['__wpdms_nonce'], WPDMSET_NONCE_KEY)) die(__('Security token is expired! Refresh the page and try again.', 'download-manager'));
 
             foreach($_POST as $k => $v){
                 if(strpos("__".$k, '_wpdm_')){
@@ -257,7 +261,7 @@ class Settings
     function Buddypress(){
         if(isset($_POST['section']) && $_POST['section']=='buddypress' && isset($_POST['task']) && $_POST['task']=='wdm_save_settings' && current_user_can(WPDM_ADMIN_CAP)){
 
-            if(!wp_verify_nonce($_POST['__wpdms_nonce'], WPDMSET_NONCE_KEY)) die(__('Security token is expired! Refresh the page and try again.', 'download-manager'));
+            if(!isset($_POST['__wpdms_nonce']) || !wp_verify_nonce($_POST['__wpdms_nonce'], WPDMSET_NONCE_KEY)) die(__('Security token is expired! Refresh the page and try again.', 'download-manager'));
 
             foreach($_POST as $k => $v){
                 if(strpos("__".$k, '_wpdm_')){
@@ -272,7 +276,7 @@ class Settings
     function cloudStorage(){
         if(isset($_POST['section']) && $_POST['section']=='cloud-storage' && isset($_POST['task']) && $_POST['task']=='wdm_save_settings' && current_user_can(WPDM_ADMIN_CAP)){
 
-            if(!wp_verify_nonce($_POST['__wpdms_nonce'], WPDMSET_NONCE_KEY)) die(__('Security token is expired! Refresh the page and try again.', 'download-manager'));
+            if(!isset($_POST['__wpdms_nonce']) || !wp_verify_nonce($_POST['__wpdms_nonce'], WPDMSET_NONCE_KEY)) die(__('Security token is expired! Refresh the page and try again.', 'download-manager'));
 
             foreach($_POST as $k => $v){
                 if(strpos("__".$k, '_wpdm_')){
@@ -284,101 +288,152 @@ class Settings
         include wpdm_admin_tpl_path("settings/cloud-storage.php");
     }
 
-    function pluginUpdate(){
-        if(isset($_REQUEST['__lononce']) && wp_verify_nonce($_REQUEST['__lononce'], WPDMSET_NONCE_KEY)){
-            delete_option('__wpdm_suname');
-            delete_option('__wpdm_supass');
-            delete_option('__wpdm_purchased_items');
-            delete_option('__wpdm_freeaddons');
-            delete_option('__wpdm_core_update_check');
-            delete_option('__wpdm_access_token');
-            Session::clear('__wpdm_download_url');
-            die('<script>location.href="edit.php?post_type=wpdmpro&page=settings&tab=plugin-update";</script>Refreshing...');
-        }
 
-        if(isset($_POST['__wpdm_suname']) && $_POST['__wpdm_suname'] != ''){
-
-            if(!wp_verify_nonce($_POST['__wpdms_nonce'], WPDMSET_NONCE_KEY)) die(__('Security token is expired! Refresh the page and try again.', 'download-manager'));
-
-            update_option('__wpdm_suname',$_POST['__wpdm_suname'], false);
-            update_option('__wpdm_supass',$_POST['__wpdm_supass'], false);
-            delete_option('__wpdm_purchased_items');
-            delete_option('__wpdm_freeaddons');
-            delete_option('__wpdm_core_update_check');
-            delete_option('__wpdm_access_token');
-            Session::clear('__wpdm_download_url');
-            $access_token = wpdm_access_token();
-            if($access_token != '') {
-                $purchased_items = wpdm_remote_get('https://www.wpdownloadmanager.com/?wpdmppaction=getpurchaseditems&wpdm_access_token=' . $access_token);
-                $ret = json_decode($purchased_items);
-                update_option('__wpdm_purchased_items', $purchased_items, false);
-                die('<script>location.href=location.href;</script>Login successful. Refreshing...');
-            }  else{
-                die('Error: Invalid Login!');
-            }
-
-        }
-        if(isset($_POST['__wpdm_suname'], $_POST['__wpdm_supass']) && empty($_POST['__wpdm_suname'])){
-            die('Error: Must enter a valid username!');
-        }
-
-        if(get_option('__wpdm_suname') != '') {
-            $purchased_items = get_option('__wpdm_purchased_items', false);
-            if(!$purchased_items || wpdm_query_var('newpurchase') != '' ) {
-                $purchased_items = wpdm_remote_get('https://www.wpdownloadmanager.com/?wpdmppaction=getpurchaseditems&wpdm_access_token=' . wpdm_access_token());
-                update_option('__wpdm_purchased_items', $purchased_items, false);
-                delete_option('wpdm_latest');
-                delete_option('wpdm_latest_check');
-            }
-            $purchased_items = json_decode($purchased_items);
-            //wpdmdd($purchased_items);
-            if (isset($purchased_items->error)){ delete_option('__wpdm_suname');  delete_option('__wpdm_purchased_items'); }
-            if (isset($purchased_items->error)) $purchased_items->error = str_replace("[redirect]", admin_url("edit.php?post_type=wpdmpro&page=settings&tab=plugin-update"), $purchased_items->error);
-        }
-        if(get_option('__wpdm_freeaddons') == '' || wpdm_query_var('newpurchase') != '') {
-            $freeaddons = wpdm_remote_get('https://www.wpdownloadmanager.com/?wpdm_api_req=getPackageList&cat_id=1148');
-            update_option('__wpdm_freeaddons', $freeaddons, false);
-        }
-        $freeaddons = json_decode(get_option('__wpdm_freeaddons'));
-        include wpdm_admin_tpl_path("settings/addon-update.php");
-    }
-
-    function License()
-    {
-        if (isset($_POST['task']) && $_POST['task'] == 'wdm_save_settings') {
-
-            if (is_valid_license_key()) {
-                delete_option('__wpdm_core_update_check');
-                Session::clear('__wpdm_download_url');
-                update_option('_wpdm_license_key', esc_attr($_POST['_wpdm_license_key']), false);
-                die('Congratulation! Your <b>Download Manager</b> copy registered successfully!');
-            } else {
-                delete_option('_wpdm_license_key');
-                die('Invalid License Key!');
-            }
-        }
-        ?>
-        <div class="panel panel-default">
-
-            <div class="panel-heading"><b>License Key&nbsp;</b></div>
-            <div class="panel-body"><input type="text" placeholder="Enter License Key" class="form-control input-lg" value="<?php echo get_option('_wpdm_license_key'); ?>"
-                                           name="_wpdm_license_key"/></div>
-
-        </div>
-        <?php
-    }
 
     function Privacy(){
         if (wpdm_query_var('task') == 'wdm_save_settings' && wpdm_query_var('section') == 'privacy') {
+            if (!current_user_can(WPDM_ADMIN_CAP)) die(__( "You are not allowed to change settings!", "download-manager" ));
             update_option('__wpdm_noip', wpdm_query_var('__wpdm_noip', 'int', 0));
             update_option('__wpdm_delstats_on_udel', wpdm_query_var('__wpdm_delstats_on_udel', 'int', 0));
             update_option('__wpdm_checkout_privacy', wpdm_query_var('__wpdm_checkout_privacy', 'int', 0));
             update_option('__wpdm_checkout_privacy_label', wpdm_query_var('__wpdm_checkout_privacy_label', 'txt'));
-            _e("Privacy Settings Saved Successfully", "download-manager");
+	        update_option('__wpdm_tmp_storage', wpdm_query_var('__wpdm_tmp_storage', 'txt', 'db'));
+	        update_option('__wpdm_auto_clean_cache', wpdm_query_var('__wpdm_auto_clean_cache', 'int', 0));
+	        _e("Privacy Settings Saved Successfully", "download-manager");
             die();
         }
         include wpdm_admin_tpl_path("settings/privacy.php");
     }
 
+	function cronJobs() {
+		if (wpdm_query_var('task') == 'wdm_save_settings' && wpdm_query_var('section') == 'wpdm-crons') {
+			// An empty key makes cronKey() generate a new one
+			update_option('__wpdm_cron_key', wpdm_query_var('__wpdm_cron_key', 'alphanum', ''));
+			wp_send_json(['success' => true, 'msg' => __('Cron Settings Saved Successfully', 'download-manager'), 'reload' => true]);
+		}
+		include wpdm_admin_tpl_path("settings/cron-jobs.php");
+	}
+
+	function deleteCron() {
+		__::isAuthentic('wpdmdcx', WPDM_PRI_NONCE, WPDM_ADMIN_CAP);
+		CronJob::delete(wpdm_query_var('cronid', 'int'));
+		wp_send_json(['success' => true]);
+	}
+
+	function testRecaptcha() {
+		if (!current_user_can(WPDM_ADMIN_CAP)) {
+			wp_send_json_error(['message' => __('Permission denied.', 'download-manager')]);
+		}
+
+		if (!wp_verify_nonce(wpdm_query_var('_wpnonce'), 'wpdm_test_recaptcha')) {
+			wp_send_json_error(['message' => __('Security token expired. Please refresh the page.', 'download-manager')]);
+		}
+
+		$token = wpdm_query_var('token', 'txt');
+		if (empty($token)) {
+			wp_send_json_error(['message' => __('No reCAPTCHA token provided.', 'download-manager')]);
+		}
+
+		$result = wpdm_recaptcha_enterprise_verify($token, 'TEST');
+
+		if ($result['success']) {
+			wp_send_json_success([
+				'message' => __('reCAPTCHA verification successful!', 'download-manager'),
+				'score' => isset($result['score']) ? $result['score'] : 'N/A'
+			]);
+		} else {
+			wp_send_json_error([
+				'message' => isset($result['error']) ? $result['error'] : __('Verification failed.', 'download-manager'),
+				'error_code' => isset($result['error_code']) ? $result['error_code'] : '',
+				'error_details' => isset($result['error_details']) ? $result['error_details'] : ''
+			]);
+		}
+	}
+
+    /**
+     * Activity Reports settings tab
+     */
+    function activityReports()
+    {
+        if (isset($_POST['section']) && $_POST['section'] == 'activity-reports' && isset($_POST['task']) && $_POST['task'] == 'wdm_save_settings' && current_user_can(WPDM_ADMIN_CAP)) {
+
+            if (!wp_verify_nonce($_POST['__wpdms_nonce'], WPDMSET_NONCE_KEY)) {
+                die(__('Security token is expired! Refresh the page and try again.', 'download-manager'));
+            }
+
+            // Save enabled state
+            update_option('__wpdm_activity_report_enabled', wpdm_query_var('__wpdm_activity_report_enabled', 'int', 0));
+
+            // Save schedule settings
+            update_option('__wpdm_activity_report_frequency', wpdm_query_var('__wpdm_activity_report_frequency', 'txt', 'weekly'));
+            update_option('__wpdm_activity_report_day', wpdm_query_var('__wpdm_activity_report_day', 'int', 1));
+            update_option('__wpdm_activity_report_hour', wpdm_query_var('__wpdm_activity_report_hour', 'int', 9));
+
+            // Save recipients
+            update_option('__wpdm_activity_report_admin', wpdm_query_var('__wpdm_activity_report_admin', 'int', 1));
+            $emails = wpdm_query_var('__wpdm_activity_report_emails', 'txt', '');
+            update_option('__wpdm_activity_report_emails', sanitize_text_field($emails));
+
+            // Save sections
+            $sections = isset($_POST['__wpdm_activity_report_sections']) ? array_map('sanitize_text_field', $_POST['__wpdm_activity_report_sections']) : [];
+            update_option('__wpdm_activity_report_sections', $sections);
+
+            // Reschedule the job
+            ActivityReportJob::schedule();
+
+            die(__('Activity Report Settings Saved Successfully', 'download-manager'));
+        }
+
+        include wpdm_admin_tpl_path("settings/activity-reports.php");
+    }
+
+    /**
+     * AJAX handler: Send test activity report
+     */
+    function sendTestActivityReport()
+    {
+        if (!current_user_can(WPDM_ADMIN_CAP)) {
+            wp_send_json_error(['message' => __('Permission denied.', 'download-manager')]);
+        }
+
+        if (!wp_verify_nonce(wpdm_query_var('nonce'), 'wpdm_activity_report_test')) {
+            wp_send_json_error(['message' => __('Security token expired. Please refresh the page.', 'download-manager')]);
+        }
+
+        $email = sanitize_email(wpdm_query_var('email', 'txt'));
+        if (!is_email($email)) {
+            wp_send_json_error(['message' => __('Invalid email address.', 'download-manager')]);
+        }
+
+        $result = ActivityReportJob::sendTestReport($email);
+
+        if ($result) {
+            wp_send_json_success(['message' => sprintf(__('Test report sent to %s', 'download-manager'), $email)]);
+        } else {
+            wp_send_json_error(['message' => __('Failed to send test report. Please check your email settings.', 'download-manager')]);
+        }
+    }
+
+    /**
+     * AJAX handler: Reschedule activity report job
+     */
+    function rescheduleActivityReport()
+    {
+        if (!current_user_can(WPDM_ADMIN_CAP)) {
+            wp_send_json_error(['message' => __('Permission denied.', 'download-manager')]);
+        }
+
+        if (!wp_verify_nonce(wpdm_query_var('nonce'), 'wpdm_reschedule_activity_report')) {
+            wp_send_json_error(['message' => __('Security token expired.', 'download-manager')]);
+        }
+
+        $jobId = ActivityReportJob::schedule();
+
+        if ($jobId) {
+            wp_send_json_success(['message' => __('Activity report job rescheduled.', 'download-manager'), 'job_id' => $jobId]);
+        } else {
+            wp_send_json_success(['message' => __('Activity reports are disabled or no job needed.', 'download-manager')]);
+        }
+    }
 
 }

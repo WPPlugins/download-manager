@@ -47,14 +47,15 @@ do_action("wpdm_privacy_settings_panel");
             <button type="button" id="clearStats" style="width: 200px" class="btn btn-danger"><?php _e( "Delete All Stats Data" , "download-manager" ); ?></button>
     </div>
     <div class="panel-footer bg-white">
-        <label><input type="checkbox" name="__wpdm_auto_clean_cache" <?php checked(1, get_option('__wpdm_auto_clean_cache', 0)); ?> value="1" /> <?php echo __( "Auto clean cache dir & temporary storage everyday", "download-manager" ) ?></label>
+        <label><input type="checkbox" name="__wpdm_auto_clean_cache" <?php checked(1, get_option('__wpdm_auto_clean_cache', 0)); ?> value="1" /> <?php echo __( "Auto clean cache dir & temporary storage everyday", "download-manager" ) ?></label><br/>
+        <em class="note"><?php printf(__('Runs every 6 hours with WP cron. If WP cron is disabled on your site, set up the cron URL from %s.', 'download-manager'), '<a href="' . esc_url(admin_url('edit.php?post_type=wpdmpro&page=settings&tab=wpdm-crons')) . '">' . __('Cron Jobs settings', 'download-manager') . '</a>'); ?></em>
     </div>
 </div>
 <script>
     jQuery(function($) {
         $('#clearCache').on('click', function () {
             $(this).html('<i class="fa fa-sync fa-spin"></i>');
-            $.get(ajaxurl + '?action=clear_cache', function (res) {
+            $.post(ajaxurl, {action : 'clear_cache', ccnonce: '<?php echo wp_create_nonce(WPDM_PRI_NONCE) ?>'}, function (res) {
                 $('#clearCache').html('<i class="fa fa-check-circle"></i>')
             });
             return false;
@@ -62,7 +63,7 @@ do_action("wpdm_privacy_settings_panel");
         $('#clearStats').on('click', function () {
             if (!confirm('Are you sure?')) return false;
             $(this).html('<i class="fa fa-sync fa-spin"></i>');
-            $.get(ajaxurl + '?action=clear_stats', function (res) {
+            $.post(ajaxurl, {action : 'clear_stats', csnonce: '<?php echo wp_create_nonce(WPDM_PRI_NONCE) ?>'}, function (res) {
                 $('#clearStats').html('<i class="fa fa-check-circle"></i>')
             });
             return false;

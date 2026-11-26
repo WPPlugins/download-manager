@@ -1,5 +1,7 @@
 <?php
 if(!defined('ABSPATH')) die('Error!');
+global $wp_scripts;
+
 ?>
     <!DOCTYPE html>
     <html style="background: transparent">
@@ -8,20 +10,24 @@ if(!defined('ABSPATH')) die('Error!');
         <meta name="viewport" content="width=device-width,initial-scale=1.0">
         <title><?php _e('Asset Manager Picker', 'download-manager') ?></title>
 
-            <link rel="stylesheet" href="<?php echo WPDM_BASE_URL; ?>assets/bootstrap3/css/bootstrap.css" />
-            <link rel="stylesheet" href="<?php echo WPDM_BASE_URL; ?>assets/css/admin-styles.css" />
-            <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.9.0/css/all.css" />
+            <link rel="stylesheet" href="<?php echo WPDM_BASE_URL; ?>assets/adminui/css/base.min.css" />
+            <link rel="stylesheet" href="<?php echo WPDM_BASE_URL; ?>assets/css/admin-styles.min.css" />
+            <link rel="stylesheet" href="<?php echo WPDM_BASE_URL; ?>assets/css/simple-scrollbar.min.css" />
+            <link rel="stylesheet" href="<?php echo WPDM_BASE_URL; ?>assets/fontawesome/css/all.css" />
             <script src="<?php echo includes_url(); ?>/js/jquery/jquery.js"></script>
             <script src="<?php echo includes_url(); ?>/js/jquery/jquery.form.min.js"></script>
-            <script src="<?php echo WPDM_BASE_URL; ?>assets/bootstrap3/js/bootstrap.min.js"></script>
+            <script src="<?php echo WPDM_BASE_URL; ?>assets/js/wpdm.min.js"></script>
             <script src="<?php echo WPDM_BASE_URL; ?>assets/js/front.js"></script>
-
+            <script src="<?php echo WPDM_BASE_URL; ?>assets/js/vue.min.js"></script>
 
         <?php
+        //wp_head();
         \WPDM\__\Apply::googleFont();
         ?>
         <style>
-            @import url("https://fonts.googleapis.com/css?family=Overpass+Mono&subset=latin");
+            <?php if (\WPDM\__\Apply::googleFontsEnabled()) { ?>
+            @import url("https://fonts.googleapis.com/css2?family=Overpass+Mono&subset=latin");
+            <?php } ?>
             html, body{
                 overflow: visible;
                 height: 100%;
@@ -48,18 +54,43 @@ if(!defined('ABSPATH')) die('Error!');
             img{
                 max-width: 100%;
             }
+
+            .c-pointer{
+                color: #1272d2;
+                transition: all ease-in-out 300ms;
+            }
+            .c-pointer:hover{
+                color: #2c92fa;
+            }
+            .d-inline-block{
+                display: inline-block !important;
+            }
+
             .modal-backdrop{
+                background: rgba(0,0,0,0);
+                transition: background 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            .modal-backdrop.show{
                 background: rgba(0,0,0,0.5);
             }
 
-
             .modal.fade{
-                opacity:1;
+                opacity: 0;
+                visibility: hidden;
+                transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            .modal.fade.show{
+                opacity: 1;
+                visibility: visible;
             }
             .modal.fade .modal-dialog {
-                -webkit-transform: translate(0);
-                -moz-transform: translate(0);
-                transform: translate(0);
+                transform: scale(0.95) translateY(-20px);
+                opacity: 0;
+                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            .modal.fade.show .modal-dialog {
+                transform: scale(1) translateY(0);
+                opacity: 1;
             }
 
             .modal {
@@ -484,7 +515,7 @@ if(!defined('ABSPATH')) die('Error!');
                 top: 0;
                 border: 0;
                 width: 100%;
-                height: 100%;
+                height: calc(100vh - 148px);
                 z-index: 9;
                 box-shadow: none;
                 border-radius: 0;
@@ -650,6 +681,8 @@ if(!defined('ABSPATH')) die('Error!');
 
             }
 
+            /* Modal animation handled by .modal.fade.show .modal-dialog */
+
         </style>
 
 
@@ -689,7 +722,7 @@ if(!defined('ABSPATH')) die('Error!');
                                             <button class="btn btn-danger btn-simple btn-sm" data-target="#wpdm-asset-picker" data-dismiss="modal" aria-label="Close"><i class="fa fa-times"></i></button>
                                         </div>
                                         <h3 style="display: inline-block;font-size: 12pt;letter-spacing: 0.5px;font-weight: 400;font-family: var(--wpdm-font)">
-                                            <i class="fas fa-photo-video text-primary"></i> <?php echo __( "Server File Picker", "download-manager" ) ?> <sup style="color: var(--color-info) !important;font-size: 10px;font-family: 'Overpass Mono', sans-serif !important;">BETA</sup>
+                                            <i class="fas fa-photo-video text-primary"></i> <?php echo __( "Server File Picker", "download-manager" ) ?>
                                         </h3>
                                         <?php /* if(!current_user_can('manage_options')){ ?>
                 <div class="media-body">
@@ -704,6 +737,17 @@ if(!defined('ABSPATH')) die('Error!');
                                 </div>
                                 <div class="panel-heading" style="border-radius: 0;border-top: 1px solid #dddddd">
                                     <div id="ldn" style="float:right;font-size: 9pt;margin-top: 10px;display: none" class="text-danger"><i class="fa fa-sun fa-spin"></i> Loading...</div>
+                                    <div v-if="total_pages > 1" id="__asset_pages" style="margin: 0;float: right;font-weight: 400;font-family: 'Overpass Mono', sans-serif !important;white-space: nowrap">
+                                        <div style="float:left;">
+                                            <div class="c-pointer d-inline-block" v-on:click="prevPage()"><i v-if="current_page > 1" class="fa fa-arrow-alt-circle-left"></i></div> <span class="text-muted">On Page</span> <strong>{{current_page}}</strong> <span class="text-muted">of total</span> <strong>{{total_pages}}</strong> <div class="c-pointer d-inline-block" v-if="current_page < total_pages" v-on:click="nextPage()"><i class="fa fa-arrow-alt-circle-right"></i></div>
+                                        </div>
+                                        <div style="display: inline-block;margin-left: 10px">
+                                            <div class="input-group input-group-xs" style="width: 90px;">
+                                                <input type="number" @input="event => goto_page = event.target.value" :value="current_page" :max="total_pages" min="1" placeholder="Page" class="form-control" style="min-height: 16px; line-height: 20px; height: 20px; padding: 0px; font-size: 10px;text-align: center;font-family: 'Overpass Mono', monospace;">
+                                                <div class="input-group-btn"><button type="button" v-on:click="gotoPage()" class="btn btn-secondary btn-xs">GO</button></div>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <div id="breadcrumb" style="margin: 0"></div>
                                 </div>
                                 <div class="panel-body-c" id="wpdmfm_explorer">
@@ -795,11 +839,96 @@ if(!defined('ABSPATH')) die('Error!');
 
                         </div>
 
-                        <script src="<?php echo WPDM_BASE_URL ?>assets/js/vue.min.js"></script>
                         <script src="<?php echo WPDM_BASE_URL ?>assets/js/simple-scrollbar.min.js"></script>
                         <script>
-                            var current_path = '', editor = '', opened = '', wpdmfm_selected_files = [], wpdmfm_active_asset_settings;
+                            var current_path = '', editor = '', opened = '', wpdmfm_selected_files = [], wpdmfm_active_asset_settings, $ = jQuery;
                             var ajaxurl = "<?php echo admin_url('/admin-ajax.php'); ?>";
+
+                            /* === assetPages === */
+                            var assetPages = Vue.createApp({
+                                data() {
+                                    return {
+                                        total_pages: 1,
+                                        current_page: 1,
+                                        items_per_page: 15,
+                                        goto_page: 1
+                                    };
+                                },
+                                methods: {
+                                    nextPage() {
+                                        let topage = this.current_page + 1;
+                                        topage = topage > this.total_pages ? 1 : topage;
+                                        WPDMAM.scanDir(current_path, topage);
+                                    },
+                                    prevPage() {
+                                        let topage = this.current_page - 1;
+                                        topage = topage < 1 ? 1 : topage;
+                                        WPDMAM.scanDir(current_path, topage);
+                                    },
+                                    gotoPage() {
+                                        WPDMAM.scanDir(current_path, this.goto_page);
+                                    }
+                                }
+                            }).mount('#__asset_pages');
+
+                            /* === fileList === */
+                            var fileList = Vue.createApp({
+                                data() {
+                                    return {
+                                        files: []
+                                    };
+                                }
+                            }).mount('#__file_list');
+
+                            /* === linkSettings === */
+                            var linkSettings = Vue.createApp({
+                                data() {
+                                    return {
+                                        link: {
+                                            access: {
+                                                roles: ['guest'],
+                                                users: ['admin']
+                                            }
+                                        }
+                                    };
+                                },
+                                methods: {
+                                    roleSelected(role) {
+                                        for (var i = 0; i < this.link.access.roles.length; i++) {
+                                            if (this.link.access.roles[i] === role) {
+                                                return true;
+                                            }
+                                        }
+                                        return false;
+                                    }
+                                }
+                            }).mount('#__link_settings');
+
+                            /*var assetPages = new Vue({
+                                el: '#__asset_pages',
+                                data: {
+                                    total_pages: 1,
+                                    current_page: 1,
+                                    items_per_page: 15,
+                                    goto_page: 1
+                                },
+                                methods: {
+                                    nextPage: function () {
+                                        let topage = this.current_page + 1;
+                                        topage = topage > this.total_pages ? 1 : topage;
+                                        WPDMAM.scanDir(current_path, topage)
+                                    },
+                                    prevPage: function () {
+                                        let topage = this.current_page - 1;
+                                        topage = topage < 1 ? 1 : topage;
+                                        WPDMAM.scanDir(current_path, topage)
+                                    },
+                                    gotoPage: function() {
+                                        WPDMAM.scanDir(current_path, this.goto_page);
+                                    }
+
+                                }
+                            });
 
                             var fileList = new Vue({
                                 el: '#__file_list',
@@ -828,7 +957,7 @@ if(!defined('ABSPATH')) die('Error!');
                                         return false
                                     }
                                 }
-                            });
+                            });*/
 
                             /* View in fullscreen */
                             function openFullscreen(elementid) {
@@ -841,6 +970,132 @@ if(!defined('ABSPATH')) die('Error!');
                                     elem.webkitRequestFullscreen();
                                 } else if (elem.msRequestFullscreen) { /* IE/Edge */
                                     elem.msRequestFullscreen();
+                                }
+                            }
+
+                            var WPDMAM = {
+                                copy: function (item) {
+                                    localStorage.setItem("__wpdm_fm_copy", current_path+"|||"+item);
+                                    localStorage.setItem("__wpdm_fm_move", 0);
+                                    $('.btn-copy').html('<i class="fa fa-copy"></i>');
+                                    $('.btn-cut').html('<i class="fa fa-cut"></i>');
+                                    $('#btn-paste').removeAttr('disabled').attr("data-item", localStorage.getItem("__wpdm_fm_copy"));
+                                },
+                                cut: function (item) {
+                                    localStorage.setItem("__wpdm_fm_copy", current_path+"|||"+item);
+                                    localStorage.setItem("__wpdm_fm_move", 1);
+                                    $('.btn-copy').html('<i class="fa fa-copy"></i>');
+                                    $('.btn-cut').html('<i class="fa fa-cut"></i>');
+                                    $('#btn-paste').removeAttr('disabled').attr("data-item", localStorage.getItem("__wpdm_fm_copy"));
+                                },
+                                delete: function (filepath) {
+                                    if(!confirm('Are you sure?')) return false;
+                                    $.get(ajaxurl, {__wpdm_unlink:'<?php echo wp_create_nonce(WPDMAM_NONCE_KEY); ?>', action: 'wpdm_unlink', path: current_path, delete: filepath}, function (data) {
+                                        WPDMAM.scanDir(current_path);
+                                    });
+                                },
+                                scanDir: function(path, page) {
+                                    $('#reload').attr('disabled', 'disabled').find('.fa').addClass('fa-spin');
+                                    WPDM.blockUI('#filewin');
+                                    if(typeof page === 'undefined') page = 1;
+                                    localStorage.setItem('__wpdm_am_cp', path);
+                                    $.get(ajaxurl, {__wpdm_scandir:'<?php echo wp_create_nonce(NONCE_KEY); ?>', action: 'wpdm_scandir', path: path, sdpage: page}, function (data) {
+                                        if(data.success === true) {
+                                            assetPages.total_pages = data.total_pages;
+                                            assetPages.current_page = data.current_page;
+                                            $('#scandir').html('');
+                                            var items = data.items;
+                                            $.each(items, function (index, entry) {
+                                                if (entry.type == 'file') {
+                                                    ext = entry.contenttype.replace("/", "_");
+                                                    var tpl = $('#fileTPL').html();
+                                                    tpl = tpl.replace("{{icon}}", entry.icon);
+                                                    tpl = tpl.replace("{{ext}}", ext);
+                                                    tpl = tpl.replace("{{contenttype}}", entry.contenttype);
+                                                    tpl = tpl.replace(/\{\{item_label\}\}/ig, entry.item_label);
+                                                    tpl = tpl.replace("{{note}}", entry.note);
+                                                    tpl = tpl.replace("{{file_size}}", entry.file_size);
+                                                    tpl = tpl.replace(/\{\{path\}\}/ig, entry.path);
+                                                    tpl = tpl.replace(/\{\{path_on\}\}/ig, entry.wp_rel_path);
+                                                    tpl = tpl.replace(/\{\{item\}\}/ig, entry.item);
+                                                    tpl = tpl.replace(/\{\{id\}\}/ig, index);
+                                                    var _star = entry.featured ? 'fas' : 'far';
+                                                    tpl = tpl.replace(/\{\{star\}\}/ig, _star);
+                                                } else {
+                                                    var tpl = $('#dirTPL').html();
+                                                    tpl = tpl.replace("{{icon}}", entry.icon);
+                                                    tpl = tpl.replace(/\{\{item_label\}\}/ig, entry.item_label);
+                                                    tpl = tpl.replace("{{note}}", entry.note);
+                                                    tpl = tpl.replace("{{file_size}}", entry.file_size);
+                                                    tpl = tpl.replace(/\{\{path\}\}/ig, entry.path);
+                                                    tpl = tpl.replace(/\{\{item\}\}/ig, entry.item);
+                                                    tpl = tpl.replace(/\{\{id\}\}/ig, index);
+                                                    tpl = tpl.replace(/\{\{dirid\}\}/ig, entry.id);
+                                                }
+                                                $('#scandir').append(tpl);
+                                            });
+                                            WPDM.unblockUI('#filewin');
+                                            $('#reload').removeAttr('disabled', 'disabled').html("<i class='fa fa-sync'></i>");
+                                            $('#breadcrumb').html(data.breadcrumb);
+                                        } else {
+                                            WPDM.pushNotify("<?=esc_attr__( 'Error', 'download-manager' ); ?>!", data.message, 'https://cdn0.iconfinder.com/data/icons/small-n-flat/24/678080-shield-error-256.png', 'https://cdn0.iconfinder.com/data/icons/small-n-flat/24/678080-shield-error-256.png');
+                                        }
+                                    });
+                                },
+                                searchDir: function(path, keyword) {
+                                    $('#reload').attr('disabled', 'disabled').find('.fa').addClass('fa-spin');
+                                    WPDM.blockUI('#filewin');
+                                    if(typeof page === 'undefined') page = 1;
+                                    localStorage.setItem('__wpdm_am_cp', path);
+                                    $.get(ajaxurl, {__wpdm_scandir:'<?php echo wp_create_nonce(NONCE_KEY); ?>', action: 'wpdm_scandir', path: path, keyword: keyword}, function (data) {
+                                        if(data.success === true) {
+                                            assetPages.total_pages = data.total_pages;
+                                            assetPages.current_page = data.current_page;
+                                            $('#scandir').html('');
+                                            var items = data.items;
+                                            $.each(items, function (index, entry) {
+                                                if (entry.type == 'file') {
+                                                    ext = entry.contenttype.replace("/", "_");
+                                                    var tpl = $('#fileTPL').html();
+                                                    tpl = tpl.replace("{{icon}}", entry.icon);
+                                                    tpl = tpl.replace("{{ext}}", ext);
+                                                    tpl = tpl.replace("{{contenttype}}", entry.contenttype);
+                                                    tpl = tpl.replace(/\{\{item_label\}\}/ig, entry.item_label);
+                                                    tpl = tpl.replace("{{note}}", entry.note);
+                                                    tpl = tpl.replace("{{file_size}}", entry.file_size);
+                                                    tpl = tpl.replace(/\{\{path\}\}/ig, entry.path);
+                                                    tpl = tpl.replace(/\{\{path_on\}\}/ig, entry.wp_rel_path);
+                                                    tpl = tpl.replace(/\{\{item\}\}/ig, entry.item);
+                                                    tpl = tpl.replace(/\{\{id\}\}/ig, index);
+                                                    var _star = entry.featured ? 'fas' : 'far';
+                                                    tpl = tpl.replace(/\{\{star\}\}/ig, _star);
+                                                } else {
+                                                    var tpl = $('#dirTPL').html();
+                                                    tpl = tpl.replace("{{icon}}", entry.icon);
+                                                    tpl = tpl.replace(/\{\{item_label\}\}/ig, entry.item_label);
+                                                    tpl = tpl.replace("{{note}}", entry.note);
+                                                    tpl = tpl.replace("{{file_size}}", entry.file_size);
+                                                    tpl = tpl.replace(/\{\{path\}\}/ig, entry.path);
+                                                    tpl = tpl.replace(/\{\{item\}\}/ig, entry.item);
+                                                    tpl = tpl.replace(/\{\{id\}\}/ig, index);
+                                                    tpl = tpl.replace(/\{\{dirid\}\}/ig, entry.id);
+                                                }
+                                                $('#scandir').append(tpl);
+                                            });
+                                            WPDM.unblockUI('#filewin');
+                                            $('#reload').removeAttr('disabled', 'disabled').html("<i class='fa fa-sync'></i>");
+                                            $('#breadcrumb').html(data.breadcrumb);
+                                        } else {
+                                            WPDM.pushNotify("<?=esc_attr__( 'Error', 'download-manager' ); ?>!", data.message, 'https://cdn0.iconfinder.com/data/icons/small-n-flat/24/678080-shield-error-256.png', 'https://cdn0.iconfinder.com/data/icons/small-n-flat/24/678080-shield-error-256.png');
+                                        }
+                                    });
+                                },
+                                hideEditor: function() {
+                                    $('#wpdmeditor').fadeOut();
+                                    if(editor == '') return;
+                                    editor.codemirror.toTextArea();
+                                    $('#filecontent').val('');
+                                    $('#wpdmeditor').addClass('blockui');
                                 }
                             }
 
@@ -858,6 +1113,8 @@ if(!defined('ABSPATH')) die('Error!');
                                     WPDM.blockUI('#filewin');
                                     $.get(ajaxurl, {__wpdm_scandir:'<?php echo wp_create_nonce(NONCE_KEY); ?>', action: 'wpdm_scandir', path: path}, function (data) {
                                         if(data.success === true) {
+                                            assetPages.total_pages = data.total_pages;
+                                            assetPages.current_page = data.current_page;
                                             $('#scandir').html('');
                                             var items = data.items;
                                             $.each(items, function (index, entry) {
@@ -1059,7 +1316,7 @@ if(!defined('ABSPATH')) die('Error!');
             });
 
             $(window).on('resize', function () {
-                $('#wpdm-asset-picker .modal-content').css('height', (window.innerHeight - 200) + 'px');
+                $('#wpdm-asset-picker .modal-content').css('height', (window.innerHeight - 210) + 'px');
                 jQuery('#wpdm-asset-picker [data-simplebar]').css('height', (window.innerHeight - 345) + 'px');
             });
 
@@ -1068,7 +1325,7 @@ if(!defined('ABSPATH')) die('Error!');
 
         function showModal() {
             jQuery('#wpdm-asset-picker').modal('show');
-            jQuery('#wpdm-asset-picker .modal-content').css('height', (window.innerHeight - 200) + 'px');
+            jQuery('#wpdm-asset-picker .modal-content').css('height', (window.innerHeight - 210) + 'px');
             jQuery('#wpdm-asset-picker [data-simplebar]').css('height', (window.innerHeight - 345) + 'px');
 
         }

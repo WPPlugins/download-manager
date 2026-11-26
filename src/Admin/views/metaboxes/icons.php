@@ -109,7 +109,66 @@
 
     </script>
     <?php } */ ?>
-    <div class="w3eden"><input style="background: url(<?php echo esc_url(get_post_meta($post->ID,'__wpdm_icon', true)); ?>) no-repeat;background-size: 24px;padding-left: 40px;background-position:8px center;" id="wpdmiconurl" placeholder="<?php _e( "Icon URL" , "download-manager" ); ?>" value="<?php echo esc_url(get_post_meta($post->ID,'__wpdm_icon', true)); ?>" type="text"  name="file[icon]"  class="form-control input-lg" ></div>
+    <div class="w3eden">
+        <div class="input-group input-group-lg">
+            <input style="background: url(<?php echo esc_url(get_post_meta($post->ID,'__wpdm_icon', true)); ?>) no-repeat;background-size: 24px;padding-left: 40px;background-position:8px center;" id="wpdmiconurl" placeholder="<?php _e( "Icon URL" , "download-manager" ); ?>" value="<?php echo esc_url(get_post_meta($post->ID,'__wpdm_icon', true)); ?>" type="text"  name="file[icon]"  class="form-control input-lg" >
+            <div class="input-group-btn">
+                <button type="button" class="btn btn-secondary wpdm-iconfinder">IconFinder</button>
+            </div>
+        </div>
+
+        <script type="text/template" id="searchiconsmodal-tpl">
+            <div class="modal-body">
+                <div class="input-group input-group-lg">
+                    <input type="text" name="kw" id="sikw" class="form-control" placeholder="Type Something..."/>
+                    <div class="input-group-btn">
+                        <button type="button" id="srci" class="btn btn-secondary">Search</button>
+                    </div>
+                </div>
+
+                <div id="srcdicons" style="margin-top: 20px">
+                    <div style="padding: 50px;text-align: center;color: #b7bdc9">&mdash; <?= __('Type Something & Search', 'download-manager'); ?> &mdash;</div>
+                </div>
+            </div>
+            <div class="text-muted" style="margin-top: 12px;font-size: 12px">
+                <?= sprintf(__('Powered by %s', 'download-manager'), '<a target="_blank" href="https://www.iconfinder.com?ref=shaon">IconFinnder.com</a>'); ?>
+            </div>
+        </script>
+
+        <script>
+            jQuery(function ($) {
+                $('body').on('click', '.wpdm-iconfinder', function (e) {
+                    e.preventDefault();
+                    WPDM.dialog.show({
+                        title: '<?php echo esc_js(__('Search Icon', 'download-manager')); ?>',
+                        content: document.getElementById('searchiconsmodal-tpl').innerHTML,
+                        size: 'lg', icon: false
+                    });
+                });
+
+                function wpdmIconFinderSearch() {
+                    WPDM.blockUI('#srcdicons');
+                    $.get(ajaxurl + '?action=wpdm_iconFinder&kw=' + $('#sikw').val(), function (res) {
+                        $('#srcdicons').html(res);
+                        WPDM.unblockUI('#srcdicons');
+                    });
+                }
+
+                $('body').on('keypress', '#sikw', function (e) {
+                    if (e.keyCode === 13) { e.preventDefault(); wpdmIconFinderSearch(); return false; }
+                });
+                $('body').on('click', '#srci', function (e) {
+                    e.preventDefault(); wpdmIconFinderSearch(); return false;
+                });
+                $('body').on('click', '.iconres', function () {
+                    $('#wpdmiconurl').val($(this).data('icon'));
+                    $('#wpdmiconurl').css('background-image', `url('${$(this).data('icon')}')`);
+                    $(this).closest('.wpdm-dialog-wrapper').find('.wpdm-dialog__close').trigger('click');
+                });
+            });
+        </script>
+
+    </div>
     <br clear="all" />
     <?php
     $path = WPDM_BASE_DIR."assets/file-type-icons/";

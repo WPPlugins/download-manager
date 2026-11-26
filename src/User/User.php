@@ -42,7 +42,7 @@ class User
             $this->profile->avatar = get_avatar($this->ID, 512);
             $this->description = get_user_meta($this->ID, 'description', true);
             $this->signup_date = wp_date(get_option('date_format'), strtotime($this->profile->user_registered));
-            $this->title = get_user_meta($this->ID, '__wppmsg_title', true);
+            $this->title = get_user_meta($this->ID, '__wpdm_title', true);
             $this->name = $this->profile->display_name;
             $this->avatar = get_avatar($this->ID, 512, '', $this->name, ['class' => 'profile-avatar']);
         }
@@ -58,7 +58,7 @@ class User
     {
         if(!is_user_logged_in()) return [];
         $follower = $userID ? $userID : $this->ID;
-        $followings = get_user_meta($follower, '__wppmsg_following', true);
+        $followings = get_user_meta($follower, '__wpdm_following', true);
         $followings = maybe_unserialize($followings);
         if(!is_array($followings)) $followings = [];
         $this->following = $followings;
@@ -69,7 +69,7 @@ class User
     {
         if(!is_user_logged_in()) return [];
         $user = $userID ? $userID : $this->ID;
-        $contacts = get_user_meta($user, '__wppmsg_contacts', true);
+        $contacts = get_user_meta($user, '__wpdm_contacts', true);
         $contacts = maybe_unserialize($contacts);
         if(!is_array($contacts)) $contacts = [];
         $this->contacts = $contacts;
@@ -80,7 +80,7 @@ class User
     {
         if(!is_user_logged_in()) return [];
         $user = $userID ? $userID : $this->ID;
-        $blockedContacts = get_user_meta($user, '__wppmsg_blocked_contacts', true);
+        $blockedContacts = get_user_meta($user, '__wpdm_blocked_contacts', true);
         $blockedContacts = maybe_unserialize($blockedContacts);
         if(!is_array($blockedContacts)) $blockedContacts = [];
         $this->blocked = $blockedContacts;
@@ -92,7 +92,7 @@ class User
         if(!is_user_logged_in()) return false;
         $this->getFollowings($this->ID);
         $this->following[$userID] = time();
-        update_user_meta($this->ID, '__wppmsg_following', $this->following);
+        update_user_meta($this->ID, '__wpdm_following', $this->following);
         return true;
     }
 
@@ -108,7 +108,7 @@ class User
         if(!is_user_logged_in()) return false;
         $this->getFollowings($this->ID);
         if(isset($this->following[$userID])) unset($this->following[$userID]);
-        update_user_meta($this->ID, '__wppmsg_following', $this->following);
+        update_user_meta($this->ID, '__wpdm_following', $this->following);
     }
 
     function addToContact($userID)
@@ -116,7 +116,7 @@ class User
         if(!is_user_logged_in()) return false;
         $this->getContacts($this->ID);
         $this->contacts[$userID] = time();
-        update_user_meta($this->ID, '__wppmsg_contacts', $this->contacts);
+        update_user_meta($this->ID, '__wpdm_contacts', $this->contacts);
         return true;
     }
 
@@ -132,7 +132,7 @@ class User
         if(!is_user_logged_in()) return false;
         $this->getContacts($this->ID);
         if(isset($this->contacts[$userID])) unset($this->contacts[$userID]);
-        update_user_meta($this->ID, '__wppmsg_contacts', $this->contacts);
+        update_user_meta($this->ID, '__wpdm_contacts', $this->contacts);
     }
 
 
@@ -141,7 +141,7 @@ class User
         if(!is_user_logged_in()) return false;
         $this->getBlockedContacts($this->ID);
         $this->blocked[$userID] = time();
-        update_user_meta($this->ID, '__wppmsg_blocked_contacts', $this->blocked);
+        update_user_meta($this->ID, '__wpdm_blocked_contacts', $this->blocked);
         return true;
     }
 
@@ -157,7 +157,7 @@ class User
         if(!is_user_logged_in()) return false;
         $this->getBlockedContacts($this->ID);
         if(isset($this->blocked[$userID])) unset($this->blocked[$userID]);
-        update_user_meta($this->ID, '__wppmsg_blocked_contacts', $this->contacts);
+        update_user_meta($this->ID, '__wpdm_blocked_contacts', $this->contacts);
     }
 
     function favourites($params = array())
@@ -172,7 +172,8 @@ class User
 
     function members($params = array())
     {
-        $sid = isset($params['sid']) ? $params['sid'] : '';
+        $sid = isset($params['sid']) ? preg_replace('/[^a-zA-Z0-9_\-]/', '', $params['sid']) : '';
+        $params['sid'] = $sid;
         update_post_meta(get_the_ID(), '__wpdm_users_params' . $sid, $params);
         ob_start();
         include Template::locate("members.php", __DIR__.'/views');
@@ -183,11 +184,11 @@ class User
 
     {
 
-        if (!$params) $params = get_post_meta(wpdm_query_var('_pid', 'int'), '__wpdm_users_params' . wpdm_query_var('_sid'), true);
+        if (!$params) $params = get_post_meta(wpdm_query_var('_pid', 'int'), '__wpdm_users_params' . preg_replace('/[^a-zA-Z0-9_\-]/', '', wpdm_query_var('_sid')), true);
         $page = isset($_REQUEST['cp']) && $_REQUEST['cp'] > 0 ? (int)$_REQUEST['cp'] : 1;
         $items_per_page = isset($params['items_per_page']) ? $params['items_per_page'] : 12;
         //$offset = $page * $items_per_page;
-        $cols = isset($params['cols']) && in_array($params['cols'], array(1, 2, 3, 4, 6)) ? $params['cols'] : 0;
+        $cols = isset($params['cols']) && in_array($params['cols'], [1, 2, 3, 4, 6]) ? $params['cols'] : 0;
         if ($cols > 0) $cols_class = "col-md-" . (12 / $cols);
 
         $args = array(
@@ -222,5 +223,6 @@ class User
         if (isset($params['paging']) && (int)$params['paging'] == 1)
             echo wpdm_paginate_links($total, $items_per_page, $page, 'cp', array('async' => 1, 'container' => "#wpdm-authors{$contid}"));
     }
+
 
 }
