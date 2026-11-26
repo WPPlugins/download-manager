@@ -5,9 +5,11 @@ namespace WPDM\Package;
 
 
 use WPDM\__\__;
+use WPDM\__\Messages;
 use WPDM\__\Template;
 use WPDM\__\Crypt;
 use WPDM\__\Query;
+use WPDM\__\UI;
 
 class Shortcodes
 {
@@ -38,6 +40,9 @@ class Shortcodes
         //Search downloads
         add_shortcode('wpdm_search_result', [$this, 'searchResult']);
 
+        // Changelog display
+        add_shortcode("wpdm_changelog", [$this, 'changelog']);
+
 
     }
 
@@ -55,9 +60,12 @@ class Shortcodes
         //Return if id is invalid
         if (!$id || get_post_type($id) !== 'wpdmpro') return '';
 
+        if (get_post_status($id) !== 'publish' && !is_user_logged_in()) return Messages::permission_denied($id, __('Private File - Access Forbidden', 'download-manager'));
+
         //Link template
         $template = isset($params['template']) ? $params['template'] : get_post_meta($id, '__wpdm_template', true);
         if ($template == '') $template = 'link-template-default.php';
+		$template = wp_basename($template);
         $pack = new Package($id);
         $html = "<div class='w3eden'>" . $pack->fetchTemplate($template, $id, 'link') . "</div>";
 
@@ -82,16 +90,15 @@ class Shortcodes
         else
             $linkURL = home_url("/?wpdmdl=" . $ID);
 
-        $extras = isset($params['extras']) ? wpdm_sanitize_var($params['extras'], 'txt') : "";
-        $target = isset($params['target']) ? "target='" . wpdm_sanitize_var($params['target'], 'txt') . "'" : "";
-        $class = isset($params['class']) ? "class='" . wpdm_sanitize_var($params['class'], 'txt') . "'" : "";
-        $style = isset($params['style']) ? "style='" . wpdm_sanitize_var($params['style'], 'txt') . "'" : "";
-        $rel = isset($params['rel']) ? "rel='" . wpdm_sanitize_var($params['rel'], 'txt') . "'" : "";
-        $eid = isset($params['eid']) ? "id='" . wpdm_sanitize_var($params['eid'], 'txt') . "'" : "";
+        $target = isset($params['target']) ? "target='" . wpdm_sanitize_var($params['target'], 'esc_attr') . "'" : "";
+        $class = isset($params['class']) ? "class='" . wpdm_sanitize_var($params['class'], 'esc_attr') . "'" : "";
+        $style = isset($params['style']) ? "style='" . wpdm_sanitize_var($params['style'], 'esc_attr') . "'" : "";
+        $rel = isset($params['rel']) ? "rel='" . wpdm_sanitize_var($params['rel'], 'esc_attr') . "'" : "";
+        $eid = isset($params['eid']) ? "id='" . wpdm_sanitize_var($params['eid'], 'esc_attr') . "'" : "";
         $linkLabel = isset($params['label']) && !empty($params['label']) ? $params['label'] : get_post_meta($ID, '__wpdm_link_label', true);
         $linkLabel = empty($linkLabel) ? get_the_title($ID) : $linkLabel;
         $linkLabel = wpdm_sanitize_var($linkLabel, 'kses');
-        return "<a {$target} {$class} {$eid} {$style} {$rel} {$extras} href='$linkURL'>$linkLabel</a>";
+        return "<a {$target} {$class} {$eid} {$style} {$rel} href='$linkURL'>".esc_attr($linkLabel)."</a>";
 
     }
 
@@ -103,11 +110,13 @@ class Shortcodes
      * @param array $params
      * @return string
      */
-    function packages($params = array('items_per_page' => 10, 'title' => '', 'desc' => '', 'orderby' => 'date', 'order' => 'DESC', 'paging' => false, 'page_numbers' => true, 'toolbar' => 1, 'template' => '', 'cols' => 3, 'colspad' => 2, 'colsphone' => 1, 'tags' => '', 'categories' => '', 'year' => '', 'month' => '', 's' => '', 'css_class' => 'wpdm_packages', 'scid' => '', 'async' => 1, 'tax' => '', 'terms' => ''))
+    function packages($params = array('items_per_page' => 10, 'title' => '', 'desc' => '', 'orderby' => 'date', 'order' => 'DESC', 'paging' => false, 'page_numbers' => true, 'toolbar' => 1, 'template' => '', 'cols' => 3, 'colspad' => 2, 'colsphone' => 1, 'tags' => '', 'categories' => '', 'year' => '', 'month' => '', 's' => '', 'css_class' => 'wpdm_packages', 'scid' => '', 'async' => 1, 'tax' => '', 'terms' => '', 'not_found' => 'No downloads available!'))
     {
         global $current_user, $post;
 
         static $wpdm_packages = 0;
+
+	    $params = __::a($params, ['items_per_page' => 10, 'title' => '', 'desc' => '', 'orderby' => 'date', 'order' => 'DESC', 'paging' => false, 'page_numbers' => true, 'toolbar' => 1, 'template' => '', 'cols' => 3, 'colspad' => 2, 'colsphone' => 1, 'tags' => '', 'categories' => '', 'year' => '', 'month' => '', 's' => '', 'css_class' => 'wpdm_packages', 'scid' => '', 'async' => 1, 'tax' => '', 'terms' => '', 'not_found' => 'No downloads available!']);
 
         // When login=1, show login form for guests/visitors
         if (isset($params['login']) && $params['login'] == 1 && !is_user_logged_in())
@@ -124,12 +133,12 @@ class Shortcodes
         $async = __::valueof($params, 'async', ['default' => 0, 'validate' => 'int']);
         $items_per_page = __::valueof($params, 'items_per_page', 10);
         if($items_per_page < 1) $items_per_page = 10;
-        $scid = __::valueof($params, 'scid', ['default' => 'wpdm_package_'.$wpdm_packages, 'validate' => 'txt']);
+        $scid = __::valueof($params, 'scid', ['default' => 'wpdm_package_'.$wpdm_packages, 'validate' => 'esc_attr']);
         $cwd_class = "col-lg-" . (int)(12 / __::valueof($params, 'cols', ['default' => 3, 'validate' => 'int']));
         $cwdsm_class = "col-md-" . (int)(12 /  __::valueof($params, 'colspad', ['default' => 2, 'validate' => 'int']));
         $cwdxs_class = "col-" . (int)(12 /  __::valueof($params, 'colsphone', ['default' => 1, 'validate' => 'int']));
 
-        $title = __::valueof($params, 'title', ['validate' => 'txt']);
+        $title = __::valueof($params, 'title', ['validate' => 'esc_attr']);
         $desc = __::valueof($params, 'desc', ['validate' => 'txt']);
         $toolbar = __::valueof($params, 'toolbar', ['default' => 1, 'validate' => 'int']);
         $paging = __::valueof($params, 'paging', ['default' => 1, 'validate' => 'int']);
@@ -246,15 +255,18 @@ class Shortcodes
 
 
         $html = '';
-
+		$template = wpdm_valueof($scparams, 'template', 'link-template-default.php');
+	    $template = wp_basename($template);
         foreach ($packages as $pack){
             $pack = (array)$pack;
             //$repeater = "<div class='{$cwd_class} {$cwdsm_class} {$cwdxs_class}'>" . \WPDM\Package::fetchTemplate(wpdm_valueof($scparams, 'template', 'link-template-default.php'), $pack) . "</div>";
-            $repeater = "<div class='{$cwd_class} {$cwdsm_class} {$cwdxs_class}'>" . WPDM()->package->fetchTemplate(wpdm_valueof($scparams, 'template', 'link-template-default.php'), $pack) . "</div>";
+            $repeater = "<div class='{$cwd_class} {$cwdsm_class} {$cwdxs_class}'>" . WPDM()->package->fetchTemplate($template, $pack) . "</div>";
             $html .= $repeater;
 
         }
 
+		$not_found_msg = wp_kses_post(wpdm_valueof($scparams, 'not_found')) ?: __('No downloads found!', WPDM_TEXT_DOMAIN);
+		if($total === 0) $html = "<div class='col-md-12'>{$not_found_msg}</div>";
 
         $html = "<div class='row'>{$html}</div>";
 
@@ -319,28 +331,29 @@ class Shortcodes
      * @return array|null|\WP_Post
      * @usage Shortcode callback function for [wpdm_search_result]
      */
-    function searchResult($params = array())
-    {
-        global $wpdb;
+	function searchResult($params = array())
+	{
+		global $wpdb;
 
-        if (is_array($params))
-            @extract($params);
-        $template = isset($template) && $template != '' ? $template : 'link-template-calltoaction3';
-        $async = isset($async) ? $async : 0;
-        $items_per_page = isset($items_per_page) ? $items_per_page : 0;
-        update_post_meta(get_the_ID(), "__wpdm_link_template", $template);
-        update_post_meta(get_the_ID(), "__wpdm_items_per_page", $items_per_page);
-        $strm = wpdm_query_var('search', 'txt');
-        if ($strm === '') $strm = wpdm_query_var('s', 'txt');
-        $html = '';
-        $cols = isset($cols) ? $cols : 1;
-        $colspad = isset($colspad) ? $colspad : 1;
-        $colsphone = isset($colsphone) ? $colsphone : 1;
-        if (($strm == '' && isset($init) && $init == 1) || $strm != '')
-            $html = $this->packages(array('items_per_page' => $items_per_page, 'template' => $template, 's' => $strm, 'paging' => true, 'toolbar' => 0, 'cols' => $cols, 'colsphone' => $colsphone, 'colspad' => $colspad, 'async' => $async));
-        $html = "<div class='w3eden'><form id='wpdm-search-form' style='margin-bottom: 20px'><div class='input-group input-group-lg'><div class='input-group-addon input-group-prepend'><span class=\"input-group-text\"><i class='fas fa-search'></i></span></div><input type='text' name='search' value='" . $strm . "' class='form-control input-lg' /></div></form>{$html}</div>";
-        return str_replace(array("\r", "\n"), "", $html);
-    }
+		if (is_array($params))
+			@extract($params);
+		$template = isset($template) && $template != '' ? $template : 'link-template-calltoaction3';
+		$async = isset($async) ? $async : 0;
+		update_post_meta(get_the_ID(), "__wpdm_link_template", $template);
+		$strm = wpdm_query_var('search', 'esc_attr');
+		if ($strm === '') $strm = wpdm_query_var('s', 'esc_attr');
+		//$strm = esc_attr($strm);
+		$html = '';
+		$cols = isset($cols) ? $cols : 1;
+		$items_per_page = isset($items_per_page) ? $items_per_page : $cols * 6;
+		update_post_meta(get_the_ID(), "__wpdm_items_per_page", $items_per_page);
+		$colspad = isset($colspad) ? $colspad : 1;
+		$colsphone = isset($colsphone) ? $colsphone : 1;
+		if (($strm == '' && isset($init) && $init == 1) || $strm != '')
+			$html = $this->packages(array('items_per_page' => $items_per_page, 'template' => $template, 's' => $strm, 'paging' => true, 'toolbar' => 0, 'cols' => $cols, 'colsphone' => $colsphone, 'colspad' => $colspad, 'async' => $async));
+		$html = "<div class='w3eden'><form id='wpdm-search-form' style='margin-bottom: 20px'><div class='input-group input-group-lg'><div class='input-group-addon input-group-prepend'><span class=\"input-group-text\"><i class='fas fa-search'></i></span></div><input type='text' name='search' value='" . $strm . "' class='form-control input-lg' /></div></form>{$html}</div>";
+		return str_replace(array("\r", "\n"), "", $html);
+	}
 
     /**
      * @usage Short-code function for total download count
@@ -385,9 +398,20 @@ class Shortcodes
     function allPackages($params = array())
     {
         global $wpdb, $current_user, $wp_query;
-        $items = isset($params['items_per_page']) && $params['items_per_page'] > 0 ? $params['items_per_page'] : 20;
+
+	    $params = __::a($params, ['items_per_page' => 20]);
+
+        // Defense-in-depth: a contributor-supplied "no data" message must not be
+        // able to smuggle markup into the shortcode output. sanitize_text_field()
+        // strips literal tags here and the value is also escaped with esc_html()
+        // at render time (neutralizing entity-encoded payloads like &#x3c;script&#x3e;).
+        if (isset($params['no_data_msg'])) {
+            $params['no_data_msg'] = sanitize_text_field($params['no_data_msg']);
+        }
+
+        $items = isset($params['items_per_page']) && $params['items_per_page'] > 0 ? (int)$params['items_per_page'] : 20;
         $offset = $cp = 0;
-        if (isset($params['jstable']) && $params['jstable'] == 1) {
+        if (isset($params['jstable']) && (int)$params['jstable'] === 1) {
             $items = 2000;
         } else {
             $cp = wpdm_query_var('cp', ['validate' => 'int', 'default' => 1]);
@@ -420,6 +444,56 @@ class Shortcodes
             return $data;
         }
     }
+
+	/**
+	 * Display package changelog with a modern timeline UI
+	 *
+	 * Shortcode: [wpdm_changelog]
+	 *
+	 * @since 6.0
+	 *
+	 * @param array $params {
+	 *     Shortcode attributes.
+	 *
+	 *     @type int    $id         Required. The package/post ID.
+	 *     @type string $title      Optional. Header title displayed above the changelog.
+	 *                              Default: 'Changelog'
+	 *     @type bool   $show_empty Optional. Whether to show a message when no changelog exists.
+	 *                              Default: false
+	 *     @type int    $limit      Optional. Maximum number of entries to display.
+	 *                              Use 0 to show all entries. Default: 0
+	 *     @type bool   $collapsed  Optional. Whether to collapse all entries except the first (latest).
+	 *                              Default: true
+	 * }
+	 *
+	 * @return string HTML output of the changelog timeline, or empty string if no ID provided.
+	 *
+	 * Usage Examples:
+	 *
+	 *   Basic usage (package ID required):
+	 *   [wpdm_changelog id="123"]
+	 *
+	 *   Custom title:
+	 *   [wpdm_changelog id="123" title="Version History"]
+	 *
+	 *   Show all entries expanded:
+	 *   [wpdm_changelog id="123" collapsed="false"]
+	 *
+	 *   Limit to latest 5 entries:
+	 *   [wpdm_changelog id="123" limit="5"]
+	 *
+	 *   Show message when no changelog exists:
+	 *   [wpdm_changelog id="123" show_empty="true"]
+	 *
+	 *   Combined parameters:
+	 *   [wpdm_changelog id="123" title="Release Notes" limit="10" collapsed="true"]
+	 */
+	function changelog($params) {
+		if(!isset($params['id'])) return '';
+		$html = WPDM()->package->changelog($params['id'], $params);
+		if($html === '') return '';
+		return "<div class='w3eden'>" . $html . "</div>";
+	}
 
 }
 

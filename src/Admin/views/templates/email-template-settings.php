@@ -23,6 +23,7 @@ if($ttype == 'email'){ ?>
                                 <?php
                                 $eds = \WPDM\__\FileSystem::scanDir(WPDM()->email->templateDir);
                                 $__wpdm_email_template = get_option('__wpdm_email_template', "default.html");
+                                $__wpdm_email_template = $__wpdm_email_template ? $__wpdm_email_template : "default.html";
                                 $__wpdm_email_setting = maybe_unserialize(get_option('__wpdm_email_setting'));
                                 foreach ($eds as $file) {
                                     if(strstr($file, ".html")) {
@@ -36,11 +37,19 @@ if($ttype == 'email'){ ?>
                         </div>
                         <div class="form-group">
                             <?php _e( "Logo URL" , "download-manager" ); ?>
-                            <?php echo wpdm_media_field(array('placeholder' => __("Logo URL" , "download-manager"), 'name' => '__wpdm_email_setting[logo]', 'id' => 'logo-url', 'value' => (isset($__wpdm_email_setting['logo'])?$__wpdm_email_setting['logo']:''))); ?>
+                            <?php echo wpdm_media_field(array('placeholder' => __("Logo URL" , "download-manager"), 'name' => '__wpdm_email_setting[logo]', 'id' => 'logo-url', 'value' => (isset($__wpdm_email_setting['logo'])?esc_attr($__wpdm_email_setting['logo']):''))); ?>
+                        </div>
+                        <div class="form-group">
+		                    <?php _e( "Logo Dimension" , "download-manager" ); ?>
+                            <div class="input-group">
+                                <input name="__wpdm_email_setting[logo_w]" class="form-control" type="text" placeholder="<?php echo __('Width', "download-manager"); ?> px or %" value="<?php echo isset($__wpdm_email_setting['logo_w'])?esc_attr($__wpdm_email_setting['logo_w']):''; ?>" />
+                                <div class="input-group-addon" style="border-left: 0;border-right: 0">&times;</div>
+                                <input name="__wpdm_email_setting[logo_h]" class="form-control" type="text" placeholder="<?php echo __('Height', "download-manager"); ?> px or %" value="<?php echo isset($__wpdm_email_setting['logo_h'])?esc_attr($__wpdm_email_setting['logo_h']):''; ?>" />
+                            </div>
                         </div>
                         <div class="form-group">
                             <?php _e( "Banner/Background Image URL" , "download-manager" ); ?>
-                            <?php echo wpdm_media_field(array('placeholder' => __("Banner/Background Image URL" , "download-manager"), 'name' => '__wpdm_email_setting[banner]', 'id' => 'banner-url', 'value' => (isset($__wpdm_email_setting['banner'])?$__wpdm_email_setting['banner']:''))); ?>
+                            <?php echo wpdm_media_field(array('placeholder' => __("Banner/Background Image URL" , "download-manager"), 'name' => '__wpdm_email_setting[banner]', 'id' => 'banner-url', 'value' => (isset($__wpdm_email_setting['banner'])?esc_attr($__wpdm_email_setting['banner']):''))); ?>
 
                         </div>
                         <div class="form-group">
@@ -49,15 +58,15 @@ if($ttype == 'email'){ ?>
                         </div>
                         <div class="form-group">
                             <?php _e( "Facebook Page URL" , "download-manager" ); ?>
-                            <input type="text" name="__wpdm_email_setting[facebook]" value="<?php echo isset($__wpdm_email_setting['facebook'])?($__wpdm_email_setting['facebook']):'';?>" class="form-control">
+                            <input type="text" name="__wpdm_email_setting[facebook]" value="<?php echo isset($__wpdm_email_setting['facebook'])?esc_attr($__wpdm_email_setting['facebook']):'';?>" class="form-control">
                         </div>
                         <div class="form-group">
                             <?php _e( "Twitter Profile URL" , "download-manager" ); ?>
-                            <input type="text" name="__wpdm_email_setting[twitter]" value="<?php echo isset($__wpdm_email_setting['twitter'])?$__wpdm_email_setting['twitter']:'';?>" class="form-control">
+                            <input type="text" name="__wpdm_email_setting[twitter]" value="<?php echo isset($__wpdm_email_setting['twitter'])?esc_attr($__wpdm_email_setting['twitter']):'';?>" class="form-control">
                         </div>
                         <div class="form-group">
                             <?php _e( "Youtube Profile URL" , "download-manager" ); ?>
-                            <input type="text" name="__wpdm_email_setting[youtube]" value="<?php echo isset($__wpdm_email_setting['youtube'])?$__wpdm_email_setting['youtube']:'';?>" class="form-control">
+                            <input type="text" name="__wpdm_email_setting[youtube]" value="<?php echo isset($__wpdm_email_setting['youtube'])?esc_attr($__wpdm_email_setting['youtube']):'';?>" class="form-control">
                         </div>
                     </div>
                     <div class="col-md-8">
@@ -81,7 +90,7 @@ if($ttype == 'email'){ ?>
                             </div>
 
                             <div class="w3econtent">
-                                <iframe style="margin: 0;width: 100%;height: 550px;border-radius: 3px" id="preview" src="edit.php?action=email_template_preview&id=user-signup&etmpl=<?php echo $__wpdm_email_template; ?>&__empnonce=<?php echo wp_create_nonce(WPDM_PRI_NONCE); ?>">
+                                <iframe style="margin: 0;width: 100%;height: 550px;border-radius: 3px" id="preview" src="edit.php?action=email_template_preview&id=user-signup&etmpl=<?php echo esc_html($__wpdm_email_template); ?>&__empnonce=<?php echo wp_create_nonce(WPDM_PRI_NONCE); ?>">
 
                                 </iframe>
                             </div>

@@ -40,7 +40,7 @@ class Asset
             $this->name = basename($this->path);
             $this->type = is_dir($this->path)?'dir':'file';
             $this->size = wpdm_file_size($this->path);
-            $this->temp_download_url = home_url("/?asset={$this->ID}&key=".wp_create_nonce($this->path));
+            $this->temp_download_url = $this->downloadUrl();
         }
         return $this;
     }
@@ -53,7 +53,7 @@ class Asset
         if ($assetmeta){
             $this->ID = $assetmeta->ID;
             $this->activities = json_decode($assetmeta->activities);
-            $this->comments = json_decode($assetmeta->comments);
+            $this->comments = self::withoutEmails(json_decode($assetmeta->comments));
             $this->access = json_decode($assetmeta->access);
             $this->links = $this->getLinks();
             $this->metadata = json_decode($assetmeta->metadata);
@@ -62,7 +62,7 @@ class Asset
             $this->name = basename($this->path);
             $this->type = is_dir($this->path)?'dir':'file';
             $this->size = wpdm_file_size($this->path);
-            $this->temp_download_url = home_url("/?asset={$this->ID}&key=".wp_create_nonce($this->path));
+            $this->temp_download_url = $this->downloadUrl();
             return $this;
         }
         return null;
@@ -77,7 +77,7 @@ class Asset
         if ($assetmeta){
             $this->ID = $assetmeta->ID;
             $this->activities = json_decode($assetmeta->activities);
-            $this->comments = json_decode($assetmeta->comments);
+            $this->comments = self::withoutEmails(json_decode($assetmeta->comments));
             $this->access = json_decode($asset_link->access);
             $this->links = $this->getLinks();
             $this->metadata = json_decode($assetmeta->metadata);
@@ -86,17 +86,69 @@ class Asset
             $this->name = basename($this->path);
             $this->type = is_dir($this->path)?'dir':'file';
             $this->size = wpdm_file_size($this->path);
-            $this->temp_download_url = home_url("/?asset={$this->ID}&key=".wp_create_nonce($this->path));
+            $this->temp_download_url = $this->downloadUrl();
             return $this;
         }
         return null;
+    }
+
+    /**
+     * Paths this request may hand out a working download link for, to someone who is not on the
+     * asset's own access list: a file embedded by an author who may share it, a share link, a
+     * directory listing. Only code that has already checked that right should add to it.
+     */
+    private static $granted = array();
+
+    public static function grantPath($path){
+        self::$granted[(string)$path] = true;
+    }
+
+    function grantDownload(){
+        self::grantPath($this->path);
+        $this->temp_download_url = $this->downloadUrl();
+        return $this;
+    }
+
+    function downloadUrl(){
+        $url = home_url("/?asset={$this->ID}&key=".wp_create_nonce($this->path));
+        if(isset(self::$granted[(string)$this->path]))
+            $url .= "&grant=".wp_create_nonce('wpdm_asset_grant|'.$this->path);
+        return $url;
+    }
+
+    /**
+     * Users without admin rights keep their Asset Manager files in a folder named after their
+     * login. Anyone can register a login, so the name alone proves nothing: the folder is only
+     * theirs if they are allowed to use the Asset Manager, which is what creates and fills it.
+     */
+    function inOwnFolder($user){
+        if(!$this->path || !$user || !$user->exists()) return false;
+        if(!user_can($user, 'access_server_browser') || !user_can($user, 'upload_files')) return false;
+        return strpos(wp_normalize_path($this->path), wp_normalize_path(trailingslashit(UPLOAD_DIR . $user->user_login))) === 0;
+    }
+
+    function isGranted($grant){
+        return is_string($grant) && $grant !== '' && $this->path && (bool)wp_verify_nonce($grant, 'wpdm_asset_grant|'.$this->path);
+    }
+
+    /**
+     * Comments used to store the author's email address, which nothing displays. Drop it from
+     * the ones saved earlier so it is neither sent to other users nor saved again.
+     */
+    private static function withoutEmails($comments){
+        if(!is_array($comments)) return $comments;
+        foreach ($comments as &$comment){
+            if(is_object($comment)) unset($comment->email);
+            elseif(is_array($comment)) unset($comment['email']);
+        }
+        return $comments;
     }
 
     function newComment($comment, $user){
         if(!is_array($this->comments)) $this->comments = array();
         $userdata = get_userdata($user);
         $avatar = get_avatar($user);
-        $comment = array( 'comment' => $comment, 'user' => $user, 'username' => $userdata->user_login, 'name' => $userdata->display_name, 'email' => $userdata->user_email, 'avatar' => $avatar, 'time' => time() );
+        $comment = array( 'comment' => $comment, 'user' => $user, 'username' => $userdata->user_login, 'name' => $userdata->display_name, 'avatar' => $avatar, 'time' => time() );
         array_unshift($this->comments, $comment);
         return $this;
     }
@@ -159,8 +211,8 @@ class Asset
         $ext = end($ext);
         $ext = strtolower($ext);
         $url = str_replace(ABSPATH, home_url('/'), $path);
-        $accessible = ini_get('allow_url_fopen') && __::is_url($url) ? get_headers($url) : [403];
-        $accessible = substr_count($accessible[0], '403') ? false : true;
+        $accessible = ini_get('allow_url_fopen') && __::is_url($url) ? @get_headers($url) : [403];
+        $accessible = is_array($accessible) && substr_count($accessible[0], '403') ? false : true;
         $relpath = str_replace(AssetManager::root(), "", $path);
         if(!$accessible)
             $url = home_url("/?wpdmfmdl={$relpath}");
@@ -216,14 +268,23 @@ class Asset
 
     }
 
-    function hasAccess(){
-        global $current_user;
+    /**
+     * Whether a user may have this asset: administrators, the user whose own Asset
+     * Manager folder holds it, and the roles or users it is shared with ('guest' is everyone).
+     *
+     * @param \WP_User|int|null $user Defaults to the current user.
+     * @return bool
+     */
+    function hasAccess($user = null){
+        $user = $user === null ? wp_get_current_user() : ($user instanceof \WP_User ? $user : get_userdata((int)$user));
         $roles = isset($this->access->roles) && is_array($this->access->roles) ? $this->access->roles : array();
         $users = isset($this->access->users) && is_array($this->access->users) ? $this->access->users : array();
-        if(current_user_can('manage_options')) return true;
-        if(count(array_intersect($current_user->roles, $roles)) > 0) return true;
         if(in_array('guest', $roles)) return true;
-        if(in_array($current_user->user_login, $users)) return true;
+        if(!$user || !$user->exists()) return false;
+        if(user_can($user, 'manage_options')) return true;
+        if($this->inOwnFolder($user)) return true;
+        if(count(array_intersect((array)$user->roles, $roles)) > 0) return true;
+        if(in_array($user->user_login, $users)) return true;
         return false;
     }
 

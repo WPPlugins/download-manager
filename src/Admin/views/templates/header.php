@@ -15,7 +15,7 @@ $menus = [
     ['link' => "edit.php?post_type=wpdmpro&page=templates&_type=email", "name" => __("Email Templates", "download-manager"), "active" => ($type === 'email')],
 ];
 
-WPDM()->admin->pageHeader(esc_attr__('Templates', WPDM_TEXT_DOMAIN), 'magic color-purple', $menus);
+WPDM()->admin->pageHeader(esc_attr__('Templates', "download-manager"), 'magic color-purple', $menus);
 
 
 ?>

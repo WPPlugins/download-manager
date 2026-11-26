@@ -34,15 +34,28 @@ class PackageLocks
         return ob_get_clean();
     }
 
+    public static function captchaAction($packageID){
+        return 'wpdm_download_' . (int)$packageID;
+    }
+
     function validateCaptcha()
     {
         $limit = get_option('__wpdm_private_link_usage_limit', 3);
         $xpire_period = ((int)get_option('__wpdm_private_link_expiration_period', 3)) * ((int)get_option('__wpdm_private_link_expiration_period_unit', 60));
         $xpire_period = $xpire_period > 0 ? $xpire_period : 3600;
-        $ret = wpdm_remote_post('https://www.google.com/recaptcha/api/siteverify', array('secret' => get_option('_wpdm_recaptcha_secret_key'), 'response' => wpdm_query_var('reCaptchaVerify'), 'remoteip' => $_SERVER['REMOTE_ADDR']));
-        $ret = json_decode($ret);
-        if ($ret->success == 1) {
-            $download_url = WPDM()->package->expirableDownloadLink(wpdm_query_var('__wpdm_ID', 'int'), $limit, $xpire_period);
+        $packageID = wpdm_query_var('__wpdm_ID', 'int');
+
+        //Only issue a key for a published package that is actually captcha locked and accessible to the current user
+        if (!WPDM()->package->canIssueKey($packageID, 'captcha_lock')) {
+            wp_send_json(['error' => __("Invalid request!", "download-manager")]);
+        }
+
+        // The widget on a package's page is rendered with that package's own action name, so a
+        // captcha solved for one package cannot be spent on another
+        $action = self::captchaAction($packageID);
+        $ret = wpdm_recaptcha_enterprise_verify(wpdm_query_var('reCaptchaVerify'), $action);
+        if ($ret['success'] && hash_equals($action, (string)wpdm_valueof($ret, 'action'))) {
+            $download_url = WPDM()->package->expirableDownloadLink($packageID, $limit, $xpire_period);
             $data['downloadurl'] = $download_url;
         } else {
             $data['error'] = __("Captcha Verification Failed!", "wpmdpro");
@@ -54,21 +67,24 @@ class PackageLocks
 
     function validatePassword()
     {
-        $password = sanitize_text_field($_REQUEST['password']);
+        $password = isset($_REQUEST['password']) ? sanitize_text_field($_REQUEST['password']) : null;
         $packageID = wpdm_query_var('__wpdm_ID', ['validate' => 'int']);
         $passwords = WPDM()->package->isPasswordProtected($packageID);
         $passwordUsage = maybe_unserialize(get_post_meta($packageID, '__wpdm_password_usage', true));
         $passwordUsageLimit = (int)get_post_meta($packageID, 'password_usage_limit', true);
 
-        $limit = get_option('__wpdm_private_link_usage_limit', 3);
+	    if(!$password || !$packageID) wp_send_json(['msg' => __("Invalid request!", "download-manager"), 'success' => false]);
+
+        $limit = (int)get_option('__wpdm_private_link_usage_limit', 3);
+		if($limit < 1) $limit = 3;
         $expirePeriod = ((int)get_option('__wpdm_private_link_expiration_period', 60)) * ((int)get_option('__wpdm_private_link_expiration_period_unit', 60));
         $expirePeriod = $expirePeriod > 0 ? $expirePeriod : 3600;
 
         $data = [ 'success' => false ];
         $error = false;
 
-	    //Check if given password lock is not active
-	    if (!$passwords) {
+	    //Check if given password lock is not active, or the package is not published or accessible to the current user
+	    if (!$passwords || !WPDM()->package->canIssueKey($packageID, 'password_lock')) {
 		    $data['message'] = __("Invalid request!", "download-manager");
 		    $file = array();
 		    $error = true;
@@ -76,9 +92,10 @@ class PackageLocks
 	    }
 
         //Check if the given password is matched
-        if ($passwords && $password != $passwords && substr_count($passwords, "[$password]") < 1) {
+        //Use strict, timing-safe comparison to avoid PHP type-juggling bypass (e.g. numeric password "123" matched by "1.23e2")
+        if ($passwords && !hash_equals((string) $passwords, (string) $password) && substr_count($passwords, "[$password]") < 1) {
             $data['message'] = __("Wrong Password!", "download-manager") . " &nbsp; <span><i class='fas fa-redo'></i> " . __("Try Again", "download-manager") . " </span>";
-            $error = true;
+			$error = true;
         }
 
         //Check if given password is empty

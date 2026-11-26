@@ -11,11 +11,10 @@
 
         if ( get_user_setting('uploader') )
         $form_class .= ' html-uploader';
-
-        $_GET['paged'] = isset( $_GET['paged'] ) ? intval($_GET['paged']) : 0;
-        if ( $_GET['paged'] < 1 )
-        $_GET['paged'] = 1;
-        $start = ( $_GET['paged'] - 1 ) * 10;
+        $paged = isset( $_GET['paged'] ) ? intval($_GET['paged']) : 0;
+        if ( $paged < 1 )
+	        $paged = 1;
+        $start = ( $paged - 1 ) * 10;
         if ( $start < 1 )
         $start = 0;
 
@@ -79,7 +78,7 @@
                     'prev_text' => __('&laquo;'),
                     'next_text' => __('&raquo;'),
                     'total' => ceil($wp_query->found_posts / 10),
-                    'current' => (int)$_GET['paged']
+                    'current' => $paged
                 ));
 
                 if ( $page_links )
